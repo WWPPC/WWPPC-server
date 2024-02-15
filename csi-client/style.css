@@ -1,0 +1,16 @@
+/* lol no copyright */
+
+@font-face {
+    font-family: 'Source Code Pro';
+    font-weight: 100, 200, 300, 400, 500, 600, 700, 800;
+    font-style: normal;
+    src: url(./assets/SourceCodePro.ttf) format('truetype');
+}
+
+body {
+    font-family: 'Source Code Pro', Courier, monospace;
+    background-color: black;
+    color: white;
+    overflow: hidden;
+    user-select: none;
+}
