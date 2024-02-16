@@ -77,4 +77,4 @@ function modal(title, subtitle, confirmation = false) {
 function superSecretScanlines() {
     document.getElementById('superSecretDiv').style.display = 'block';
 };
-if (new URLSearchParams(window.location.search).get('superSecretScanlines')) superSecretScanlines();
+if (new URLSearchParams(window.location.search).get('superSecretScanlines') || Math.random() < 0.01) superSecretScanlines();

@@ -1,19 +1,22 @@
 <!-- Copyright (C) nobody -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>absolute Coding club Super Interesting competition</title>
+    <title>CSI - absolute Coding club Super Interesting competition</title>
     <link rel="icon" href="./assets/favicon.png" type="image/png">
     <link rel="stylesheet" href="./style.css">
     <script src="./index.js" defer></script>
 </head>
+
 <body>
     <div id="loadingCover">
         <div id="loadingCoverBar"></div>
-        <noscript id="noscript">JavaScript was disabled! HOW DID YOU MANAGE TO DO THIS??<br>Please enable it and <a href="" style="color: white">reload</a>!</noscript>
+        <noscript id="noscript">JavaScript was disabled! HOW DID YOU MANAGE TO DO THIS??<br>Please enable it and <a
+                href="" style="color: white">reload</a>!</noscript>
         <div id="loadingErrorsContainer">
             <div id="loadingerror"></div>
         </div>
@@ -30,6 +33,7 @@
                 z-index: 1000;
                 cursor: wait;
             }
+
             #loadingCoverBar {
                 position: fixed;
                 top: calc(50vh - 0.5vw);
@@ -42,6 +46,7 @@
                 box-shadow: 0px 0px 0.5vw rgba(255, 255, 255, 0.5);
                 animation: pageLoadCoverProgress ease 2s infinite;
             }
+
             #noscript {
                 position: fixed;
                 top: 55vh;
@@ -49,6 +54,7 @@
                 width: 100vw;
                 text-align: center;
             }
+
             #loadingErrorsContainer {
                 position: fixed;
                 top: 55vh;
@@ -56,20 +62,25 @@
                 width: 100vw;
                 text-align: center;
             }
+
             #loadingerror {
                 color: red;
             }
+
             @keyframes pageLoadCoverProgress {
                 0% {
-                    background-position: -150% 0,-150% 0;
+                    background-position: -150% 0, -150% 0;
                 }
+
                 66% {
-                    background-position: 250% 0,-150% 0;
+                    background-position: 250% 0, -150% 0;
                 }
+
                 100% {
                     background-position: 250% 0, 250% 0;
                 }
             }
+
             #copyrightNotice2 {
                 position: fixed;
                 bottom: calc(10vh);
@@ -79,6 +90,36 @@
             }
         </style>
     </div>
+    <!-- sign-in cover if not signed in (store in cookies) - server will say if credentials are not valid -->
+    <!-- event timer at top of screen next to navigation bar -->
+    <!-- nav: problem list, leaderboard, actual problem page itself with submission -->
+    <header>
+        <nav>
+            <img src="logo.png">
+            <input type="button" id="navProblems">
+            <input type="button" id="navLeaderboard">
+        </nav>
+        <div id="timerContainer">
+            <img src="timer.svg">
+            <div id="timerTextTop">Round 0</div>
+            <div id="timerTextBottom">00:00</div>
+        </div>
+    </header>
+    <main>
+        <div id="bodyProblemList">
+            <!-- problem list... as explained -->
+            <!-- section into rounds -->
+        </div>
+        <div id="bodyProblemSubmit">
+            <!-- problem name, body, submission status at top -->
+            <!-- submit can be on the side because who needs such a wide text -->
+        </div>
+        <div id="leaderBoard"></div>
+        <template id="problemTemplate">
+            <!-- each problem in problem list is created from this template -->
+            <!-- show problem name, submission status -->
+        </template>
+    </main>
     <div id="superSecretDiv">
         <div id="superSecretNoise"></div>
         <div id="superSecretScanlines"></div>
@@ -87,4 +128,5 @@
         <div id="superSecretStroboscopicScanlineEffect"></div>
     </div>
 </body>
+
 </html>
