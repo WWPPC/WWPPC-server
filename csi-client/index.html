@@ -6,10 +6,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSI - absolute Coding club Super Interesting competition</title>
+    <title>Contest | CSI - absolute Coding club Super Interesting competition</title>
     <link rel="icon" href="./assets/favicon.png" type="image/png">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./common.css">
+    <link rel="stylesheet" href="./index.css">
+    <script src="./common.js" defer></script>
     <script src="./index.js" defer></script>
+    <script src="./contest.js" defer></script>
 </head>
 
 <body>
@@ -90,36 +93,51 @@
             }
         </style>
     </div>
-    <!-- sign-in cover if not signed in (store in cookies) - server will say if credentials are not valid -->
     <!-- event timer at top of screen next to navigation bar -->
     <!-- nav: problem list, leaderboard, actual problem page itself with submission -->
     <header>
         <nav>
-            <img src="logo.png">
-            <input type="button" id="navProblems">
-            <input type="button" id="navLeaderboard">
+            <img src="/assets/logo.png">
+            <input type="button" id="navProblems" class="navButton" value="Problems">
+            <input type="button" id="navLeaderboard" class="navButton" value="Leaderboard">
         </nav>
         <div id="timerContainer">
-            <img src="timer.svg">
+            <img src="/assets/timer.svg" id="timerImg">
             <div id="timerTextTop">Round 0</div>
             <div id="timerTextBottom">00:00</div>
         </div>
     </header>
     <main>
-        <div id="bodyProblemList">
+        <div id="bodyProblemList" class="pageBody">
             <!-- problem list... as explained -->
             <!-- section into rounds -->
+            omg problem list
         </div>
-        <div id="bodyProblemSubmit">
+        <div id="bodyProblemSubmit" class="pageBody">
             <!-- problem name, body, submission status at top -->
             <!-- submit can be on the side because who needs such a wide text -->
+            wow submission screen (falls under problem list)
         </div>
-        <div id="leaderBoard"></div>
+        <div id="bodyLeaderBoard" class="pageBody">
+            <!-- buh leaderboard -->
+            buh
+        </div>
         <template id="problemTemplate">
             <!-- each problem in problem list is created from this template -->
             <!-- show problem name, submission status -->
         </template>
     </main>
+    <div id="modalContainer">
+        <div id="modal">
+            <h1 id="modalTitle"></h1>
+            <p id="modalContent"></p>
+            <button id="modalYes" class="button">YES</button>
+            <button id="modalNo" class="button">NO</button>
+            <button id="modalOk" class="button">OK</button>
+            <br>
+            <br>
+        </div>
+    </div>
     <div id="superSecretDiv">
         <div id="superSecretNoise"></div>
         <div id="superSecretScanlines"></div>
