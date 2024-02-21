@@ -1,6 +1,6 @@
 # dev stuff
-accit-client/.localhost.pem
-accit-client/.localhost-key.pem
+accit-server/localhost-key.pem
+accit-server/localhost.pem
 
 # Logs
 logs
