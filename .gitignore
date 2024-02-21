@@ -1,3 +1,7 @@
+# dev stuff
+accit-client/.localhost.pem
+accit-client/.localhost-key.pem
+
 # Logs
 logs
 *.log

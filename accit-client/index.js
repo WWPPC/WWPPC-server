@@ -23,7 +23,7 @@ window.onerror = (e, filename, lineno, colno, err) => {
 };
 
 // trigger redirect to login
-if (localStorage.getItem('plaintextCredentials') == null) {
+if (localStorage.getItem('credentials') == null) {
     window.location.replace('./login');
     loadCounter = -999;
 } else {

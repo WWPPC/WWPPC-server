@@ -23,7 +23,7 @@ let loginAction = async (t) => {
     } else {
         loginButton.disabled = true;
         signupButton.disabled = true;
-        await modal('Invalid Username or Password', 'Your username or password is invalid. Your username must be:<br>At most 16 characters | Only alphanumeric (letters and numbers)');
+        await modal('Invalid Username or Password', 'Your username or password is invalid. Your username must be:<br>At most 16 characters | Only alphanumeric (letters and numbers)', 'red');
     }
 };
 loginButton.onclick = (e) => !loginButton.disabled && loginAction(0);

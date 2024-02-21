@@ -1,6 +1,11 @@
 // common stuff on every page
 
+// socketio
 const socket = io();
+socket.on('disconnect', (e) => {
+    modal('Disconnected', 'You were disconnected from the server. Reload the page to reconnect.', 'red');
+    socket.disconnect();
+});
 
 // modal
 const modalContainer = document.getElementById('modalContainer');
@@ -10,9 +15,10 @@ const modalContent = document.getElementById('modalContent');
 const modalYes = document.getElementById('modalYes');
 const modalNo = document.getElementById('modalNo');
 const modalOk = document.getElementById('modalOk');
-function modal(title, subtitle, confirmation = false) {
+function modal(title, subtitle, border = 'white', confirmation = false) {
     modalTitle.innerHTML = title;
     modalContent.innerHTML = subtitle;
+    modalBody.style.borderColor = border;
     if (confirmation) {
         modalYes.style.display = '';
         modalNo.style.display = '';

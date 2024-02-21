@@ -1,7 +1,11 @@
 const config = require('./config.json');
+const fs = require('fs')
 const express = require('express');
 const app = express();
-const server = require('http').Server(app);
+const server = require('https').createServer({
+    key: fs.readFileSync('./localhost-key.pem'),
+    cert: fs.readFileSync('./localhost.pem')
+}, app);
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
@@ -18,9 +22,9 @@ app.use(cors({
     methods: ['GET', 'POST']
 }));
 app.use(limiter);
-app.get('/', (req, res) => res.sendFile(path.resolve('./../csi-client/index.html')));
-app.get('/login', (req, res) => res.sendFile(path.resolve('./../csi-client/login.html')));
-app.use('/', express.static(path.resolve('./../csi-client')));
+app.get('/', (req, res) => res.sendFile(path.resolve('./../accit-client/index.html')));
+app.get('/login', (req, res) => res.sendFile(path.resolve('./../accit-client/login.html')));
+app.use('/', express.static(path.resolve('./../accit-client')));
 
 // also functionality to request submission status, previous submissions and leaderboards
 // note: tiebreaker is program time or submission time
