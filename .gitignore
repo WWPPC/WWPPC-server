@@ -2,6 +2,7 @@
 accit-server/localhost-key.pem
 accit-server/localhost.pem
 accit-server/local-database.json
+.local
 
 # Logs
 logs
