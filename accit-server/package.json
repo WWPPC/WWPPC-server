@@ -1,9 +1,28 @@
 {
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "msgpack": "^1.0.3",
+    "pg": "^8.11.3",
     "socket.io": "^4.7.4"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "accit",
+  "version": "1.0.0",
+  "description": "south infomatics tournament system",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spsquared/CSI-thing.git"
+  },
+  "author": "spsquared",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/spsquared/CSI-thing/issues"
+  },
+  "homepage": "https://github.com/spsquared/CSI-thing#readme"
 }

@@ -16,16 +16,27 @@ let loginAction = async (t) => {
         passwordInput.disabled = true;
         socket.emit('credentials', {
             task: t,
-            username: usernameInput.value,
-            password: passwordInput.value,
+            username: await RSAencode(usernameInput.value),
+            password: await RSAencode(passwordInput.value)
         });
-        socket.once('credentialResponse');
+        socket.once('credentialPass', async (e) => {
+            localStorage.setItem('sessionCredentials', JSON.stringify({
+                username: await Array.from(new Uint32Array(RSAencode(usernameInput.value))),
+                password: await Array.from(new Uint32Array(RSAencode(passwordInput.value))),
+            }));
+            window.location.replace('/');
+        });
+        socket.once('credentialFail', (e) => {
+            usernameInput.disabled = false;
+            passwordInput.disabled = false;
+        });
     } else {
         loginButton.disabled = true;
         signupButton.disabled = true;
         await modal('Invalid Username or Password', 'Your username or password is invalid. Your username must be:<br>At most 16 characters | Only alphanumeric (letters and numbers)', 'red');
     }
 };
+socket.once('getCredentials')
 loginButton.onclick = (e) => !loginButton.disabled && loginAction(0);
 signupButton.onclick = (e) => !signupButton.disabled && loginAction(1);
 usernameInput.oninput = passwordInput.oninput = (e) => {

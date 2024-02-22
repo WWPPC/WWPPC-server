@@ -1,6 +1,7 @@
 # dev stuff
 accit-server/localhost-key.pem
 accit-server/localhost.pem
+accit-server/local-database.json
 
 # Logs
 logs

@@ -6,6 +6,17 @@ socket.on('disconnect', (e) => {
     modal('Disconnected', 'You were disconnected from the server. Reload the page to reconnect.', 'red');
     socket.disconnect();
 });
+socket.once('getCredentials', async (key) => {
+    if (window.crypto.subtle === undefined) {
+        modal('Insecure context', 'The page has been opened in an insecure context and cannot perform encryption processes. Credentials and submissions will be sent in PLAINTEXT!');
+    } else {
+        window.publicKey = await window.crypto.subtle.importKey('jwk', key, {name: "RSA-OAEP", hash: "SHA-256"}, false, ['encrypt']);
+    }
+});
+async function RSAencode(text) {
+    if (window.publicKey) return await window.crypto.subtle.encrypt({name: 'RSA-OAEP'}, window.publicKey, new TextEncoder().encode(text));
+    else return text;
+};
 
 // modal
 const modalContainer = document.getElementById('modalContainer');

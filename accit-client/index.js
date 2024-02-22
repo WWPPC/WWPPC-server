@@ -23,11 +23,26 @@ window.onerror = (e, filename, lineno, colno, err) => {
 };
 
 // trigger redirect to login
-if (localStorage.getItem('credentials') == null) {
-    window.location.replace('./login');
+if (localStorage.getItem('sessionCredentials') == null) {
+    window.location.replace('/login');
     loadCounter = -999;
 } else {
-    // validate with server first
-    loadCounter++;
-    if (loadCounter == 2) loadFinish();
+    // autosend credentials
+    socket.once('getCredentials', async (e) => {
+        const creds = JSON.parse(localStorage.getItem('sessionCredentials'));
+        socket.emit('credentials', {
+            task: t,
+            username: Uint32Array.from(creds.username).buffer,
+            password: Uint32Array.from(creds.password).buffer,
+        });
+    });
+    socket.once('credentialFail', (e) => {
+        localStorage.removeItem('sessionCredentials');
+        window.location.replace('/login');
+        loadCounter = -999;
+    });
+    socket.once('credentialPass', () => {
+        loadCounter++;
+        if (loadCounter == 2) loadFinish();
+    });
 }
