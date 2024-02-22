@@ -28,10 +28,10 @@ if (localStorage.getItem('sessionCredentials') == null) {
     loadCounter = -999;
 } else {
     // autosend credentials
-    socket.once('getCredentials', async (e) => {
+    socket.once('getCredentials', async (key) => {
         const creds = JSON.parse(localStorage.getItem('sessionCredentials'));
         socket.emit('credentials', {
-            task: t,
+            action: 0,
             username: Uint32Array.from(creds.username).buffer,
             password: Uint32Array.from(creds.password).buffer,
         });
@@ -46,3 +46,24 @@ if (localStorage.getItem('sessionCredentials') == null) {
         if (loadCounter == 2) loadFinish();
     });
 }
+
+// panel selectors
+const panelSelectors = document.body.querySelectorAll('.panelButton');
+const panels = document.body.querySelectorAll('.panel');
+for (const button of panelSelectors) {
+    const thisPanel = document.querySelector(`.panel[cpanel=${button.getAttribute('cpanel')}]`);
+    button.onclick = (e) => {
+        panels.forEach(p => p.classList.add('hidden'));
+        thisPanel.classList.remove('hidden');
+    };
+    button.cpanel = button.getAttribute('cpanel');
+}
+function selectPanel(name) {
+    for (let button of panelSelectors) {
+        if (button.cpanel === name) {
+            button.click();
+            break;
+        }
+    }
+};
+selectPanel('problemList');

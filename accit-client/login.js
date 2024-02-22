@@ -4,7 +4,7 @@
 // also validate on server
 
 let validateCredentials = (username, password) => {
-    return username.length > 0 && password.length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]$/.test(creds.username);
+    return username.length > 0 && password.length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
 };
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
@@ -15,11 +15,12 @@ let loginAction = async (t) => {
         usernameInput.disabled = true;
         passwordInput.disabled = true;
         socket.emit('credentials', {
-            task: t,
+            action: t,
             username: await RSAencode(usernameInput.value),
             password: await RSAencode(passwordInput.value)
         });
         socket.once('credentialPass', async (e) => {
+            console.log('buh')
             localStorage.setItem('sessionCredentials', JSON.stringify({
                 username: await Array.from(new Uint32Array(RSAencode(usernameInput.value))),
                 password: await Array.from(new Uint32Array(RSAencode(passwordInput.value))),
@@ -36,10 +37,13 @@ let loginAction = async (t) => {
         await modal('Invalid Username or Password', 'Your username or password is invalid. Your username must be:<br>At most 16 characters | Only alphanumeric (letters and numbers)', 'red');
     }
 };
-socket.once('getCredentials')
 loginButton.onclick = (e) => !loginButton.disabled && loginAction(0);
 signupButton.onclick = (e) => !signupButton.disabled && loginAction(1);
 usernameInput.oninput = passwordInput.oninput = (e) => {
     loginButton.disabled = false;
     signupButton.disabled = false;
 };
+socket.once('getCredentials', (e) => {
+    loginButton.disabled = false;
+    signupButton.disabled = false;
+});

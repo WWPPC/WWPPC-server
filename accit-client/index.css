@@ -37,15 +37,15 @@ nav {
 }
 #timerContainer {
     display: grid;
-    grid-template-columns: 24px 1fr;
+    grid-template-columns: 34px 1fr;
     grid-template-rows: 24px 1fr;
     padding: 8px 16px;
     align-items: center;
     justify-items: center;
 }
-#timerSvg {
-    width: 24px;
-    height: 24px;
+#timerImg {
+    width: 32px;
+    height: 32px;
 }
 #timerTextTop {
     font-size: 24px;
@@ -64,3 +64,4 @@ main {
     width: 100vw;
     height: calc(100vh - 96px);
 }
+

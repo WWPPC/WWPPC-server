@@ -10,6 +10,7 @@
     <link rel="icon" href="./assets/favicon.png" type="image/png">
     <link rel="stylesheet" href="./common.css">
     <link rel="stylesheet" href="./index.css">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="./common.js" defer></script>
     <script src="./index.js" defer></script>
     <script src="./contest.js" defer></script>
@@ -98,8 +99,9 @@
     <header>
         <nav>
             <img src="/assets/logo.png">
-            <input type="button" id="navProblems" class="navButton" value="Problems">
-            <input type="button" id="navLeaderboard" class="navButton" value="Leaderboard">
+            <input type="button" class="navButton panelButton" cpanel="problemList" value="Problems">
+            <input type="button" class="navButton panelButton" cpanel="leaderboard" value="Leaderboard">
+            <input type="button" class="navButton panelButton hidden" cpanel="submissions" value="">
         </nav>
         <div id="timerContainer">
             <img src="/assets/timer.svg" id="timerImg">
@@ -108,17 +110,17 @@
         </div>
     </header>
     <main>
-        <div id="bodyProblemList" class="pageBody">
+        <div class="panel" cpanel="problemList">
             <!-- problem list... as explained -->
             <!-- section into rounds -->
             omg problem list
         </div>
-        <div id="bodyProblemSubmit" class="pageBody">
+        <div class="panel" cpanel="submissions">
             <!-- problem name, body, submission status at top -->
             <!-- submit can be on the side because who needs such a wide text -->
             wow submission screen (falls under problem list)
         </div>
-        <div id="bodyLeaderBoard" class="pageBody">
+        <div class="panel" cpanel="leaderboard">
             <!-- buh leaderboard -->
             buh
         </div>

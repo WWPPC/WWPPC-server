@@ -2,9 +2,10 @@
 
 // socketio
 const socket = io();
-socket.on('disconnect', (e) => {
-    modal('Disconnected', 'You were disconnected from the server. Reload the page to reconnect.', 'red');
+socket.on('disconnect', async (e) => {
     socket.disconnect();
+    await modal('Disconnected', 'You were disconnected from the server. Reload the page to reconnect.', 'red');
+    window.location.reload();
 });
 socket.once('getCredentials', async (key) => {
     if (window.crypto.subtle === undefined) {
@@ -84,4 +85,4 @@ function superSecretScanlines() {
     document.getElementById('superSecretDiv').style.display = 'block';
 };
 if (new URLSearchParams(window.location.search).get('superSecretScanlines') || Math.random() < 0.01) superSecretScanlines();
-socket.once('superSecretMesage', superSecretScanlines);
+socket.once('superSecretMessage', superSecretScanlines);

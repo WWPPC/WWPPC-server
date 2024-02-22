@@ -23,13 +23,16 @@ class ACCITDatabase {
      * @param {string} url Valid PostgreSQL URI
      */
     constructor(url) {
+        this.#connectPromise = new Promise((r) => r());
         this.#db = new Client({
             connectionString: url,
             ssl: {
-                rejectUnauthorized: false
+                rejectUnauthorized: config.unsafeSSL
             }
         });
         this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
+        // let a = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey);
+        // a();
     }
 
     /**
@@ -70,7 +73,7 @@ class ACCITDatabase {
      * @returns {Promise<boolean>} Validity
      */
     async validate(username, password) {
-        return typeof username == 'string' && typeof password == 'string' && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]$/.test(username);
+        return typeof username == 'string' && typeof password == 'string' && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.
@@ -88,7 +91,7 @@ class ACCITDatabase {
      * @returns {Promise<0 | 2 | 3>} Check status: 0 - success | 2 - does not exist | 3 - incorrect
      */
     async checkAccount(username, password) {
-
+        return 0;
     }
     /**
      * Delete an account. **Does not validate credentials**.

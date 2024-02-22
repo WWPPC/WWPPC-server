@@ -1,3 +1,4 @@
+console.info('Starting ACC-IT Server');
 const config = require('./config.json');
 const fs = require('fs')
 const path = require('path');
@@ -21,26 +22,28 @@ app.get('/login', (req, res) => res.sendFile(path.resolve('./../accit-client/log
 app.use('/', express.static(path.resolve('./../accit-client')));
 
 const Database = require('./database.js');
-const accounts = new Database(process.env.DATABASE_URL ?? require('./local-database.json'));
+const database = new Database(process.env.DATABASE_URL ?? require('./local-database.json'));
+config.port = process.env.PORT ?? config.port;
 
 const recentConnections = [];
 const recentConnectionKicks = [];
 const io = new (require('socket.io')).Server(server);
 io.on('connection', async (s) => {
     const socket = s;
+    const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
     // some spam protection stuff
-    let kick = (e) => {
+    let kick = (reason = 'unspecified') => {
+        console.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
         socket.onevent = function (packet) { };
         socket.disconnect();
     };
     socket.on('error', kick);
     // connection DOS detection
-    socket.handshake.headers['x-forwarded-for'] = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
-    recentConnections[socket.handshake.headers['x-forwarded-for']] = (recentConnections[socket.handshake.headers['x-forwarded-for']] ?? 0) + 1;
-    if (recentConnections[socket.handshake.headers['x-forwarded-for']] > 3) {
-        recentConnectionKicks[socket.handshake.headers['x-forwarded-for']] = true;
-        kick();
+    recentConnections[ip] = (recentConnections[ip] ?? 0) + 1;
+    if (recentConnections[ip] > 3) {
+        recentConnectionKicks[ip] = true;
+        kick('too many connections');
         return;
     }
     // spam DOS protection
@@ -48,7 +51,7 @@ io.on('connection', async (s) => {
     const onevent = socket.onevent;
     socket.onevent = function (packet) {
         if (packet.data[0] == null) {
-            kick();
+            kick('invalid packet');
             return;
         }
         onevent.call(this, packet);
@@ -57,27 +60,27 @@ io.on('connection', async (s) => {
     const packetcheck = setInterval(async function () {
         if (!socket.connected) clearInterval(packetcheck);
         packetCount = Math.max(packetCount - 250, 0);
-        if (packetCount > 0) kick();
+        if (packetCount > 0) kick('too many packets');
     }, 1000);
     // await credentials before allowing anything (in a weird way)
-    socket.emit('getCredentials');
+    socket.emit('getCredentials', database.publicKey);
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds) => {
             if (creds == null || (creds.action != 0 && creds.action != 1)) {
-                kick();
+                kick('null credentials');
                 resolve(true);
                 return;
             }
-            let u = await accounts.RSAdecode(creds.username);
-            let p = await accounts.RSAdecode(creds.password);
-            if (!accounts.validate(u, p)) {
-                kick();
+            let u = await database.RSAdecode(creds.username);
+            let p = await database.RSAdecode(creds.password);
+            if (!database.validate(u, p)) {
+                kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            const res = await (creds.action ? accounts.createAccount : accounts.checkAccount)(u, p);
+            const res = await (creds.action ? database.createAccount : database.checkAccount)(u, p);
             if (res == 0) {
-                socket.off('credentials');
+                socket.removeAllListeners('credentials');
                 resolve(false);
             } else {
                 socket.emit('credentialFail', res);
@@ -87,6 +90,29 @@ io.on('connection', async (s) => {
     socket.emit('credentialPass');
     if (config.superSecretSecret) socket.emit('superSecretMessage');
     // add rest of stuff here
-    // including submissions
+    // including submissions oof
 });
-server.listen(config.port);
+setInterval(function() {
+    for (let i in recentConnections) {
+        recentConnections[i] = Math.max(recentConnections[i]-1, 0);
+    }
+    for (let i in recentConnectionKicks) {
+        delete recentConnectionKicks[i];
+    }
+}, 1000);
+
+database.connectPromise.then(() => {
+    console.info('Connected to database');
+    server.listen(config.port);
+    console.info(`Server listening to port ${config.port}`);
+});
+
+let stop = async () => {
+    console.info(`Stopping server...`);
+    await database.disconnect();
+    console.info(`Database disconnected`);
+};
+process.on('SIGTERM', stop);
+process.on('SIGQUIT', stop);
+process.on('SIGINT', stop);
+process.on('SIGILL', stop);

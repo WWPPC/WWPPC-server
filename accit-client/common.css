@@ -46,6 +46,11 @@ img {
     cursor: not-allowed;
 }
 
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
 /* modal stuff */
 #modalContainer {
     position: fixed;
