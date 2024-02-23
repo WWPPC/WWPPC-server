@@ -1,4 +1,4 @@
-<!-- Copyright (C) nobody -->
+<!-- Copyright (C) 2024 Sampleprovider(sp) -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,17 +21,14 @@
     <script>$('#loadingCover').load('/common/loadingCover.html');</script>
     <header>
         <nav>
-            <img src="/assets/logo.png">
-            <input type="button" class="navButton panelButton" cpanel="problemList" value="Problems">
-            <input type="button" class="navButton panelButton" cpanel="leaderboard" value="Leaderboard">
-            <input type="button" class="navButton panelButton hidden" cpanel="submissions" value="">
+            <a href="/" title="SIT Home"><img src="/assets/logo.png"></a>
+            <input type="button" class="navButton panelButton" cpanel="home" value="Home">
+            <input type="button" id="navContest" class="navButton" value="Contest">
         </nav>
     </header>
     <main>
-        <div class="panel" cpanel="problemList">
-            <!-- problem list... as explained -->
-            <!-- section into rounds -->
-            omg problem list
+        <div class="panel" cpanel="home">
+            wow look at this home page
         </div>
     </main>
     <div id="commonContainer"></div>

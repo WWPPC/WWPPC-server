@@ -1,7 +1,4 @@
-// insert a copyrigh statement here
-
-// validate inputs before sending
-// also validate on server
+// Copyright (C) 2024 Sampleprovider(sp)
 
 let validateCredentials = (username, password) => {
     return username.length > 0 && password.length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
@@ -24,7 +21,6 @@ let loginAction = async (t) => {
                 username: await Array.from(new Uint32Array(RSAencode(usernameInput.value))),
                 password: await Array.from(new Uint32Array(RSAencode(passwordInput.value))),
             }));
-            await glitchTextTransition('')
             window.location.replace('/contest');
         });
         socket.once('credentialFail', (e) => {

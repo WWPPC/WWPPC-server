@@ -1,3 +1,5 @@
+// Copyright (C) 2024 Sampleprovider(sp)
+
 const config = require('./config.json');
 const bcrypt = require('bcrypt');
 const salt = 5;

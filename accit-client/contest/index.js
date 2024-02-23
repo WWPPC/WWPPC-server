@@ -1,4 +1,4 @@
-// Copyright (C) nope
+// Copyright (C) 2024 Sampleprovider(sp)
 
 socket.on('disconnect', async (e) => {
     socket.disconnect();
@@ -22,7 +22,6 @@ let loadFinish = () => {
         document.getElementById('loadingCover').remove();
     }, 200);
 };
-
 window.onerror = (e, filename, lineno, colno, err) => {
     document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
     loadCounter = -999;

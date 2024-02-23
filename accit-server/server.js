@@ -1,3 +1,5 @@
+// Copyright (C) 2024 Sampleprovider(sp)
+
 console.info('Starting ACC-IT Server');
 const config = require('./config.json');
 const fs = require('fs')
