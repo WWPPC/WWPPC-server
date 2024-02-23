@@ -20,19 +20,15 @@ class ACCITDatabase {
     #publicKey;
 
     /**
-     * @param {string} url Valid PostgreSQL URI
+     * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      */
-    constructor(url) {
+    constructor(uri) {
         this.#connectPromise = new Promise((r) => r());
         this.#db = new Client({
-            connectionString: url,
-            ssl: {
-                rejectUnauthorized: !config.unsafeSSL
-            }
+            connectionString: uri,
+            application_name: 'ACC-IT Server'
         });
         this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
-        // let a = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey);
-        // a();
     }
 
     /**
@@ -82,7 +78,12 @@ class ACCITDatabase {
      * @returns {Promise<0 | 1>} Creation status: 0 - success | 1 - already exists
      */
     async createAccount(username, password) {
+        try {
 
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+        }
     }
     /**
      * Check credentials against an existing account with the specified username. **Does not validate credentials**.
@@ -91,7 +92,12 @@ class ACCITDatabase {
      * @returns {Promise<0 | 2 | 3>} Check status: 0 - success | 2 - does not exist | 3 - incorrect
      */
     async checkAccount(username, password) {
-        return 0;
+        try {
+            return 0;
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+        }
     }
     /**
      * Delete an account. **Does not validate credentials**.
@@ -100,7 +106,12 @@ class ACCITDatabase {
      * @returns {Promise<0 | 2 | 3>} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect
      */
     async deleteAccount(username, adminpassword) {
+        try {
 
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+        }
     }
 
     /**
@@ -113,7 +124,12 @@ class ACCITDatabase {
      * @returns {Promise<Array<Submission>>} Array of submissions matching the filter criteria.
      */
     async readSubmissions(criteria = { username: critUser, problemId: critProblem, problemRound: critProblemRound, problemNum: critPRoblemNum }) {
+        try {
 
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+        }
     }
     /**
      * Write a submission to the submissions database.
@@ -126,6 +142,12 @@ class ACCITDatabase {
         // file: text
         // lang: varchar
         // scores: json
+        try {
+
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+        }
     }
 }
 
