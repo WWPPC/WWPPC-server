@@ -20,12 +20,12 @@ let loginAction = async (t) => {
             password: await RSAencode(passwordInput.value)
         });
         socket.once('credentialPass', async (e) => {
-            console.log('buh')
             localStorage.setItem('sessionCredentials', JSON.stringify({
                 username: await Array.from(new Uint32Array(RSAencode(usernameInput.value))),
                 password: await Array.from(new Uint32Array(RSAencode(passwordInput.value))),
             }));
-            window.location.replace('/');
+            await glitchTextTransition('')
+            window.location.replace('/contest');
         });
         socket.once('credentialFail', (e) => {
             usernameInput.disabled = false;
@@ -46,4 +46,10 @@ usernameInput.oninput = passwordInput.oninput = (e) => {
 socket.once('getCredentials', (e) => {
     loginButton.disabled = false;
     signupButton.disabled = false;
+});
+
+// fun
+window.addEventListener('load', async (e) => {
+    glitchTextTransition('      ', 'Log in', (text) => { loginButton.value = text; }, 40, 1, 10);
+    glitchTextTransition('       ', 'Sign up', (text) => { signupButton.value = text; }, 40, 1, 20);
 });

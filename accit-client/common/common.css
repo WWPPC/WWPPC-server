@@ -1,10 +1,10 @@
-/* still no copyright */
+/* Copyright (C) 2024 Sampleprovider(sp) */
 
 @font-face {
     font-family: 'Source Code Pro';
     font-weight: 100, 200, 300, 400, 500, 600, 700, 800;
     font-style: normal;
-    src: url(./assets/SourceCodePro.ttf) format('truetype');
+    src: url(/assets/SourceCodePro.ttf) format('truetype');
 }
 
 body {
@@ -20,11 +20,11 @@ img {
 }
 
 ::selection {
-    background-color: lime;
+    background-color: rgba(0, 255, 0, 0.7);
     color: black;
 }
 
-/* stuff */
+/* shared styles */
 .button {
     background-color: black;
     color: white;

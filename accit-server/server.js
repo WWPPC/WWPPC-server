@@ -4,22 +4,24 @@ const fs = require('fs')
 const path = require('path');
 const express = require('express');
 const app = express();
-const server = fs.existsSync('./.local') ? require('https').createServer({
-    key: fs.readFileSync('./localhost-key.pem'),
-    cert: fs.readFileSync('./localhost.pem')
+const server = fs.existsSync(path.resolve(__dirname, '.local')) ? require('https').createServer({
+    key: fs.readFileSync(path.resolve(__dirname, './localhost-key.pem')),
+    cert: fs.readFileSync(path.resolve(__dirname, './localhost.pem'))
 }, app) : require('http').createServer(app);
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
     windowMs: 100,
-    max: 10,
+    max: 30,
     handler: function (req, res, options) {
         console.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
 app.use(limiter);
-app.get('/', (req, res) => res.sendFile(path.resolve('./../accit-client/index.html')));
-app.get('/login', (req, res) => res.sendFile(path.resolve('./../accit-client/login.html')));
-app.use('/', express.static(path.resolve('./../accit-client')));
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/index.html')));
+app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/login/index.html')));
+app.get('/contest', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/contest/index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/admin/index.html')));
+app.use('/', express.static(path.resolve(__dirname, './../accit-client')));
 
 const Database = require('./database.js');
 const database = new Database(process.env.DATABASE_URL ?? require('./local-database.json'));
@@ -92,7 +94,7 @@ io.on('connection', async (s) => {
     // add rest of stuff here
     // including submissions oof
 });
-setInterval(function() {
+let connectionKickDecrementer = setInterval(function() {
     for (let i in recentConnections) {
         recentConnections[i] = Math.max(recentConnections[i]-1, 0);
     }
@@ -109,6 +111,8 @@ database.connectPromise.then(() => {
 
 let stop = async () => {
     console.info(`Stopping server...`);
+    io.close();
+    clearInterval(connectionKickDecrementer);
     await database.disconnect();
     console.info(`Database disconnected`);
 };
