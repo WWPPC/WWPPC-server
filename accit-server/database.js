@@ -27,7 +27,7 @@ class ACCITDatabase {
         this.#db = new Client({
             connectionString: url,
             ssl: {
-                rejectUnauthorized: config.unsafeSSL
+                rejectUnauthorized: !config.unsafeSSL
             }
         });
         this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
