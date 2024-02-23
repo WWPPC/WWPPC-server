@@ -6,6 +6,7 @@ socket.on('disconnect', async (e) => {
     window.location.reload();
 });
 
+// load stuff
 let loadCounter = 0;
 window.addEventListener('load', (e) => {
     loadCounter++;
@@ -29,46 +30,41 @@ window.onerror = (e, filename, lineno, colno, err) => {
 
 // trigger redirect to login
 if (localStorage.getItem('sessionCredentials') == null) {
-    window.location.replace('/login');
+    window.location.replace('/login?forward=/contest');
     loadCounter = -999;
 } else {
     // autosend credentials
-    socket.once('getCredentials', async (key) => {
+    socket.once('getCredentials', async (session) => {
+        if (session.session != localStorage.getItem('sid')) {
+            window.location.replace('/login?forward=/contest');
+            loadCounter = -999;
+            return;
+        }
         const creds = JSON.parse(localStorage.getItem('sessionCredentials'));
         socket.emit('credentials', {
             action: 0,
-            username: Uint32Array.from(creds.username).buffer,
+            username: creds.username,
             password: Uint32Array.from(creds.password).buffer,
         });
     });
     socket.once('credentialFail', (e) => {
         localStorage.removeItem('sessionCredentials');
-        window.location.replace('/login');
+        window.location.replace('/login?forward=/contest');
         loadCounter = -999;
     });
     socket.once('credentialPass', () => {
         loadCounter++;
         if (loadCounter == 2) loadFinish();
     });
+    glitchTextTransition('Not logged in', JSON.parse(localStorage.getItem('sessionCredentials')).username, (text) => {
+        usernameDisplay.innerText = text;
+    }, 40, 1);
 }
-
-// panel selectors
-const panelSelectors = document.body.querySelectorAll('.panelButton');
-const panels = document.body.querySelectorAll('.panel');
-for (const button of panelSelectors) {
-    const thisPanel = document.querySelector(`.panel[cpanel=${button.getAttribute('cpanel')}]`);
-    button.onclick = (e) => {
-        panels.forEach(p => p.classList.add('hidden'));
-        thisPanel.classList.remove('hidden');
-    };
-    button.cpanel = button.getAttribute('cpanel');
-}
-function selectPanel(name) {
-    for (let button of panelSelectors) {
-        if (button.cpanel === name) {
-            button.click();
-            break;
-        }
-    }
+const usernameDisplay = document.getElementById('usernameDisplay');
+const logoutButton = document.getElementById('logoutButton');
+logoutButton.onclick = (e) => {
+    localStorage.removeItem('sessionCredentials');
+    window.location.replace('/');
 };
+
 selectPanel('problemList');

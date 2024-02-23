@@ -35,6 +35,19 @@ nav {
     font-weight: bold;
 }
 
+#userDisplay {
+    display: grid;
+    grid-template-columns: 130px;
+    grid-template-rows: 1fr 1fr;
+    width: 130px;
+    justify-content: center;
+    margin-right: 16px;
+}
+#usernameDisplay {
+    padding-top: 12px;
+    text-align: center;
+}
+
 /* main body */
 main {
     position: fixed;

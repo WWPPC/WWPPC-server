@@ -13,6 +13,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/common/jquery-3.7.1.min.js"></script>
     <script src="/common/common.js" defer></script>
+    <script src="/common/panels.js" defer></script>
     <script src="/contest/index.js" defer></script>
 </head>
 
@@ -26,6 +27,10 @@
             <input type="button" class="navButton panelButton" cpanel="leaderboard" value="Leaderboard">
             <input type="button" class="navButton panelButton hidden" cpanel="submissions" value="">
         </nav>
+        <div id="userDisplay">
+            <div id="usernameDisplay">Not logged in</div>
+            <input type="button" id="logoutButton" class="button" value="Log out">
+        </div>
         <div id="timerContainer">
             <img src="/assets/timer.svg" id="timerImg">
             <div id="timerTextTop">Round 0</div>

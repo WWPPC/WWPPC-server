@@ -35,6 +35,18 @@ nav {
     background-color: #444;
     font-weight: bold;
 }
+
+#userDisplay {
+    display: grid;
+    grid-template-columns: 130px;
+    grid-template-rows: 1fr 1fr;
+    width: 130px;
+    justify-content: center;
+}
+#usernameDisplay {
+    padding-top: 12px;
+    text-align: center;
+}
 #timerContainer {
     display: grid;
     grid-template-columns: 34px 1fr;

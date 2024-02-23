@@ -1,5 +1,22 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
+// loading aaa
+let loadCounter = 0;
+window.addEventListener('load', (e) => {
+    document.getElementById('loadingCover').style.opacity = 0;
+    window.addEventListener('error', (e) => {
+        modal('An error occured:', `<span style="color: red;">${e.message}<br>${e.filename} ${e.lineno}:${e.colno}</span>`, false);
+    });
+    window.onerror = null;
+    setTimeout(() => {
+        document.getElementById('loadingCover').remove();
+    }, 200);
+});
+window.onerror = (e, filename, lineno, colno, err) => {
+    document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
+    loadCounter = -999;
+};
+
 let validateCredentials = (username, password) => {
     return username.length > 0 && password.length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
 };
@@ -16,16 +33,18 @@ let loginAction = async (t) => {
             username: await RSAencode(usernameInput.value),
             password: await RSAencode(passwordInput.value)
         });
-        socket.once('credentialPass', async (e) => {
+        socket.once('credentialPass', async () => {
             localStorage.setItem('sessionCredentials', JSON.stringify({
-                username: await Array.from(new Uint32Array(RSAencode(usernameInput.value))),
-                password: await Array.from(new Uint32Array(RSAencode(passwordInput.value))),
+                username: usernameInput.value,
+                password: Array.from(new Uint32Array(await RSAencode(passwordInput.value))),
             }));
-            window.location.replace('/contest');
+            localStorage.setItem('sid', window.sid);
+            window.location.replace(new URLSearchParams(window.location.search).get('forward') ?? '/');
         });
-        socket.once('credentialFail', (e) => {
+        socket.once('credentialFail', (res) => {
             usernameInput.disabled = false;
             passwordInput.disabled = false;
+            modal('Could not log in:', res == 1 ? 'Account with username already exists' : res == 2 ? 'Account not found' : res == 3 ? 'Incorrect password' : res == 4 ? 'Database error' : 'Unknown error (this is a bug?)', 'red');
         });
     } else {
         loginButton.disabled = true;

@@ -17,15 +17,18 @@
 </head>
 
 <body>
+    <div id="loadingCover" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; background-color: black; z-index: 99999;"></div>
+    <script>$('#loadingCover').load('/common/loadingCover.html');</script>
     <div id="center">
         <img src="/assets/logo.png" id="logoImg">
         <form onsubmit="event.preventDefault()">
-            <input type="text" id="username" placeholder="Username" autocomplete="username" maxlength="16">
-            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-            <span>
+            <input type="text" id="username" class="textBox" placeholder="Username" autocomplete="username" maxlength="16">
+            <input type="password" id="password" class="textBox" placeholder="Password" autocomplete="current-password">
+            <span id="loginButtonContainer">
                 <input type="submit" id="loginButton" class="button" value="Log in" disabled>
-                <input type="button" id="signupButton" class="button" value="Sign up" disabled>
+                <input type="submit" id="signupButton" class="button" value="Sign up" disabled>
             </span>
+            <!-- collect email, grade? -->
         </form>
     </div>
     <div id="bottom">

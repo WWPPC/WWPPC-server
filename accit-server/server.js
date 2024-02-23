@@ -29,6 +29,7 @@ const Database = require('./database.js');
 const database = new Database(process.env.DATABASE_URL ?? require('./local-database.json'));
 config.port = process.env.PORT ?? config.port;
 
+const sessionId = Math.random();
 const recentConnections = [];
 const recentConnectionKicks = [];
 const io = new (require('socket.io')).Server(server);
@@ -67,7 +68,7 @@ io.on('connection', async (s) => {
         if (packetCount > 0) kick('too many packets');
     }, 1000);
     // await credentials before allowing anything (in a weird way)
-    socket.emit('getCredentials', database.publicKey);
+    socket.emit('getCredentials', {key: database.publicKey, session: sessionId});
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds) => {
             if (creds == null || (creds.action != 0 && creds.action != 1)) {
@@ -77,12 +78,16 @@ io.on('connection', async (s) => {
             }
             let u = await database.RSAdecode(creds.username);
             let p = await database.RSAdecode(creds.password);
+            if (u instanceof Buffer || p instanceof Buffer) {
+                // for some reason decoding failed, redirect to login
+                socket.emit('credentialFail', 3);
+            }
             if (!database.validate(u, p)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            const res = await (creds.action ? database.createAccount : database.checkAccount)(u, p);
+            const res = await (creds.action ? database.createAccount : database.checkAccount).call(database, u, p); // why? idk
             if (res == 0) {
                 socket.removeAllListeners('credentials');
                 resolve(false);
@@ -113,10 +118,19 @@ database.connectPromise.then(() => {
 
 let stop = async () => {
     console.info(`Stopping server...`);
+    let actuallyStop = () => {
+        console.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
+        process.exit();
+    };
+    process.on('SIGTERM', actuallyStop);
+    process.on('SIGQUIT', actuallyStop);
+    process.on('SIGINT', actuallyStop);
+    process.on('SIGILL', actuallyStop);
     io.close();
     clearInterval(connectionKickDecrementer);
     await database.disconnect();
     console.info(`Database disconnected`);
+    process.exit();
 };
 process.on('SIGTERM', stop);
 process.on('SIGQUIT', stop);

@@ -1,5 +1,6 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
+// loadd
 let loadCounter = 0;
 window.addEventListener('load', (e) => {
     document.getElementById('loadingCover').style.opacity = 0;
@@ -16,25 +17,22 @@ window.onerror = (e, filename, lineno, colno, err) => {
     loadCounter = -999;
 };
 
-// panel selectors
-const panelSelectors = document.body.querySelectorAll('.panelButton');
-const panels = document.body.querySelectorAll('.panel');
-for (const button of panelSelectors) {
-    const thisPanel = document.querySelector(`.panel[cpanel=${button.getAttribute('cpanel')}]`);
-    button.onclick = (e) => {
-        panels.forEach(p => p.classList.add('hidden'));
-        thisPanel.classList.remove('hidden');
+// logout if logged in
+const usernameDisplay = document.getElementById('usernameDisplay');
+const logoutButton = document.getElementById('logoutButton');
+if (localStorage.getItem('sessionCredentials') == null) {
+    logoutButton.value = 'Log in';
+    logoutButton.onclick = (e) => window.location.replace('/login');
+} else {
+    logoutButton.onclick = (e) => {
+        localStorage.removeItem('sessionCredentials');
+        window.location.reload();
     };
-    button.cpanel = button.getAttribute('cpanel');
+    glitchTextTransition('Not logged in', JSON.parse(localStorage.getItem('sessionCredentials')).username, (text) => {
+        usernameDisplay.innerText = text;
+    }, 40, 1);
 }
-function selectPanel(name) {
-    for (let button of panelSelectors) {
-        if (button.cpanel === name) {
-            button.click();
-            break;
-        }
-    }
-};
+
 selectPanel('home');
 
 document.getElementById('navContest').onclick = (e) => {

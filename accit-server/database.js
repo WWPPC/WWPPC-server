@@ -44,7 +44,12 @@ class ACCITDatabase {
      * @returns {string} Decrypted string
      */
     async RSAdecode(buf) {
-        return typeof buf == ArrayBuffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await keys).privateKey, buf).catch(new Uint8Array([30]))) : buf;
+        try {
+            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(new Uint8Array([30]))) : buf;
+        } catch (err) {
+            console.error(err);
+            return buf;
+        }
     }
 
     /**
@@ -68,51 +73,60 @@ class ACCITDatabase {
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
      * @param {string} password Password
-     * @returns {Promise<boolean>} Validity
+     * @returns {boolean} Validity
      */
-    async validate(username, password) {
+    validate(username, password) {
         return typeof username == 'string' && typeof password == 'string' && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {Promise<0 | 1>} Creation status: 0 - success | 1 - already exists
+     * @returns {0 | 1 | 4} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
     async createAccount(username, password) {
         try {
-
+            const encrypted = await bcrypt.hash(password, salt);
+            const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
+            if (data.rowCount > 0) return 1;
+            else await this.#db.query('INSERT INTO users (username, password) VALUES ($1, $2);', [username, encrypted]);
+            return 0;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return 4;
         }
     }
     /**
      * Check credentials against an existing account with the specified username. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {Promise<0 | 2 | 3>} Check status: 0 - success | 2 - does not exist | 3 - incorrect
+     * @returns {0 | 2 | 3 | 4} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
     async checkAccount(username, password) {
         try {
-            return 0;
+            const data = await this.#db.query('SELECT password FROM users WHERE username=$1;', [username]);
+            if (data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? 0 : 3;
+            return 2;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return 4;
         }
     }
     /**
      * Delete an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} adminpassword The admin password
-     * @returns {Promise<0 | 2 | 3>} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect
+     * @returns {0 | 2 | 3 | 4} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
     async deleteAccount(username, adminpassword) {
         try {
-
+            return 3;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return 4;
         }
     }
 
@@ -123,7 +137,7 @@ class ACCITDatabase {
      * @param {string} criteria.problemId Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed.
      * @param {number} criteria.problemRound Filter by round, exact match. Zero-indexed.
      * @param {number} criteria.problemNum Filter by number in round, exact match. Zero-indexed.
-     * @returns {Promise<Array<Submission>>} Array of submissions matching the filter criteria.
+     * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If `null` then the database query failed.
      */
     async readSubmissions(criteria = { username: critUser, problemId: critProblem, problemRound: critProblemRound, problemNum: critPRoblemNum }) {
         try {
@@ -131,6 +145,7 @@ class ACCITDatabase {
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return null;
         }
     }
     /**
@@ -149,6 +164,7 @@ class ACCITDatabase {
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return null;
         }
     }
 }
