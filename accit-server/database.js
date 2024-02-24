@@ -9,7 +9,7 @@ const { subtle, webcrypto } = require('crypto').webcrypto;
 /**
  * PostgreSQL database connection for handling accounts, including submissions.
  */
-class ACCITDatabase {
+class Database {
     #ready = false;
     #connectPromise;
     #db;
@@ -132,14 +132,14 @@ class ACCITDatabase {
 
     /**
      * Filter and get a list of submissions from the submissions database according to a criteria.
-     * @param {{username: string, problem: string}} criteria Filter criteria. Leaving one undefined removes the filter.
-     * @param {string} criteria.username Filter by username, exact match.
-     * @param {string} criteria.problemId Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed.
-     * @param {number} criteria.problemRound Filter by round, exact match. Zero-indexed.
-     * @param {number} criteria.problemNum Filter by number in round, exact match. Zero-indexed.
-     * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If `null` then the database query failed.
+     * @param {{username: string, problem: string}} criteria Filter criteria. Leaving one undefined removes the filter
+     * @param {string} criteria.username Filter by username, exact match
+     * @param {string} criteria.problemId Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed
+     * @param {number} criteria.problemRound Filter by round, exact match. Zero-indexed
+     * @param {number} criteria.problemNum Filter by number in round, exact match. Zero-indexed
+     * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readSubmissions(criteria = { username: critUser, problemId: critProblem, problemRound: critProblemRound, problemNum: critPRoblemNum }) {
+    async readSubmissions(criteria = { username: critUser = '*', problemId: critProblemId = '*', problemRound: critProblemRound = '*', problemNum: critProblemNum = '*' }) {
         try {
 
         } catch (err) {
@@ -164,7 +164,49 @@ class ACCITDatabase {
         } catch (err) {
             console.error('Database error:');
             console.error(err);
-            return null;
+        }
+    }
+
+    /**
+     * Filter and get a list of problems from the problems database according to a criteria
+     * @param {{username: string, problem: string}} criteria Filter criteria. Leaving one undefined removes the filter
+     * @param {string} criteria.id Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed
+     * @param {number} criteria.round Filter by round, exact match. Zero-indexed
+     * @param {number} criteria.number Filter by number in round, exact match. Zero-indexed
+     * @param {number} criteria.name Filter by problem name
+     * @param {number} criteria.author Filter by author username
+     * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
+     */
+    async readProblems(criteria = { id: critId = '*', round: critRound = '*', number: critNum = '*', name: critName = '*', author: critAuthor = '*' }) {
+        try {
+            if (critId != '*') {
+                let split = critId.split('-');
+                if (split.length == 2) {
+                    critRound = split[0];
+                    critNum = split[1];
+                }
+            }
+            const data = await this.#db.query('SELECT * FROM problems WHERE round=$1 AND number=$2 AND name=$3 AND author=$4;', [critRound, critNum, critName, critAuthor]);
+            const data2 = [];
+            for (let problem of data.rows) {
+                data2.push(new Problem(problem.round, problem.number, problem.name, problem.author, problem.content, JSON.parse(problem.cases)));
+            }
+            return data2;
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
+            return [];
+        }
+    }
+    /**
+     * lol
+     */
+    async writeProblem(problem) {
+        try {
+
+        } catch (err) {
+            console.error('Database error:');
+            console.error(err);
         }
     }
 }
@@ -276,8 +318,8 @@ class Problem {
     get cases() { return this.#cases.slice(0); }
 }
 
-module.exports = ACCITDatabase;
-module.exports.Database = ACCITDatabase;
+module.exports = Database;
+module.exports.Database = Database;
 module.exports.AccountData = AccountData;
 module.exports.Submission = Submission;
 module.exports.Problem = Problem;
