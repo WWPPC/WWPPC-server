@@ -12,8 +12,8 @@ const server = fs.existsSync(path.resolve(__dirname, '.local')) ? require('https
     key: fs.readFileSync(path.resolve(__dirname, './localhost-key.pem')),
     cert: fs.readFileSync(path.resolve(__dirname, './localhost.pem'))
 }, app) : require('http').createServer(app);
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
+const cors = require('cors');
+const limiter = require('express-rate-limit')({
     windowMs: 100,
     max: 30,
     handler: function (req, res, options) {
@@ -21,6 +21,7 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
+app.use(cors({ origin: '*' }));
 app.use('/', express.static(path.resolve(__dirname, './../wwppc-client/dist')));
 
 const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'));
@@ -31,7 +32,10 @@ const contestManager = new (require('./contest.js'))();
 const sessionId = Math.random();
 const recentConnections = [];
 const recentConnectionKicks = [];
-const io = new (require('socket.io')).Server(server);
+const io = new (require('socket.io')).Server(server, {
+    path: '/socket.io',
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 io.on('connection', async (s) => {
     const socket = s;
     const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
@@ -67,7 +71,7 @@ io.on('connection', async (s) => {
         if (packetCount > 0) kick('too many packets');
     }, 1000);
     // await credentials before allowing anything (in a weird way)
-    socket.emit('getCredentials', {key: database.publicKey, session: sessionId});
+    socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds) => {
             if (creds == null || (creds.action != 0 && creds.action != 1)) {
@@ -100,9 +104,9 @@ io.on('connection', async (s) => {
     // add rest of stuff here
     // including submissions oof
 });
-let connectionKickDecrementer = setInterval(function() {
+let connectionKickDecrementer = setInterval(function () {
     for (let i in recentConnections) {
-        recentConnections[i] = Math.max(recentConnections[i]-1, 0);
+        recentConnections[i] = Math.max(recentConnections[i] - 1, 0);
     }
     for (let i in recentConnectionKicks) {
         delete recentConnectionKicks[i];

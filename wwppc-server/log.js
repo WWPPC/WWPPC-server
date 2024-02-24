@@ -87,7 +87,7 @@ class Logger {
 
     #append(level, text, color) {
         if (this.#file == undefined) return;
-        let prefix1 = `\x1b[0m\x1b[40m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m\x1b[40m | `;
+        let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
         process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
         let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
         fs.appendFile(this.#file, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => { if (err) console.error(err) });
