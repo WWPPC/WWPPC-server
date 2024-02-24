@@ -251,7 +251,7 @@ async function sleep(ms) {
 // title stuff
 const title = document.head.querySelector('title');
 function updateTitle(title) {
-    title.innerText = title + ' | CSI - absolute Coding club Super Interesting competition';
+    title.innerText = title + ' | WWPPC';
 };
 
 // service worker
