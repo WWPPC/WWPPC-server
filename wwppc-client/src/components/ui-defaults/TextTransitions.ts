@@ -1,15 +1,13 @@
-import type { Ref } from "vue";
-
 // text transitions (from red pixel simulator)
-export function flipTextTransition(from: string, to: string, ref: Ref, speed: number, block = 1) {
+export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1) {
     let cancelled = false;
     const ret = {
         promise: new Promise((resolve) => {
             const gen = flipTextTransitionGenerator(from, to, block);
+            console.log('why')
             const animate = setInterval(() => {
                 const next = gen.next();
-                ref.value = next.value;
-                if (cancelled || next.done) {
+                if (cancelled || next.done || update(next.value)) {
                     clearInterval(animate);
                     ret.finished = true;
                     resolve(!cancelled);
@@ -54,15 +52,14 @@ export function* flipTextTransitionGenerator(from: string, to: string, block: nu
         yield text;
     }
 }
-export function glitchTextTransition(from: string, to: string, ref: Ref, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched = false) {
+export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched = false) {
     let cancelled = false;
     const ret = {
         promise: new Promise((resolve) => {
             const gen = glitchTextTransitionGenerator(from, to, block, glitchLength, advanceMod, startGlitched);
             const animate = setInterval(() => {
                 const next = gen.next();
-                ref.value = next.value;
-                if (cancelled || next.done) {
+                if (cancelled || next.done || update(next.value)) {
                     clearInterval(animate);
                     ret.finished = true;
                     resolve(!cancelled);

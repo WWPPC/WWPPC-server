@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UIButton, UITextBox, FullscreenModal, showModal } from '@/components/ui/UIDefaults';
+import { UIButton, UITextBox, FullscreenModal, showModal, UINumberBox, UIToggle } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
@@ -8,4 +8,6 @@ import { UIButton, UITextBox, FullscreenModal, showModal } from '@/components/ui
     <FullscreenModal></FullscreenModal>
     <UITextBox id="buh" @input="(str: string) => console.log(str)"></UITextBox>
     <UIButton text="test" @click="console.log('eee')"></UIButton>
+    <UINumberBox @input="(n: number) => console.log(n)"></UINumberBox>
+    <UIToggle @input="(b: boolean) => console.log('buh' + b)" :start-checked="true"></UIToggle>
 </template>
