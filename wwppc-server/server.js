@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
-console.info('Starting ACC-IT Server');
+console.info('Starting WWPPC Server');
 const config = require('./config.json');
 const fs = require('fs')
 const path = require('path');
