@@ -10,15 +10,15 @@
     <link rel="icon" href="./assets/favicon.png" type="image/png">
     <link rel="stylesheet" href="/common/common.css">
     <link rel="stylesheet" href="/login/index.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/common/jquery-3.7.1.min.js"></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/common/jquery-3.7.1.min.js" defer></script>
     <script src="/common/common.js" defer></script>
     <script src="/login/index.js" defer></script>
 </head>
 
 <body>
-    <div id="loadingCover" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; background-color: black; z-index: 99999;"></div>
-    <script>$('#loadingCover').load('/common/loadingCover.html');</script>
+    <div id="loadingCover"></div>
+    <script src="/common/loadingCover.js"></script>
     <div id="center">
         <img src="/assets/logo.png" id="logoImg">
         <form onsubmit="event.preventDefault()">

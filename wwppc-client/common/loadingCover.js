@@ -1,3 +1,6 @@
+// this way is faster
+
+document.getElementById('loadingCover').innerHTML = `
 <div id="loadingCoverBar"></div>
 <noscript id="noscript">JavaScript was disabled!<br>Please enable it and <a href="" style="color: white">reload</a>!</noscript>
 <div id="loadingErrorsContainer">
@@ -23,7 +26,7 @@
         left: 35vw;
         width: 30vw;
         height: 1vw;
-        background: linear-gradient(dodgerblue 0 0), linear-gradient(dodgerblue 0 0), white;
+        background: linear-gradient(red 0 0), linear-gradient(lime 0 0), white;
         background-size: 60% 100%;
         background-repeat: no-repeat;
         box-shadow: 0px 0px 0.5vw rgba(255, 255, 255, 0.5);
@@ -72,3 +75,4 @@
         transform: translateX(-50%);
     }
 </style>
+`;
