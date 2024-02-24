@@ -19,11 +19,11 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/index.html')));
-app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/login/index.html')));
-app.get('/contest', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/contest/index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, './../accit-client/admin/index.html')));
-app.use('/', express.static(path.resolve(__dirname, './../accit-client')));
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/index.html')));
+app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/login/index.html')));
+app.get('/contest', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/contest/index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/admin/index.html')));
+app.use('/', express.static(path.resolve(__dirname, './../wwppc-client')));
 
 const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'));
 config.port = process.env.PORT ?? config.port;
