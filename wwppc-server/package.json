@@ -8,6 +8,7 @@
     "socket.io": "^4.7.4"
   },
   "scripts": {
+    "build": "cd ./../wwppc-client && npm run build",
     "start": "node server.js"
   },
   "name": "accit",

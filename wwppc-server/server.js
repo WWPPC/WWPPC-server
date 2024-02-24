@@ -1,6 +1,8 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
-console.info('Starting WWPPC Server');
+const LOGGER = new (require('./log.js'))();
+LOGGER.info('Starting WWPC server...');
+
 const config = require('./config.json');
 const fs = require('fs')
 const path = require('path');
@@ -15,15 +17,11 @@ const limiter = rateLimit({
     windowMs: 100,
     max: 30,
     handler: function (req, res, options) {
-        console.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
+        LOGGER.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
 app.use(limiter);
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/index.html')));
-app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/login/index.html')));
-app.get('/contest', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/contest/index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/admin/index.html')));
-app.use('/', express.static(path.resolve(__dirname, './../wwppc-client')));
+app.use('/', express.static(path.resolve(__dirname, './../wwppc-client/dist')));
 
 const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'));
 config.port = process.env.PORT ?? config.port;
@@ -39,7 +37,7 @@ io.on('connection', async (s) => {
     const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
     // some spam protection stuff
     let kick = (reason = 'unspecified') => {
-        console.warn(`${ip} was kicked for violating restrictions; ${reason}`);
+        LOGGER.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
         socket.onevent = function (packet) { };
         socket.disconnect();
@@ -112,15 +110,15 @@ let connectionKickDecrementer = setInterval(function() {
 }, 1000);
 
 database.connectPromise.then(() => {
-    console.info('Connected to database');
+    LOGGER.info('Connected to database');
     server.listen(config.port);
-    console.info(`Server listening to port ${config.port}`);
+    LOGGER.info(`Server listening to port ${config.port}`);
 });
 
 let stop = async () => {
-    console.info(`Stopping server...`);
+    LOGGER.info(`Stopping server...`);
     let actuallyStop = () => {
-        console.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
+        LOGGER.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
         process.exit();
     };
     process.on('SIGTERM', actuallyStop);
@@ -130,7 +128,7 @@ let stop = async () => {
     io.close();
     clearInterval(connectionKickDecrementer);
     await database.disconnect();
-    console.info(`Database disconnected`);
+    LOGGER.info(`Database disconnected`);
     process.exit();
 };
 process.on('SIGTERM', stop);
