@@ -1,7 +1,7 @@
 // text transitions (from red pixel simulator)
 export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1) {
     let cancelled = false;
-    const ret = {
+    const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
             const gen = flipTextTransitionGenerator(from, to, block);
             console.log('why')
@@ -54,7 +54,7 @@ export function* flipTextTransitionGenerator(from: string, to: string, block: nu
 }
 export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched = false) {
     let cancelled = false;
-    const ret = {
+    const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
             const gen = glitchTextTransitionGenerator(from, to, block, glitchLength, advanceMod, startGlitched);
             const animate = setInterval(() => {
@@ -109,4 +109,9 @@ export function* glitchTextTransitionGenerator(from: string, to: string, block: 
         yield text;
         a++;
     }
+}
+export interface AsyncTextTransition {
+    promise: Promise<boolean>,
+    finished: boolean,
+    cancel: () => true
 }

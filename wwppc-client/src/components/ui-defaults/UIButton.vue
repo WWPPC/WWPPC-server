@@ -15,11 +15,11 @@ function click() {
 </script>
 
 <template>
-    <input type="button" :value=text @click=click :title=title>
+    <input type="button" class="uiButton" :value=text @click=click :title=title>
 </template>
 
-<style scoped>
-input {
+<style>
+.uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
     height: v-bind("$props.height ?? '32px'");
@@ -33,17 +33,17 @@ input {
     cursor: pointer;
 }
 
-input:hover {
+.uiButton:hover {
     transform: translateY(-2px);
     border-color: lime;
 }
 
-input:active {
+.uiButton:active {
     transform: translateY(2px);
     border-color: red;
 }
 
-input:disabled {
+.uiButton:disabled {
     border-color: gray !important;
     transform: none !important;
     cursor: not-allowed;

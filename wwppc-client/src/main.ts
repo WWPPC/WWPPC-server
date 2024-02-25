@@ -9,6 +9,7 @@ import { io } from 'socket.io-client';
 const socket = io(process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : window.location.host, {
     path: '/socket.io'
 });
+// use pinia for socketio stuff
 
 const router = createRouter({
     history: createWebHistory(),

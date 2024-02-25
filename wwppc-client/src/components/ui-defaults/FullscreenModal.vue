@@ -1,6 +1,6 @@
 <!-- oops i used options and composition api -->
 <script setup lang="ts">
-import { reactive, ref, toRaw } from 'vue';
+import { reactive, ref } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
 </script>
@@ -78,7 +78,7 @@ export async function showModal({ title, content, mode = ModalMode.NOTIFY, color
     </div>
 </template>
 
-<style scoped>
+<style>
 #container {
     position: fixed;
     top: 0px;

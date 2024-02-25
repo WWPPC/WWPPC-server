@@ -18,11 +18,11 @@ function input() {
 </script>
 
 <template>
-    <input type="text" @input=input v-model=text :title="title">
+    <input type="text" class="uiTextBox" @input=input v-model=text :title=props.title>
 </template>
 
-<style scoped>
-input {
+<style>
+.uiTextBox {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
     height: v-bind("$props.height ?? '32px'");
@@ -35,15 +35,15 @@ input {
     transition: 50ms linear border-color;
 }
 
-input:hover {
+.uiTextBox:hover {
     border-color: lime;
 }
 
-input:focus {
+.uiTextBox:focus {
     border-color: red;
 }
 
-input:disabled {
+.uiTextBox:disabled {
     background-color: #888;
     cursor: not-allowed;
 }

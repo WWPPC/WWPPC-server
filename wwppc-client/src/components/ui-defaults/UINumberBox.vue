@@ -22,11 +22,11 @@ function input() {
 </script>
 
 <template>
-    <input type="number" @input=input v-model=number :title=title :min="min" :max=max :step=step>
+    <input type="number" class="uiNumberBox" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step>
 </template>
 
-<style scoped>
-input {
+<style>
+.uiNumberBox {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'initial'");
     height: v-bind("$props.height ?? '32px'");
@@ -39,19 +39,19 @@ input {
     transition: 50ms linear border-color;
 }
 
-input:hover {
+.uiNumberBox:hover {
     border-color: lime !important;
 }
 
-input:focus {
+.uiNumberBox:focus {
     border-color: red !important;
 }
 
-input:invalid {
+.uiNumberBox:invalid {
     border-color: v-bind("$props.highlightInvalid ? 'yellow' : ''");
 }
 
-input:disabled {
+.uiNumberBox:disabled {
     background-color: #888;
     cursor: not-allowed;
 }

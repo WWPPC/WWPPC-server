@@ -8,7 +8,7 @@
     </div>
 </template>
 
-<style scoped>
+<style>
 #superSecretDiv {
     display: none;
     position: fixed;

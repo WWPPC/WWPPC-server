@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { UIButton, UITextBox, FullscreenModal, showModal, UINumberBox, UIToggle, ModalMode } from '@/components/ui-defaults/UIDefaults';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView } from '@/components/panels/PanelManager';
+import UserDisp from '@/components/user-disp/UserDisp.vue';
+import LargeLogo from '@/components/LargeLogo.vue';
 </script>
 
 <template>
-    hi
-    <UIButton text="test" @click="console.log(showModal({ title: 'omg', mode: ModalMode.QUERY, content: '<div>its working1111</div>', glitchTitle: true }).then((r) => console.log(r)))" width="240px"></UIButton>
-    <FullscreenModal></FullscreenModal>
-    <UITextBox id="buh" @input="(str: string) => console.log(str)"></UITextBox>
-    <UIButton text="test" @click="console.log('eee')"></UIButton>
-    <UINumberBox @input="(n: number) => console.log(n)"></UINumberBox>
-    <UIToggle @input="(b: boolean) => console.log('buh' + b)" :start-checked="true"></UIToggle>
+    <PanelView>
+        <PanelHeader>
+            <PanelNavList>
+                <LargeLogo></LargeLogo>
+                <PanelNavButton text="Home"></PanelNavButton>
+                <PanelNavButton text="WWPPC 2024"></PanelNavButton>
+                <PanelNavButton text="Contest"></PanelNavButton>
+                <PanelNavButton text="About"></PanelNavButton>
+            </PanelNavList>
+            <UserDisp></UserDisp>
+        </PanelHeader>
+        <PanelMain>
+            <PanelBody>
+                hello
+            </PanelBody>
+        </PanelMain>
+    </PanelView>
 </template>

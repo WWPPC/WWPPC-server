@@ -15,14 +15,14 @@ function input() {
 </script>
 
 <template>
-    <label>
-        <input type="checkbox" @change=input v-model=checked :title=title>
-        <span></span>
+    <label class="uiToggleLabel">
+        <input class="uiToggleInput" type="checkbox" @change=input v-model=checked :title=title>
+        <span class="uiToggleSlider"></span>
     </label>
 </template>
 
-<style scoped>
-label {
+<style>
+.uiToggleLabel {
     display: inline-block;
     position: relative;
     bottom: 6px;
@@ -30,13 +30,13 @@ label {
     height: 32px;
 }
 
-input {
+.uiToggleInput {
     opacity: 0px;
     width: 0px;
     height: 0px;
 }
 
-span {
+.uiToggleSlider {
     position: absolute;
     top: 6px;
     left: 4px;
@@ -48,7 +48,7 @@ span {
     cursor: pointer;
 }
 
-span::before {
+.uiToggleSlider::before {
     content: '';
     position: absolute;
     top: -10px;
@@ -61,11 +61,11 @@ span::before {
     transform: translateX(-8px);
 }
 
-input:checked+span {
+.uiToggleInput:checked+.uiToggleSlider {
     background-color: lime;
 }
 
-input:checked+span::before {
+.uiToggleInput:checked+.uiToggleSlider::before {
     transform: translateX(20px);
 }
 </style>
