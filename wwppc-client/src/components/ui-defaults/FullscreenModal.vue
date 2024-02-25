@@ -1,10 +1,12 @@
+<!-- oops i used options and composition api -->
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, toRaw } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
 </script>
 <script lang="ts">
-enum ModalMode {
+const modalInput = ref('');
+export const enum ModalMode {
     NOTIFY = 0,
     CONFIRM = 1,
     QUERY = 2
@@ -18,7 +20,6 @@ const modal = reactive({
 });
 let modalResolve = () => { };
 let modalReject = () => { };
-const modalInput = ref(null);
 export async function showModal({ title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false }: { title: string, content: string, mode?: ModalMode, color?: string, glitchTitle?: boolean }): Promise<boolean | string | null> {
     if (glitchTitle) glitchTextTransition(title, title, (text) => { modal.title = text; return false }, 40, 2, 10, 1, true);
     else modal.title = title;
@@ -30,7 +31,9 @@ export async function showModal({ title, content, mode = ModalMode.NOTIFY, color
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = () => {
                 modal.open = false;
+                console.log(modalInput.value.indexOf('buh'))
                 resolve(modalInput.value);
+                modalInput.value = '';
             };
             modalReject = () => {
                 modal.open = false;
@@ -55,7 +58,9 @@ export async function showModal({ title, content, mode = ModalMode.NOTIFY, color
         <div id="modal" v-bind:style="(modal.open) ? 'transform: translateY(calc(50vh + 50%))' : ''">
             <h1 v-html=modal.title></h1>
             <p v-html=modal.content></p>
-            <UITextBox ref="modalTextbox"></UITextBox>
+            <span v-if="modal.mode == ModalMode.QUERY">
+                <UITextBox ref="modalInput"></UITextBox>
+            </span>
             <br>
             <div id="buttons">
                 <span v-if="modal.mode == ModalMode.CONFIRM">
