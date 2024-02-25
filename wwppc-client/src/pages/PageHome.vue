@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView } from '@/components/panels/PanelManager';
-import UserDisp from '@/components/user-disp/UserDisp.vue';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
+import LoadingCover from '@/components/ui-defaults/LoadingCover.vue';
 </script>
 
 <template>
@@ -9,17 +10,23 @@ import LargeLogo from '@/components/LargeLogo.vue';
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home"></PanelNavButton>
-                <PanelNavButton text="WWPPC 2024"></PanelNavButton>
-                <PanelNavButton text="Contest"></PanelNavButton>
-                <PanelNavButton text="About"></PanelNavButton>
+                <PanelNavButton text="Home" for="home"></PanelNavButton>
+                <PanelNavButton text="WWP-Hacks" for="hackathon" :link=true></PanelNavButton>
+                <PanelNavButton text="WWP-IT" for="contest" :link=true></PanelNavButton>
+                <PanelNavButton text="About" for="about"></PanelNavButton>
             </PanelNavList>
-            <UserDisp></UserDisp>
+            <PanelRightList>
+                <UserDisp></UserDisp>
+            </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody>
+            <PanelBody name="home">
                 hello
+            </PanelBody>
+            <PanelBody name="about">
+                buh about page
             </PanelBody>
         </PanelMain>
     </PanelView>
+    <LoadingCover></LoadingCover>
 </template>

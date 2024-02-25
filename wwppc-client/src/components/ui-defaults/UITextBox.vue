@@ -15,6 +15,9 @@ const text = ref(props.defaultValue ?? '');
 function input() {
     emit('input', text.value);
 }
+defineExpose({
+    text
+});
 </script>
 
 <template>

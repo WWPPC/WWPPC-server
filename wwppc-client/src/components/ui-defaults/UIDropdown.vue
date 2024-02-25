@@ -18,6 +18,9 @@ const emit = defineEmits<{
 function input() {
     emit('input', selected.value);
 }
+defineExpose({
+    selected
+});
 </script>
 
 <template>

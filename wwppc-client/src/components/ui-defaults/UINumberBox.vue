@@ -19,6 +19,9 @@ const number = ref(props.defaultValue ?? 0);
 function input() {
     emit('input', number.value);
 }
+defineExpose({
+    number
+});
 </script>
 
 <template>

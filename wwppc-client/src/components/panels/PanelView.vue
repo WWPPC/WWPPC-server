@@ -2,7 +2,6 @@
 import { test } from '@/components/panels/PanelManager';
 import { ref } from 'vue';
 const container = ref(null);
-test();
 </script>
 
 <template>

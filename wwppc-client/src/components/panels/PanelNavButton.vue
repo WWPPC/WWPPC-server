@@ -4,6 +4,7 @@ import { glitchTextTransition, type AsyncTextTransition } from '../ui-defaults/T
 const props = defineProps<{
     text: string,
     title?: string,
+    for: string,
     link?: boolean
 }>();
 const emit = defineEmits<{
@@ -12,6 +13,7 @@ const emit = defineEmits<{
 function click() {
     emit('click');
 }
+const selected = ref(false);
 // animations for hover
 const buttonText = ref(props.text)
 let currentAnimation: AsyncTextTransition | null = null;
@@ -25,22 +27,25 @@ onMounted(() => {
 </script>
 
 <template>
-    <input type="button" class="panelNavButton" :value=buttonText @click=click @mouseover=mouseover :title=title>
+    <input type="button" :class="selected ? 'panelNavButton panelNavButtonSelected' : 'panelNavButton'" :value=buttonText @click=click @mouseover=mouseover :title=title>
 </template>
 
 <style>
 .panelNavButton {
     appearance: none;
     width: 128px;
-    margin-bottom: -4px;
     border: none;
-    border-bottom: 4px solid white;
     transition: 100ms cubic-bezier(0.6, 1, 0.5, 1.6) background-color;
     font-size: 18px;
     color: white;
     background-color: transparent;
     font-family: 'Source Code Pro', Courier, monospace;
     cursor: pointer;
+}
+
+.panelNavButtonSelected {
+    background-color: black;
+    font-weight: bold;
 }
 
 .panelNavButton:hover {

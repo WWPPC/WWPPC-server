@@ -3,14 +3,8 @@
 import { reactive, ref } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
-</script>
-<script lang="ts">
-const modalInput = ref('');
-export const enum ModalMode {
-    NOTIFY = 0,
-    CONFIRM = 1,
-    QUERY = 2
-}
+
+const modalInput = ref(null);
 const modal = reactive({
     title: '',
     content: '',
@@ -20,7 +14,7 @@ const modal = reactive({
 });
 let modalResolve = () => { };
 let modalReject = () => { };
-export async function showModal({ title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false }: { title: string, content: string, mode?: ModalMode, color?: string, glitchTitle?: boolean }): Promise<boolean | string | null> {
+const showModal = async ({ title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false }: { title: string, content: string, mode?: ModalMode, color?: string, glitchTitle?: boolean }): Promise<boolean | string | null> => {
     if (glitchTitle) glitchTextTransition(title, title, (text) => { modal.title = text; return false }, 40, 2, 10, 1, true);
     else modal.title = title;
     modal.content = content;
@@ -31,9 +25,8 @@ export async function showModal({ title, content, mode = ModalMode.NOTIFY, color
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = () => {
                 modal.open = false;
-                console.log(modalInput.value.indexOf('buh'))
+                console.log(modalInput.value)
                 resolve(modalInput.value);
-                modalInput.value = '';
             };
             modalReject = () => {
                 modal.open = false;
@@ -51,11 +44,19 @@ export async function showModal({ title, content, mode = ModalMode.NOTIFY, color
         }
     });
 }
+defineExpose({ showModal });
+</script>
+<script lang="ts">
+export const enum ModalMode {
+    NOTIFY = 0,
+    CONFIRM = 1,
+    QUERY = 2
+}
 </script>
 
 <template>
-    <div id="container" v-bind:style="(modal.open) ? 'opacity: 1; pointer-events: all;' : ''">
-        <div id="modal" v-bind:style="(modal.open) ? 'transform: translateY(calc(50vh + 50%))' : ''">
+    <div id="container" v-bind:style="modal.open ? 'opacity: 1; pointer-events: all;' : ''">
+        <div id="modal" v-bind:style="modal.open ? 'transform: translateY(calc(50vh + 50%))' : ''">
             <h1 v-html=modal.title></h1>
             <p v-html=modal.content></p>
             <span v-if="modal.mode == ModalMode.QUERY">

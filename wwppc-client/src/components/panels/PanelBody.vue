@@ -1,13 +1,17 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const props = defineProps<{
+    name: string
+}>();
+</script>
 
 <template>
-    <div class="pagePanel">
+    <div :class="'panelBody panelName' + props.name.toUpperCase()">
         <slot></slot>
     </div>
 </template>
 
 <style>
-.pagePanel {
+.panelBody {
     position: absolute;
     bottom: 0px;
     left: 0px;

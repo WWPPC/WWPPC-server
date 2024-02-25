@@ -3,7 +3,7 @@ import UITextBox from './UITextBox.vue';
 import UINumberBox from './UINumberBox.vue';
 import UIToggle from './UIToggle.vue';
 import UIDropdown from './UIDropdown.vue';
-import FullscreenModal, { showModal, ModalMode } from './FullscreenModal.vue';
+import FullscreenModal, { ModalMode } from './FullscreenModal.vue';
 export {
     UIButton,
     UITextBox,
@@ -11,6 +11,5 @@ export {
     UIToggle,
     UIDropdown,
     FullscreenModal,
-    showModal,
     ModalMode
 }

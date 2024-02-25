@@ -1,16 +1,16 @@
 <script setup lang="ts"></script>
 
 <template>
-    <nav class="panelViewNav">
+    <nav class="panelRightList">
         <slot></slot>
     </nav>
 </template>
 
 <style>
-.panelViewNav {
+.panelRightList {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    /* align-self: flex-start; */
+    align-self: flex-start;
 }
 </style>
