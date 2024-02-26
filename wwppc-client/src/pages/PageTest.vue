@@ -26,8 +26,8 @@ const actualResult = ref('');
                 <ContestTimer></ContestTimer>
             </PanelRightList>
         </PanelHeader>
-        <PanelMain default="default" page="test">
-            <PanelBody name="default">
+        <PanelMain>
+            <PanelBody name="default" :is-default=true>
                 <UIButton @click="async () => result = await modal?.showModal({title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY})" text="Test modal"></UIButton>
                 <UIDropdown :items="[{text: result, value: 'a'}, {text: result2, value: 'b'}]" width="100px" default="a" :required=true @input="(t) => actualResult = t"></UIDropdown>
                 <UITextBox @input="(t) => result2 = t" default-value="hi"></UITextBox>

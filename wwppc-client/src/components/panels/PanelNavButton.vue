@@ -15,7 +15,7 @@ const router = useRouter();
 
 function click() {
     emit('click');
-    if (props.link) self.location.replace(props.for);
+    if (props.link) window.location.replace(props.for);
     else router.push(props.for)
 }
 const selected = ref(false);

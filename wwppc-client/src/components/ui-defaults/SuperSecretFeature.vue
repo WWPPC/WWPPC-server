@@ -2,10 +2,11 @@
 const props = defineProps<{
     show?: boolean
 }>();
+const showAnyways = new URLSearchParams(window.location.search).get('superSecretScanlines') || Math.random() < 0.01;
 </script>
 
 <template>
-    <div id="superSecretDiv" v-if="props.show">
+    <div id="superSecretDiv" v-if="props.show || showAnyways">
         <div id="superSecretNoise"></div>
         <div id="superSecretScanlines"></div>
         <div id="superSecretFlicker"></div>

@@ -20,6 +20,7 @@ const showModal = async ({ title, content, mode = ModalMode.NOTIFY, color = 'whi
     modal.content = content;
     modal.mode = mode;
     modal.color = color;
+    modalInput.value.text = '';
     modal.open = true;
     return await new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {

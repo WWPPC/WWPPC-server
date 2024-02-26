@@ -22,7 +22,7 @@ const modal = ref(FullscreenModal);
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" :isDefault=true>
+            <PanelBody name="default" :is-default=true>
                 Hey! This page isn't finished. Check back later for updates!
                 <br><br>
                 oops hacked

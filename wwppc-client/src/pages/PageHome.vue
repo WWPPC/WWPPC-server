@@ -26,7 +26,7 @@ const modal = ref(FullscreenModal);
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home" :isDefault=true>
+            <PanelBody name="home" :is-default=true>
                 <div class="fullBlock">
                     <br><br>
                     <LargeGlitchCenterText text="WWP-IT + WWP-HACKS" fontStyle="
