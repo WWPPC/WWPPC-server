@@ -1,4 +1,3 @@
-<!-- Copyright (C) 2024 Sampleprovider(sp) -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,51 +5,104 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home | WWPPC</title>
-    <link rel="icon" href="./assets/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/common/common.css">
-    <link rel="stylesheet" href="/index.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/common/jquery-3.7.1.min.js"></script>
-    <script src="/common/common.js" defer></script>
-    <script src="/common/panels.js" defer></script>
-    <script src="/index.js" defer></script>
+    <title>WWPPC</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
 </head>
 
 <body>
-    <div id="loadingCover" style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; background-color: black; z-index: 99999;"></div>
-    <script>$('#loadingCover').load('/common/loadingCover.html');</script>
-    <header>
-        <nav>
-            <a href="/" title="SIT Home"><img src="/assets/logo.png"></a>
-            <input type="button" class="navButton panelButton" cpanel="home" value="Home">
-            <input type="button" id="navContest" class="navButton panelButton" cpanel="contest" value="Contest">
-        </nav>
-        <div id="userDisplay">
-            <span id="usernameDisplay">Not logged in</span>
-            <input type="button" id="logoutButton" class="button" value="Log out">
+    <div id="root"></div>
+    <div id="loadingCover">
+        <div id="loadingCoverBar"></div>
+        <noscript id="noscript">JavaScript was disabled!<br>Please enable it and <a href="" style="color: white">reload</a>!</noscript>
+        <div id="loadingErrorsContainer">
+            <div id="loadingerror"></div>
         </div>
-    </header>
-    <main>
-        <div class="panel" cpanel="home">
-            wow look at this home page
-            <input type="button" class="button" value="test">
-            <select class="selectBox">
-                <option>Test 1</option>
-                <optgroup label="EEE">
-                    <option>Test 2</option>
-                    <option>Test 3</option>
-                </optgroup>
-            </select>
-            <input type="text" class="textBox" value="" placeholder="eee">
-            <input type="text" class="textBox" value="oof" placeholder="testetset">
-            <input type="number" class="numberBox" min="2" max="5" step="1">
-            <span class="toggleGen" tid="test" tchecked="1"></span>
-            <input type="checkbox" class="checkBox">
-        </div>
-        <div class="panel" cpanel="contest"></div>
-    </main>
-    <div id="commonContainer"></div>
+        <style>
+            #loadingCover {
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                width: 100vw;
+                height: 100vh;
+                text-align: center;
+                background-color: black;
+                transition: 200ms linear opacity;
+                z-index: 1000;
+                cursor: wait;
+            }
+
+            #loadingCoverBar {
+                position: fixed;
+                top: calc(50vh - 0.5vw);
+                left: 35vw;
+                width: 30vw;
+                height: 1vw;
+                background: linear-gradient(red 0 0), linear-gradient(lime 0 0), white;
+                background-size: 60% 100%;
+                background-repeat: no-repeat;
+                box-shadow: 0px 0px 0.5vw rgba(255, 255, 255, 0.5);
+                animation: pageLoadCoverProgress ease 2s infinite;
+            }
+
+            #noscript {
+                position: fixed;
+                top: 55vh;
+                left: 0vw;
+                width: 100vw;
+                text-align: center;
+            }
+
+            #loadingErrorsContainer {
+                position: fixed;
+                top: 55vh;
+                left: 0vw;
+                width: 100vw;
+                text-align: center;
+            }
+
+            #loadingerror {
+                color: red;
+            }
+
+            @keyframes pageLoadCoverProgress {
+                0% {
+                    background-position: -150% 0, -150% 0;
+                }
+
+                66% {
+                    background-position: 250% 0, -150% 0;
+                }
+
+                100% {
+                    background-position: 250% 0, 250% 0;
+                }
+            }
+
+            #copyrightNotice2 {
+                position: fixed;
+                bottom: calc(10vh);
+                left: 50vw;
+                font-size: 2vh;
+                transform: translateX(-50%);
+            }
+        </style>
+        <script>
+            let canLoad = true;
+            window.addEventListener('load', (e) => {
+                if (!canLoad) return;
+                document.getElementById('loadingCover').style.opacity = 0;
+                window.onerror = null;
+                setTimeout(() => {
+                    document.getElementById('loadingCover').remove();
+                }, 200);
+            });
+            window.onerror = (e, filename, lineno, colno, err) => {
+                document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
+                canLoad = false;
+            };
+        </script>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>

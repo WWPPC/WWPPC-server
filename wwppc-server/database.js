@@ -28,7 +28,7 @@ class Database {
         this.#connectPromise = new Promise((r) => r());
         this.#db = new Client({
             connectionString: uri,
-            application_name: 'ACC-IT Server'
+            application_name: 'WWPPC Server'
         });
         this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
     }

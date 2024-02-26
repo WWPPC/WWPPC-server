@@ -1,0 +1,71 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const props = defineProps<{
+    startChecked?: boolean
+    title?: string
+}>();
+const checked = ref(props.startChecked ?? false);
+const emit = defineEmits<{
+    (e: 'input', checked: boolean): void
+}>();
+function input() {
+    emit('input', checked.value);
+}
+</script>
+
+<template>
+    <label class="uiToggleLabel">
+        <input class="uiToggleInput" type="checkbox" @change=input v-model=checked :title=title>
+        <span class="uiToggleSlider"></span>
+    </label>
+</template>
+
+<style>
+.uiToggleLabel {
+    display: inline-block;
+    position: relative;
+    bottom: 6px;
+    width: 60px;
+    height: 32px;
+}
+
+.uiToggleInput {
+    opacity: 0px;
+    width: 0px;
+    height: 0px;
+}
+
+.uiToggleSlider {
+    position: absolute;
+    top: 6px;
+    left: 4px;
+    width: 44px;
+    height: 12px;
+    background-color: red;
+    border: 4px solid white;
+    transition: 0.1s linear;
+    cursor: pointer;
+}
+
+.uiToggleSlider::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0px;
+    width: 24px;
+    height: 24px;
+    border: 4px solid white;
+    background-color: black;
+    transition: 0.1s linear;
+    transform: translateX(-8px);
+}
+
+.uiToggleInput:checked+.uiToggleSlider {
+    background-color: lime;
+}
+
+.uiToggleInput:checked+.uiToggleSlider::before {
+    transform: translateX(20px);
+}
+</style>

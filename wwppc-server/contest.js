@@ -8,6 +8,7 @@ class ContestManager {
     // start/stop rounds, control which problems are where
     // uses database to get problems and then caches them
     // use http requests for problems to avoid useless socketio spam
+    // also prevent people from opening the contest page multiple times
 }
 
 module.exports = ContestManager;

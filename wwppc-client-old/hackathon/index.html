@@ -1,0 +1,70 @@
+<!-- Copyright (C) 2024 Sampleprovider(sp) -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon | WWPPC</title>
+    <link rel="icon" href="./assets/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/common/common.css">
+    <link rel="stylesheet" href="/hackathon/index.css">
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/common/jquery-3.7.1.min.js" defer></script>
+    <script src="/common/common.js" defer></script>
+    <script src="/common/panels.js" defer></script>
+    <script src="/hackathon/index.js" defer></script>
+    <script src="/hackathon/problems.js" defer></script>
+</head>
+
+<body>
+    <div id="loadingCover"></div>
+    <script src="/common/loadingCover.js"></script>
+    <header>
+        <nav>
+            <a href="/" title="SIT Home"><img src="/assets/logo.png"></a>
+            <input type="button" class="navButton panelButton" cpanel="problemList" value="Problems">
+            <input type="button" class="navButton panelButton" cpanel="leaderboard" value="Leaderboard">
+            <input type="button" class="navButton panelButton hidden" cpanel="submissions" value="">
+        </nav>
+        <div id="userDisplay">
+            <div id="usernameDisplay">Not logged in</div>
+            <input type="button" id="logoutButton" class="button" value="Log out">
+        </div>
+        <div id="timerContainer">
+            <img src="/assets/timer.svg" id="timerImg">
+            <div id="timerTextTop">Round 0</div>
+            <div id="timerTextBottom">00:00</div>
+        </div>
+    </header>
+    <main>
+        <div class="panel" cpanel="problemList">
+            <!-- problem list... as explained -->
+            <!-- section into rounds -->
+            omg problem list
+            <template id="problemSectionTemplate">
+                <!-- header (round, question count, time limit, time until start) -->
+            </template>
+            <template id="problemItemTemplate">
+                <!-- problem number 9as letter/0 -->
+            </template>
+        </div>
+        <div class="panel" cpanel="submissions">
+            <!-- problem name, body, submission status at top -->
+            <!-- submit can be on the side because who needs such a wide text -->
+            wow submission screen (falls under problem list)
+        </div>
+        <div class="panel" cpanel="leaderboard">
+            <!-- buh leaderboard -->
+            buh
+        </div>
+        <template id="problemTemplate">
+            <!-- each problem in problem list is created from this template -->
+            <!-- show problem name, submission status -->
+        </template>
+    </main>
+    <div id="commonContainer"></div>
+</body>
+
+</html>

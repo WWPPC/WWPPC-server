@@ -1,6 +1,8 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
-console.info('Starting WWPPC Server');
+const LOGGER = new (require('./log.js'))();
+LOGGER.info('Starting WWPC server...');
+
 const config = require('./config.json');
 const fs = require('fs')
 const path = require('path');
@@ -10,20 +12,27 @@ const server = fs.existsSync(path.resolve(__dirname, '.local')) ? require('https
     key: fs.readFileSync(path.resolve(__dirname, './localhost-key.pem')),
     cert: fs.readFileSync(path.resolve(__dirname, './localhost.pem'))
 }, app) : require('http').createServer(app);
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
+const cors = require('cors');
+const limiter = require('express-rate-limit')({
     windowMs: 100,
     max: 30,
     handler: function (req, res, options) {
-        console.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
+        LOGGER.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
 app.use(limiter);
-app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/index.html')));
-app.get('/login', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/login/index.html')));
-app.get('/contest', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/contest/index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.resolve(__dirname, './../wwppc-client/admin/index.html')));
-app.use('/', express.static(path.resolve(__dirname, './../wwppc-client')));
+app.use(cors({ origin: '*' }));
+const clientDir = path.resolve(__dirname, './../wwppc-client/dist');
+const indexDir = path.resolve(clientDir, 'index.html');
+app.use('/', express.static(clientDir));
+app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
+app.get('*', (req, res) => {
+    // last handler - if nothing else finds the page, just send 404
+    res.status(404);
+    if (req.accepts('html')) res.render('404', { filename: indexDir });
+    else if (req.accepts('json')) res.json({ error: 'Not found' });
+    else res.send('Not found');
+});
 
 const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'));
 config.port = process.env.PORT ?? config.port;
@@ -33,13 +42,16 @@ const contestManager = new (require('./contest.js'))();
 const sessionId = Math.random();
 const recentConnections = [];
 const recentConnectionKicks = [];
-const io = new (require('socket.io')).Server(server);
+const io = new (require('socket.io')).Server(server, {
+    path: '/socket.io',
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 io.on('connection', async (s) => {
     const socket = s;
     const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
     // some spam protection stuff
     let kick = (reason = 'unspecified') => {
-        console.warn(`${ip} was kicked for violating restrictions; ${reason}`);
+        LOGGER.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
         socket.onevent = function (packet) { };
         socket.disconnect();
@@ -69,7 +81,7 @@ io.on('connection', async (s) => {
         if (packetCount > 0) kick('too many packets');
     }, 1000);
     // await credentials before allowing anything (in a weird way)
-    socket.emit('getCredentials', {key: database.publicKey, session: sessionId});
+    socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds) => {
             if (creds == null || (creds.action != 0 && creds.action != 1)) {
@@ -102,9 +114,9 @@ io.on('connection', async (s) => {
     // add rest of stuff here
     // including submissions oof
 });
-let connectionKickDecrementer = setInterval(function() {
+let connectionKickDecrementer = setInterval(function () {
     for (let i in recentConnections) {
-        recentConnections[i] = Math.max(recentConnections[i]-1, 0);
+        recentConnections[i] = Math.max(recentConnections[i] - 1, 0);
     }
     for (let i in recentConnectionKicks) {
         delete recentConnectionKicks[i];
@@ -112,15 +124,15 @@ let connectionKickDecrementer = setInterval(function() {
 }, 1000);
 
 database.connectPromise.then(() => {
-    console.info('Connected to database');
+    LOGGER.info('Connected to database');
     server.listen(config.port);
-    console.info(`Server listening to port ${config.port}`);
+    LOGGER.info(`Server listening to port ${config.port}`);
 });
 
 let stop = async () => {
-    console.info(`Stopping server...`);
+    LOGGER.info(`Stopping server...`);
     let actuallyStop = () => {
-        console.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
+        LOGGER.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
         process.exit();
     };
     process.on('SIGTERM', actuallyStop);
@@ -130,7 +142,7 @@ let stop = async () => {
     io.close();
     clearInterval(connectionKickDecrementer);
     await database.disconnect();
-    console.info(`Database disconnected`);
+    LOGGER.info(`Database disconnected`);
     process.exit();
 };
 process.on('SIGTERM', stop);
