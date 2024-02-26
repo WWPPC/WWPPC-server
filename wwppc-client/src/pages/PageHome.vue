@@ -13,8 +13,8 @@ const modal = ref(FullscreenModal);
 <template>
     <PanelView>
         <PanelHeader>
+            <LargeLogo></LargeLogo>
             <PanelNavList>
-                <LargeLogo></LargeLogo>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWP-Hacks" for="/hackathon"></PanelNavButton>
                 <PanelNavButton text="WWP-IT" for="/contest"></PanelNavButton>
@@ -25,16 +25,23 @@ const modal = ref(FullscreenModal);
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
-        <PanelMain default="home" page="home">
-            <PanelBody name="home">
-                <br><br>
-                <LargeGlitchCenterText text="WWPIT + WWPHACKS" fontStyle="
-                font-weight:bold;
-                font-size: min(calc(50vh - 50px), calc(100vw / 11));
-                color: lime;
-                " :steps=2 :delay=10></LargeGlitchCenterText>
-                <br>
-                ok now what
+        <PanelMain>
+            <PanelBody name="home" :isDefault=true>
+                <div class="fullBlock">
+                    <br><br>
+                    <LargeGlitchCenterText text="WWP-IT + WWP-HACKS" fontStyle="
+                    font-weight:bold;
+                    font-size: min(calc(50vh - 50px), calc(100vw / 12));
+                    text-wrap: nowrap;
+                    color: lime;
+                    " :steps=1 :delay=5></LargeGlitchCenterText>
+                    <br>
+                    <div class="center">
+                    </div>
+                </div>
+                <div class="fullBlock">
+                    wow thing
+                </div>
             </PanelBody>
             <PanelBody name="about">
                 Hey! This page isn't finished. Check back later for updates!

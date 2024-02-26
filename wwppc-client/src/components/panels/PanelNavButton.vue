@@ -29,9 +29,9 @@ function mouseover() {
     currentAnimation = glitchTextTransition(props.text, props.text, (text) => { buttonText.value = text; }, 40, 2, 5, 1);
 }
 onMounted(() => {
-    blockingAnimation = glitchTextTransition(props.text.replace(/./g, ' '), props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
+    blockingAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
 });
-buttonText.value = '';
+buttonText.value = props.text.replace(/./g, ' ');
 </script>
 
 <template>
@@ -41,7 +41,7 @@ buttonText.value = '';
 <style>
 .panelNavButton {
     appearance: none;
-    width: 128px;
+    min-width: 128px;
     border: none;
     transition: 100ms cubic-bezier(0.6, 1, 0.5, 1.6) background-color;
     font-size: 18px;

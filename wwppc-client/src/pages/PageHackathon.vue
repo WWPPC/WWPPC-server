@@ -12,8 +12,8 @@ const modal = ref(FullscreenModal);
 <template>
     <PanelView>
         <PanelHeader>
+            <LargeLogo></LargeLogo>
             <PanelNavList>
-                <LargeLogo></LargeLogo>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="Other Button" for="/extra"></PanelNavButton>
             </PanelNavList>
@@ -21,8 +21,8 @@ const modal = ref(FullscreenModal);
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
-        <PanelMain default="default" page="hackathon">
-            <PanelBody name="default">
+        <PanelMain>
+            <PanelBody name="default" :isDefault=true>
                 Hey! This page isn't finished. Check back later for updates!
                 <br><br>
                 oops hacked

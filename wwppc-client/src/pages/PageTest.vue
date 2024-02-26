@@ -17,8 +17,8 @@ const actualResult = ref('');
 <template>
     <PanelView>
         <PanelHeader>
+            <LargeLogo></LargeLogo>
             <PanelNavList>
-                <LargeLogo></LargeLogo>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>

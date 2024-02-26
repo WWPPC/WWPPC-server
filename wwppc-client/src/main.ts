@@ -4,21 +4,21 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from './App.vue';
-import { PanelMain } from './components/panels/PanelManager';
+import { PanelBody } from './components/panels/PanelManager';
 
 const app = createApp(App);
 const pinia = createPinia();
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', component: App },
+        { path: '/', components: { App, PanelBody } },
         {
             path: '/:page',
-            components: { App, PanelMain },
+            component: App,
             children: [
                 {
                     path: ':panel',
-                    component: PanelMain
+                    component: PanelBody
                 }
             ]
         },

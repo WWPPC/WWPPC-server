@@ -40,3 +40,24 @@ img {
 .hidden {
     display: none;
 }
+.fullBlock {
+    width: 100%;
+    min-height: 100%;
+    margin-bottom: 32px;
+}
+.fullBlock:last-child {
+    margin-bottom: 0px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+}
+h2 {
+    font-size: 32px;
+    font-weight: bold;
+}
+p {
+    font-size: 16px;
+}
