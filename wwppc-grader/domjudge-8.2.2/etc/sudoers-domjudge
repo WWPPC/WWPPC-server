@@ -1,0 +1,21 @@
+# Generated from 'sudoers-domjudge.in' on Sun Feb 25 05:58:46 PM EST 2024.
+
+# Example sudoers configuration for DOMjudge judgehosts.
+# Check the file paths (especially the chroot prefix),
+# give it file mode 0440 and place this file into /etc/sudoers.d/
+# (most recent sudo versions; otherwise use an #include statement
+# in or add its content to the end of /etc/sudoers)
+
+a25ra0631 ALL=(root) NOPASSWD: /home/a25ra0631/domjudge/judgehost/bin/runguard *
+a25ra0631 ALL=(root) NOPASSWD: /bin/chown -R a25ra0631\: /home/a25ra0631/domjudge/judgehost/judgings/*
+
+# The chroot path below must match the path in chroot-startstop.sh.
+a25ra0631 ALL=(root) NOPASSWD: /bin/mount -n --bind /proc proc
+a25ra0631 ALL=(root) NOPASSWD: /bin/umount /*/proc
+a25ra0631 ALL=(root) NOPASSWD: /bin/mount --bind /chroot/domjudge/*
+a25ra0631 ALL=(root) NOPASSWD: /bin/mount -o remount\,ro\,bind /home/a25ra0631/domjudge/judgehost/judgings/*
+a25ra0631 ALL=(root) NOPASSWD: /bin/umount /home/a25ra0631/domjudge/judgehost/judgings/*
+a25ra0631 ALL=(root) NOPASSWD: /bin/umount -f -vvv /home/a25ra0631/domjudge/judgehost/judgings/*
+a25ra0631 ALL=(root) NOPASSWD: /bin/cp -pR /dev/random /dev/urandom /dev/null dev
+a25ra0631 ALL=(root) NOPASSWD: /bin/chmod o-w dev/random dev/urandom
+

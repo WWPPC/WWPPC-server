@@ -1,0 +1,23 @@
+{% extends "jury/base.html.twig" %}
+{% import "jury/jury_macros.twig" as macros %}
+
+{% block title %}Executables - {{ parent() }}{% endblock %}
+
+{% block extrahead %}
+    {{ parent() }}
+    {{ macros.table_extrahead() }}
+{% endblock %}
+
+{% block content %}
+
+    <h1>Executables</h1>
+
+    {{ macros.table(executables, table_fields, {'ordering': 'false'}) }}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <p>
+            {{ button(path('jury_executable_add'), 'Add new executable', 'primary', 'plus') }}
+        </p>
+    {% endif %}
+
+{% endblock %}

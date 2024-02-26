@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.22.0@fc2c6ab4d5fa5d644d8617089f012f3bb84b8703">
+  <file src="src/DependencyInjection/SentryExtension.php">
+    <UndefinedClass occurrences="1">
+      <code>FatalErrorException</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/EventListener/ConsoleCommandListener.php">
+    <InvalidExtendClass occurrences="1">
+      <code>ConsoleListener</code>
+    </InvalidExtendClass>
+    <MethodSignatureMismatch occurrences="1">
+      <code>public function __construct(HubInterface $hub, bool $captureErrors = true)</code>
+    </MethodSignatureMismatch>
+  </file>
+  <file src="src/EventListener/ErrorListener.php">
+    <RedundantCondition occurrences="1">
+      <code>$event instanceof ExceptionEvent</code>
+    </RedundantCondition>
+    <UndefinedMethod occurrences="1">
+      <code>getException</code>
+    </UndefinedMethod>
+  </file>
+  <file src="src/EventListener/KernelEventForwardCompatibilityTrait.php">
+    <UndefinedMethod occurrences="1">
+      <code>isMasterRequest</code>
+    </UndefinedMethod>
+  </file>
+  <file src="src/Tracing/Cache/TraceableCacheAdapterTrait.php">
+    <LessSpecificImplementedReturnType occurrences="1">
+      <code>iterable</code>
+    </LessSpecificImplementedReturnType>
+  </file>
+  <file src="src/Tracing/Doctrine/DBAL/Compatibility/MiddlewareInterface.php">
+    <UnrecognizedStatement occurrences="1"/>
+  </file>
+  <file src="src/Tracing/Doctrine/DBAL/TracingDriverForV2.php">
+    <UndefinedClass occurrences="1">
+      <code>ExceptionConverterDriver</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/Tracing/Doctrine/DBAL/TracingDriverForV3.php">
+    <InvalidReturnStatement occurrences="1">
+      <code>$this-&gt;decoratedDriver-&gt;getSchemaManager($conn, $platform)</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>AbstractSchemaManager&lt;T&gt;</code>
+    </InvalidReturnType>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$params</code>
+    </MoreSpecificImplementedParamType>
+  </file>
+  <file src="src/Tracing/HttpClient/TraceableResponseForV5.php">
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>toStream</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Tracing/HttpClient/TraceableResponseForV6.php">
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>toStream</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/aliases.php">
+    <MissingDependency occurrences="1">
+      <code>TracingDriverForV2</code>
+    </MissingDependency>
+    <UndefinedClass occurrences="6">
+      <code>FilterControllerEvent</code>
+      <code>FilterResponseEvent</code>
+      <code>GetResponseEvent</code>
+      <code>GetResponseEvent</code>
+      <code>GetResponseForExceptionEvent</code>
+      <code>PostResponseEvent</code>
+    </UndefinedClass>
+  </file>
+  <file src="src/DependencyInjection/Compiler/CacheTracingPass.php">
+    <UndefinedDocblockClass occurrences="1">
+      <code>$container-&gt;getParameter('sentry.tracing.cache.enabled')</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="src/DependencyInjection/Compiler/HttpClientTracingPass.php">
+    <UndefinedDocblockClass occurrences="2">
+      <code>$container-&gt;getParameter('sentry.tracing.enabled')</code>
+      <code>$container-&gt;getParameter('sentry.tracing.http_client.enabled')</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="src/DependencyInjection/Compiler/DbalTracingPass.php">
+    <UndefinedDocblockClass occurrences="4">
+      <code>$container-&gt;getParameter('sentry.tracing.enabled')</code>
+      <code>$container-&gt;getParameter('sentry.tracing.dbal.enabled')</code>
+      <code>$container-&gt;getParameter('sentry.tracing.dbal.connections')</code>
+      <code>$container-&gt;getParameter('doctrine.connections')</code>
+    </UndefinedDocblockClass>
+  </file>
+</files>

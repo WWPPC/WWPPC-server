@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+
+'''
+import-contest -- Convenience script to import a contest (including metadata,
+teams and problems) from the command line. Defaults to using the CLI interface;
+Specify a DOMjudge API URL as to use that.
+
+Reads credentials from ~/.netrc when using the API.
+
+See also https://www.domjudge.org/docs/manual/main/import.html
+(replace main with the DOMjudge major.minor version if you are running a
+released version, i.e. use 8.1 for DOMjudge 8.1.x)
+
+Part of the DOMjudge Programming Contest Jury System and licensed
+under the GNU GPL. See README and COPYING for details.
+'''
+
+import json
+from os import listdir
+import os.path
+import re
+import sys
+from typing import List
+import yaml
+
+sys.path.append('/home/a25ra0631/domjudge/domserver/lib')
+import dj_utils
+
+cid = None
+webappdir = '/home/a25ra0631/domjudge/domserver/webapp'
+
+
+def usage():
+    print(f'Usage: {sys.argv[0]} [<domjudge-api-url>]')
+    exit(1)
+
+
+def import_file(entity: str, files: List[str]) -> bool:
+    any_matched = False
+    for file in files:
+        if os.path.exists(file):
+            if dj_utils.confirm(f'Import {entity} from {file}?', False):
+                print(f'Importing {entity}.')
+                type = file.split('.')[1]
+                response = dj_utils.upload_file(f'users/{entity}', type, file)
+                print(json.dumps(response, indent=4))
+                # After the first successfully imported file, we should stop
+                return True
+            else:
+                print(f'Skipping {entity} import.')
+            any_matched = True
+    if not any_matched:
+        if len(files) == 1:
+            print(f'\'{files[0]}\' not found, skipping {entity} import.')
+        else:
+            prefix = [f'\'{item}\'' for item in files[:-1]]
+            prefix_joined = ', '.join(prefix)
+            last = f'\'{files[-1]}\''
+            print(
+                f'Neither {prefix_joined} nor {last} found, skipping {entity} import.')
+    return False
+
+def import_images(entity: str, property: str, filename_regexes: List[str]):
+    """Import images for the given entity. filename_regexes determines what file to import: only
+    files matching the regexes will be considered and if multiple files match the regexes the file
+    with the first matched regex will be used"""
+
+    if not os.path.isdir(entity):
+        return
+    images_per_entity = {}
+    for entity_id in listdir(entity):
+        entity_dir = f'{entity}/{entity_id}'
+        if not os.path.isdir(entity_dir):
+            continue
+        entity_files = sorted(listdir(entity_dir))
+        any_matched = False
+        for regex in filename_regexes:
+            if any_matched:
+                break
+            for entity_file in entity_files:
+                if re.match(regex, entity_file):
+                    images_per_entity[entity_id] = entity_file
+                    any_matched = True
+                    break
+
+    if images_per_entity:
+        if dj_utils.confirm(f'Import {property}s for {entity}?', False):
+            for entity_id in images_per_entity:
+                image_file = f'{entity}/{entity_id}/{images_per_entity[entity_id]}'
+                print(f'Importing file {image_file} as {property} for {entity} entity with ID {entity_id}...')
+                dj_utils.upload_file(f'{entity}/{entity_id}/{property}', property, image_file)
+            print(f'{len(images_per_entity)} {property}s imported.')
+        else:
+            print(f'Skipping {entity} {property} import.')
+
+if len(sys.argv) == 1:
+    dj_utils.domjudge_webapp_folder_or_api_url = webappdir
+elif len(sys.argv) == 2:
+    dj_utils.domjudge_webapp_folder_or_api_url = sys.argv[1]
+else:
+    usage()
+
+user_data = dj_utils.do_api_request('user')
+if 'admin' not in user_data['roles']:
+    print('Your user does not have the \'admin\' role, can not import.')
+    exit(1)
+
+import_file('groups', ['groups.json', 'groups.tsv'])
+if import_file('organizations', ['organizations.json']):
+    # Also import logos if we have any
+    # We prefer the 64x64 logo. If it doesn't exist, accept a generic logo (which might be a SVG)
+    import_images('organizations', 'logo', ['^logo\.64\..*$', '^logo\.[a-z]*$'])
+if import_file('teams', ['teams.json', 'teams2.tsv']):
+    # Also import photos of we have any
+    import_images('teams', 'photo', ['^photo\.[a-z]*$'])
+import_file('accounts', ['accounts.json', 'accounts.yaml', 'accounts.tsv'])
+
+problems_imported = False
+
+# Contest import is a special case: we can also gather the contest ID.
+if os.path.exists('contest.yaml'):
+    if dj_utils.confirm('Import contest metadata (from contest.yaml)?', True):
+        print(f'Importing contest.')
+        cid = dj_utils.upload_file('contests', 'yaml', 'contest.yaml')
+elif os.path.exists('contest.json'):
+    if dj_utils.confirm('Import contest metadata (from contest.json)?', True):
+        print('Importing contest.')
+        cid = dj_utils.upload_file('contests', 'json', 'contest.json')
+else:
+    print('Neither \'contest.yaml\' nor \'contest.json\' found, skipping contest metadata import.')
+
+if cid is not None:
+    print(f' -> cid={cid}')
+
+# Problem import is also special: we need to upload each individual problem and detect what they are
+if os.path.exists('problems.yaml') or os.path.exists('problems.json') or os.path.exists('problemset.yaml'):
+    if dj_utils.confirm('Import problems?', True):
+        # Check if our user is linked to a team
+        user_data = dj_utils.do_api_request('user')
+        if not 'team' in user_data and not dj_utils.confirm('No team associated with your account. Jury submissions won\'t be imported. Really continue?', False):
+            exit(2)
+
+        print('Importing problems.')
+
+        if cid is None:
+            cid = answer = input('Please specify the contest id: ')
+
+        if not problems_imported:
+            if os.path.exists('problems.yaml'):
+                problems_file = 'problems.yaml'
+            elif os.path.exists('problems.json'):
+                problems_file = 'problems.json'
+            else:
+                problems_file = 'problemset.yaml'
+            dj_utils.upload_file(f'contests/{cid}/problems/add-data', 'data', problems_file)
+
+        # We might need to translate the problem external ID's into an internal ID (when we are in data source = local mode)
+        # For this, we get the problems from the API and create a dict with the mapping
+        problem_mapping = {problem['externalid']: problem['id']
+                           for problem in dj_utils.do_api_request(f'contests/{cid}/problems')}
+
+        if os.path.exists('problems.yaml'):
+            with open('problems.yaml') as problemFile:
+                problemData = yaml.safe_load(problemFile)
+                problems = [problem['id'] for problem in problemData]
+        elif os.path.exists('problems.json'):
+            with open('problems.json') as problemFile:
+                problemData = json.load(problemFile)
+                problems = [problem['id'] for problem in problemData]
+        else:  # problemset.json
+            with open('problemset.yaml') as problemFile:
+                problemData = yaml.safe_load(problemFile)
+                problems = [problem['short-name']
+                            for problem in problemData['problems']]
+
+        confirmIndividually = dj_utils.confirm("Confirm individually for every problem", False)
+        for problem in problems:
+            print(f'Preparing problem \'{problem}\'.')
+            if os.path.exists(f'{problem}.zip'):
+                os.unlink(f'{problem}.zip')
+            if not os.path.isdir(problem) or not os.path.isfile(f'{problem}/problem.yaml'):
+                print('Problem directory not found or doesn\'t contain a problem.yaml.')
+                exit(3)
+            os.system(f'cd {problem} && zip -r \'../{problem}\' -- .timelimit *')
+
+            problem_id = problem_mapping[problem]
+            if ((not confirmIndividually) or dj_utils.confirm(f'Ready to import problem \'{problem}\' to probid={problem_id}. Continue?', True)):
+                print(f'Uploading problem \'{problem}\', please be patient, this may take a while.')
+                response = dj_utils.upload_file(
+                    f'contests/{cid}/problems', 'zip', f'{problem}.zip', {'problem': problem_id})
+                print(json.dumps(response, indent=4))
+    else:
+        print('Skipping contest import.')
+else:
+    print('Neither \'problems.yaml\', \'problems.json\' nor \'problemset.yaml\' found, skipping problems import.')

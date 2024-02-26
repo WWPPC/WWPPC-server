@@ -1,0 +1,441 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: DOMjudge
+            description: DOMjudge API v4
+            version: "%domjudge.version%"
+        security:
+            - basicAuth: []
+        components:
+            securitySchemes:
+                basicAuth:
+                    type: http
+                    scheme: basic
+            parameters:
+                cid:
+                    name: cid
+                    in: path
+                    description: The contest ID
+                    required: true
+                    schema:
+                        type: string
+                    examples:
+                        int0:
+                            value: "2"
+                            summary: The Demo contest (datasource=0)
+                        int02:
+                            value: "1"
+                            summary: The Demo practice contest (datasource=0)
+                        string:
+                            value: "demo"
+                            summary: The Demo contest (datasource=1)
+                balloonId:
+                    name: balloonId
+                    in: path
+                    description: The balloonId to mark as done.
+                    required: true
+                    schema:
+                        type: integer
+                    examples:
+                        balloon:
+                            value: 1
+                            summary: First balloon of the contest
+                id:
+                    name: id
+                    in: path
+                    description: The ID of the entity
+                    required: true
+                    schema:
+                        type: string
+                    examples:
+                        generic:
+                            value: "1"
+                            summary: Most Entities are integer indexed
+                        participants:
+                            value: "3"
+                            summary: Participants group
+                        award:
+                            value: "winner"
+                            summary: "Default Award entity"
+                        executable:
+                            value: "py3"
+                            summary: "Compile executable for python3"
+                idlist:
+                    name: ids[]
+                    in: query
+                    description: Filter the objects to get on this list of ID's
+                    explode: true
+                    schema:
+                        type: array
+                        items:
+                            type: string
+                            description: A single ID
+                strict:
+                    name: strict
+                    in: query
+                    description: Whether to only include CCS compliant properties in the response
+                    schema:
+                        type: boolean
+                        default: false
+            responses:
+                NotFound:
+                    description: The specified resource was not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                Unauthenticated:
+                    description: Unauthenticated, authentication is missing
+                Unauthorized:
+                    description: Unauthorized, user needs an additional role
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                InvalidResponse:
+                    description: The specified resource identifier is malformed
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - type: object
+                                    - type: string
+                        text/html:
+                            schema:
+                                type: string
+                PostAccountResponse:
+                    description: Returns a (currently meaningless) status message.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                        text/html:
+                            schema:
+                                type: string
+            schemas:
+                FileList:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            href:
+                                type: string
+                            mime:
+                                type: string
+                ImageList:
+                    type: array
+                    nullable: true
+                    items:
+                        type: object
+                        properties:
+                            href:
+                                type: string
+                            mime:
+                                type: string
+                            hash:
+                                type: string
+                            filename:
+                                type: string
+                            width:
+                                type: integer
+                            height:
+                                type: integer
+                Banner:
+                    properties:
+                        banner:
+                            $ref: "#/components/schemas/ImageList"
+                Logo:
+                    properties:
+                        logo:
+                            $ref: "#/components/schemas/ImageList"
+                Photo:
+                    properties:
+                        photo:
+                            $ref: "#/components/schemas/ImageList"
+                ContestProblem:
+                    properties:
+                        id:
+                            type: string
+                        label:
+                            type: string
+                        short_name:
+                            type: string
+                        name:
+                            type: string
+                        ordinal:
+                            type: integer
+                        rgb:
+                            type: string
+                        color:
+                            type: string
+                        time_limit:
+                            type: number
+                            format: float
+                        test_data_count:
+                            type: integer
+                        statement:
+                            $ref: "#/components/schemas/StatementList"
+                Files:
+                    properties:
+                        files:
+                            $ref: "#/components/schemas/ArchiveList"
+                ArchiveList:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            href:
+                                type: string
+                            mime:
+                                type: string
+                StatementList:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            href:
+                                type: string
+                            mime:
+                                type: string
+                            filename:
+                                type: string
+                SourceCodeList:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: string
+                            submission_id:
+                                type: string
+                            filename:
+                                type: string
+                                description: Original file name
+                            source:
+                                type: string
+                                description: Base64-encoded source code
+                JudgementType:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                        name:
+                            type: string
+                        penalty:
+                            type: boolean
+                        solved:
+                            type: boolean
+                JudgementExtraFields:
+                    properties:
+                        judgement_type_id:
+                            type: string
+                            nullable: true
+                        judgehost:
+                            type: string
+                        max_run_time:
+                            type: number
+                            format: float
+                            nullable: true
+                RunExtraFields:
+                    properties:
+                        judgement_type_id:
+                            type: string
+                Scoreboard:
+                    type: object
+                    properties:
+                        event_id:
+                            type: string
+                        time:
+                            type: string
+                        contest_time:
+                            type: string
+                        state:
+                            $ref: "#/components/schemas/ContestState"
+                        rows:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    rank:
+                                        type: integer
+                                    team_id:
+                                        type: string
+                                    score:
+                                        type: object
+                                        properties:
+                                            num_solved:
+                                                type: integer
+                                            total_time:
+                                                type: integer
+                                    problems:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                label:
+                                                    type: string
+                                                problem_id:
+                                                    type: string
+                                                num_judged:
+                                                    type: integer
+                                                num_pending:
+                                                    type: integer
+                                                solved:
+                                                    type: boolean
+                                                time:
+                                                    type: integer
+                                                first_to_solve:
+                                                    type: boolean
+                ContestState:
+                    type: object
+                    properties:
+                        started:
+                            type: string
+                            nullable: true
+                            format: date-time
+                        ended:
+                            type: string
+                            nullable: true
+                            format: date-time
+                        frozen:
+                            type: string
+                            nullable: true
+                            format: date-time
+                        thawed:
+                            type: string
+                            nullable: true
+                            format: date-time
+                        finalized:
+                            type: string
+                            nullable: true
+                            format: date-time
+                        end_of_updates:
+                            type: string
+                            nullable: true
+                            format: date-time
+                Award:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                        citation:
+                            type: string
+                        team_ids:
+                            type: array
+                            items:
+                                type: string
+                AddUser:
+                    required:
+                        - username
+                        - name
+                        - password
+                        - roles
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                        name:
+                            type: string
+                        email:
+                            type: string
+                            format: email
+                        ip:
+                            type: string
+                        password:
+                            type: string
+                            format: password
+                        enabled:
+                            type: boolean
+                            nullable: true
+                        team_id:
+                            type: string
+                        roles:
+                            type: array
+                            items:
+                                type: string
+                Balloon:
+                    type: object
+                    properties:
+                        balloonid:
+                            type: integer
+                        time:
+                            type: string
+                        problem:
+                            type: string
+                        contestproblem:
+                            $ref: "#/components/schemas/ContestProblem"
+                        team:
+                            type: string
+                        teamid:
+                            type: integer
+                        location:
+                            type: string
+                            nullable: true
+                        affiliation:
+                            type: string
+                            nullable: true
+                        affiliationid:
+                            type: integer
+                            nullable: true
+                        category:
+                            type: string
+                        total:
+                            type: array
+                            items:
+                                $ref: "#/components/schemas/ContestProblem"
+                        awards:
+                            type: string
+                        done:
+                            type: boolean
+                ClarificationPost:
+                    type: object
+                    required: [text]
+                    properties:
+                        text:
+                            type: string
+                            description: The body of the clarification to send
+                        problem_id:
+                            type: string
+                            description: The problem the clarification is for
+                            nullable: true
+                        reply_to_id:
+                            type: string
+                            description: The ID of the clarification this clarification is a reply to
+                            nullable: true
+                        from_team_id:
+                            type: string
+                            description: The team the clarification came from. Only used when adding a clarification as admin
+                            nullable: true
+                        to_team_id:
+                            type: string
+                            description: The team the clarification must be sent to. Only used when adding a clarification as admin
+                            nullable: true
+                        time:
+                            type: string
+                            format: date-time
+                            description: The time to use for the clarification. Only used when adding a clarification as admin
+                        id:
+                            type: string
+                            description: The ID to use for the clarification. Only used when adding a clarification as admin and only allowed with PUT
+                ContestProblemPut:
+                    type: object
+                    required: [label]
+                    properties:
+                        label:
+                            type: string
+                            description: The label of the problem to add to the contest
+                        color:
+                            type: string
+                            description: Human readable color of the problem to add. Will be overwritten by `rgb` if supplied
+                        rgb:
+                            type: string
+                            description: Hexadecimal RGB value of the color of the problem to add. Will be used if both `color` and `rgb` are supplied
+                        points:
+                            type: integer
+                            description: The number of points for the problem to add. Defaults to 1
+                        lazy_eval_results:
+                            type: boolean
+                            description: Whether to use lazy evaluation for this problem. Defaults to the global setting
+
+    areas:
+        path_patterns: [ ^/api/v4 ]

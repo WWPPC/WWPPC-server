@@ -1,0 +1,10 @@
+monolog:
+    # Set up logger for the event feed importer.
+    # key, to make sure the logs don't also appear there.
+    channels: ["event-feed-importer"]
+    handlers:
+        event-feed-importer:
+            level: info
+            type: stream
+            path: "%kernel.logs_dir%/event-feed-importer.log"
+            channels: ["event-feed-importer"]
