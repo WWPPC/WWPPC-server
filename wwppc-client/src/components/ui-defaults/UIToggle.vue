@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 
 const props = defineProps<{
-    startChecked?: boolean,
+    startChecked?: boolean
     title?: string
 }>();
 const checked = ref(props.startChecked ?? false);

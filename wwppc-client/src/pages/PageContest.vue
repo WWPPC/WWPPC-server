@@ -15,21 +15,34 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="/" :link=true></PanelNavButton>
-                <PanelNavButton text="Problems" for="problemList"></PanelNavButton>
-                <PanelNavButton text="Leaderboards" for="leaderboard"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
+                <PanelNavButton text="Leaderboards" for="/contest/leaderboard"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
                 <ContestTimer></ContestTimer>
             </PanelRightList>
         </PanelHeader>
-        <PanelMain>
+        <PanelMain default="problemList" page="contest">
             <PanelBody name="problemList">
+                Hey! This page isn't finished. Check back later for updates!
+                <br><br>
                 Problem list
             </PanelBody>
             <PanelBody name="problemView">
+                Hey! This page isn't finished. Check back later for updates!
+                <br><br>
                 Problem screen (programmatically loaded from problem list)
+            </PanelBody>
+            <PanelBody name="leaderboard">
+                Hey! This page isn't finished. Check back later for updates!
+                <br><br>
+                1. the-real-tianmu 573736472056375629219566527959683966273843 xp
+                <br>
+                1. sp - 2057277575 xp
+                <br>
+                2. SP^2 - 882646562 xp
             </PanelBody>
         </PanelMain>
     </PanelView>

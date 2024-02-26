@@ -2,14 +2,14 @@
 import { ref } from 'vue';
 
 const props = defineProps<{
-    min?: number,
-    max?: number,
-    step?: number,
-    defaultValue?: number,
-    highlightInvalid?: number,
-    title?: string,
-    width?: string,
-    height?: string,
+    min?: number
+    max?: number
+    step?: number
+    defaultValue?: number
+    highlightInvalid?: number
+    title?: string
+    width?: string
+    height?: string
     font?: string
 }>();
 const emit = defineEmits<{

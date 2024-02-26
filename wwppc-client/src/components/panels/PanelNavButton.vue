@@ -1,35 +1,35 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { glitchTextTransition, type AsyncTextTransition } from '../ui-defaults/TextTransitions';
-import { usePanelStore } from './PanelManager';
 import { useRouter } from 'vue-router';
 const props = defineProps<{
-    text: string,
-    title?: string,
-    for: string,
+    text: string
+    title?: string
+    for: string
     link?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
 }>();
-const panels = usePanelStore();
 const router = useRouter();
 
 function click() {
     emit('click');
-    if (props.link) router.push(props.for);
-    else panels.selectPanel(props.for);
+    if (props.link) self.location.replace(props.for);
+    else router.push(props.for)
 }
 const selected = ref(false);
 // animations for hover
 const buttonText = ref(props.text)
+let blockingAnimation: AsyncTextTransition | null = null;
 let currentAnimation: AsyncTextTransition | null = null;
 function mouseover() {
+    if (blockingAnimation?.finished == false) return;
     currentAnimation?.cancel();
-    currentAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 1, !currentAnimation?.finished);
+    currentAnimation = glitchTextTransition(props.text, props.text, (text) => { buttonText.value = text; }, 40, 2, 5, 1);
 }
 onMounted(() => {
-    currentAnimation = glitchTextTransition(props.text.replace(/./g, ' '), props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
+    blockingAnimation = glitchTextTransition(props.text.replace(/./g, ' '), props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
 });
 buttonText.value = '';
 </script>

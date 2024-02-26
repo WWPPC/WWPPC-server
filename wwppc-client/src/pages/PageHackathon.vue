@@ -14,16 +14,18 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="/" :link=true></PanelNavButton>
-                <PanelNavButton text="Other Button" for="extra"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="Other Button" for="/extra"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
-        <PanelMain>
-            <PanelBody name="extra">
-                Coming soon!
+        <PanelMain default="default" page="hackathon">
+            <PanelBody name="default">
+                Hey! This page isn't finished. Check back later for updates!
+                <br><br>
+                oops hacked
             </PanelBody>
         </PanelMain>
     </PanelView>

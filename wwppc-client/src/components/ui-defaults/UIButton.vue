@@ -1,10 +1,10 @@
 <script setup lang="ts">
 defineProps<{
-    text: string,
-    title?: string,
-    width?: string,
-    height?: string,
-    font?: string,
+    text: string
+    title?: string
+    width?: string
+    height?: string
+    font?: string
     color?: string
 }>();
 const emit = defineEmits<{
