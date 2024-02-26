@@ -14,22 +14,16 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="home"></PanelNavButton>
-                <PanelNavButton text="WWP-Hacks" for="/hackathon" :link=true></PanelNavButton>
-                <PanelNavButton text="WWP-IT" for="/contest" :link=true></PanelNavButton>
-                <PanelNavButton text="About" for="about"></PanelNavButton>
-                <PanelNavButton text="Test Page" for="/test" :link="true"></PanelNavButton>
+                <PanelNavButton text="Home" for="/" :link=true></PanelNavButton>
+                <PanelNavButton text="Other Button" for="extra"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home">
-                hello
-            </PanelBody>
-            <PanelBody name="about">
-                buh about page
+            <PanelBody name="extra">
+                Coming soon!
             </PanelBody>
         </PanelMain>
     </PanelView>

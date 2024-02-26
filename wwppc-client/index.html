@@ -87,7 +87,9 @@
             }
         </style>
         <script>
+            let canLoad = true;
             window.addEventListener('load', (e) => {
+                if (!canLoad) return;
                 document.getElementById('loadingCover').style.opacity = 0;
                 window.onerror = null;
                 setTimeout(() => {
@@ -96,6 +98,7 @@
             });
             window.onerror = (e, filename, lineno, colno, err) => {
                 document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
+                canLoad = false;
             };
         </script>
     </div>

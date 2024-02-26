@@ -5,6 +5,7 @@ import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
 import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
+import ContestTimer from '@/components/ContestTimer.vue';
 
 const modal = ref(FullscreenModal);
 </script>
@@ -14,22 +15,21 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="home"></PanelNavButton>
-                <PanelNavButton text="WWP-Hacks" for="/hackathon" :link=true></PanelNavButton>
-                <PanelNavButton text="WWP-IT" for="/contest" :link=true></PanelNavButton>
-                <PanelNavButton text="About" for="about"></PanelNavButton>
-                <PanelNavButton text="Test Page" for="/test" :link="true"></PanelNavButton>
+                <PanelNavButton text="Home" for="/" :link=true></PanelNavButton>
+                <PanelNavButton text="Problems" for="problemList"></PanelNavButton>
+                <PanelNavButton text="Leaderboards" for="leaderboard"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
+                <ContestTimer></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home">
-                hello
+            <PanelBody name="problemList">
+                Problem list
             </PanelBody>
-            <PanelBody name="about">
-                buh about page
+            <PanelBody name="problemView">
+                Problem screen (programmatically loaded from problem list)
             </PanelBody>
         </PanelMain>
     </PanelView>

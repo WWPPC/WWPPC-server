@@ -64,14 +64,14 @@ export const enum ModalMode {
             <br>
             <div id="buttons">
                 <span v-if="modal.mode == ModalMode.CONFIRM">
-                    <UIButton text="YES" @click=modalResolve width="60px"></UIButton>
-                    <UIButton text="NO" @click=modalReject width="60px"></UIButton>
+                    <UIButton text="YES" @click=modalResolve width="80px"></UIButton>
+                    <UIButton text="NO" @click=modalReject width="80px"></UIButton>
                 </span>
                 <span v-else>
                     <span v-if="modal.mode == ModalMode.QUERY">
-                        <UIButton text="CANCEL" @click=modalReject width="60px"></UIButton>
+                        <UIButton text="CANCEL" @click=modalReject width="80px"></UIButton>
                     </span>
-                    <UIButton text="OK" @click=modalResolve width="60px"></UIButton>
+                    <UIButton text="OK" @click=modalResolve width="80px"></UIButton>
                 </span>
             </div>
         </div>

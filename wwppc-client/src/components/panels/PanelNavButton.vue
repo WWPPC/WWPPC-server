@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { glitchTextTransition, type AsyncTextTransition } from '../ui-defaults/TextTransitions';
+import { usePanelStore } from './PanelManager';
+import { useRouter } from 'vue-router';
 const props = defineProps<{
     text: string,
     title?: string,
@@ -10,8 +12,13 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'click'): void
 }>();
+const panels = usePanelStore();
+const router = useRouter();
+
 function click() {
     emit('click');
+    if (props.link) router.push(props.for);
+    else panels.selectPanel(props.for);
 }
 const selected = ref(false);
 // animations for hover
@@ -22,8 +29,9 @@ function mouseover() {
     currentAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 1, !currentAnimation?.finished);
 }
 onMounted(() => {
-    currentAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2, !currentAnimation?.finished);
+    currentAnimation = glitchTextTransition(props.text.replace(/./g, ' '), props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
 });
+buttonText.value = '';
 </script>
 
 <template>

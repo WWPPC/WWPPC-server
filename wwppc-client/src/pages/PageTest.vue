@@ -2,9 +2,10 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
-import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
+import { FullscreenModal, ModalMode, UIButton } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
 import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
+import ContestTimer from '@/components/ContestTimer.vue';
 
 const modal = ref(FullscreenModal);
 </script>
@@ -14,25 +15,19 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <PanelNavList>
                 <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="home"></PanelNavButton>
-                <PanelNavButton text="WWP-Hacks" for="/hackathon" :link=true></PanelNavButton>
-                <PanelNavButton text="WWP-IT" for="/contest" :link=true></PanelNavButton>
-                <PanelNavButton text="About" for="about"></PanelNavButton>
-                <PanelNavButton text="Test Page" for="/test" :link="true"></PanelNavButton>
+                <PanelNavButton text="Home" for="/" :link="true"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
+                <ContestTimer></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
             <PanelBody name="home">
-                hello
-            </PanelBody>
-            <PanelBody name="about">
-                buh about page
+                <UIButton @click="() => console.log(modal?.showModal({title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY}))" text="Test modal"></UIButton>
             </PanelBody>
         </PanelMain>
     </PanelView>
     <FullscreenModal ref="modal"></FullscreenModal>
-    <SuperSecretFeature :show="false"></SuperSecretFeature>
+    <SuperSecretFeature :show="true"></SuperSecretFeature>
 </template>
