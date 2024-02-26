@@ -4,6 +4,9 @@ accit-server/localhost.pem
 accit-server/local-database.json
 .local
 
+# Vite
+*.vite
+
 # Logs
 logs
 *.log

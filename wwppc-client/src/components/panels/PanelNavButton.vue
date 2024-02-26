@@ -1,29 +1,37 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { glitchTextTransition, type AsyncTextTransition } from '../ui-defaults/TextTransitions';
+import { useRouter } from 'vue-router';
 const props = defineProps<{
-    text: string,
-    title?: string,
-    for: string,
+    text: string
+    title?: string
+    for: string
     link?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
 }>();
+const router = useRouter();
+
 function click() {
     emit('click');
+    if (props.link) window.location.replace(props.for);
+    else router.push(props.for)
 }
 const selected = ref(false);
 // animations for hover
 const buttonText = ref(props.text)
+let blockingAnimation: AsyncTextTransition | null = null;
 let currentAnimation: AsyncTextTransition | null = null;
 function mouseover() {
+    if (blockingAnimation?.finished == false) return;
     currentAnimation?.cancel();
-    currentAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 1, !currentAnimation?.finished);
+    currentAnimation = glitchTextTransition(props.text, props.text, (text) => { buttonText.value = text; }, 40, 2, 5, 1);
 }
 onMounted(() => {
-    currentAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2, !currentAnimation?.finished);
+    blockingAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
 });
+buttonText.value = props.text.replace(/./g, ' ');
 </script>
 
 <template>
@@ -33,7 +41,7 @@ onMounted(() => {
 <style>
 .panelNavButton {
     appearance: none;
-    width: 128px;
+    min-width: 128px;
     border: none;
     transition: 100ms cubic-bezier(0.6, 1, 0.5, 1.6) background-color;
     font-size: 18px;

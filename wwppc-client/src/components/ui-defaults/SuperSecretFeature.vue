@@ -1,5 +1,12 @@
+<script setup lang="ts">
+const props = defineProps<{
+    show?: boolean
+}>();
+const showAnyways = new URLSearchParams(window.location.search).get('superSecretScanlines') || Math.random() < 0.01;
+</script>
+
 <template>
-    <div id="superSecretDiv">
+    <div id="superSecretDiv" v-if="props.show || showAnyways">
         <div id="superSecretNoise"></div>
         <div id="superSecretScanlines"></div>
         <div id="superSecretFlicker"></div>
@@ -10,7 +17,6 @@
 
 <style>
 #superSecretDiv {
-    display: none;
     position: fixed;
     top: 0px;
     left: 0px;
@@ -59,7 +65,7 @@
     left: -50%;
     width: 300%;
     height: 400%;
-    background-image: url(./assets/noise.png);
+    background-image: url(/assets/noise.png);
     background-size: auto;
     opacity: 0.2;
     animation: super-secret-grain 8s steps(10) infinite;

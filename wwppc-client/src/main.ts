@@ -2,22 +2,28 @@ import './assets/main.css';
 
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import PageHome from './pages/PageHome.vue';
-import { io } from 'socket.io-client';
-// import { nextTick } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import { PanelBody } from './components/panels/PanelManager';
 
-const socket = io(process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : window.location.host, {
-    path: '/socket.io'
-});
-// use pinia for socketio stuff
-
+const app = createApp(App);
+const pinia = createPinia();
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', component: PageHome }
+        { path: '/', components: { App, PanelBody } },
+        {
+            path: '/:page',
+            component: App,
+            children: [
+                {
+                    path: ':panel',
+                    component: PanelBody
+                }
+            ]
+        },
     ]
 });
-
-const app = createApp(PageHome);
+app.use(pinia);
 app.use(router);
 app.mount('#root');

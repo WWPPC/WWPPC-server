@@ -52,11 +52,11 @@ export function* flipTextTransitionGenerator(from: string, to: string, block: nu
         yield text;
     }
 }
-export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched = false) {
+export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched?: boolean, letterOverride?: string) {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
-            const gen = glitchTextTransitionGenerator(from, to, block, glitchLength, advanceMod, startGlitched);
+            const gen = glitchTextTransitionGenerator(from, to, block, glitchLength, advanceMod, startGlitched ?? false, letterOverride);
             const animate = setInterval(() => {
                 const next = gen.next();
                 if (cancelled || next.done || update(next.value)) {
@@ -71,9 +71,9 @@ export function glitchTextTransition(from: string, to: string, update: (text: st
     };
     return ret;
 }
-export function* glitchTextTransitionGenerator(from: string, to: string, block: number, glitchLength: number, advanceMod: number, startGlitched: boolean) {
+export function* glitchTextTransitionGenerator(from: string, to: string, block: number, glitchLength: number, advanceMod: number, startGlitched: boolean, letterOverride: string | undefined) {
     const addSpaces = to.length < from.length;
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=!@#$%^&*()_+`~[]\\{}|;\':",./?';
+    const letters = letterOverride ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=!@#$%^&*()_+`~[]\\{}|;\':",./?';
     const fromTags = from.match(/<(.*?)>/g) ?? [];
     const toTags = to.match(/<(.*?)>/g) ?? [];
     let cleanFrom = from;

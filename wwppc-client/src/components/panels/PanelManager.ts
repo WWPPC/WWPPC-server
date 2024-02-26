@@ -1,3 +1,4 @@
+// aggregate stuff
 import PanelBody from "./PanelBody.vue";
 import PanelHeader from "./PanelHeader.vue";
 import PanelMain from "./PanelMain.vue";
@@ -15,8 +16,3 @@ export {
     PanelRightList,
     PanelView
 }
-
-export function test() {
-
-}
-// pinia

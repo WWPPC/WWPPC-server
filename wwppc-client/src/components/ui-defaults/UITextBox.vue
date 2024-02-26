@@ -2,10 +2,10 @@
 import { ref } from 'vue';
 
 const props = defineProps<{
-    defaultValue?: string,
-    title?: string,
-    width?: string,
-    height?: string,
+    defaultValue?: string
+    title?: string
+    width?: string
+    height?: string
     font?: string
 }>();
 const emit = defineEmits<{

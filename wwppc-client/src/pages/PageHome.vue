@@ -2,31 +2,54 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
-import LoadingCover from '@/components/ui-defaults/LoadingCover.vue';
+import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
+import { ref } from 'vue';
+import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
+import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
+
+const modal = ref(FullscreenModal);
 </script>
 
 <template>
     <PanelView>
         <PanelHeader>
+            <LargeLogo></LargeLogo>
             <PanelNavList>
-                <LargeLogo></LargeLogo>
-                <PanelNavButton text="Home" for="home"></PanelNavButton>
-                <PanelNavButton text="WWP-Hacks" for="hackathon" :link=true></PanelNavButton>
-                <PanelNavButton text="WWP-IT" for="contest" :link=true></PanelNavButton>
-                <PanelNavButton text="About" for="about"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="WWP-Hacks" for="/hackathon"></PanelNavButton>
+                <PanelNavButton text="WWP-IT" for="/contest"></PanelNavButton>
+                <PanelNavButton text="About" for="/home/about"></PanelNavButton>
+                <PanelNavButton text="Test Page" for="/test"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home">
-                hello
+            <PanelBody name="home" :is-default=true>
+                <div class="fullBlock">
+                    <br><br>
+                    <LargeGlitchCenterText text="WWP-IT + WWP-HACKS" fontStyle="
+                    font-weight:bold;
+                    font-size: min(calc(50vh - 50px), calc(100vw / 12));
+                    text-wrap: nowrap;
+                    color: lime;
+                    " :steps=1 :delay=5></LargeGlitchCenterText>
+                    <br>
+                    <div class="center">
+                    </div>
+                </div>
+                <div class="fullBlock">
+                    wow thing
+                </div>
             </PanelBody>
             <PanelBody name="about">
-                buh about page
+                Hey! This page isn't finished. Check back later for updates!
+                <br><br>
+                sp^2: made the whole website because nobody else bothered to learn vue
             </PanelBody>
         </PanelMain>
     </PanelView>
-    <LoadingCover></LoadingCover>
+    <FullscreenModal ref="modal"></FullscreenModal>
+    <SuperSecretFeature :show="false"></SuperSecretFeature>
 </template>

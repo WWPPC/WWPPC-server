@@ -4,7 +4,7 @@ import { reactive, ref } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
 
-const modalInput = ref(null);
+const modalInput = ref(UITextBox);
 const modal = reactive({
     title: '',
     content: '',
@@ -20,13 +20,13 @@ const showModal = async ({ title, content, mode = ModalMode.NOTIFY, color = 'whi
     modal.content = content;
     modal.mode = mode;
     modal.color = color;
+    modalInput.value.text = '';
     modal.open = true;
     return await new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = () => {
                 modal.open = false;
-                console.log(modalInput.value)
-                resolve(modalInput.value);
+                resolve(modalInput.value.text);
             };
             modalReject = () => {
                 modal.open = false;
@@ -65,14 +65,14 @@ export const enum ModalMode {
             <br>
             <div id="buttons">
                 <span v-if="modal.mode == ModalMode.CONFIRM">
-                    <UIButton text="YES" @click=modalResolve width="60px"></UIButton>
-                    <UIButton text="NO" @click=modalReject width="60px"></UIButton>
+                    <UIButton text="YES" @click=modalResolve width="80px"></UIButton>
+                    <UIButton text="NO" @click=modalReject width="80px"></UIButton>
                 </span>
                 <span v-else>
                     <span v-if="modal.mode == ModalMode.QUERY">
-                        <UIButton text="CANCEL" @click=modalReject width="60px"></UIButton>
+                        <UIButton text="CANCEL" @click=modalReject width="80px"></UIButton>
                     </span>
-                    <UIButton text="OK" @click=modalResolve width="60px"></UIButton>
+                    <UIButton text="OK" @click=modalResolve width="80px"></UIButton>
                 </span>
             </div>
         </div>
