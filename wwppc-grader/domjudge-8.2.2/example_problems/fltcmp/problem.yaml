@@ -1,2 +1,0 @@
-name: Float special compare test
-validator_flags: 'float_tolerance 1E-6'
