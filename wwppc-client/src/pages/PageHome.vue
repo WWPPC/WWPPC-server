@@ -15,7 +15,7 @@ const modal = ref(FullscreenModal);
         <PanelHeader>
             <LargeLogo></LargeLogo>
             <PanelNavList>
-                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home/home" :is-default=true></PanelNavButton>
                 <PanelNavButton text="WWP-Hacks" for="/hackathon"></PanelNavButton>
                 <PanelNavButton text="WWP-IT" for="/contest"></PanelNavButton>
                 <PanelNavButton text="About" for="/home/about"></PanelNavButton>

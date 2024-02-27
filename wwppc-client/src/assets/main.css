@@ -22,9 +22,6 @@ img {
     user-select: none;
     -webkit-user-drag: none;
 }
-* {
-    font-family: 'Source Code Pro', Courier, monospace;
-}
 
 ::selection {
     background-color: rgba(0, 255, 0, 0.7);

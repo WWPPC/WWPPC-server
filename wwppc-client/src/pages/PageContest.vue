@@ -3,11 +3,27 @@ import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelR
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
-import { ref } from 'vue';
 import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
 import ContestTimer from '@/components/ContestTimer.vue';
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
-const modal = ref(FullscreenModal);
+const router = useRouter();
+
+const modal = ref<InstanceType<typeof FullscreenModal>>();
+</script>
+<script lang="ts">
+import { ModalMode } from '@/components/ui-defaults/UIDefaults';
+import { useServerConnectionStore } from '@/scripts/ServerConnection';
+import { watch } from 'vue';
+export default {
+    mounted() {
+        const serverConnection = useServerConnectionStore();
+        watch(() => ({ conn: serverConnection.connected, err: serverConnection.connectError }), ({ conn, err }) => {
+            if (!conn || err) modal.value?.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
+        });
+    }
+}
 </script>
 
 <template>
@@ -16,7 +32,7 @@ const modal = ref(FullscreenModal);
             <LargeLogo></LargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
-                <PanelNavButton text="Contest" for="/contest/info"></PanelNavButton>
+                <PanelNavButton text="Contest" for="/contest/info" :is-default=true></PanelNavButton>
                 <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
                 <PanelNavButton text="Leaderboards" for="/contest/leaderboard"></PanelNavButton>
             </PanelNavList>

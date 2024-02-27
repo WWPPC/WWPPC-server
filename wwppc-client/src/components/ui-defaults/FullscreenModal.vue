@@ -61,8 +61,8 @@ export const enum ModalMode {
             <p v-html=modal.content></p>
             <span v-if="modal.mode == ModalMode.QUERY">
                 <UITextBox ref="modalInput"></UITextBox>
+                <br>
             </span>
-            <br>
             <div id="buttons">
                 <span v-if="modal.mode == ModalMode.CONFIRM">
                     <UIButton text="YES" @click=modalResolve width="80px"></UIButton>
