@@ -1,4 +1,4 @@
-You are given an array with N values (1 <= N <= 10^5) and K paint buckets of K distinct colors (2 <= K <= 10^3), where each element a_i satisfies the condition 1 <= a_i <= K.
+domjudge_setup_databaseYou are given an array with N values (1 <= N <= 10^5) and K paint buckets of K distinct colors (2 <= K <= 10^3), where each element a_i satisfies the condition 1 <= a_i <= K.
 
 You want to paint a segment of a wall with N evenly spaced color blocks following the array, with a_1 being the left-most block on the wall and a_N being the right-most block of the wall.
 
