@@ -5,15 +5,7 @@ import { ref } from 'vue';
 const socket = io(process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : window.location.host, {
     path: '/socket.io'
 });
-const connected = ref(false);
-const connectError = ref(false);
 const loggedIn = ref(false);
-socket.on('connect', () => connected.value = true);
-socket.on('disconnect', () => connected.value = false);
-socket.on('timeout', () => connected.value = false);
-socket.on('error', () => connected.value = false);
-socket.on('connect_fail', () => connectError.value = true);
-socket.on('connect_error', () => connectError.value = true);
 const RSA: {
     publicKey: CryptoKey | null,
     sid: number,
@@ -36,7 +28,10 @@ socket.once('getCredentials', async (session) => {
 });
 
 export const useServerConnectionStore = defineStore('socketio', {
-    state: () => ({ socket, connected, connectError, loggedIn }),
+    state: () => ({ socket, loggedIn }),
+    getters: {
+        connected() { return socket.connected; },
+    },
     actions: {
         login(username: string, password: string): Promise<boolean> {
             return new Promise((resolve) => {

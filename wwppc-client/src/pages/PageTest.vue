@@ -4,8 +4,8 @@ import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal, ModalMode, UIButton, UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
-import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
-import ContestTimer from '@/components/ContestTimer.vue';
+import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
+import ContestTimer from '@/components/contest/ContestTimer.vue';
 
 const modal = ref(FullscreenModal);
 
@@ -15,7 +15,7 @@ const actualResult = ref('');
 </script>
 
 <template>
-    <PanelView>
+    <PanelView name="test">
         <PanelHeader>
             <LargeLogo></LargeLogo>
             <PanelNavList>
@@ -28,14 +28,14 @@ const actualResult = ref('');
         </PanelHeader>
         <PanelMain>
             <PanelBody name="default" :is-default=true>
-                <UIButton @click="async () => result = await modal?.showModal({title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY})" text="Test modal"></UIButton>
-                <UIDropdown :items="[{text: result, value: 'a'}, {text: result2, value: 'b'}]" width="100px" default="a" :required=true @input="(t) => actualResult = t"></UIDropdown>
+                <UIButton @click="async () => result = await modal?.showModal({ title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY })" text="Test modal"></UIButton>
+                <UIDropdown :items="[{ text: result, value: 'a' }, { text: result2, value: 'b' }]" width="100px" default="a" :required=true @input="(t) => actualResult = t"></UIDropdown>
                 <UITextBox @input="(t) => result2 = t" default-value="hi"></UITextBox>
                 <br>
                 <span>{{ actualResult }}</span>
             </PanelBody>
         </PanelMain>
+        <FullscreenModal ref="modal"></FullscreenModal>
+        <SuperSecretFeature :show="true"></SuperSecretFeature>
     </PanelView>
-    <FullscreenModal ref="modal"></FullscreenModal>
-    <SuperSecretFeature :show="true"></SuperSecretFeature>
 </template>

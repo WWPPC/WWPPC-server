@@ -2,32 +2,42 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
-import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
-import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
-import ContestTimer from '@/components/ContestTimer.vue';
-import { useRouter } from 'vue-router';
+import { FullscreenModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
+import ContestTimer from '@/components/contest/ContestTimer.vue';
+// import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useServerConnectionStore } from '@/scripts/ServerConnection';
+import { useRoute } from 'vue-router';
 
-const router = useRouter();
+// const router = useRouter();
+const route = useRoute();
 
 const modal = ref<InstanceType<typeof FullscreenModal>>();
-</script>
-<script lang="ts">
-import { ModalMode } from '@/components/ui-defaults/UIDefaults';
-import { useServerConnectionStore } from '@/scripts/ServerConnection';
-import { watch } from 'vue';
-export default {
-    mounted() {
-        const serverConnection = useServerConnectionStore();
-        watch(() => ({ conn: serverConnection.connected, err: serverConnection.connectError }), ({ conn, err }) => {
-            if (!conn || err) modal.value?.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
-        });
+const serverConnection = useServerConnectionStore();
+let onDisconnect = () => {
+    if (route.params.page != 'contest') return;
+    if (modal.value != undefined) modal.value.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
+    else {
+        window.alert('Disconnected from server. Reload the page to reconnect. Error: Could not open modal');
+        window.location.reload();
     }
 }
+let onConnectError = () => {
+    if (route.params.page != 'contest') return;
+    if (modal.value != undefined) modal.value.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
+    else {
+        window.alert('Could not connect to server. Reload the page to reconnect. Error: Could not open modal');
+        window.location.reload();
+    }
+}
+serverConnection.socket.on('disconnect', onDisconnect);
+serverConnection.socket.on('timeout', onDisconnect);
+serverConnection.socket.on('connect_fail', onConnectError);
+serverConnection.socket.on('connect_error', onConnectError);
 </script>
 
 <template>
-    <PanelView>
+    <PanelView name="contest">
         <PanelHeader>
             <LargeLogo></LargeLogo>
             <PanelNavList>
@@ -69,7 +79,6 @@ export default {
                 &pi;. SampIeprovider(sp) - -5 xp
             </PanelBody>
         </PanelMain>
+        <FullscreenModal ref="modal"></FullscreenModal>
     </PanelView>
-    <FullscreenModal ref="modal"></FullscreenModal>
-    <SuperSecretFeature :show="false"></SuperSecretFeature>
 </template>

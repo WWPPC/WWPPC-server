@@ -9,14 +9,29 @@ const props = defineProps<{
 
 <template>
     <Transition>
-        <div :class="'panelBody panelName' + props.name.toUpperCase()" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault)">
-            <slot></slot>
+        <div class="panelBody" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault)">
+            <div class="panelBodySlotContainer">
+                <slot></slot>
+            </div>
+            <div class="panelBodyTransitionWipeContainer">
+                <div class="panelBodyTransitionWipe">
+                    <img class="panelBodyTransitionWipeImg" src="/icon.svg">
+                </div>
+            </div>
         </div>
     </Transition>
 </template>
 
 <style>
 .panelBody {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.panelBodySlotContainer {
     position: absolute;
     bottom: 0px;
     left: 0px;
@@ -30,16 +45,50 @@ const props = defineProps<{
     scrollbar-color: #555 #222;
     overflow-y: auto;
 }
-.v-enter-active {
-    transition: 200ms linear transform;
+
+.panelBodyTransitionWipeContainer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
 }
+
+.panelBodyTransitionWipe {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: -100%;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: #222;
+}
+
+.panelBodyTransitionWipeImg {
+    max-width: 30%;
+    max-height: 30%;
+}
+
+.v-enter-active,
 .v-leave-active {
-    transition: 200ms linear transform;
+    transition: 500ms;
 }
-.v-enter-from {
-    transform: translateX(-100vw);
+
+.v-enter-active .panelBodySlotContainer {
+    animation: panel-transition-in 500ms linear;
 }
-.v-leave-to {
-    transform: translateX(100vw);
+
+.v-leave-active .panelBodySlotContainer {
+    animation: panel-transition-out 500ms linear;
+}
+
+.v-enter-active .panelBodyTransitionWipe,
+.v-leave-active .panelBodyTransitionWipe {
+    animation: panel-wipe-vertical 500ms ease;
 }
 </style>

@@ -14,7 +14,7 @@ const modal = reactive({
 });
 let modalResolve = () => { };
 let modalReject = () => { };
-const showModal = async ({ title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false }: { title: string, content: string, mode?: ModalMode, color?: string, glitchTitle?: boolean }): Promise<boolean | string | null> => {
+const showModal = ({ title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false }: { title: string, content: string, mode?: ModalMode, color?: string, glitchTitle?: boolean }): Promise<boolean | string | null> => {
     if (glitchTitle) glitchTextTransition(title, title, (text) => { modal.title = text; return false }, 40, 2, 10, 1, true);
     else modal.title = title;
     modal.content = content;
@@ -22,7 +22,7 @@ const showModal = async ({ title, content, mode = ModalMode.NOTIFY, color = 'whi
     modal.color = color;
     modalInput.value.text = '';
     modal.open = true;
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = () => {
                 modal.open = false;
@@ -55,18 +55,18 @@ export const enum ModalMode {
 </script>
 
 <template>
-    <div id="container" v-bind:style="modal.open ? 'opacity: 1; pointer-events: all;' : ''">
-        <div id="modal" v-bind:style="modal.open ? 'transform: translateY(calc(50vh + 50%))' : ''">
+    <div class="modalContainer" v-bind:style="modal.open ? 'opacity: 1; pointer-events: all;' : ''">
+        <div class="modalBody" v-bind:style="modal.open ? 'transform: translateY(calc(50vh + 50%))' : ''">
             <h1 v-html=modal.title></h1>
             <p v-html=modal.content></p>
             <span v-if="modal.mode == ModalMode.QUERY">
                 <UITextBox ref="modalInput"></UITextBox>
                 <br>
             </span>
-            <div id="buttons">
+            <div class="modalButtons">
                 <span v-if="modal.mode == ModalMode.CONFIRM">
-                    <UIButton text="YES" @click=modalResolve width="80px"></UIButton>
-                    <UIButton text="NO" @click=modalReject width="80px"></UIButton>
+                    <UIButton text="YES" @click=modalResolve width="80px" background-color="#0D0"></UIButton>
+                    <UIButton text="NO" @click=modalReject width="80px" background-color="#D00"></UIButton>
                 </span>
                 <span v-else>
                     <span v-if="modal.mode == ModalMode.QUERY">
@@ -80,7 +80,7 @@ export const enum ModalMode {
 </template>
 
 <style>
-#container {
+.modalContainer {
     position: fixed;
     top: 0px;
     left: 0px;
@@ -94,7 +94,7 @@ export const enum ModalMode {
     z-index: 1000;
 }
 
-#modal {
+.modalBody {
     position: fixed;
     bottom: 100vh;
     left: calc(25vw - 20px);
@@ -107,37 +107,13 @@ export const enum ModalMode {
     transition: 400ms ease-in-out transform;
 }
 
-#content {
-    font-size: 16px;
+.modalBody h1 {
+    margin: 0px 0px;
+    margin-top: 16px;
 }
 
-#buttons {
+.modalButtons {
     margin: 8px 0px;
-}
-
-#buttonYes,
-#buttonNo,
-#buttonCancel,
-#buttonOk {
-    margin: 4px 4px;
-    padding: 4px 4px;
-    font: 16px Arial;
-    font-weight: 600;
-}
-
-#buttonYes {
-    width: 100px;
-    background-color: lime;
-}
-
-#buttonNo {
-    width: 100px;
-    background-color: red;
-}
-
-#buttonCancel,
-#buttonOk {
-    width: 100px;
-    background-color: black;
+    margin-bottom: 16px;
 }
 </style>

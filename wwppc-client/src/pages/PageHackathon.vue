@@ -4,13 +4,12 @@ import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
-import SuperSecretFeature from '@/components/ui-defaults/SuperSecretFeature.vue';
 
 const modal = ref(FullscreenModal);
 </script>
 
 <template>
-    <PanelView>
+    <PanelView name="hackathon">
         <PanelHeader>
             <LargeLogo></LargeLogo>
             <PanelNavList>
@@ -28,7 +27,6 @@ const modal = ref(FullscreenModal);
                 oops hacked
             </PanelBody>
         </PanelMain>
+        <FullscreenModal ref="modal"></FullscreenModal>
     </PanelView>
-    <FullscreenModal ref="modal"></FullscreenModal>
-    <SuperSecretFeature :show="false"></SuperSecretFeature>
 </template>

@@ -1,31 +1,34 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="panelViewNavOuter">
-        <nav class="panelViewNav">
+    <div class="panelNavOuter">
+        <nav class="panelNav">
             <slot></slot>
         </nav>
     </div>
 </template>
 
 <style>
-.panelViewNavOuter {
+.panelNavOuter {
     position: relative;
     display: flex;
     flex-grow: 1;
     overflow-y: hidden;
 }
-.panelViewNav {
+
+.panelNav {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     padding: 0px 16px;
     overflow-x: scroll;
 }
-.panelViewNav::-webkit-scrollbar {
+
+.panelNav::-webkit-scrollbar {
     height: 0px;
 }
-.panelViewNavOuter::after {
+
+.panelNavOuter::after {
     content: '';
     position: absolute;
     top: 0px;
