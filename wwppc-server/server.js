@@ -34,7 +34,7 @@ app.get('*', (req, res) => {
     else res.send('Not found');
 });
 
-const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'));
+const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'), LOGGER);
 config.port = process.env.PORT ?? config.port;
 
 const contestManager = new (require('./contest.js'))();
@@ -124,7 +124,6 @@ let connectionKickDecrementer = setInterval(function () {
 }, 1000);
 
 database.connectPromise.then(() => {
-    LOGGER.info('Connected to database');
     server.listen(config.port);
     LOGGER.info(`Server listening to port ${config.port}`);
 });
@@ -142,7 +141,6 @@ let stop = async () => {
     io.close();
     clearInterval(connectionKickDecrementer);
     await database.disconnect();
-    LOGGER.info(`Database disconnected`);
     process.exit();
 };
 process.on('SIGTERM', stop);

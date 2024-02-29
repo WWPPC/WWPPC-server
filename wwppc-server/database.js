@@ -4,6 +4,7 @@ const config = require('./config.json');
 const bcrypt = require('bcrypt');
 const salt = 5;
 const { Client } = require('pg');
+const Logger = require('./log');
 const { subtle, webcrypto } = require('crypto').webcrypto;
 
 /**
@@ -23,14 +24,31 @@ class Database {
 
     /**
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
+     * @param {Logger} logger Logging instance
      */
-    constructor(uri) {
+    constructor(uri, logger) {
         this.#connectPromise = new Promise((r) => r());
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server'
         });
         this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
+        this.#connectPromise.then(() => {
+            logger.info('Database connected');
+            // database keepalive
+            let keepAlive = setInterval(() => {
+                this.#db.query('BEGIN; END');
+            }, 60000);
+            this.#db.on('end', () => {
+                logger.info('Database disconnected');
+                clearInterval(keepAlive);
+            });
+        });
+        this.#db.on('error', (err) => {
+            logger.fatal('Fatal database error:' + err);
+            logger.destroy();
+            process.exit();
+        });
     }
 
     /**
