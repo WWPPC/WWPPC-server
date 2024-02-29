@@ -2,7 +2,7 @@
 const props = defineProps<{
     show?: boolean
 }>();
-const showAnyways = new URLSearchParams(window.location.search).get('superSecretScanlines') || Math.random() < 0.01;
+const showAnyways = new URLSearchParams(window.location.search).get('super_secret_scanlines') != undefined || Math.random() < 0.01;
 </script>
 
 <template>

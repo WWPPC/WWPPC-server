@@ -42,7 +42,6 @@ const props = defineProps<{
     font-family: 'Jura', sans-serif;
     font-size: 16px;
     background-color: black;
-    scrollbar-color: #555 #222;
     overflow-y: auto;
 }
 

@@ -28,7 +28,7 @@ export default {
 
 <style>
 .panelViewBody {
-    position: fixed;
+    position: absolute;
     bottom: 0px;
     left: 0px;
     width: 100vw;

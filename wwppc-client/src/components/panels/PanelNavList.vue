@@ -31,13 +31,13 @@
 .panelNavOuter::after {
     content: '';
     position: absolute;
-    top: 0px;
+    top: -32px;
     left: 0px;
     width: 100%;
     height: calc(100% + 64px);
     margin: 0px 0px;
     padding: 0px 0px;
-    box-shadow: 0px -32px 12px 4px #222 inset;
+    box-shadow: 0px 0px 12px 4px #222 inset;
     pointer-events: none;
 }
 </style>

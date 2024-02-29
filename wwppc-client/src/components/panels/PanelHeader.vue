@@ -14,7 +14,7 @@
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
     width: 100vw;
@@ -35,8 +35,8 @@
 
 .panelHeaderTransitionWipe {
     position: absolute;
-    top: 0px;
-    left: -100%;
+    top: -100%;
+    left: 0px;
     width: 100%;
     height: 100%;
     background-color: #151515;
@@ -57,6 +57,6 @@
 
 .v-enter-active .panelHeaderTransitionWipe,
 .v-leave-active .panelHeaderTransitionWipe {
-    animation: panel-wipe-horizontal 500ms ease;
+    animation: panel-wipe-vertical 500ms ease;
 }
 </style>

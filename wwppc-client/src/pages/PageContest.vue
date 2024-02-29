@@ -4,6 +4,7 @@ import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
+import ContestProblemList from '@/components/contest/problems/ContestProblemList.vue';
 // import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { useServerConnectionStore } from '@/scripts/ServerConnection';
@@ -19,7 +20,7 @@ let onDisconnect = () => {
     if (modal.value != undefined) modal.value.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Disconnected from server. Reload the page to reconnect. Error: Could not open modal');
-        window.location.reload();
+        window.location.replace('/home/home');
     }
 }
 let onConnectError = () => {
@@ -27,13 +28,15 @@ let onConnectError = () => {
     if (modal.value != undefined) modal.value.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Could not connect to server. Reload the page to reconnect. Error: Could not open modal');
-        window.location.reload();
+        window.location.replace('/home/home');
     }
 }
-serverConnection.socket.on('disconnect', onDisconnect);
-serverConnection.socket.on('timeout', onDisconnect);
-serverConnection.socket.on('connect_fail', onConnectError);
-serverConnection.socket.on('connect_error', onConnectError);
+if (new URLSearchParams(window.location.search).get('ignore_server') == undefined) {
+    serverConnection.socket.on('disconnect', onDisconnect);
+    serverConnection.socket.on('timeout', onDisconnect);
+    serverConnection.socket.on('connect_fail', onConnectError);
+    serverConnection.socket.on('connect_error', onConnectError);
+}
 </script>
 
 <template>
@@ -58,13 +61,13 @@ serverConnection.socket.on('connect_error', onConnectError);
                 Your registration doesn't exist so there's no registration info to display.
             </PanelBody>
             <PanelBody name="problemList">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                This is where I would put my problem list. IF I HAD ONE.
+                <ContestProblemList></ContestProblemList>
             </PanelBody>
             <PanelBody name="problemView">
                 Hey! This page isn't finished. Check back later for updates!
                 <br><br>
+                omg secret page!!!!!
+                <br>
                 Problem screen (programmatically loaded from problem list)
             </PanelBody>
             <PanelBody name="leaderboard">
