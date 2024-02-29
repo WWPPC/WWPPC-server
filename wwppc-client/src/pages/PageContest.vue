@@ -6,7 +6,7 @@ import { FullscreenModal, ModalMode } from '@/components/ui-defaults/UIDefaults'
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import ContestProblemList from '@/components/contest/problems/ContestProblemList.vue';
 // import { useRouter } from 'vue-router';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useServerConnectionStore } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
 
@@ -16,27 +16,30 @@ const route = useRoute();
 const modal = ref<InstanceType<typeof FullscreenModal>>();
 const serverConnection = useServerConnectionStore();
 let onDisconnect = () => {
-    if (route.params.page != 'contest') return;
+    if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     if (modal.value != undefined) modal.value.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Disconnected from server. Reload the page to reconnect. Error: Could not open modal');
         window.location.replace('/home/home');
     }
+    serverConnection.socket.off('disconnect', onDisconnect);
+    serverConnection.socket.off('timeout', onDisconnect);
 }
 let onConnectError = () => {
-    if (route.params.page != 'contest') return;
+    console.log(route.query.ignore_server)
+    if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     if (modal.value != undefined) modal.value.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Could not connect to server. Reload the page to reconnect. Error: Could not open modal');
         window.location.replace('/home/home');
     }
+    serverConnection.socket.off('connect_fail', onConnectError);
+    serverConnection.socket.off('connect_error', onConnectError);
 }
-if (new URLSearchParams(window.location.search).get('ignore_server') == undefined) {
-    serverConnection.socket.on('disconnect', onDisconnect);
-    serverConnection.socket.on('timeout', onDisconnect);
-    serverConnection.socket.on('connect_fail', onConnectError);
-    serverConnection.socket.on('connect_error', onConnectError);
-}
+serverConnection.socket.on('disconnect', onDisconnect);
+serverConnection.socket.on('timeout', onDisconnect);
+serverConnection.socket.on('connect_fail', onConnectError);
+serverConnection.socket.on('connect_error', onConnectError);
 </script>
 
 <template>

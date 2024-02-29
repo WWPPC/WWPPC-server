@@ -24,6 +24,13 @@ const router = createRouter({
         },
     ]
 });
+router.beforeEach((to, from, next) => {
+    if (Object.keys(to.query).length == 0 && Object.keys(from.query).length > 0) {
+        next({ ...to, query: from.query });
+    } else {
+        next();
+    }
+});
 app.use(pinia);
 app.use(router);
 app.mount('#root');
