@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
 const LOGGER = new (require('./log.js'))();
-LOGGER.info('Starting WWPC server...');
+LOGGER.info('Starting WWPPC server...');
 
 const config = require('./config.json');
 const fs = require('fs')

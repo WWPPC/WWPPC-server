@@ -7,6 +7,7 @@ const props = defineProps<{
     title?: string
     for: string
     link?: boolean
+    isDefault?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -15,10 +16,9 @@ const router = useRouter();
 
 function click() {
     emit('click');
-    if (props.link) self.location.replace(props.for);
+    if (props.link) window.location.replace(props.for);
     else router.push(props.for)
 }
-const selected = ref(false);
 // animations for hover
 const buttonText = ref(props.text)
 let blockingAnimation: AsyncTextTransition | null = null;
@@ -35,7 +35,7 @@ buttonText.value = props.text.replace(/./g, ' ');
 </script>
 
 <template>
-    <input type="button" :class="selected ? 'panelNavButton panelNavButtonSelected' : 'panelNavButton'" :value=buttonText @click=click @mouseover=mouseover :title=title>
+    <input type="button" :class="((props.isDefault && $route.params.panel == undefined) || props.for == `/${$route.params.page}/${$route.params.panel}`) ? 'panelNavButton panelNavButtonSelected' : 'panelNavButton'" :value=buttonText @click=click @mouseover=mouseover :title=title>
 </template>
 
 <style>
@@ -43,16 +43,16 @@ buttonText.value = props.text.replace(/./g, ' ');
     appearance: none;
     min-width: 128px;
     border: none;
-    transition: 100ms cubic-bezier(0.6, 1, 0.5, 1.6) background-color;
     font-size: 18px;
     color: white;
     background-color: transparent;
     font-family: 'Source Code Pro', Courier, monospace;
+    transition: 100ms cubic-bezier(0.6, 1, 0.5, 1.6) background-color;
     cursor: pointer;
 }
 
 .panelNavButtonSelected {
-    background-color: black;
+    background-color: #1A1A1A;
     font-weight: bold;
 }
 

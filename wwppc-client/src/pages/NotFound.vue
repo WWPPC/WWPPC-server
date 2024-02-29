@@ -1,0 +1,30 @@
+<script setup lang="ts">
+import { UIButton } from '@/components/ui-defaults/UIDefaults';
+</script>
+
+<template>
+    <div class="notFound">
+        <span style="color: red; font-size: 32px;">BUG: 404 Not Found</span>
+        <br>
+        &lt;span style="color: red;"&gt;IS BORKEN!!!&lt;/span&gt;
+        <br>
+        <br>
+        <span>
+            <UIButton text="Magical Fix Button" color="lime" width="200px" @click="$router.push('/')"></UIButton>
+        </span>
+    </div>
+</template>
+
+<style>
+.notFound {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    text-align: center;
+}
+</style>

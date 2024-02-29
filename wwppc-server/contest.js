@@ -7,8 +7,8 @@ class ContestManager {
     // all socketio connections are put here
     // start/stop rounds, control which problems are where
     // uses database to get problems and then caches them
-    // use http requests for problems to avoid useless socketio spam
     // also prevent people from opening the contest page multiple times
+    // remember to prevent large file submissions (over 10kb is probably unnecessarily large for these problems)
 }
 
 module.exports = ContestManager;

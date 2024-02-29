@@ -16,7 +16,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="centered" :style=props.fontStyle>
+    <div class="centered glitchText" :style=props.fontStyle>
         {{ dispText }}
     </div>
 </template>
+
+<style>
+.glitchText {
+    font-family: 'Source Code Pro', Courier, monospace;
+}
+</style>

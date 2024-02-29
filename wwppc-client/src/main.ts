@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from './App.vue';
-import { PanelBody } from './components/panels/PanelManager';
+import { PanelBody, PanelNavButton } from './components/panels/PanelManager';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -14,11 +14,11 @@ const router = createRouter({
         { path: '/', components: { App, PanelBody } },
         {
             path: '/:page',
-            component: App,
+            components: { App, PanelNavButton },
             children: [
                 {
                     path: ':panel',
-                    component: PanelBody
+                    components: { PanelBody, PanelNavButton }
                 }
             ]
         },
