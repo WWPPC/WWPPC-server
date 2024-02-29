@@ -15,12 +15,14 @@ const router = createRouter({
         {
             path: '/:page',
             components: { App, PanelNavButton },
-            children: [
-                {
-                    path: ':panel',
-                    components: { PanelBody, PanelNavButton }
-                }
-            ]
+            children: [{
+                path: ':panel',
+                components: { PanelBody, PanelNavButton },
+                children: [{
+                    path: ':probDiv-:probRound-:probNum',
+                    component: PanelBody
+                }]
+            }]
         },
     ]
 });

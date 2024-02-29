@@ -5,13 +5,13 @@ import { defineStore } from "pinia";
 // to be used in contest timer, contest problem list displays, etc
 
 export interface ContestRound {
-    division: string
+    division: number
     number: number
     time: number
     problems: ContestProblem[]
 }
 export interface ContestProblem {
-    division: string
+    division: number
     round: number
     number: number
     name: string

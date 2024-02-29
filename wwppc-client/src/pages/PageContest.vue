@@ -4,11 +4,13 @@ import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import ContestProblemList from '@/components/contest/problems/ContestProblemList.vue';
-// import { useRouter } from 'vue-router';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useServerConnectionStore } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
+import PagePanelInfo from './contest/PagePanelInfo.vue';
+import PagePanelLeaderboard from './contest/PagePanelLeaderboard.vue';
+import PagePanelProblemList from './contest/PagePanelProblemList.vue';
+import PagePanelProblemView from './contest/PagePanelProblemView.vue';
 
 // const router = useRouter();
 const route = useRoute();
@@ -26,7 +28,6 @@ let onDisconnect = () => {
     serverConnection.socket.off('timeout', onDisconnect);
 }
 let onConnectError = () => {
-    console.log(route.query.ignore_server)
     if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     if (modal.value != undefined) modal.value.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
@@ -59,30 +60,16 @@ serverConnection.socket.on('connect_error', onConnectError);
         </PanelHeader>
         <PanelMain>
             <PanelBody name="info" :is-default=true>
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                Your registration doesn't exist so there's no registration info to display.
+                <PagePanelInfo></PagePanelInfo>
             </PanelBody>
             <PanelBody name="problemList">
-                <ContestProblemList></ContestProblemList>
+                <PagePanelProblemList></PagePanelProblemList>
             </PanelBody>
             <PanelBody name="problemView">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                omg secret page!!!!!
-                <br>
-                Problem screen (programmatically loaded from problem list)
+                <PagePanelProblemView></PagePanelProblemView>
             </PanelBody>
             <PanelBody name="leaderboard">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                1. the-real-tianmu - 573736472056375629219566527959683966273843 xp
-                <br>
-                2. sp - 2057277575 xp
-                <br>
-                e. Sampleprovider(sp) - 882646562 xp
-                <br>
-                &pi;. SampIeprovider(sp) - -5 xp
+                <PagePanelLeaderboard></PagePanelLeaderboard>
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
