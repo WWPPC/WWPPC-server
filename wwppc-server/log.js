@@ -60,7 +60,7 @@ class Logger {
      * Append an information-level entry to the log.
      * @param {string} text Text.
      */
-    info(text) {
+    info(...text) {
         this.#append(' info', text, 34);
     }
     /**

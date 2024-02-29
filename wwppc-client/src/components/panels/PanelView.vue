@@ -17,11 +17,11 @@ const props = defineProps<{
 
 <style>
 .v-enter-active {
-    animation: slot-transition-in 500ms linear;
+    animation: panel-transition-in 500ms linear;
 }
 
 .v-leave-active {
-    animation: slot-transition-out 500ms linear;
+    animation: panel-transition-out 500ms linear;
 }
 
 @keyframes panel-wipe-vertical {
