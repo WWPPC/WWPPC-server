@@ -1,10 +1,19 @@
 <script setup lang="ts">
+import { FullscreenModal, globalModal } from '@/components/ui-defaults/UIDefaults';
 import PageContest from '@/pages/PageContest.vue';
 import PageTest from '@/pages/PageTest.vue';
 import PageHackathon from '@/pages/PageHackathon.vue';
 import PageHome from '@/pages/PageHome.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
+import { ref, watch } from 'vue';
+
+const modalComponent = ref<InstanceType<typeof FullscreenModal>>();
+
+const modal = globalModal();
+watch(() => modalComponent.value, () => {
+    if (modalComponent.value != undefined) modal.setModal(modalComponent.value);
+})
 </script>
 
 <template name="app">
@@ -13,5 +22,6 @@ import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
     <PageHackathon></PageHackathon>
     <PageContest></PageContest>
     <PageTest></PageTest>
+    <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>
 </template>

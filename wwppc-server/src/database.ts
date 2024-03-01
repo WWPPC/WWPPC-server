@@ -1,16 +1,14 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
-const config = require('./config.json');
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
+import { Client } from 'pg';
 const salt = 5;
-const { Client } = require('pg');
-const Logger = require('./log');
-const { subtle, webcrypto } = require('crypto').webcrypto;
+import { subtle, webcrypto } from 'crypto';
 
 /**
  * PostgreSQL database connection for handling accounts, including submissions.
  */
-class Database {
+export class Database {
     #ready = false;
     #connectPromise;
     #db;
@@ -27,12 +25,19 @@ class Database {
      * @param {Logger} logger Logging instance
      */
     constructor(uri, logger) {
-        this.#connectPromise = new Promise((r) => r());
+        this.#connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server'
         });
-        this.#connectPromise = this.#db.connect().then(async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey)).then(this.#ready = true);
+        this.#connectPromise = this.#db.connect().catch((err) => {
+            logger.fatal('Could not connect to database:');
+            logger.fatal(err);
+            logger.destroy();
+            process.exit();
+        }).then(async () => {
+            this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey);
+        }).then(this.#ready = true);
         this.#connectPromise.then(() => {
             logger.info('Database connected');
             // database keepalive
@@ -45,7 +50,8 @@ class Database {
             });
         });
         this.#db.on('error', (err) => {
-            logger.fatal('Fatal database error:' + err);
+            logger.fatal('Database error:');
+            logger.fatal(err);
             logger.destroy();
             process.exit();
         });
@@ -63,7 +69,7 @@ class Database {
      */
     async RSAdecode(buf) {
         try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(new Uint8Array([30]))) : buf;
+            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
             console.error(err);
             return buf;
@@ -152,12 +158,13 @@ class Database {
      * Filter and get a list of submissions from the submissions database according to a criteria.
      * @param {{username: string, problem: string}} criteria Filter criteria. Leaving one undefined removes the filter
      * @param {string} criteria.username Filter by username, exact match
-     * @param {string} criteria.problemId Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed
+     * @param {string} criteria.problemId Filter by problem id, exact match. Problem ids are in the format `D-R-NN`, with D being division number, R being round number and NN being problem number, 0-indexed
+     * @param {number} criteria.problemDiv Filter by division, exact match. Zero-indexed
      * @param {number} criteria.problemRound Filter by round, exact match. Zero-indexed
      * @param {number} criteria.problemNum Filter by number in round, exact match. Zero-indexed
      * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readSubmissions(criteria = { username: critUser = '*', problemId: critProblemId = '*', problemRound: critProblemRound = '*', problemNum: critProblemNum = '*' }) {
+    async readSubmissions(criteria = { username: '*', problemId: '*', problemDiv: '*', problemRound: '*', problemNum: '*' }) {
         try {
 
         } catch (err) {
@@ -188,26 +195,37 @@ class Database {
     /**
      * Filter and get a list of problems from the problems database according to a criteria
      * @param {{username: string, problem: string}} criteria Filter criteria. Leaving one undefined removes the filter
-     * @param {string} criteria.id Filter by problem id, exact match. Problem ids are in the format `R-NN`, with R being round number and NN being problem number, 0-indexed
+     * @param {string} criteria.id Filter by problem id, exact match. Problem ids are in the format `D-R-NN`, with D being division number, R being round number and NN being problem number, 0-indexed
+     * @param {number} criteria.division Filter by division, exact match. Zero-indexed
      * @param {number} criteria.round Filter by round, exact match. Zero-indexed
      * @param {number} criteria.number Filter by number in round, exact match. Zero-indexed
      * @param {number} criteria.name Filter by problem name
      * @param {number} criteria.author Filter by author username
      * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
-    async readProblems(criteria = { id: critId = '*', round: critRound = '*', number: critNum = '*', name: critName = '*', author: critAuthor = '*' }) {
+    async readProblems(criteria = { id: '*', division: '*', round: '*', number: '*', name: '*', author: '*' }) {
         try {
-            if (critId != '*') {
-                let split = critId.split('-');
-                if (split.length == 2) {
-                    critRound = split[0];
-                    critNum = split[1];
+            if (criteria.id != '*') {
+                let split = criteria.id.split('-');
+                if (split.length == 3) {
+                    criteria.division = split[0];
+                    criteria.round = split[1];
+                    criteria.number = split[2];
                 }
             }
-            const data = await this.#db.query('SELECT * FROM problems WHERE round=$1 AND number=$2 AND name=$3 AND author=$4;', [critRound, critNum, critName, critAuthor]);
-            const data2 = [];
+            const data = await this.#db.query('SELECT * FROM problems WHERE division=$1 AND round=$2 AND number=$3 AND name=$4 AND author=$5;', [criteria.division, criteria.round, criteria.number, criteria.name, criteria.author]);
+            const data2: Problem[] = [];
             for (let problem of data.rows) {
-                data2.push(new Problem(problem.round, problem.number, problem.name, problem.author, problem.content, JSON.parse(problem.cases)));
+                data2.push({
+                    division: problem.division,
+                    round: problem.round,
+                    number: problem.number,
+                    name: problem.name,
+                    author: problem.author,
+                    content: problem.content,
+                    cases: JSON.parse(problem.cases),
+                    constraints: problem.constraints
+                });
             }
             return data2;
         } catch (err) {
@@ -228,116 +246,74 @@ class Database {
         }
     }
 }
+export default Database;
 
-class AccountData {
-    constructor(username, submissions) {
-
-    }
+/**
+ * Descriptor for an account
+ * @property {string} username Username
+ */
+export interface AccountData {
+    username: string
 }
-
 /**
- * A score for a single test case
- * @typedef {{state: number, time: number, memory: number}} Score
- * @param {number} state 0 - Pass | 1 - Time Limit Exceeded | 2 - Error or Memory Exceeded
- * @param {number} time Time for test case in milliseconds
- * @param {number} memory Memory usage in megabytes
+ * Descriptor for a single problem
+ * @property {number} division Division number, zero-indexed
+ * @property {number} round Round number, zero-indexed
+ * @property {number} number Problem number, zero-indexed
+ * @property {string} name Name of problem
+ * @property {string} author Author of problem
+ * @property {string} content HTML content of problem statement (problem body)
+ * @property {TestCase[]} cases Test case list
+ * @property {{ time: number, memory: number }} constraints Problem constraints
  */
-
-/**
- * An immutable representation of a past submission.
- */
-class Submission {
-    #username;
-    #probRound;
-    #probNum;
-    #time;
-    #file;
-    #lang;
-    #scores;
-    /**
-     * @param {string} username Username of submitter
-     * @param {number} problemRound Problem round
-     * @param {number} problemNum Problem number in round
-     * @param {number} time Time of submission in milliseconds since the epoch
-     * @param {string} file Submission file
-     * @param {string} language Submission language
-     * @param {Array<Score> | undefined} scores Scores for test cases (can be undefined if not scored yet)
-     */
-    constructor(username, problemRound, problemNum, time, file, language, scores) {
-        this.#username = username;
-        this.#probRound = problemRound;
-        this.#probNum = problemNum;
-        this.#time = time;
-        this.#file = file;
-        this.#lang = language;
-        this.#scores = scores?.slice(0);
-    }
-
-    /**@type {string} Username of submitter */
-    get username() { return this.#username; }
-    /**@type {number} Problem round */
-    get probRound() { return this.#probRound; }
-    /**@type {number} Problem number in round */
-    get probNum() { return this.#probNum; }
-    /**@type {number} Time of submission in milliseconds since the epoch */
-    get time() { return this.#time; }
-    /**@type {string} Submission file */
-    get file() { return this.#file; }
-    /**@type {string} Submission language */
-    get lang() { return this.#lang; }
-    /**@type {Array<Score> | undefined} Scores for test cases (can be undefined if not scored yet) */
-    get scores() { return this.#scores?.slice(0); }
+export interface Problem {
+    division: number
+    round: number
+    number: number
+    name: string
+    author: string
+    content: string
+    cases: TestCase[]
+    constraints: { time: number, memory: number }
 }
-
 /**
- * Test data for a single test case
- * @typedef {{input: string, output: string}} TestCase
- * @param {string} input Input data to test with
- * @param {string} output The correct answer the program should output (whitespace included!)
+ * Descriptor for a single test case
+ * @property {string} input Input test data
+ * @property {string} output Correct answer
  */
-
-/**
- * An immutable representation of a problem.
- */
-class Problem {
-    #round;
-    #number;
-    #name;
-    #author;
-    #content;
-    #cases;
-    /**
-     * @param {number} round Round number
-     * @param {number} number Problem number
-     * @param {string} name Problem name
-     * @param {string} author Author of problem
-     * @param {string} content Problem statement, including sample test cases
-     * @param {Array<TestCase>} cases Array of test cases
-     */
-    constructor(round, number, name, author, content, cases) {
-        this.#round = round;
-        this.#number = number;
-        this.#name = name;
-        this.#author = author;
-        this.#content = content;
-        this.#cases = cases.slice(0);
-    }
-    /**@type {number} Round number */
-    get round() { return this.#round; }
-    /**@type {number} Problem number */
-    get number() { return this.#number; }
-    /**@type {string} Problem name */
-    get name() { return this.#name; }
-    /**@type {string} Author of problem */
-    get author() { return this.#author; }
-    /**@type {string} Problem statement */
-    get content() { return this.#content; }
-    /**@type {Array<TestCase>} Array of test cases */
-    get cases() { return this.#cases.slice(0); }
+export interface TestCase {
+    input: string
+    output: string
 }
-
-module.exports = Database;
-module.exports.Database = Database;
-module.exports.AccountData = AccountData;
-module.exports.Submission = Submission;
-module.exports.Problem = Problem;
+/**
+ * Descriptor for a single submission
+ * @property {string} username Username of submitter
+ * @property {number} division Division number, zero-indexed
+ * @property {number} round Round number, zero-indexed
+ * @property {number} number Problem number, zero-indexed
+ * @property {number} time Time at submission
+ * @property {string} file Copy of the file submitted
+ * @property {string} lang Submitted language
+ * @property {Score[]} scores Resulting scores of submission
+ */
+export interface Submission {
+    username: string
+    division: number
+    round: number
+    number: number
+    time: number
+    file: string
+    lang: string
+    scores: Score[]
+}
+/**
+ * Descriptor for a score on a single test case
+ * @property {number} state 0 - Pass | 1 - Wrong answer | 2 - Time Limit Exceeded | 3 - Error or Memory Exceeded
+ * @property {number} time Time for test case in milliseconds
+ * @property {number} memory Memory usage in megabytes
+ */
+export interface Score {
+    state: number
+    time: number
+    memory: number
+}

@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
     data: ContestProblem
 }>();
+
+const router = useRouter();
 
 const statusToAnimation = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
@@ -29,13 +33,16 @@ const statusToDescription = (status: ContestProblemCompletionState) => {
         <div class="contestProblemListProblemStatus" :title="statusToDescription(props.data.status)"></div>
         <span class="contestProblemListProblemName"><b>{{ props.data.name }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>Author: {{ props.data.author }}</i></span>
+        <span class="contestProblemListProblemButton">
+            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/problemView/${props.data.division}-${props.data.round}-${props.data.number}`)"></UILinkButton>
+        </span>
     </div>
 </template>
 
 <style>
 .contestProblemListProblem {
     display: grid;
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 60px 1fr 120px;
     grid-template-rows: 24px 8px 16px 8px;
     grid-auto-flow: column;
     margin: 4px 0px;
@@ -79,6 +86,11 @@ const statusToDescription = (status: ContestProblemCompletionState) => {
     font-size: 18px;
     align-self: start;
     justify-self: left;
+}
+
+.contestProblemListProblemButton {
+    grid-row: 1 / 5;
+    grid-column: 3;
 }
 
 @keyframes pstatus-not-uploaded {

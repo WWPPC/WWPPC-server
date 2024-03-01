@@ -1,10 +1,10 @@
-const fs = require('fs');
-const fspath = require('path');
+import fs from 'fs';
+import * as fspath from 'path';
 
 /**
  * A simple logging class with timestamps and logging levels.
  */
-class Logger {
+export default class Logger {
     #file;
 
     /**
@@ -13,7 +13,7 @@ class Logger {
      * `Loggers` in the same directory will break them.
      * @param {string} path Filepath to the log directory. The default is `'./'`.
      */
-    constructor(path = './') {
+    constructor(path: string = './') {
         if (!fs.existsSync(path)) throw new Error('"path" must be a valid directory');
         path = fspath.resolve(path);
         try {
@@ -35,7 +35,7 @@ class Logger {
      * Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
      * @returns Timestamp in YYYY-MM-DD [HH:MM:SS] format.
      */
-    timestamp() {
+    timestamp(): string {
         const time = new Date();
         let month = (time.getMonth() + 1).toString();
         let day = time.getDate().toString();
@@ -50,42 +50,42 @@ class Logger {
         return `${time.getFullYear()}-${month}-${day} [${hour}:${minute}:${second}]`;
     }
     /**
-     * Append an debug-level entry to the log.
+     * Append a debug-level entry to the log.
      * @param {string} text Text.
      */
-    debug(text) {
+    debug(text: string) {
         this.#append(' info', text, 36);
     }
     /**
      * Append an information-level entry to the log.
      * @param {string} text Text.
      */
-    info(...text) {
+    info(text: string) {
         this.#append(' info', text, 34);
     }
     /**
      * Append a warning-level entry to the log.
      * @param {string} text Text.
      */
-    warn(text) {
+    warn(text: string) {
         this.#append(' warn', text, 33);
     }
     /**
      * Append an error-level entry to the log.
      * @param {string} text Text.
      */
-    error(text) {
+    error(text: string) {
         this.#append('error', text, 31);
     }
     /**
-     * Append an fatal-level entry to the log.
+     * Append a fatal-level entry to the log.
      * @param {string} text Text.
      */
-    fatal(text) {
+    fatal(text: string) {
         this.#append('fatal', text, 35);
     }
 
-    #append(level, text, color) {
+    #append(level: string, text: string, color: number) {
         if (this.#file == undefined) return;
         let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
         process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
@@ -98,11 +98,8 @@ class Logger {
      */
     destroy() {
         if (this.#file == undefined) return;
-        console.log('Logger instance destroyed');
         this.info('Logger instance destroyed');
         fs.closeSync(this.#file);
         this.#file = undefined;
     }
 }
-
-module.exports = Logger;

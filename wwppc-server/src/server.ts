@@ -1,23 +1,27 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
-const LOGGER = new (require('./log.js'))();
-LOGGER.info('Starting WWPPC server...');
+import Logger from './log';
+const logger = new Logger();
+logger.info('Starting WWPPC server...');
 
-const config = require('./config.json');
-const fs = require('fs')
-const path = require('path');
-const express = require('express');
+const config = require('../config/config.json');
+import fs from 'fs';
+import path from 'path';
+import express from 'express';
+import http from 'http';
+import https from 'https';
+import cors from 'cors';
+import { rateLimit } from 'express-rate-limit';
 const app = express();
-const server = fs.existsSync(path.resolve(__dirname, '.local')) ? require('https').createServer({
-    key: fs.readFileSync(path.resolve(__dirname, './localhost-key.pem')),
-    cert: fs.readFileSync(path.resolve(__dirname, './localhost.pem'))
-}, app) : require('http').createServer(app);
-const cors = require('cors');
-const limiter = require('express-rate-limit')({
+const server = fs.existsSync(path.resolve(__dirname, '../config/.local')) ? https.createServer({
+    key: fs.readFileSync(path.resolve(__dirname, '../config/localhost-key.pem')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../config/localhost.pem'))
+}, app) : http.createServer(app);
+const limiter = rateLimit({
     windowMs: 100,
     max: 30,
     handler: function (req, res, options) {
-        LOGGER.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
+        logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
 app.use(limiter);
@@ -34,14 +38,16 @@ app.get('*', (req, res) => {
     else res.send('Not found');
 });
 
-const database = new (require('./database.js'))(process.env.DATABASE_URL ?? require('./local-database.json'), LOGGER);
+import Database from './database';
+const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json'), logger);
 config.port = process.env.PORT ?? config.port;
 
-const contestManager = new (require('./contest.js'))();
+import ContestManager from './contest';
+const contestManager = new ContestManager();
 
 const sessionId = Math.random();
-const recentConnections = [];
-const recentConnectionKicks = [];
+const recentConnections = new Map<string, number>();
+const recentConnectionKicks = new Set<string>();
 const io = new (require('socket.io')).Server(server, {
     path: '/socket.io',
     cors: { origin: '*', methods: ['GET', 'POST'] }
@@ -50,18 +56,23 @@ io.on('connection', async (s) => {
     const socket = s;
     const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
     // some spam protection stuff
-    let kick = (reason = 'unspecified') => {
-        LOGGER.warn(`${ip} was kicked for violating restrictions; ${reason}`);
+    let kick = (reason = 'unspecified reason') => {
+        logger.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
         socket.onevent = function (packet) { };
         socket.disconnect();
     };
     socket.on('error', kick);
     // connection DOS detection
-    recentConnections[ip] = (recentConnections[ip] ?? 0) + 1;
-    if (recentConnections[ip] > 3) {
-        recentConnectionKicks[ip] = true;
-        kick('too many connections');
+    recentConnections.set(ip, (recentConnections.get(ip) ?? 0) + 1);
+    if ((recentConnections.get(ip) ?? 0) > config.maxConnectPerSecond) {
+        if (! recentConnectionKicks.has(ip)) kick('too many connections');
+        else {
+            socket.removeAllListeners();
+            socket.onevent = function (packet) { };
+            socket.disconnect();
+        }
+        recentConnectionKicks.add(ip);
         return;
     }
     // spam DOS protection
@@ -100,7 +111,7 @@ io.on('connection', async (s) => {
                 resolve(true);
                 return;
             }
-            const res = await (creds.action ? database.createAccount : database.checkAccount).call(database, u, p); // why? idk
+            const res = await (creds.action ? database.createAccount.call(database, u, p) : database.checkAccount.call(database, u, p)); // why? idk
             if (res == 0) {
                 socket.removeAllListeners('credentials');
                 resolve(false);
@@ -115,23 +126,21 @@ io.on('connection', async (s) => {
     // including submissions oof
 });
 let connectionKickDecrementer = setInterval(function () {
-    for (let i in recentConnections) {
-        recentConnections[i] = Math.max(recentConnections[i] - 1, 0);
-    }
-    for (let i in recentConnectionKicks) {
-        delete recentConnectionKicks[i];
-    }
+    recentConnections.forEach((val, key) => {
+        recentConnections.set(key, Math.max(val - 1, 0));
+    });
+    recentConnectionKicks.clear();
 }, 1000);
 
 database.connectPromise.then(() => {
     server.listen(config.port);
-    LOGGER.info(`Server listening to port ${config.port}`);
+    logger.info(`Server listening to port ${config.port}`);
 });
 
-let stop = async () => {
-    LOGGER.info(`Stopping server...`);
+let stopServer = async () => {
+    logger.info(`Stopping server...`);
     let actuallyStop = () => {
-        LOGGER.info('[!] Forced stop! Skipped waiting for shutdown! [!]');
+        logger.info('[!] Forced stopServer! Skipped waiting for shutdown! [!]');
         process.exit();
     };
     process.on('SIGTERM', actuallyStop);
@@ -143,7 +152,7 @@ let stop = async () => {
     await database.disconnect();
     process.exit();
 };
-process.on('SIGTERM', stop);
-process.on('SIGQUIT', stop);
-process.on('SIGINT', stop);
-process.on('SIGILL', stop);
+process.on('SIGTERM', stopServer);
+process.on('SIGQUIT', stopServer);
+process.on('SIGINT', stopServer);
+process.on('SIGILL', stopServer);

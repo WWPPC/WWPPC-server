@@ -9,16 +9,9 @@ const modal = reactive({
     title: '',
     content: '',
     mode: ModalMode.NOTIFY,
-    color: 'white',
     open: false
 });
-interface ModalParams {
-    title: string
-    content: string
-    mode?: ModalMode
-    color?: string
-    glitchTitle?: boolean
-}
+let modalColor = 'white';
 let modalResolve = () => { };
 let modalReject = () => { };
 const modalQueue: Array<{ params: ModalParams, resolve: (v: boolean | string | null) => void }> = [];
@@ -35,7 +28,7 @@ const showModal = (params: ModalParams): Promise<boolean | string | null> => {
     else modal.title = title;
     modal.content = content;
     modal.mode = mode;
-    modal.color = color;
+    modalColor = color;
     modalInput.value.text = '';
     modal.open = true;
     return new Promise((resolve) => {
@@ -71,6 +64,13 @@ export const enum ModalMode {
     NOTIFY = 0,
     CONFIRM = 1,
     QUERY = 2
+}
+export interface ModalParams {
+    title: string
+    content: string
+    mode?: ModalMode
+    color?: string
+    glitchTitle?: boolean
 }
 </script>
 
@@ -123,8 +123,8 @@ export const enum ModalMode {
     left: calc(25vw - 20px);
     width: 50vw;
     padding: 4px 4px;
-    background-color: v-bind("modal.color");
-    box-shadow: 0px 0px 8px v-bind("modal.color");
+    background-color: v-bind("modalColor");
+    box-shadow: 0px 0px 8px v-bind("modalColor");
     clip-path: polygon(32px 0%, 100% 0%, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0% 100%, 0% 32px);
     transition: 400ms ease-in-out transform;
 }

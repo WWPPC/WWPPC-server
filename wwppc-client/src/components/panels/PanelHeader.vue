@@ -2,7 +2,9 @@
 
 <template>
     <header class="panelHeader">
-        <slot></slot>
+        <div class="panelHeaderSlotContainer">
+            <slot></slot>
+        </div>
         <div class="panelHeaderTransitionWipeContainer">
             <div class="panelHeaderTransitionWipe"></div>
         </div>
@@ -11,22 +13,29 @@
 
 <style>
 .panelHeader {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100vw;
-    height: 96px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-row: 1;
+    grid-column: 1;
     background-color: #222;
     border-bottom: 4px solid white;
 }
 
+.panelHeaderSlotContainer {
+    display: flex;
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: stretch;
+}
+
 .panelHeaderTransitionWipeContainer {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    position: relative;
+    grid-row: 1;
+    grid-column: 1;
     width: 100%;
     height: 100%;
     pointer-events: none;

@@ -28,11 +28,10 @@ export default {
 
 <style>
 .panelViewBody {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-    width: 100vw;
-    height: calc(100vh - 100px);
-    background-color: black;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-row: 2;
+    grid-column: 1;
 }
 </style>

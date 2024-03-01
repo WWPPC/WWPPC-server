@@ -2,10 +2,6 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
-import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
-import { ref } from 'vue';
-
-const modal = ref(FullscreenModal);
 </script>
 
 <template>
@@ -27,6 +23,5 @@ const modal = ref(FullscreenModal);
                 oops hacked
             </PanelBody>
         </PanelMain>
-        <FullscreenModal ref="modal"></FullscreenModal>
     </PanelView>
 </template>

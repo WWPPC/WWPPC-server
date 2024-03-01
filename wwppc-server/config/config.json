@@ -1,4 +1,5 @@
 {
     "port": 8080,
+    "maxConnectPerSecond": 5,
     "superSecretSecret": false
 }

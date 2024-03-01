@@ -17,7 +17,7 @@ function click() {
 </script>
 
 <template>
-    <input type="button" class="uiButton" :value=text @click=click :title=title>
+    <input type="button" class="uiButton" :value=$props.text @click=click :title=title>
 </template>
 
 <style>
@@ -25,9 +25,10 @@ function click() {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
     height: v-bind("$props.height ?? '32px'");
-    border: 4px solid white;
     margin: 0px 4px;
     padding: 0px 4px;
+    border: 4px solid white;
+    border-radius: 0px;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");

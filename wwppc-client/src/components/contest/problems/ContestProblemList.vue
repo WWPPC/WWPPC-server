@@ -8,12 +8,12 @@ import ContestProblemListRound from './ContestProblemListRound.vue';
 
 const rounds: ContestRound[] = [];
 rounds.push({
-    division: 'test',
+    division: 0,
     number: 0,
     time: 1800,
     problems: [
         {
-            division: 'test',
+            division: 0,
             round: 0,
             number: 0,
             name: 'Test 0',
@@ -23,7 +23,7 @@ rounds.push({
             status: ContestProblemCompletionState.GRADED_PASS
         },
         {
-            division: 'test',
+            division: 0,
             round: 0,
             number: 1,
             name: 'Test 1',
@@ -33,7 +33,7 @@ rounds.push({
             status: ContestProblemCompletionState.GRADED_FAIL
         },
         {
-            division: 'test',
+            division: 0,
             round: 0,
             number: 2,
             name: 'Test 2',
@@ -44,12 +44,12 @@ rounds.push({
         }
     ]
 }, {
-    division: 'test',
+    division: 0,
     number: 1,
     time: 3600,
     problems: [
         {
-            division: 'test',
+            division: 0,
             round: 1,
             number: 0,
             name: 'Test 0',
@@ -59,7 +59,7 @@ rounds.push({
             status: ContestProblemCompletionState.UPLOADED
         },
         {
-            division: 'test',
+            division: 0,
             round: 1,
             number: 1,
             name: 'Test 1',
