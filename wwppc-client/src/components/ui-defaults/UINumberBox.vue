@@ -36,6 +36,7 @@ defineExpose({
     margin: 0px 4px;
     padding: 0px 4px;
     border: 4px solid white;
+    border-radius: 0px;
     background-color: black;
     color: white;
     font: v-bind("$props.font ?? '14px inherit'");

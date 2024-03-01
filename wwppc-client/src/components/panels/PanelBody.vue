@@ -24,17 +24,19 @@ const props = defineProps<{
 
 <style>
 .panelBody {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-row: 1;
+    grid-column: 1;
+    position: relative;
     width: 100%;
     height: 100%;
 }
 
 .panelBodySlotContainer {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
+    grid-row: 1;
+    grid-column: 1;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -46,9 +48,9 @@ const props = defineProps<{
 }
 
 .panelBodyTransitionWipeContainer {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    position: relative;
+    grid-row: 1;
+    grid-column: 1;
     width: 100%;
     height: 100%;
     pointer-events: none;

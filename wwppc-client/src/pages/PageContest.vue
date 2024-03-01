@@ -6,10 +6,10 @@ import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { useServerConnectionStore } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
-import PagePanelInfo from './contest/PagePanelInfo.vue';
-import PagePanelLeaderboard from './contest/PagePanelLeaderboard.vue';
-import PagePanelProblemList from './contest/PagePanelProblemList.vue';
-import PagePanelProblemView from './contest/PagePanelProblemView.vue';
+import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
+import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
+import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
+import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 
 // const router = useRouter();
 const route = useRoute();
@@ -52,16 +52,16 @@ serverConnection.socket.on('connect_error', onConnectError);
         </PanelHeader>
         <PanelMain>
             <PanelBody name="info" :is-default=true>
-                <PagePanelInfo></PagePanelInfo>
+                <PagePanelContestInfo></PagePanelContestInfo>
             </PanelBody>
             <PanelBody name="problemList">
-                <PagePanelProblemList></PagePanelProblemList>
+                <PagePanelContestProblemList></PagePanelContestProblemList>
             </PanelBody>
             <PanelBody name="problemView">
-                <PagePanelProblemView></PagePanelProblemView>
+                <PagePanelContestProblemView></PagePanelContestProblemView>
             </PanelBody>
             <PanelBody name="leaderboard">
-                <PagePanelLeaderboard></PagePanelLeaderboard>
+                <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
             </PanelBody>
         </PanelMain>
     </PanelView>

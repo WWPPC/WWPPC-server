@@ -2,8 +2,8 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
-import PagePanelAbout from '@/pages/home/PagePanelAbout.vue';
-import PagePanelHome from '@/pages/home/PagePanelHome.vue';
+import PagePanelHomeAbout from '@/pages/home/PagePanelHomeAbout.vue';
+import PagePanelHomeHome from '@/pages/home/PagePanelHomeHome.vue';
 </script>
 
 <template>
@@ -23,10 +23,10 @@ import PagePanelHome from '@/pages/home/PagePanelHome.vue';
         </PanelHeader>
         <PanelMain>
             <PanelBody name="home" :is-default=true>
-                <PagePanelHome></PagePanelHome>
+                <PagePanelHomeHome></PagePanelHomeHome>
             </PanelBody>
             <PanelBody name="about">
-                <PagePanelAbout></PagePanelAbout>
+                <PagePanelHomeAbout></PagePanelHomeAbout>
             </PanelBody>
         </PanelMain>
     </PanelView>

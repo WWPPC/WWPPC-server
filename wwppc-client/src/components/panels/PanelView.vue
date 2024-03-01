@@ -9,13 +9,23 @@ const props = defineProps<{
 
 <template>
     <Transition>
-        <div v-if="route.params.page == props.name || (route.params.page == undefined && props.isDefault)">
+        <div class="panelView" v-if="route.params.page == props.name || (route.params.page == undefined && props.isDefault)">
             <slot></slot>
         </div>
     </Transition>
 </template>
 
 <style>
+.panelView {
+    display: grid;
+    grid-template-rows: 100px minmax(0, 1fr);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+}
+
 .v-enter-active {
     animation: panel-transition-in 500ms linear;
 }
