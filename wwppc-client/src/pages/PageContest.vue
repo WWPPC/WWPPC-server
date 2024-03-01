@@ -4,11 +4,13 @@ import UserDisp from '@/components/UserDisp.vue';
 import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import ContestProblemList from '@/components/contest/problems/ContestProblemList.vue';
-// import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { useServerConnectionStore } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
+import PagePanelInfo from './contest/PagePanelInfo.vue';
+import PagePanelLeaderboard from './contest/PagePanelLeaderboard.vue';
+import PagePanelProblemList from './contest/PagePanelProblemList.vue';
+import PagePanelProblemView from './contest/PagePanelProblemView.vue';
 
 // const router = useRouter();
 const route = useRoute();
@@ -16,27 +18,29 @@ const route = useRoute();
 const modal = ref<InstanceType<typeof FullscreenModal>>();
 const serverConnection = useServerConnectionStore();
 let onDisconnect = () => {
-    if (route.params.page != 'contest') return;
+    if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     if (modal.value != undefined) modal.value.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Disconnected from server. Reload the page to reconnect. Error: Could not open modal');
         window.location.replace('/home/home');
     }
+    serverConnection.socket.off('disconnect', onDisconnect);
+    serverConnection.socket.off('timeout', onDisconnect);
 }
 let onConnectError = () => {
-    if (route.params.page != 'contest') return;
+    if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     if (modal.value != undefined) modal.value.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
     else {
         window.alert('Could not connect to server. Reload the page to reconnect. Error: Could not open modal');
         window.location.replace('/home/home');
     }
+    serverConnection.socket.off('connect_fail', onConnectError);
+    serverConnection.socket.off('connect_error', onConnectError);
 }
-if (new URLSearchParams(window.location.search).get('ignore_server') == undefined) {
-    serverConnection.socket.on('disconnect', onDisconnect);
-    serverConnection.socket.on('timeout', onDisconnect);
-    serverConnection.socket.on('connect_fail', onConnectError);
-    serverConnection.socket.on('connect_error', onConnectError);
-}
+serverConnection.socket.on('disconnect', onDisconnect);
+serverConnection.socket.on('timeout', onDisconnect);
+serverConnection.socket.on('connect_fail', onConnectError);
+serverConnection.socket.on('connect_error', onConnectError);
 </script>
 
 <template>
@@ -56,30 +60,16 @@ if (new URLSearchParams(window.location.search).get('ignore_server') == undefine
         </PanelHeader>
         <PanelMain>
             <PanelBody name="info" :is-default=true>
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                Your registration doesn't exist so there's no registration info to display.
+                <PagePanelInfo></PagePanelInfo>
             </PanelBody>
             <PanelBody name="problemList">
-                <ContestProblemList></ContestProblemList>
+                <PagePanelProblemList></PagePanelProblemList>
             </PanelBody>
             <PanelBody name="problemView">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                omg secret page!!!!!
-                <br>
-                Problem screen (programmatically loaded from problem list)
+                <PagePanelProblemView></PagePanelProblemView>
             </PanelBody>
             <PanelBody name="leaderboard">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                1. the-real-tianmu - 573736472056375629219566527959683966273843 xp
-                <br>
-                2. sp - 2057277575 xp
-                <br>
-                e. Sampleprovider(sp) - 882646562 xp
-                <br>
-                &pi;. SampIeprovider(sp) - -5 xp
+                <PagePanelLeaderboard></PagePanelLeaderboard>
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>

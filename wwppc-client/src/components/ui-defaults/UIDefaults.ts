@@ -1,4 +1,5 @@
 import UIButton from './UIButton.vue';
+import UILinkButton from './UILinkButton.vue';
 import UITextBox from './UITextBox.vue';
 import UINumberBox from './UINumberBox.vue';
 import UIToggle from './UIToggle.vue';
@@ -10,6 +11,7 @@ export {
     UINumberBox,
     UIToggle,
     UIDropdown,
+    UILinkButton,
     FullscreenModal,
     ModalMode
 }

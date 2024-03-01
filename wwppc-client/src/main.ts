@@ -15,14 +15,23 @@ const router = createRouter({
         {
             path: '/:page',
             components: { App, PanelNavButton },
-            children: [
-                {
-                    path: ':panel',
-                    components: { PanelBody, PanelNavButton }
-                }
-            ]
+            children: [{
+                path: ':panel',
+                components: { PanelBody, PanelNavButton },
+                children: [{
+                    path: ':probDiv-:probRound-:probNum',
+                    component: PanelBody
+                }]
+            }]
         },
     ]
+});
+router.beforeEach((to, from, next) => {
+    if (Object.keys(to.query).length == 0 && Object.keys(from.query).length > 0) {
+        next({ ...to, query: from.query });
+    } else {
+        next();
+    }
 });
 app.use(pinia);
 app.use(router);

@@ -1,14 +1,15 @@
 # dev stuff
-wwppc-server/localhost-key.pem
-wwppc-server/localhost.pem
-wwppc-server/local-database.json
-.local
+wwppc-server/config/localhost-key.pem
+wwppc-server/config/localhost.pem
+wwppc-server/config/local-database.json
+wwppc-server/config/.local
 
 # Vite
 *.vite
 
 # Builds and stuff
 dist/
+build/
 
 # Logs
 logs

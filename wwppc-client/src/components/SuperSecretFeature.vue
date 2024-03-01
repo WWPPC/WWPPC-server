@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
 const props = defineProps<{
     show?: boolean
 }>();
-const showAnyways = new URLSearchParams(window.location.search).get('super_secret_scanlines') != undefined || Math.random() < 0.01;
+
+const route = useRoute();
+const showAnyways = route.query.super_secret_scanlines != undefined || Math.random() < 0.01
 </script>
 
 <template>

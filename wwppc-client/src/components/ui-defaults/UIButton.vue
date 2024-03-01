@@ -17,7 +17,7 @@ function click() {
 </script>
 
 <template>
-    <input type="button" class="uiButton" :value=text @click=click :title=title>
+    <input type="button" class="uiButton" :value=$props.text @click=click :title=title>
 </template>
 
 <style>

@@ -20,6 +20,7 @@ const actualResult = ref('');
             <LargeLogo></LargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="Example" for="/test/example"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
@@ -33,6 +34,10 @@ const actualResult = ref('');
                 <UITextBox @input="(t) => result2 = t" default-value="hi"></UITextBox>
                 <br>
                 <span>{{ actualResult }}</span>
+            </PanelBody>
+            <PanelBody name="example">
+                test
+                <UIButton @click="() => modal.showModal({title: 'hi', content: 'test'})" text="example button"></UIButton>
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
