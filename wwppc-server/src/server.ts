@@ -56,7 +56,7 @@ io.on('connection', async (s) => {
     const socket = s;
     const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
     // some spam protection stuff
-    let kick = (reason = 'unspecified') => {
+    let kick = (reason = 'unspecified reason') => {
         logger.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
         socket.onevent = function (packet) { };
@@ -65,9 +65,14 @@ io.on('connection', async (s) => {
     socket.on('error', kick);
     // connection DOS detection
     recentConnections.set(ip, (recentConnections.get(ip) ?? 0) + 1);
-    if (recentConnections.get(ip) ?? 0 > 3) {
+    if ((recentConnections.get(ip) ?? 0) > config.maxConnectPerSecond) {
+        if (! recentConnectionKicks.has(ip)) kick('too many connections');
+        else {
+            socket.removeAllListeners();
+            socket.onevent = function (packet) { };
+            socket.disconnect();
+        }
         recentConnectionKicks.add(ip);
-        kick('too many connections');
         return;
     }
     // spam DOS protection
@@ -121,12 +126,10 @@ io.on('connection', async (s) => {
     // including submissions oof
 });
 let connectionKickDecrementer = setInterval(function () {
-    for (let i in recentConnections) {
-        recentConnections[i] = Math.max(recentConnections[i] - 1, 0);
-    }
-    for (let i in recentConnectionKicks) {
-        delete recentConnectionKicks[i];
-    }
+    recentConnections.forEach((val, key) => {
+        recentConnections.set(key, Math.max(val - 1, 0));
+    });
+    recentConnectionKicks.clear();
 }, 1000);
 
 database.connectPromise.then(() => {

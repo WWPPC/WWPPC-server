@@ -11,7 +11,8 @@
     "scripts": {
         "install": "cd ./../wwppc-client && npm install",
         "build": "npx tsc && cd ./../wwppc-client && npm run build",
-        "start": "node build/server.js"
+        "start": "node build/server.js",
+        "compilerun": "npx tsc && node build/server.js"
     },
     "name": "accit",
     "version": "1.0.0",
