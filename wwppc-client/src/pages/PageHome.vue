@@ -5,6 +5,7 @@ import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
 import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
+import PagePanelAbout from '@/pages/home/PagePanelAbout.vue';
 
 const modal = ref(FullscreenModal);
 </script>
@@ -29,7 +30,7 @@ const modal = ref(FullscreenModal);
                 <div class="fullBlock">
                     <br><br>
                     <LargeGlitchCenterText text="WWP-IT + WWP-HACKS" fontStyle="
-                        font-weight:bold;
+                         font-weight:bold;
                         font-size: min(calc(50vh - 50px), calc(100vw / 12));
                         text-wrap: nowrap;
                         color: lime;
@@ -47,15 +48,7 @@ const modal = ref(FullscreenModal);
                     I should probably make this into a component
                 </div>
             </PanelBody>
-            <PanelBody name="about">
-                Hey! This page isn't finished. Check back later for updates!
-                <br><br>
-                sp^2: made the whole website because nobody else bothered to learn vue
-                <br><br>
-                If you're wondering where the round corners and fancy animations are, I have something to tell you:
-                <br>
-                That's not part of the theme. There will be no round corners and everything will be white-on-black with red-green accents.
-            </PanelBody>
+            <PagePanelAbout></PagePanelAbout>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
     </PanelView>
