@@ -12,13 +12,6 @@ const modal = reactive({
     open: false
 });
 let modalColor = 'white';
-interface ModalParams {
-    title: string
-    content: string
-    mode?: ModalMode
-    color?: string
-    glitchTitle?: boolean
-}
 let modalResolve = () => { };
 let modalReject = () => { };
 const modalQueue: Array<{ params: ModalParams, resolve: (v: boolean | string | null) => void }> = [];
@@ -71,6 +64,13 @@ export const enum ModalMode {
     NOTIFY = 0,
     CONFIRM = 1,
     QUERY = 2
+}
+export interface ModalParams {
+    title: string
+    content: string
+    mode?: ModalMode
+    color?: string
+    glitchTitle?: boolean
 }
 </script>
 
