@@ -1,5 +1,8 @@
 <script setup lang="ts">
-defineProps<{
+import { onMounted, ref } from 'vue';
+import { glitchTextTransition } from './TextTransitions';
+
+const props = defineProps<{
     text: string
     title?: string
     width?: string
@@ -7,6 +10,8 @@ defineProps<{
     font?: string
     color?: string
     backgroundColor?: string
+    type?: 'button' | 'submit'
+    glitchOnMount?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -14,10 +19,17 @@ const emit = defineEmits<{
 function click() {
     emit('click');
 }
+
+const buttonText = ref(props.glitchOnMount ? props.text.replace(/./g, ' ') : props.text);
+if (props.glitchOnMount) {
+    onMounted(() => {
+        glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 1, 15, 1);
+    })
+}
 </script>
 
 <template>
-    <input type="button" class="uiButton" :value=$props.text @click=click :title=title>
+    <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=title>
 </template>
 
 <style>
@@ -32,6 +44,7 @@ function click() {
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
+    font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease transform, 50ms ease border-color;
     cursor: pointer;
 }

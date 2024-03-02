@@ -1,16 +1,14 @@
 <script setup lang="ts"></script>
 
 <template>
-    <nav class="panelRightList">
+    <nav class="panelHeaderRight">
         <slot></slot>
     </nav>
 </template>
 
 <style>
-.panelRightList {
+.panelHeaderRight {
     display: flex;
     flex-direction: row;
-    flex-grow: 1;
-    align-self: flex-start;
 }
 </style>

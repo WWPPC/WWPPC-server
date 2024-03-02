@@ -20,7 +20,7 @@ function click() {
     else router.push(props.for)
 }
 // animations for hover
-const buttonText = ref(props.text)
+const buttonText = ref(props.text.replace(/./g, ' '));
 let blockingAnimation: AsyncTextTransition | null = null;
 let currentAnimation: AsyncTextTransition | null = null;
 function mouseover() {
@@ -29,9 +29,8 @@ function mouseover() {
     currentAnimation = glitchTextTransition(props.text, props.text, (text) => { buttonText.value = text; }, 40, 2, 5, 1);
 }
 onMounted(() => {
-    blockingAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 2, 15, 2);
+    blockingAnimation = glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 1, 15, 1);
 });
-buttonText.value = props.text.replace(/./g, ' ');
 </script>
 
 <template>

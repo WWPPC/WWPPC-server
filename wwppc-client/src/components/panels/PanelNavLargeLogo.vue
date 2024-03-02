@@ -10,10 +10,12 @@ const router = useRouter();
 
 <style>
 .wwppcLargeLogo {
-    height: 100%;
-    cursor: pointer;
+    max-width: 100%;
+    max-height: 100%;
     background-color: transparent;
-    transition: 50ms linear transform;
+    align-self: center;
+    transition: 50ms linear transform, 500ms ease max-height;
+    cursor: pointer;
 }
 
 .wwppcLargeLogo:hover {
@@ -21,5 +23,11 @@ const router = useRouter();
 }
 .wwppcLargeLogo:active {
     transform: scale(0.98);
+}
+
+@media (max-width: 500px) {
+    .wwppcLargeLogo {
+        max-height: 40%;
+    }
 }
 </style>

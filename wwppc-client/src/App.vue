@@ -4,6 +4,7 @@ import PageContest from '@/pages/PageContest.vue';
 import PageTest from '@/pages/PageTest.vue';
 import PageHackathon from '@/pages/PageHackathon.vue';
 import PageHome from '@/pages/PageHome.vue';
+import PageLogin from '@/pages/PageLogin.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import { ref, watch } from 'vue';
@@ -22,6 +23,7 @@ watch(() => modalComponent.value, () => {
     <PageHackathon></PageHackathon>
     <PageContest></PageContest>
     <PageTest></PageTest>
+    <PageLogin></PageLogin>
     <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>
 </template>

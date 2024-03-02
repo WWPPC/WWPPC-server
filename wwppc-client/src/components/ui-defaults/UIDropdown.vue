@@ -52,6 +52,7 @@ defineExpose({
     border-radius: 0px;
     color: white;
     background-color: black;
+    font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms linear border-color;
     cursor: pointer;
 }

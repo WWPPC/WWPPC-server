@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import LargeLogo from '@/components/LargeLogo.vue';
+import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 </script>
 
 <template>
     <PanelView name="hackathon">
         <PanelHeader>
-            <LargeLogo></LargeLogo>
+            <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="Other Button" for="/extra"></PanelNavButton>

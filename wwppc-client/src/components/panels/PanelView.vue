@@ -19,6 +19,7 @@ const props = defineProps<{
 .panelView {
     display: grid;
     grid-template-rows: 100px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     position: fixed;
     top: 0px;
     left: 0px;

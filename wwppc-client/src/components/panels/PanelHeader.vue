@@ -14,7 +14,7 @@
 <style>
 .panelHeader {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     grid-row: 1;
     grid-column: 1;
@@ -29,7 +29,7 @@
     width: 100%;
     height: 100%;
     flex-direction: row;
-    align-items: stretch;
+    justify-content: start;
 }
 
 .panelHeaderTransitionWipeContainer {

@@ -36,6 +36,7 @@ function click() {
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
+    font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease background-position, 50ms ease background-color, 50ms ease transform, 50ms ease border-color;
     align-items: center;
     justify-content: center;

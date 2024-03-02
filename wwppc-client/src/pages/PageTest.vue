@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import LargeLogo from '@/components/LargeLogo.vue';
 import { FullscreenModal, ModalMode, UIButton, UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
+import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 
@@ -17,7 +17,7 @@ const actualResult = ref('');
 <template>
     <PanelView name="test">
         <PanelHeader>
-            <LargeLogo></LargeLogo>
+            <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="Example" for="/test/example"></PanelNavButton>

@@ -19,7 +19,6 @@
 .panelNav {
     display: flex;
     flex-direction: row;
-    flex-grow: 1;
     padding: 0px 16px;
     overflow-x: scroll;
 }
