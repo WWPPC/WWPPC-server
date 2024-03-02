@@ -11,7 +11,7 @@ const props = defineProps<{
     <h2>Round {{ props.data.number }}</h2>
     <div class="contestProblemListRoundWrapper">
         <div class="contestProblemListRound">
-            <ContestProblemListProblem v-for="problem in props.data.problems" :key="problem.number" :data="problem"></ContestProblemListProblem>
+            <ContestProblemListProblem v-for="problem in props.data.problems" :key=problem.number :data=problem></ContestProblemListProblem>
         </div>
     </div>
 </template>

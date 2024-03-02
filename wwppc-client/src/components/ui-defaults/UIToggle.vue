@@ -4,6 +4,7 @@ import { ref } from 'vue';
 const props = defineProps<{
     startChecked?: boolean
     title?: string
+    disabled?: boolean
 }>();
 const checked = ref(props.startChecked ?? false);
 const emit = defineEmits<{
@@ -15,8 +16,8 @@ function input() {
 </script>
 
 <template>
-    <label class="uiToggleLabel">
-        <input class="uiToggleInput" type="checkbox" @change=input v-model=checked :title=title>
+    <label :class="'uiToggleLabel ' + (props.disabled ? 'uiToggleLabelDisabled' : '')">
+        <input class="uiToggleInput" type="checkbox" @change=input v-model=checked :title=title :disabled=props.disabled>
         <span class="uiToggleSlider"></span>
     </label>
 </template>
@@ -67,5 +68,15 @@ function input() {
 
 .uiToggleInput:checked+.uiToggleSlider::before {
     transform: translateX(20px);
+}
+
+.uiToggleLabelDisabled {
+    border-color: gray !important;
+    cursor: not-allowed;
+}
+
+.uiToggleLabelDisabled .uiToggleSlider, .uiToggleLabelDisabled .uiToggleSlider::before {
+    border-color: gray !important;
+    filter: saturate(0.5);
 }
 </style>

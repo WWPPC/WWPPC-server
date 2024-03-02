@@ -7,6 +7,7 @@ const props = defineProps<{
     width?: string
     height?: string
     font?: string
+    disabled?: boolean
     type?: 'text' | 'password' | 'email'
     placeholder?: string
     autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'off'
@@ -24,7 +25,7 @@ defineExpose({
 </script>
 
 <template>
-    <input :type="props.type ?? 'text'" class="uiTextBox" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
+    <input :type="props.type ?? 'text'" class="uiTextBox" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'" :disabled=props.disabled>
 </template>
 
 <style>

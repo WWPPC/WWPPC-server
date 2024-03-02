@@ -11,8 +11,8 @@ import Logger from './log';
  */
 export class Database {
     #ready = false;
-    #connectPromise;
-    #db;
+    #connectPromise: Promise<undefined>;
+    #db: Client;
     #keys = subtle.generateKey({
         name: "RSA-OAEP",
         modulusLength: 2048,
@@ -20,12 +20,14 @@ export class Database {
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
     #publicKey;
+    #logger: Logger;
 
     /**
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      * @param {Logger} logger Logging instance
      */
     constructor(uri: string, logger: Logger) {
+        this.#logger = logger;
         this.#connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
@@ -72,7 +74,7 @@ export class Database {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
-            console.error(err);
+            this.#logger.error('' + err);
             return buf;
         }
     }
@@ -87,12 +89,12 @@ export class Database {
     /**
      * @type {boolean}
      */
-    get ready() { return this.#ready; }
+    get ready(): boolean { return this.#ready; }
     /**
      * @type {Promise<undefined>}
      * Resolves when database is connected.
      */
-    get connectPromise() { return this.#connectPromise; }
+    get connectPromise(): Promise<undefined> { return this.#connectPromise; }
 
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
@@ -107,18 +109,18 @@ export class Database {
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {0 | 1 | 4} Creation status: 0 - success | 1 - already exists | 4 - database error
+     * @returns {AccountOpResult} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
-    async createAccount(username: string, password: string): Promise<0 | 1 | 4> {
+    async createAccount(username: string, password: string, email: string): Promise<AccountOpResult> {
         try {
             const encrypted = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount > 0) return 1;
-            else await this.#db.query('INSERT INTO users (username, password) VALUES ($1, $2);', [username, encrypted]);
+            else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3);', [username, encrypted, email]);
             return 0;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return 4;
         }
     }
@@ -126,16 +128,16 @@ export class Database {
      * Check credentials against an existing account with the specified username. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {0 | 2 | 3 | 4} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @returns {AccountOpResult} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async checkAccount(username: string, password: string): Promise<0 | 2 | 3 | 4> {
+    async checkAccount(username: string, password: string): Promise<AccountOpResult> {
         try {
             const data = await this.#db.query('SELECT password FROM users WHERE username=$1;', [username]);
             if (data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? 0 : 3;
             return 2;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return 4;
         }
     }
@@ -143,14 +145,14 @@ export class Database {
      * Delete an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} adminpassword The admin password
-     * @returns {0 | 2 | 3 | 4} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @returns {AccountOpResult} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async deleteAccount(username: string, adminpassword: string): Promise<0 | 2 | 3 | 4> {
+    async deleteAccount(username: string, adminpassword: string): Promise<AccountOpResult> {
         try {
             return 3;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return 4;
         }
     }
@@ -169,8 +171,8 @@ export class Database {
         try {
             return null;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return null;
         }
     }
@@ -188,8 +190,8 @@ export class Database {
         try {
             return false;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return false;
         }
     }
@@ -231,8 +233,8 @@ export class Database {
             }
             return data2;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return [];
         }
     }
@@ -243,13 +245,21 @@ export class Database {
         try {
             return false;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return false;
         }
     }
 }
 export default Database;
+
+export enum AccountOpResult {
+    SUCCESS = 0,
+    ALREADY_EXISTS = 1,
+    NOT_EXISTS = 2,
+    INCORRECT_CREDENTIALS = 3,
+    ERROR = 4
+}
 
 /**
  * Descriptor for an account

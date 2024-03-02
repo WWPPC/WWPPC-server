@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { UIButton } from './ui-defaults/UIDefaults';
+import { ref } from 'vue';
+import { UIButton, UIImage } from './ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { glitchTextTransition } from './ui-defaults/TextTransitions';
 import { useRouter } from 'vue-router';
@@ -19,17 +19,19 @@ const buttonAction = () => {
     }
 };
 
-watch(() => serverConnection.loggedIn, (loginState) => {
-    if (loginState) {
-        glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 15, 2);
+serverConnection.handshakePromise.then(async () => {
+    console.log(serverConnection.loggedIn)
+    if (serverConnection.loggedIn) {
+        await glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 15, 2).promise;
+        console.log(buttonText.value)
     }
-});
+})
 </script>
 
 <template v-slot:userDisp>
     <div class="userDispContainer">
         <div class="userDispUser">
-            <img :src="'lol'" class="userDispUserImage">
+            <UIImage :src="'lol'" width="32px" height="32px" :round="true"></UIImage>
             <span class="userDispUserName">{{ name }}</span>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>
@@ -52,12 +54,6 @@ watch(() => serverConnection.loggedIn, (loginState) => {
     display: flex;
     margin-bottom: 8px;
     align-items: center;
-}
-
-.userDispUserImage {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
 }
 
 .userDispUserName {

@@ -13,6 +13,7 @@ const props = defineProps<{
     width?: string
     height?: string
     required?: boolean
+    disabled?: boolean
     default?: string
 }>();
 const selected = ref('');
@@ -28,7 +29,7 @@ defineExpose({
 </script>
 
 <template>
-    <select class="uiDropdown" @change=input v-model=selected :title=props.title :multiple=props.multiSelect :required=props.required>
+    <select class="uiDropdown" @change=input v-model=selected :title=props.title :multiple=props.multiSelect :required=props.required :disabled=props.disabled>
         <option v-for="item in props.items" :key=item.value :value=item.value :selected="item.value == props.default">
             {{ item.text }}
         </option>
@@ -66,7 +67,7 @@ defineExpose({
 }
 
 .uiDropdown:disabled {
-    background-color: #888;
+    border-color: gray !important;
     cursor: not-allowed;
 }
 </style>

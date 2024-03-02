@@ -7,6 +7,7 @@ const props = defineProps<{
     font?: string
     color?: string
     backgroundColor?: string
+    disabled?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -17,7 +18,7 @@ function click() {
 </script>
 
 <template>
-    <label class="uiLinkButtonLabel">
+    <label class="uiLinkButtonLabel" :disabled=props.disabled>
         <input type="button" class="uiLinkButton" @click=click :title=title>
         {{ props.text }}
         <div class="uiLinkButtonArrow"></div>
