@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "wwppc",
     "public": "wwppc-client/dist/",
     "ignore": [
       "firebase.json",

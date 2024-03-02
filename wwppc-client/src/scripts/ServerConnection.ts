@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
 import { ref } from 'vue';
 
-const socket = io(process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : window.location.host, {
+const socket = io(process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : (process.env.SERVER_HOST ?? window.location.host) , {
     path: '/socket.io'
 });
 const loggedIn = ref(false);
