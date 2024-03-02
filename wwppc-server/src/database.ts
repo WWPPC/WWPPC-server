@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 const salt = 5;
 import { subtle, webcrypto } from 'crypto';
+import Logger from './log';
 
 /**
  * PostgreSQL database connection for handling accounts, including submissions.
@@ -24,7 +25,7 @@ export class Database {
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      * @param {Logger} logger Logging instance
      */
-    constructor(uri, logger) {
+    constructor(uri: string, logger: Logger) {
         this.#connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
@@ -67,7 +68,7 @@ export class Database {
      * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns {string} Decrypted string
      */
-    async RSAdecode(buf) {
+    async RSAdecode(buf: Buffer | string) {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
@@ -99,8 +100,8 @@ export class Database {
      * @param {string} password Password
      * @returns {boolean} Validity
      */
-    validate(username, password) {
-        return typeof username == 'string' && typeof password == 'string' && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
+    validate(username: string, password: string): boolean {
+        return username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.
@@ -108,7 +109,7 @@ export class Database {
      * @param {string} password Valid pasword
      * @returns {0 | 1 | 4} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
-    async createAccount(username, password) {
+    async createAccount(username: string, password: string): Promise<0 | 1 | 4> {
         try {
             const encrypted = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
@@ -127,7 +128,7 @@ export class Database {
      * @param {string} password Valid pasword
      * @returns {0 | 2 | 3 | 4} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async checkAccount(username, password) {
+    async checkAccount(username: string, password: string): Promise<0 | 2 | 3 | 4> {
         try {
             const data = await this.#db.query('SELECT password FROM users WHERE username=$1;', [username]);
             if (data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? 0 : 3;
@@ -144,7 +145,7 @@ export class Database {
      * @param {string} adminpassword The admin password
      * @returns {0 | 2 | 3 | 4} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async deleteAccount(username, adminpassword) {
+    async deleteAccount(username: string, adminpassword: string): Promise<0 | 2 | 3 | 4> {
         try {
             return 3;
         } catch (err) {
@@ -164,9 +165,9 @@ export class Database {
      * @param {number} criteria.problemNum Filter by number in round, exact match. Zero-indexed
      * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readSubmissions(criteria = { username: '*', problemId: '*', problemDiv: '*', problemRound: '*', problemNum: '*' }) {
+    async readSubmissions(criteria = { username: '*', problemId: '*', problemDiv: '*', problemRound: '*', problemNum: '*' }): Promise<Array<Submission> | null> {
         try {
-
+            return null;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
@@ -177,7 +178,7 @@ export class Database {
      * Write a submission to the submissions database.
      * @param {Submission} submission Submission to write
      */
-    async writeSubmission(submission) {
+    async writeSubmission(submission: Submission): Promise<boolean> {
         // username: varchar
         // probRound: smallint
         // probNum: smallint
@@ -185,10 +186,11 @@ export class Database {
         // lang: varchar
         // scores: json
         try {
-
+            return false;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return false;
         }
     }
 
@@ -203,7 +205,7 @@ export class Database {
      * @param {number} criteria.author Filter by author username
      * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
-    async readProblems(criteria = { id: '*', division: '*', round: '*', number: '*', name: '*', author: '*' }) {
+    async readProblems(criteria = { id: '*', division: '*', round: '*', number: '*', name: '*', author: '*' }): Promise<Array<Problem>> {
         try {
             if (criteria.id != '*') {
                 let split = criteria.id.split('-');
@@ -237,12 +239,13 @@ export class Database {
     /**
      * lol
      */
-    async writeProblem(problem) {
+    async writeProblem(problem: Problem): Promise<boolean> {
         try {
-
+            return false;
         } catch (err) {
             console.error('Database error:');
             console.error(err);
+            return false;
         }
     }
 }

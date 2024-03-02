@@ -25,7 +25,7 @@ const props = defineProps<{
 <style>
 .panelBody {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     grid-row: 1;
     grid-column: 1;

@@ -66,7 +66,7 @@ io.on('connection', async (s) => {
     // connection DOS detection
     recentConnections.set(ip, (recentConnections.get(ip) ?? 0) + 1);
     if ((recentConnections.get(ip) ?? 0) > config.maxConnectPerSecond) {
-        if (! recentConnectionKicks.has(ip)) kick('too many connections');
+        if (!recentConnectionKicks.has(ip)) kick('too many connections');
         else {
             socket.removeAllListeners();
             socket.onevent = function (packet) { };
@@ -104,23 +104,21 @@ io.on('connection', async (s) => {
             let p = await database.RSAdecode(creds.password);
             if (u instanceof Buffer || p instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
-                socket.emit('credentialFail', 3);
+                socket.emit('credentialRes', 3);
             }
-            if (!database.validate(u, p)) {
+            if (typeof u != 'string' || typeof p != 'string' || !database.validate(u, p)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
             const res = await (creds.action ? database.createAccount.call(database, u, p) : database.checkAccount.call(database, u, p)); // why? idk
+            socket.emit('credentialRes', res);
             if (res == 0) {
                 socket.removeAllListeners('credentials');
                 resolve(false);
-            } else {
-                socket.emit('credentialFail', res);
             }
         });
     })) return;
-    socket.emit('credentialPass');
     if (config.superSecretSecret) socket.emit('superSecretMessage');
     // add rest of stuff here
     // including submissions oof

@@ -29,7 +29,7 @@ export default {
 <style>
 .panelViewBody {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     grid-row: 2;
     grid-column: 1;

@@ -40,6 +40,7 @@ defineExpose({
     background-color: black;
     color: white;
     font: v-bind("$props.font ?? '14px inherit'");
+    font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms linear border-color;
 }
 

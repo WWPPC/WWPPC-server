@@ -69,7 +69,7 @@ rounds.push({
             status: ContestProblemCompletionState.NOT_UPLOADED
         }
     ]
-})
+});
 </script>
 
 <template>
@@ -91,7 +91,7 @@ rounds.push({
 
 .contestProblemListWrapper {
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px;
 }
 
 .contestProblemList {

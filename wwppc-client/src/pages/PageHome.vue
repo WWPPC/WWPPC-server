@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import LargeLogo from '@/components/LargeLogo.vue';
 import PagePanelHomeAbout from '@/pages/home/PagePanelHomeAbout.vue';
 import PagePanelHomeHome from '@/pages/home/PagePanelHomeHome.vue';
+import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 </script>
 
 <template>
     <PanelView name="home" :is-default=true>
         <PanelHeader>
-            <LargeLogo></LargeLogo>
+            <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home/home" :is-default=true></PanelNavButton>
                 <PanelNavButton text="WWP-Hacks" for="/hackathon"></PanelNavButton>

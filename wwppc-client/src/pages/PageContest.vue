@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import LargeLogo from '@/components/LargeLogo.vue';
 import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { useServerConnectionStore } from '@/scripts/ServerConnection';
+import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
+import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
 import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 
-// const router = useRouter();
 const route = useRoute();
 
 const modal = globalModal();
 
-const serverConnection = useServerConnectionStore();
+const serverConnection = useServerConnection();
 let onDisconnect = () => {
     if (route.params.page != 'contest' || route.query.ignore_server !== undefined) return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
@@ -38,12 +37,12 @@ serverConnection.socket.on('connect_error', onConnectError);
 <template>
     <PanelView name="contest">
         <PanelHeader>
-            <LargeLogo></LargeLogo>
+            <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="Contest" for="/contest/info" :is-default=true></PanelNavButton>
                 <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
-                <PanelNavButton text="Leaderboards" for="/contest/leaderboard"></PanelNavButton>
+                <PanelNavButton text="Leaderboard" for="/contest/leaderboard"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
