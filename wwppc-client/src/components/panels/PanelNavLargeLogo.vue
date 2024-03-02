@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+defineProps<{
+    target?: string
+}>();
 
 const router = useRouter();
 </script>
 
 <template>
-    <img class="wwppcLargeLogo" src="/logo.svg" @click="router.push('/home/home')">
+    <img class="wwppcLargeLogo" src="/logo.svg" @click="router.push($props.target ?? '/home/home')">
 </template>
 
 <style>

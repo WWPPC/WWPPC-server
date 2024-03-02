@@ -17,7 +17,7 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" :is-default=true>
+            <PanelBody name="default" is-default>
                 Hey! This page isn't finished. Check back later for updates!
                 <br><br>
                 oops hacked

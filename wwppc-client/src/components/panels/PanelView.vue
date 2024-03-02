@@ -27,14 +27,6 @@ const props = defineProps<{
     height: 100vh;
 }
 
-.v-enter-active {
-    animation: panel-transition-in 500ms linear;
-}
-
-.v-leave-active {
-    animation: panel-transition-out 500ms linear;
-}
-
 @keyframes panel-wipe-vertical {
     0% {
         transform: none;
@@ -89,5 +81,15 @@ const props = defineProps<{
     100% {
         visibility: hidden;
     }
+}
+</style>
+
+<style scoped>
+.v-enter-active {
+    animation: panel-transition-in 500ms linear;
+}
+
+.v-leave-active {
+    animation: panel-transition-out 500ms linear;
 }
 </style>

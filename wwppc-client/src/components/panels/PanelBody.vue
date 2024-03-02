@@ -74,7 +74,9 @@ const props = defineProps<{
     max-width: 30%;
     max-height: 30%;
 }
+</style>
 
+<style scoped>
 .v-enter-active,
 .v-leave-active {
     transition: 500ms;

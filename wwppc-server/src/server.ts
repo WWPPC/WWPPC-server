@@ -39,6 +39,7 @@ if (process.env.SERVE_STATIC ?? config.serveStatic) {
         else res.send('Not found');
     });
 }
+app.get('/wakeup', (req, res) => res.json('ok'));
 
 import Database from './database';
 const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json'), logger);
@@ -102,18 +103,19 @@ io.on('connection', async (s) => {
                 resolve(true);
                 return;
             }
-            let u = await database.RSAdecode(creds.username);
-            let p = await database.RSAdecode(creds.password);
+            const u = await database.RSAdecode(creds.username);
+            const p = await database.RSAdecode(creds.password);
+            const e = await database.RSAdecode(creds.email);
             if (u instanceof Buffer || p instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 socket.emit('credentialRes', 3);
             }
-            if (typeof u != 'string' || typeof p != 'string' || !database.validate(u, p)) {
+            if (typeof u != 'string' || typeof p != 'string' || (creds.action == 1 && typeof e != 'string') || !database.validate(u, p)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            const res = await (creds.action ? database.createAccount.call(database, u, p) : database.checkAccount.call(database, u, p)); // why? idk
+            const res = await (creds.action ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
             socket.emit('credentialRes', res);
             if (res == 0) {
                 socket.removeAllListeners('credentials');
