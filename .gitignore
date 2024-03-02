@@ -10,6 +10,7 @@ wwppc-server/config/.local
 # Builds and stuff
 dist/
 build/
+*.cache
 
 # Logs
 logs

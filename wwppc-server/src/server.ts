@@ -26,17 +26,19 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(cors({ origin: '*' }));
-const clientDir = path.resolve(__dirname, './../../wwppc-client/dist');
-const indexDir = path.resolve(clientDir, 'index.html');
-app.use('/', express.static(clientDir));
-app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
-app.get('*', (req, res) => {
-    // last handler - if nothing else finds the page, just send 404
-    res.status(404);
-    if (req.accepts('html')) res.render('404', { filename: indexDir });
-    else if (req.accepts('json')) res.json({ error: 'Not found' });
-    else res.send('Not found');
-});
+if (process.env.SERVE_STATIC ?? config.serveStatic) {
+    const clientDir = path.resolve(__dirname, './../../wwppc-client/dist');
+    const indexDir = path.resolve(clientDir, 'index.html');
+    app.use('/', express.static(clientDir));
+    app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
+    app.get('*', (req, res) => {
+        // last handler - if nothing else finds the page, just send 404
+        res.status(404);
+        if (req.accepts('html')) res.render('404', { filename: indexDir });
+        else if (req.accepts('json')) res.json({ error: 'Not found' });
+        else res.send('Not found');
+    });
+}
 
 import Database from './database';
 const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json'), logger);
