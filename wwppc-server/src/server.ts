@@ -26,7 +26,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(cors({ origin: '*' }));
-const clientDir = path.resolve(__dirname, './../wwppc-client/dist');
+const clientDir = path.resolve(__dirname, './../../wwppc-client/dist');
 const indexDir = path.resolve(clientDir, 'index.html');
 app.use('/', express.static(clientDir));
 app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
