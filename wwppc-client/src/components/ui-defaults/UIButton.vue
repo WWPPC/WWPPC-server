@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 
 const props = defineProps<{
@@ -25,8 +25,9 @@ const buttonText = ref(props.glitchOnMount ? props.text.replace(/./g, ' ') : pro
 if (props.glitchOnMount) {
     onMounted(() => {
         glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 1, 15, 1);
-    })
+    });
 }
+watch(() => props.text, () => buttonText.value = props.text);
 </script>
 
 <template>
