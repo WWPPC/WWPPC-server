@@ -132,6 +132,7 @@ export interface ModalParams {
 .modalBody {
     flex-grow: 1;
     display: inline-block;
+    min-width: 0px;
     padding: 4px 16px;
     background-color: black;
     clip-path: polygon(30px 0%, 100% 0%, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0% 100%, 0% 30px);
@@ -146,5 +147,11 @@ export interface ModalParams {
 .modalButtons {
     margin: 8px 0px;
     margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+    .modalBody h1 {
+        font-size: 32px;
+    }
 }
 </style>

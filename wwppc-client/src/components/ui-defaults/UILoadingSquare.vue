@@ -36,81 +36,54 @@ defineProps<{
 .UILoadingSquare div {
     width: 100%;
     height: 100%;
-    animation: 5s cubic-bezier(0.2, 0, 0.8, 1) ui-loading-square-colors infinite;
+    animation: 4s cubic-bezier(0.2, 0, 0.8, 1) ui-loading-square-colors infinite;
 }
 
 .UILoadingSquare div:nth-child(4),
 .UILoadingSquare div:nth-child(8) {
-    animation-delay: 100ms;
+    animation-delay: 80ms;
 }
 
 .UILoadingSquare div:nth-child(1),
 .UILoadingSquare div:nth-child(5),
 .UILoadingSquare div:nth-child(9) {
-    animation-delay: 200ms;
+    animation-delay: 160ms;
 }
 
 .UILoadingSquare div:nth-child(2),
 .UILoadingSquare div:nth-child(6) {
-    animation-delay: 300ms;
+    animation-delay: 240ms;
 }
 
 .UILoadingSquare div:nth-child(3) {
-    animation-delay: 400ms;
+    animation-delay: 320ms;
 }
 
 @keyframes ui-loading-square-colors {
-    0% {
-        transform: scale(1);
-        background-color: #FF0000;
-    }
 
-    9% {
-        transform: scale(0);
-        background-color: #FF0000;
-    }
-
-    10% {
-        transform: scale(0);
-        background-color: #00FF00;
-    }
-
-    19%,
-    33% {
-        transform: scale(1);
-        background-color: #00FF00;
-    }
-
-    42% {
-        transform: scale(0);
-        background-color: #00FF00;
-    }
-
-    43% {
-        transform: scale(0);
-        background-color: #0000FF;
-    }
-
-    52%,
-    66% {
-        transform: scale(1);
-        background-color: #0000FF;
-    }
-
-    75% {
-        transform: scale(0);
-        background-color: #0000FF;
-    }
-
-    76% {
-        transform: scale(0);
-        background-color: #FF0000;
-    }
-
-    85%,
+    0%,
+    70%,
     100% {
         transform: scale(1);
-        background-color: #FF0000;
+        background-color: v-bind("$props.color1 ?? 'lime'");
+    }
+
+    9%,
+    60% {
+        transform: scale(0);
+        background-color: v-bind("$props.color1 ?? 'lime'");
+    }
+
+    10%,
+    59% {
+        transform: scale(0);
+        background-color: v-bind("$props.color2 ?? 'red'");
+    }
+
+    20%,
+    50% {
+        transform: scale(1);
+        background-color: v-bind("$props.color2 ?? 'red'");
     }
 }
 </style>

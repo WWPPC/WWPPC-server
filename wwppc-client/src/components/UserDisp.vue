@@ -19,11 +19,10 @@ const buttonAction = () => {
     }
 };
 
-serverConnection.handshakePromise.then(async () => {
-    console.log(serverConnection.loggedIn)
+serverConnection.handshakePromise.then(() => {
     if (serverConnection.loggedIn) {
-        await glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 15, 2).promise;
-        console.log(buttonText.value)
+        glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
+        name.value = 'placeholder';
     }
 })
 </script>

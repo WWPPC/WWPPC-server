@@ -18,8 +18,8 @@ function click() {
 </script>
 
 <template>
-    <label class="uiLinkButtonLabel" :disabled=props.disabled>
-        <input type="button" class="uiLinkButton" @click=click :title=title>
+    <label :class="'uiLinkButtonLabel ' + (props.disabled ? 'uiLinkButtonLabelDisabled' : '')">
+        <input type="button" class="uiLinkButton" @click=click :title=title :disabled=props.disabled>
         {{ props.text }}
         <div class="uiLinkButtonArrow"></div>
     </label>
@@ -42,6 +42,7 @@ function click() {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    user-select: none;
 }
 
 .uiLinkButtonLabel:hover {
@@ -52,12 +53,6 @@ function click() {
 .uiLinkButtonLabel:active {
     transform: translateY(2px);
     border-color: red;
-}
-
-.uiLinkButtonLabel:disabled {
-    background-color: gray !important;
-    transform: none !important;
-    cursor: not-allowed;
 }
 
 .uiLinkButton {
@@ -74,11 +69,23 @@ function click() {
     background-image: url(/assets/arrow-right.svg);
     transition: 200ms ease background-position;
 }
+
 .uiLinkButtonLabel:hover .uiLinkButtonArrow {
     background-position: right;
 }
+
 .uiLinkButtonLabel:active .uiLinkButtonArrow {
     transition: 500ms ease background-position;
     background-position: 500% 0%;
+}
+
+.uiLinkButtonLabelDisabled {
+    border-color: gray !important;
+    transform: none !important;
+    cursor: not-allowed;
+}
+
+.uiLinkButtonLabelDisabled .uiLinkButtonArrow {
+    background-position: left !important;
 }
 </style>

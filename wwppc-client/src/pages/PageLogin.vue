@@ -59,7 +59,7 @@ const attemptLogin = async () => {
                     <div class="loginFlow">
                         <img src="/logo.svg" class="loginLogoFloater">
                         <form class="loginForm" onsubmit="return false;">
-                            <UITextBox @input="(text) => usernameInput = text" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username"></UITextBox>
+                            <UITextBox @input="(text) => usernameInput = text" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off"></UITextBox>
                             <UITextBox @input="(text) => passwordInput = text" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" autocomplete="current-password"></UITextBox>
                             <span>
                                 <UIButton text="Log In" type="submit" @click=attemptLogin width="100px" glitchOnMount :disabled="usernameInput.trim() == ''"></UIButton>
