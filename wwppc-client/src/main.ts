@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import { PanelBody, PanelNavButton } from './components/panels/PanelManager';
+import { VueReCaptcha } from 'vue-recaptcha-v3'
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -43,4 +44,6 @@ router.afterEach(() => {
     handledRoute = false;
 });
 app.use(router);
+// app.use(VueReCaptcha, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem' });
+VueReCaptcha.install(app, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem', loaderOptions: {} });
 app.mount('#root');

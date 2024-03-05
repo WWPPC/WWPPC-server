@@ -18,9 +18,10 @@ function click() {
 </script>
 
 <template>
+    <!-- i don't like <button> tags -->
     <label :class="'uiLinkButtonLabel ' + (props.disabled ? 'uiLinkButtonLabelDisabled' : '')">
         <input type="button" class="uiLinkButton" @click=click :title=title :disabled=props.disabled>
-        {{ props.text }}
+        <span class="uiLinkButtonText">{{ props.text }}</span>
         <div class="uiLinkButtonArrow"></div>
     </label>
 </template>
@@ -29,7 +30,7 @@ function click() {
 .uiLinkButtonLabel {
     display: flex;
     box-sizing: border-box;
-    width: v-bind("$props.width ?? 'unset'");
+    width: v-bind("$props.width ?? 'min-content'");
     height: v-bind("$props.height ?? '32px'");
     border: 4px solid white;
     margin: 0px 4px;
@@ -43,6 +44,10 @@ function click() {
     justify-content: center;
     cursor: pointer;
     user-select: none;
+}
+
+.uiLinkButtonText {
+    text-wrap: nowrap;
 }
 
 .uiLinkButtonLabel:hover {

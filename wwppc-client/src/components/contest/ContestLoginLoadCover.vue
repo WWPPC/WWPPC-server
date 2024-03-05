@@ -7,32 +7,41 @@ const serverConnection = useServerConnection();
 
 <template>
     <Transition>
-        <div class="contestLoginLoadingCoverContainer" v-if="!serverConnection.handshakeComplete">
-            <div class="contestLoginLoadingCoverWrapper">
-                <div class="contestLoginLoadingCover">
-                    <UILoadingSquare></UILoadingSquare>
+        <div class="contestLoginLoadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete">
+            <div class="contestLoginLoadingCoverContainer">
+                <div class="contestLoginLoadingCoverWrapper">
+                    <div class="contestLoginLoadingCover">
+                        <UILoadingSquare></UILoadingSquare>
+                    </div>
                 </div>
-            </div>
-            <div class="contestLoginLoadingText">
-                Logging you in...
+                <div class="contestLoginLoadingText">
+                    Logging you in...
+                </div>
             </div>
         </div>
     </Transition>
 </template>
 
 <style>
+.contestLoginLoadingCoverContainerWrapper {
+    grid-row: 1;
+    grid-column: 1;
+    position: relative;
+    transition: 1000ms linear opacity;
+    background-color: black;
+    opacity: 1;
+}
+
 .contestLoginLoadingCoverContainer {
     display: flex;
     flex-direction: column;
-    grid-row: 1;
-    grid-column: 1;
+    position: absolute;
     box-sizing: border-box;
+    width: 100%;
+    height: 100%;
     padding: 20vh 20vw;
     align-items: center;
     justify-content: center;
-    transition: 500ms linear opacity;
-    background-color: black;
-    opacity: 1;
 }
 
 .contestLoginLoadingCoverWrapper {

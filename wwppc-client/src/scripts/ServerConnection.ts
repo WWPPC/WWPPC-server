@@ -15,11 +15,15 @@ fetch(serverHostname + '/wakeup').then(() => {
     socket.connect();
 }, () => {
     connectErrorHandlers.forEach(cb => cb());
+    connectError.value = true;
 });
+socket.on('connect_error', () => connectError.value = true);
+socket.on('connect_fail', () => connectError.value = true);
 
 const loggedIn = ref(false);
+const connectError = ref(false);
 const handshakeComplete = ref(false);
-let handshakeResolve: (v: any) => void = () => {};
+let handshakeResolve: (v: any) => void = () => { };
 const handshakePromise = new Promise((resolve) => handshakeResolve = resolve);
 const manualLogin = ref(true);
 const RSA: {
@@ -44,14 +48,14 @@ socket.once('getCredentials', async (session) => {
         // autologin if possible
         if (sessionCreds != null && RSA.sid.toString() === window.localStorage.getItem('sessionId')) {
             const creds = JSON.parse(sessionCreds);
-            loggedIn.value = await sendCredentials(creds.username, creds.password, undefined, 0) == 0;
+            loggedIn.value = await sendCredentials(creds.username, creds.password, 0) == 0;
             manualLogin.value = false;
         }
         handshakeComplete.value = true;
         handshakeResolve(undefined);
     }
 });
-const sendCredentials = (username: string, password: string | Array<number>, email: string | undefined, action: 0 | 1): Promise<number> => {
+const sendCredentials = (username: string, password: string | Array<number>, action: 0 | 1, email?: string, token?: string): Promise<number> => {
     return new Promise(async (resolve, reject) => {
         if (loggedIn.value) {
             console.warn('Attempted login/signup while logged in');
@@ -64,7 +68,8 @@ const sendCredentials = (username: string, password: string | Array<number>, ema
                 action: action,
                 username: await RSA.encode(username),
                 password: password2,
-                email: email != undefined ? await RSA.encode(email) : undefined
+                email: email != undefined ? await RSA.encode(email) : undefined,
+                token: token != undefined ? await RSA.encode(token) : undefined
             });
             socket.once('credentialRes', async (res: number) => {
                 if (res == 0) {
@@ -84,17 +89,17 @@ const sendCredentials = (username: string, password: string | Array<number>, ema
 };
 
 export const useServerConnection = defineStore('socketio', {
-    state: () => ({ socket, loggedIn, handshakeComplete, manualLogin }),
+    state: () => ({ socket, loggedIn, handshakeComplete, manualLogin, connectError }),
     getters: {
         connected() { return socket.connected; },
         handshakePromise() { return handshakePromise; }
     },
     actions: {
         login(username: string, password: string | Array<number>): Promise<number> {
-            return sendCredentials(username, password, undefined, 0);
+            return sendCredentials(username, password, 0);
         },
-        signup(username: string, password: string, email: string): Promise<number> {
-            return sendCredentials(username, password, email, 1);
+        signup(username: string, password: string, email: string, token: string): Promise<number> {
+            return sendCredentials(username, password, 1, email, token);
         },
         encode: RSA.encode,
         // shorthands

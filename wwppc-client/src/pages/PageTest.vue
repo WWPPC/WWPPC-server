@@ -12,6 +12,8 @@ const modal = ref(FullscreenModal);
 const result = ref('open the modal!');
 const result2 = ref('hi');
 const actualResult = ref('');
+
+const thing2 = ref<any>([]);
 </script>
 
 <template>
@@ -20,6 +22,7 @@ const actualResult = ref('');
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="Example" for="/test/default"></PanelNavButton>
                 <PanelNavButton text="Example" for="/test/example"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
@@ -30,7 +33,7 @@ const actualResult = ref('');
         <PanelMain>
             <PanelBody name="default" is-default>
                 <UIButton @click="async () => result = await modal?.showModal({ title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY })" text="Test modal"></UIButton>
-                <UIDropdown :items="[{ text: result, value: 'a' }, { text: result2, value: 'b' }]" width="100px" default="a" required @input="(t) => actualResult = t"></UIDropdown>
+                <UIDropdown :items="[{ text: result, value: 'a' }, { text: result2, value: 'b' }]" width="100px" default="a" required @input="(t) => actualResult = typeof t == 'string' ? t : t[0]"></UIDropdown>
                 <UITextBox @input="(t) => result2 = t" default-value="hi"></UITextBox>
                 <br>
                 <span>{{ actualResult }}</span>
@@ -39,13 +42,33 @@ const actualResult = ref('');
             </PanelBody>
             <PanelBody name="example">
                 test
-                <UIButton @click="() => modal.showModal({title: 'hi', content: 'test'})" text="example button"></UIButton>
+                <UIButton @click="() => modal.showModal({ title: 'hi', content: 'test' })" text="example button"></UIButton>
                 <UIButton text="disabled button" disabled></UIButton>
                 <UIToggle disabled></UIToggle>
                 <UIDropdown disabled :items="[]"></UIDropdown>
                 <UILinkButton text="disbaled link!!" disabled></UILinkButton>
                 <UILoadingBar></UILoadingBar>
-                <UILoadingSquare></UILoadingSquare>
+                <div style="width: 300px; height: 300px">
+                    <UILoadingSquare></UILoadingSquare>
+                </div>
+                <UIDropdown @input="(t) => thing2 = t" :items="[
+                    { text: 'oof', value: 'oof' }
+                ]" :grouped-items="[
+    {
+        label: 'g1', items: [
+            { text: 'hi', value: 'dfdf' },
+            { text: 'test 2', value: 'teesssst' }
+        ]
+    },
+    {
+        label: 'G2!!!!!!', items: [
+            { text: 'hi', value: 'aaaaaaaaaaa' },
+            { text: 'test 2', value: 'eeeeeeeeeeeeee' },
+            { text: 'oof', value: 'ee' }
+        ]
+    }
+]" width="400px" height="100px" multiple></UIDropdown>
+                {{ thing2 }}
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>

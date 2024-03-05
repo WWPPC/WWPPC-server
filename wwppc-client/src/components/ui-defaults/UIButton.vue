@@ -12,7 +12,6 @@ const props = defineProps<{
     backgroundColor?: string
     type?: 'button' | 'submit'
     glitchOnMount?: boolean
-    disabled?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -31,7 +30,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 </script>
 
 <template>
-    <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=props.title :disabled=props.disabled>
+    <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=props.title>
 </template>
 
 <style>

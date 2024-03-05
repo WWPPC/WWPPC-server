@@ -51,44 +51,51 @@ export default class Logger {
     }
     /**
      * Append a debug-level entry to the log.
-     * @param {string} text Text.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
      */
-    debug(text: string) {
-        this.#append(' info', text, 36);
+    debug(text: string, logOnly = false) {
+        this.#append('debug', text, 36, logOnly);
     }
     /**
      * Append an information-level entry to the log.
-     * @param {string} text Text.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
      */
-    info(text: string) {
-        this.#append(' info', text, 34);
+    info(text: string, logOnly = false) {
+        this.#append(' info', text, 34, logOnly);
     }
     /**
      * Append a warning-level entry to the log.
-     * @param {string} text Text.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
      */
-    warn(text: string) {
-        this.#append(' warn', text, 33);
+    warn(text: string, logOnly = false) {
+        this.#append(' warn', text, 33, logOnly);
     }
     /**
      * Append an error-level entry to the log.
-     * @param {string} text Text.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
      */
-    error(text: string) {
-        this.#append('error', text, 31);
+    error(text: string, logOnly = false) {
+        this.#append('error', text, 31, logOnly);
     }
     /**
      * Append a fatal-level entry to the log.
-     * @param {string} text Text.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
      */
-    fatal(text: string) {
-        this.#append('fatal', text, 35);
+    fatal(text: string, logOnly = false) {
+        this.#append('fatal', text, 35, logOnly);
     }
 
-    #append(level: string, text: string, color: number) {
+    #append(level: string, text: string, color: number, logOnly = false) {
         if (this.#file == undefined) return;
-        let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
-        process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
+        if (!logOnly) {
+            let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
+            process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
+        }
         let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
         fs.appendFile(this.#file, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => { if (err) console.error(err) });
     }

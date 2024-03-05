@@ -18,6 +18,9 @@ const props = defineProps<{
                     <img class="panelBodyTransitionWipeImg" src="/icon.svg">
                 </div>
             </div>
+            <div class="panelBodyCopyrightNotice">
+                Copyright &copy; 2024 WWPPC
+            </div>
         </div>
     </Transition>
 </template>
@@ -73,6 +76,14 @@ const props = defineProps<{
 .panelBodyTransitionWipeImg {
     max-width: 30%;
     max-height: 30%;
+}
+
+.panelBodyCopyrightNotice {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 12px;
+    font-family: 'Source Code Pro', Courier, monospace;
 }
 </style>
 

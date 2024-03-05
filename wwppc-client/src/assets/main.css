@@ -114,6 +114,8 @@ code {
     }
 
     *::-webkit-scrollbar-button {
+        width: 16px;
+        height: 16px;
         background-color: #222;
     }
 
