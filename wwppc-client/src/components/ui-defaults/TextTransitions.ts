@@ -1,5 +1,5 @@
 // text transitions (from red pixel simulator)
-export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1) {
+export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
@@ -52,7 +52,7 @@ export function* flipTextTransitionGenerator(from: string, to: string, block: nu
         yield text;
     }
 }
-export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched?: boolean, letterOverride?: string) {
+export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched?: boolean, letterOverride?: string): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
@@ -109,6 +109,14 @@ export function* glitchTextTransitionGenerator(from: string, to: string, block: 
         yield text;
         a++;
     }
+}
+export function randomFlipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number): AsyncTextTransition {
+    return flipTextTransition(from, to, update, speed);
+    // randomly flips unupdated characters to updated version
+}
+export function randomGlitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number): AsyncTextTransition {
+    return glitchTextTransition(from, to, update, speed);
+    // randomly start glitching characters that aren't updated, randomly stops glitching characters to updated
 }
 export interface AsyncTextTransition {
     promise: Promise<boolean>,
