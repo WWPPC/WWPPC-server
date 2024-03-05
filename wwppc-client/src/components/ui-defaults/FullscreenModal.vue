@@ -63,7 +63,8 @@ defineExpose({ showModal });
 export const enum ModalMode {
     NOTIFY = 0,
     CONFIRM = 1,
-    QUERY = 2
+    QUERY = 2,
+    INPUT = 3
 }
 export interface ModalParams {
     title: string
@@ -85,15 +86,15 @@ export interface ModalParams {
                     <br>
                 </span>
                 <div class="modalButtons">
-                    <span v-if="modal.mode == ModalMode.CONFIRM">
-                        <UIButton text="YES" @click=modalResolve width="80px" background-color="#0D0"></UIButton>
-                        <UIButton text="NO" @click=modalReject width="80px" background-color="#D00"></UIButton>
+                    <span v-if="modal.mode == ModalMode.QUERY">
+                        <UIButton text="YES" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
+                        <UIButton text="NO" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
                     </span>
                     <span v-else>
-                        <span v-if="modal.mode == ModalMode.QUERY">
-                            <UIButton text="CANCEL" @click=modalReject width="80px"></UIButton>
+                        <span v-if="modal.mode == ModalMode.INPUT || modal.mode == ModalMode.CONFIRM">
+                            <UIButton text="CANCEL" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
                         </span>
-                        <UIButton text="OK" @click=modalResolve width="80px"></UIButton>
+                        <UIButton text="OK" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
                     </span>
                 </div>
             </div>

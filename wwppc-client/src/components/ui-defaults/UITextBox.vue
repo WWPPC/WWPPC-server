@@ -3,11 +3,11 @@ import { ref } from 'vue';
 
 const props = defineProps<{
     defaultValue?: string
+    highlightInvalid?: boolean
     title?: string
     width?: string
     height?: string
     font?: string
-    disabled?: boolean
     type?: 'text' | 'password' | 'email'
     placeholder?: string
     autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'off'
@@ -25,7 +25,7 @@ defineExpose({
 </script>
 
 <template>
-    <input :type="props.type ?? 'text'" class="uiTextBox" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'" :disabled=props.disabled>
+    <input :type="props.type ?? 'text'" class="uiTextBox" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
 </template>
 
 <style>
@@ -52,8 +52,12 @@ defineExpose({
     border-color: red;
 }
 
+.uiTextBox:invalid {
+    border-color: v-bind("$props.highlightInvalid ? 'yellow' : ''");
+}
+
 .uiTextBox:disabled {
-    background-color: #888;
+    border-color: #888 !important;
     cursor: not-allowed;
 }
 </style>

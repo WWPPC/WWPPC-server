@@ -66,6 +66,7 @@ defineProps<{
     100% {
         transform: scale(1);
         background-color: v-bind("$props.color1 ?? 'lime'");
+        box-shadow: 0px 0px 8px v-bind("$props.color1 ?? 'lime'");
     }
 
     9%,
@@ -78,6 +79,7 @@ defineProps<{
     59% {
         transform: scale(0);
         background-color: v-bind("$props.color2 ?? 'red'");
+        box-shadow: 0px 0px 8px v-bind("$props.color2 ?? 'red'");
     }
 
     20%,

@@ -42,7 +42,7 @@ if (process.env.SERVE_STATIC ?? config.serveStatic) {
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 import Database from './database';
-const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json'), logger);
+const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json').uri, process.env.DATABASE_KEY ?? require('../config/local-database.json').key, logger);
 config.port = process.env.PORT ?? config.port;
 
 import ContestManager from './contest';
@@ -110,11 +110,12 @@ io.on('connection', async (s) => {
                 // for some reason decoding failed, redirect to login
                 socket.emit('credentialRes', 3);
             }
-            if (typeof u != 'string' || typeof p != 'string' || (creds.action == 1 && typeof e != 'string') || !database.validate(u, p)) {
+            if (typeof u != 'string' || typeof p != 'string' || (creds.action == 1 && (typeof e != 'string' || typeof creds.token != 'string')) || !database.validate(u, p)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
+            // validate captcha here
             const res = await (creds.action ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
             socket.emit('credentialRes', res);
             if (res == 0) {

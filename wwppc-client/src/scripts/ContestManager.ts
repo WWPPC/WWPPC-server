@@ -18,14 +18,14 @@ export interface ContestProblem {
     constraints: { memory: number, time: number }
     status: ContestProblemCompletionState
 }
-
 export enum ContestProblemCompletionState {
     NOT_UPLOADED = 0,
     UPLOADED = 1,
     SUBMITTED = 2,
     GRADED_PASS = 3,
     GRADED_FAIL = 4,
-    ERROR = 5
+    GRADED_PARTIAL = 5,
+    ERROR = 6
 }
 
 export const useContestStore = defineStore('contestManager', {

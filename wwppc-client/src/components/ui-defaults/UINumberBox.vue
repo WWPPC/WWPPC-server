@@ -6,12 +6,11 @@ const props = defineProps<{
     max?: number
     step?: number
     defaultValue?: number
-    highlightInvalid?: number
+    highlightInvalid?: boolean
     title?: string
     width?: string
     height?: string
     font?: string
-    disabled?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'input', value: number): void
@@ -26,7 +25,7 @@ defineExpose({
 </script>
 
 <template>
-    <input type="number" class="uiNumberBox" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step :disabled=props.disabled>
+    <input type="number" class="uiNumberBox" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step>
 </template>
 
 <style>
@@ -58,7 +57,7 @@ defineExpose({
 }
 
 .uiNumberBox:disabled {
-    background-color: #888;
+    border-color: #888 !important;
     cursor: not-allowed;
 }
 </style>
