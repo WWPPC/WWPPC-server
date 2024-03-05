@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "typescript": "^5.3.3"
     },
     "scripts": {
         "install": "cd wwppc-server && npm install && cd ../wwppc-client && npm install",
@@ -21,7 +22,5 @@
     "bugs": {
         "url": "https://github.com/spsquared/CSI-thing/issues"
     },
-    "homepage": "https://github.com/spsquared/CSI-thing",
-    "devDependencies": {
-    }
+    "homepage": "https://github.com/spsquared/CSI-thing"
 }
