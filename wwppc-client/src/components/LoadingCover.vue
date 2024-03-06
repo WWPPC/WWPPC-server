@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useServerConnection } from '@/scripts/ServerConnection';
-import { UILoadingSquare } from '../ui-defaults/UIDefaults';
+import { UILoadingSquare } from './ui-defaults/UIDefaults';
 import { useRoute } from 'vue-router';
+
+defineProps<{
+    text: string
+    ignoreServer?: boolean
+}>();
 
 const serverConnection = useServerConnection();
 const route = useRoute();
@@ -9,15 +14,15 @@ const route = useRoute();
 
 <template>
     <Transition>
-        <div class="contestLoginLoadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete && route.query.ignore_server === undefined">
-            <div class="contestLoginLoadingCoverContainer">
-                <div class="contestLoginLoadingCoverWrapper">
-                    <div class="contestLoginLoadingCover">
+        <div class="loadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer)">
+            <div class="loadingCoverContainer">
+                <div class="loadingCoverWrapper">
+                    <div class="loadingCover">
                         <UILoadingSquare></UILoadingSquare>
                     </div>
                 </div>
-                <div class="contestLoginLoadingText">
-                    Logging you in...
+                <div class="loadingText">
+                    {{ $props.text }}
                 </div>
             </div>
         </div>
@@ -25,7 +30,7 @@ const route = useRoute();
 </template>
 
 <style>
-.contestLoginLoadingCoverContainerWrapper {
+.loadingCoverContainerWrapper {
     grid-row: 1;
     grid-column: 1;
     position: relative;
@@ -34,7 +39,7 @@ const route = useRoute();
     opacity: 1;
 }
 
-.contestLoginLoadingCoverContainer {
+.loadingCoverContainer {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -46,17 +51,17 @@ const route = useRoute();
     justify-content: center;
 }
 
-.contestLoginLoadingCoverWrapper {
+.loadingCoverWrapper {
     display: flex;
     min-height: 0px;
     height: 100%;
 }
 
-.contestLoginLoadingCover {
+.loadingCover {
     aspect-ratio: 1;
 }
 
-.contestLoginLoadingText {
+.loadingText {
     font-size: 24px;
 }
 </style>

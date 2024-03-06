@@ -1,5 +1,7 @@
-import TitledAngleContainer from '@/components/ui-defaults/TitledAngleContainer.vue';
+import TitledAngleContainer from './TitledAngleContainer.vue';
+import TitledTable from './HeaderedTable.vue';
 
 export {
     TitledAngleContainer,
+    TitledTable
 }

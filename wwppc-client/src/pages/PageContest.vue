@@ -11,7 +11,7 @@ import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.v
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 import { watch } from 'vue';
-import ContestLoginLoadCover from '@/components/contest/ContestLoginLoadCover.vue';
+import LoadingCover from '@/components/LoadingCover.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -67,7 +67,7 @@ watch(() => route.params.page, () => {
             <PanelBody name="leaderboard">
                 <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
             </PanelBody>
-            <ContestLoginLoadCover></ContestLoginLoadCover>
+            <LoadingCover text="Logging you in..."></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

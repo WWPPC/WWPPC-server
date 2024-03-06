@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
     title: string
-    width?: number
-    height?: number
+    width?: string
+    height?: string
     borderColor?: string
 }>();
 </script>
@@ -20,13 +20,11 @@ const props = defineProps<{
 </template>
 
 <style>
-/* spaghetti */
-
 .titledAngleContainer {
     position: relative;
     box-sizing: border-box;
-    width: v-bind("props.width ?? '100%'");
-    height: v-bind("props.height ?? '100%'");
+    width: v-bind("props.width ?? 'initial'");
+    height: v-bind("props.height ?? 'initial'");
     border: 4px solid;
     border-color: v-bind("props.borderColor ?? 'white'");
     background-color: black;

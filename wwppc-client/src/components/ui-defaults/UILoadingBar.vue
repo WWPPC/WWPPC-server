@@ -19,7 +19,7 @@ defineProps<{
     background-size: 60% 100%;
     background-repeat: no-repeat;
     box-shadow: 0px 0px 0.5vw rgba(255, 255, 255, 0.5);
-    animation: ui-loading-bar-progress ease 2s infinite;
+    animation: 2000ms ease ui-loading-bar-progress infinite;
 }
 
 @keyframes ui-loading-bar-progress {

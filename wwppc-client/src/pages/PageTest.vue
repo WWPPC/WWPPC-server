@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import { FullscreenModal, ModalMode, UIButton, UIDropdown, UILinkButton, UILoadingBar, UILoadingSquare, UITextBox, UIToggle } from '@/components/ui-defaults/UIDefaults';
+import { FullscreenModal, ModalMode, UIButton, UIDropdown, UILinkButton, UILoadingBar, UILoadingSquare, UILoadingSpinner, UITextBox, UIToggle } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
+import { TitledTable } from '@/components/ui-defaults/UIContainers';
 
 const modal = ref(FullscreenModal);
 
@@ -38,7 +39,15 @@ const thing2 = ref<any>([]);
                 <br>
                 <span>{{ actualResult }}</span>
                 <br>
-                <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                <!-- <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe> -->
+                <TitledTable :content="{
+                    columns: ['col 1', 'col 2', 'col 3'],
+                    data: [
+                        ['a1', 'a2', 'a3'],
+                        ['b1', 'b2', 'b3']
+                    ],
+                    generator: (row, col, data) => ({ content: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : ''})
+                }"></TitledTable>
             </PanelBody>
             <PanelBody name="example">
                 test
@@ -48,26 +57,29 @@ const thing2 = ref<any>([]);
                 <UIDropdown disabled :items="[]"></UIDropdown>
                 <UILinkButton text="disbaled link!!" disabled></UILinkButton>
                 <UILoadingBar></UILoadingBar>
-                <div style="width: 300px; height: 300px">
+                <div style="width: 300px; height: 300px;">
                     <UILoadingSquare></UILoadingSquare>
+                </div>
+                <div style="width: 100px; height: 100px; padding: 50px 50px;">
+                    <UILoadingSpinner></UILoadingSpinner>
                 </div>
                 <UIDropdown @input="(t) => thing2 = t" :items="[
                     { text: 'oof', value: 'oof' }
                 ]" :grouped-items="[
-    {
-        label: 'g1', items: [
-            { text: 'hi', value: 'dfdf' },
-            { text: 'test 2', value: 'teesssst' }
-        ]
-    },
-    {
-        label: 'G2!!!!!!', items: [
-            { text: 'hi', value: 'aaaaaaaaaaa' },
-            { text: 'test 2', value: 'eeeeeeeeeeeeee' },
-            { text: 'oof', value: 'ee' }
-        ]
-    }
-]" width="400px" height="100px" multiple></UIDropdown>
+                    {
+                        label: 'g1', items: [
+                            { text: 'hi', value: 'dfdf' },
+                            { text: 'test 2', value: 'teesssst' }
+                        ]
+                    },
+                    {
+                        label: 'G2!!!!!!', items: [
+                            { text: 'hi', value: 'aaaaaaaaaaa' },
+                            { text: 'test 2', value: 'eeeeeeeeeeeeee' },
+                            { text: 'oof', value: 'ee' }
+                        ]
+                    }
+                ]" width="400px" height="100px" multiple></UIDropdown>
                 {{ thing2 }}
             </PanelBody>
         </PanelMain>

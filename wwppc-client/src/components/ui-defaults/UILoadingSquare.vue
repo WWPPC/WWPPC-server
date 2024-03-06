@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="UILoadingSquare">
+    <div class="uiLoadingSquare">
         <div></div>
         <div></div>
         <div></div>
@@ -22,7 +22,7 @@ defineProps<{
 </template>
 
 <style>
-.UILoadingSquare {
+.uiLoadingSquare {
     display: inline-grid;
     grid-template-columns: repeat(3, 33%);
     grid-template-rows: repeat(3, 33%);
@@ -33,29 +33,29 @@ defineProps<{
     aspect-ratio: 1;
 }
 
-.UILoadingSquare div {
+.uiLoadingSquare div {
     width: 100%;
     height: 100%;
-    animation: 4s cubic-bezier(0.2, 0, 0.8, 1) ui-loading-square-colors infinite;
+    animation: 3500ms cubic-bezier(0.2, 0, 0.8, 1) ui-loading-square-colors infinite;
 }
 
-.UILoadingSquare div:nth-child(4),
-.UILoadingSquare div:nth-child(8) {
+.uiLoadingSquare div:nth-child(4),
+.uiLoadingSquare div:nth-child(8) {
     animation-delay: 80ms;
 }
 
-.UILoadingSquare div:nth-child(1),
-.UILoadingSquare div:nth-child(5),
-.UILoadingSquare div:nth-child(9) {
+.uiLoadingSquare div:nth-child(1),
+.uiLoadingSquare div:nth-child(5),
+.uiLoadingSquare div:nth-child(9) {
     animation-delay: 160ms;
 }
 
-.UILoadingSquare div:nth-child(2),
-.UILoadingSquare div:nth-child(6) {
+.uiLoadingSquare div:nth-child(2),
+.uiLoadingSquare div:nth-child(6) {
     animation-delay: 240ms;
 }
 
-.UILoadingSquare div:nth-child(3) {
+.uiLoadingSquare div:nth-child(3) {
     animation-delay: 320ms;
 }
 

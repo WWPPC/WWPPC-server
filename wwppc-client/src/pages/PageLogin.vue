@@ -6,6 +6,7 @@ import { ref, watch } from 'vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
 import { useReCaptcha } from 'vue-recaptcha-v3';
+import LoadingCover from '@/components/LoadingCover.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -82,6 +83,7 @@ const attemptSignup = async () => {
     } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
 };
 </script>
+
 <script lang="ts">
 </script>
 
@@ -132,31 +134,31 @@ const attemptSignup = async () => {
                                                 Grade Level:
                                             </span>
                                             <UIDropdown ref="gradeInput" :items="[
-                                                { text: 'Pre-High School', value: '8' },
-                                                { text: '9', value: '9' },
-                                                { text: '10', value: '10' },
-                                                { text: '11', value: '11' },
-                                                { text: '12', value: '12' },
-                                                { text: 'College Student', value: '13' },
-                                                { text: 'Graduated', value: '14' }
-                                            ]" title="Your current grade level" required></UIDropdown>
+                            { text: 'Pre-High School', value: '8' },
+                            { text: '9', value: '9' },
+                            { text: '10', value: '10' },
+                            { text: '11', value: '11' },
+                            { text: '12', value: '12' },
+                            { text: 'College Student', value: '13' },
+                            { text: 'Graduated', value: '14' }
+                        ]" title="Your current grade level" required></UIDropdown>
                                             <span>
                                                 Experience Level:
                                             </span>
                                             <UIDropdown ref="experienceInput" :items="[
-                                                { text: 'Beginner', value: '0' },
-                                                { text: 'Intermediate', value: '1' },
-                                                { text: 'Advanced', value: '2' },
-                                            ]" title="Your experience level with competitive programming" required></UIDropdown>
+                            { text: 'Beginner', value: '0' },
+                            { text: 'Intermediate', value: '1' },
+                            { text: 'Advanced', value: '2' },
+                        ]" title="Your experience level with competitive programming" required></UIDropdown>
                                             <span>Known languages:</span>
                                             <UIDropdown ref="languageInput" :items="[
-                                                { text: 'Java', value: 'java' },
-                                                { text: 'Python', value: 'py' },
-                                                { text: 'C', value: 'c' },
-                                                { text: 'C++', value: 'cpp' },
-                                                { text: 'C#', value: 'cs' },
-                                                { text: 'Ruby', value: 'rb' },
-                                            ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
+                            { text: 'Java', value: 'java' },
+                            { text: 'Python', value: 'py' },
+                            { text: 'C', value: 'c' },
+                            { text: 'C++', value: 'cpp' },
+                            { text: 'C#', value: 'cs' },
+                            { text: 'Ruby', value: 'rb' },
+                        ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </div>
                                         <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount></UIButton>
                                     </form>
@@ -166,6 +168,7 @@ const attemptSignup = async () => {
                     </Transition>
                 </div>
             </PanelBody>
+            <LoadingCover text="Connecting..."></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

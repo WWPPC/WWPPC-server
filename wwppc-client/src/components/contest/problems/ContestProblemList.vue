@@ -96,7 +96,7 @@ rounds.push({
 <template>
     <div class="contestProblemListWrapperWrapper centered">
         <div class="contestProblemListWrapper">
-            <TitledAngleContainer title="Problems">
+            <TitledAngleContainer title="Problems" height="100%">
                 <div class="contestProblemList">
                     <ContestProblemListRound v-for="round in rounds" :key="round.number" :data="round"></ContestProblemListRound>
                 </div>
