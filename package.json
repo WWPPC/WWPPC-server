@@ -1,7 +1,5 @@
 {
     "dependencies": {
-        "mkcert": "^3.2.0",
-        "typescript": "^5.3.3"
     },
     "scripts": {
         "install": "cd wwppc-server && npm install && cd ../wwppc-client && npm install",
