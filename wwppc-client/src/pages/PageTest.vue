@@ -41,12 +41,12 @@ const thing2 = ref<any>([]);
                 <br>
                 <!-- <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe> -->
                 <TitledTable :content="{
-                    columns: ['col 1', 'col 2', 'col 3'],
+                    headers: ['col 1', 'col 2', 'col 3'],
                     data: [
                         ['a1', 'a2', 'a3'],
                         ['b1', 'b2', 'b3']
                     ],
-                    generator: (row, col, data) => ({ content: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : ''})
+                    generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);'})
                 }"></TitledTable>
                 <br>
                 <TitledAngleContainer title="title" borderStyle="4px solid white">

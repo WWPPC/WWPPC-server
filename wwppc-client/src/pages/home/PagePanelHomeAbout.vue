@@ -9,7 +9,7 @@ import { TitledTable } from '@/components/ui-defaults/UIContainers';
         <LargeGlitchCenterText text="WWPPC Team" style="font: bold 48px 'Source Code Pro'; color: lime;" :delay=10></LargeGlitchCenterText>
     </div>
     <TitledTable width="50%" :content="{
-        columns: ['Our Team'],
+        headers: ['Our Team'],
         data: [
             ['Arav Maheria'],
             ['Erik Ji'],
@@ -19,7 +19,7 @@ import { TitledTable } from '@/components/ui-defaults/UIContainers';
             ['Suvanth Erranki'],
             ['Vikram Karamsetty'],
         ],
-        generator: (row, col, data) => ({ content: `${data}`}),
+        generator: (row, col, data) => ({ text: `${data}`}),
     }"></TitledTable>
 </template>
 
