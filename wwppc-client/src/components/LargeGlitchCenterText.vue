@@ -5,7 +5,6 @@ const props = defineProps<{
     text: string
     steps?: number
     delay?: number
-    fontStyle?: string
     random?: boolean
 }>();
 
@@ -13,7 +12,7 @@ const dispText = ref(props.text.replace(/./g, ' '));
 
 onMounted(() => {
     if (props.random) {
-        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => {dispText.value = t; }, 20, 2), props.delay);
+        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => {dispText.value = t; }, 20, props.steps), props.delay);
     } else {
         glitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, 1, props.text.length + (props.delay ?? 0), props.steps, true);
     }
@@ -21,7 +20,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="centered glitchText" :style=props.fontStyle>
+    <div class="centered glitchText">
         {{ dispText }}
     </div>
 </template>

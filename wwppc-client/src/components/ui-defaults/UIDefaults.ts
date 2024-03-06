@@ -9,6 +9,7 @@ import UILoadingBar from './UILoadingBar.vue';
 import UILoadingSpinner from './UILoadingSpinner.vue';
 import UILoadingSquare from './UILoadingSquare.vue';
 import FullscreenModal, { ModalMode, type ModalParams } from './FullscreenModal.vue';
+import UIDivider from './UIDivider.vue';
 export {
     UIButton,
     UITextBox,
@@ -21,7 +22,8 @@ export {
     UILoadingSpinner,
     UILoadingSquare,
     FullscreenModal,
-    ModalMode
+    ModalMode,
+    UIDivider
 }
 
 import { defineStore } from 'pinia';
