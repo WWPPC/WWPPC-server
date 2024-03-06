@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { watch, ref, onMounted } from 'vue';
+
 const props = defineProps<{
     width?: string
     height?: string
@@ -6,43 +8,60 @@ const props = defineProps<{
     content: TableContent | TableContentGenerated
     headerColor?: string
 }>();
+
+const data = ref<TableGeneratedData[][]>([]);
+const updateContent = () => {
+    data.value = [];
+    if ('generator' in props.content) {
+        for (const row in props.content.data) {
+            const drow: TableGeneratedData[] = [];
+            for (const col in props.content.data[row]) {
+                drow.push(props.content.generator(row, props.content.headers[col], props.content.data[row][col]));
+            }
+            data.value.push(drow);
+        }
+    } else {
+        for (const row of props.content.data) {
+            const drow: TableGeneratedData[] = [];
+            for (const cell of row) {
+                drow.push({ text: cell });
+            }
+            data.value.push(drow);
+        }
+    }
+};
+watch(() => props.content, () => updateContent());
+onMounted(() => updateContent());
 </script>
 
 <script lang="ts">
 export interface TableContent {
-    columns: string[],
+    headers: string[],
     data: string[][]
 }
 export interface TableContentGenerated {
-    columns: string[],
+    headers: string[],
     data: any[][],
     generator: (row: number, column: string, dat: any) => TableGeneratedData
 }
 export interface TableGeneratedData {
-    content: string
+    text: string
     backgroundColor?: string
     font?: string
+    style?: string
 }
 </script>
 
 <template>
     <div class="titledTableContainer">
         <div class="titledTableHeader">
-            <div class="titledTableHeaderItem" v-for="header in props.content.columns" :key="header">
+            <div class="titledTableHeaderItem" v-for="header in props.content.headers" :key="header">
                 {{ header }}
             </div>
         </div>
-        <div class="titledTableRow" v-for="(row, rowindex) in props.content.data" :key="row[0]">
-            <div class="titledTableData" v-for="(data, colindex) in row" :key="data">
-                {{
-                (() => {
-                    if ('generator' in props.content) {
-                        const generated = props.content.generator(rowindex, props.content.columns[colindex], data);
-                        
-                        return generated.content;
-                    } else return data;
-                })()
-            }}
+        <div class="titledTableRow" v-for="row in data" :key="row[0]">
+            <div class="titledTableData" v-for="cell in row" :key="cell.text" :style="`font: ${cell.font ?? ''}; background-color: ${cell.backgroundColor ?? ''}; ${cell.style}`">
+                {{ cell.text }}
             </div>
         </div>
     </div>
@@ -76,6 +95,7 @@ export interface TableGeneratedData {
 .titledTableRow {
     display: table-row;
 }
+
 .titledTableData {
     display: table-cell;
     border: 2px solid;
