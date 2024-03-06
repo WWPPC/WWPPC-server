@@ -83,7 +83,7 @@ export interface TableGeneratedData {
 
 .titledTableHeader {
     display: table-header-group;
-    color: v-bind("props.headerColor ?? '#111'");
+    color: v-bind("props.headerColor ?? 'white'");
     background-color: v-bind("props.headerBackground ?? '#111'");
 }
 
