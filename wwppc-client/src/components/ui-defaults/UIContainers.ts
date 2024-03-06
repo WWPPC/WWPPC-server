@@ -1,7 +1,11 @@
-import TitledAngleContainer from './containers/TitledAngleContainer.vue';
+import TitledAngleContainer from './containers/AngledTitleContainer.vue';
+import CutCornerContainer from './containers/CutCornerContainer.vue';
+import TitledCutCornerContainer from './containers/TitledCutCornerContainer.vue';
 import HeaderedTable from './containers/HeaderedTable.vue';
 
 export {
     TitledAngleContainer,
-    HeaderedTable,
+    CutCornerContainer,
+    TitledCutCornerContainer,
+    HeaderedTable
 }

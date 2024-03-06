@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
     title: string
     width?: string
     height?: string
@@ -14,7 +14,7 @@ const props = defineProps<{
         </div>
         <div class="titledAngleContainerHeader"></div>
         <div class="titledAngleContainerTitle">
-            <h2>{{ props.title }}</h2>
+            <h2>{{ $props.title }}</h2>
         </div>
     </div>
 </template>
@@ -23,10 +23,10 @@ const props = defineProps<{
 .titledAngleContainer {
     position: relative;
     box-sizing: border-box;
-    width: v-bind("props.width ?? 'initial'");
-    height: v-bind("props.height ?? 'initial'");
+    width: v-bind("$props.width ?? 'initial'");
+    height: v-bind("$props.height ?? 'initial'");
     border: 4px solid;
-    border-color: v-bind("props.borderColor ?? ' white'");
+    border-color: v-bind("$props.borderColor ?? ' white'");
     background-color: black;
     text-align: left;
     overflow: hidden;
@@ -48,7 +48,7 @@ const props = defineProps<{
     width: calc(100% / cos(3deg) + 2px);
     height: 72px;
     border-bottom: 4px solid;
-    border-color: v-bind("props.borderColor ?? 'white'");
+    border-color: v-bind("$props.borderColor ?? 'white'");
     transform: rotate(-3deg) translateX(50%);
     background-color: #222;
 }
@@ -59,6 +59,7 @@ const props = defineProps<{
     height: 100%;
     padding: 12px 12px;
     padding-top: 76px;
+    overflow-x: hidden;
     overflow-y: auto;
 }
 

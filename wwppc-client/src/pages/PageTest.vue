@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { HeaderedTable, TitledAngleContainer } from '@/components/ui-defaults/UIContainers';
+import { HeaderedTable, TitledCutCornerContainer, TitledAngleContainer } from '@/components/ui-defaults/UIContainers';
 
 const modal = ref(FullscreenModal);
 
@@ -39,20 +39,26 @@ const thing2 = ref<any>([]);
                 <br>
                 <span>{{ actualResult }}</span>
                 <br>
-                <!-- <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe> -->
-                <HeaderedTable :content="{
-                    headers: ['col 1', 'col 2', 'col 3'],
-                    data: [
-                        ['a1', 'a2', 'a3'],
-                        ['b1', 'b2', 'b3']
-                    ],
-                    generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);'})
-                }"></HeaderedTable>
-                <br>
-                <TitledAngleContainer title="title" borderStyle="4px solid white">
-                    titled angle container
-                </TitledAngleContainer>
-                <br>
+                <div style="display: flex;">
+                    <!-- <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe> -->
+                    <HeaderedTable :content="{
+                        headers: ['col 1', 'col 2', 'col 3'],
+                        data: [
+                            ['a1', 'a2', 'a3'],
+                            ['b1', 'b2', 'b3']
+                        ],
+                        generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);'})
+                    }" height="200px"></HeaderedTable>
+                    hi
+                    <TitledAngleContainer title="title" width="40%" height="200px">
+                        titled angle container
+                        oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
+                    </TitledAngleContainer>
+                    hi
+                    <TitledCutCornerContainer title="title" width="40%" height="200px" border-color="yellow">
+                        oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
+                    </TitledCutCornerContainer>
+                </div>
             </PanelBody>
             <PanelBody name="example">
                 test
@@ -89,6 +95,6 @@ const thing2 = ref<any>([]);
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
-        <SuperSecretFeature show></SuperSecretFeature>
+        <!-- <SuperSecretFeature show></SuperSecretFeature> -->
     </PanelView>
 </template>
