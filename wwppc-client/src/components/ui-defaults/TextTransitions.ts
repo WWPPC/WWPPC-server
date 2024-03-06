@@ -111,11 +111,11 @@ export function* glitchTextTransitionGenerator(from: string, to: string, block: 
         a++;
     }
 }
-export function randomFlipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, probability: number = 0.2): AsyncTextTransition {
+export function randomFlipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, gap: number = 2): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
-            const gen = randomFlipTextTransitionGenerator(from, to, probability);
+            const gen = randomFlipTextTransitionGenerator(from, to, gap);
             const animate = setInterval(() => {
                 const next = gen.next();
                 if (cancelled || next.done || update(next.value)) {
@@ -130,14 +130,15 @@ export function randomFlipTextTransition(from: string, to: string, update: (text
     };
     return ret;
 }
-export function* randomFlipTextTransitionGenerator(from: string, to: string, probability: number): Generator<string, undefined, undefined> {
+export function* randomFlipTextTransitionGenerator(from: string, to: string, gap: number): Generator<string, undefined, undefined> {
     const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
     const toArray = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
     if (toArray.length > text.length) text.length = toArray.length;
     for (let i = text.length; i < toArray.length; i++) text[i] = ' ';
     const unchanged: number[] = [...Array(text.length).keys()];
+    let a = 0;
     while (true) {
-        if (Math.random() < probability) {
+        if (a++ % gap == 0) {
             const modify = unchanged.splice(~~(Math.random() * unchanged.length), 1)[0];
             text[modify] = toArray[modify];
             if (unchanged.length == 0) {
@@ -148,11 +149,11 @@ export function* randomFlipTextTransitionGenerator(from: string, to: string, pro
         yield text.reduce((p, c) => p + c, '');
     }
 }
-export function randomGlitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, probability: number = 0.2, startGlitched?: boolean, letterOverride?: string): AsyncTextTransition {
+export function randomGlitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, gap: number = 2, startGlitched?: boolean, letterOverride?: string): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
-            const gen = randomGlitchTextTransitionGenerator(from, to, probability, startGlitched ?? false, letterOverride);
+            const gen = randomGlitchTextTransitionGenerator(from, to, gap, startGlitched ?? false, letterOverride);
             const animate = setInterval(() => {
                 const next = gen.next();
                 if (cancelled || next.done || update(next.value)) {
@@ -167,7 +168,7 @@ export function randomGlitchTextTransition(from: string, to: string, update: (te
     };
     return ret;
 }
-export function* randomGlitchTextTransitionGenerator(from: string, to: string, probability: number, startGlitched: boolean, letterOverride?: string): Generator<string, undefined, undefined> {
+export function* randomGlitchTextTransitionGenerator(from: string, to: string, gap: number, startGlitched: boolean, letterOverride?: string): Generator<string, undefined, undefined> {
     const letters = letterOverride ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=!@#$%^&*()_+`~[]\\{}|;\':",./?';
     const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
     const toArray = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
@@ -175,20 +176,24 @@ export function* randomGlitchTextTransitionGenerator(from: string, to: string, p
     for (let i = text.length; i < toArray.length; i++) text[i] = ' ';
     const unchanged: number[] = startGlitched ? [] : [...Array(text.length).keys()];
     const glitching: number[] = startGlitched ? [...Array(text.length).keys()] : [];
+    const minGlitching = ~~(Math.max(from.length, to.length) / 2);
+    let a = 0;
     while (true) {
-        if (unchanged.length > 0 && Math.random() < probability * 2) {
-            glitching.push(unchanged.splice(~~(Math.random() * unchanged.length), 1)[0]);
+        if (a++ % gap == 0) {
+            if (glitching.length > minGlitching || unchanged.length == 0) {
+                const modify = glitching.splice(~~(Math.random() * glitching.length), 1)[0];
+                text[modify] = toArray[modify];
+                if (unchanged.length == 0 && glitching.length == 0) {
+                    yield to;
+                    break;
+                }
+            }
+            if (unchanged.length > 0) {
+                glitching.push(unchanged.splice(~~(Math.random() * unchanged.length), 1)[0]);
+            }
         }
         for (let i = 0; i < glitching.length; i++) {
             text[glitching[i]] = letters.charAt(~~(Math.random() * letters.length));
-        }
-        if (glitching.length > 0 && Math.random() < probability) {
-            const modify = glitching.splice(~~(Math.random() * glitching.length), 1)[0];
-            text[modify] = toArray[modify];
-            if (unchanged.length == 0 && glitching.length == 0) {
-                yield to;
-                break;
-            }
         }
         yield text.reduce((p, c) => p + c, '');
     }

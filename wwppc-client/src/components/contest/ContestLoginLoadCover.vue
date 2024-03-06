@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { UILoadingSquare } from '../ui-defaults/UIDefaults';
+import { useRoute } from 'vue-router';
 
 const serverConnection = useServerConnection();
+const route = useRoute();
 </script>
 
 <template>
     <Transition>
-        <div class="contestLoginLoadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete">
+        <div class="contestLoginLoadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete && route.query.ignore_server === undefined">
             <div class="contestLoginLoadingCoverContainer">
                 <div class="contestLoginLoadingCoverWrapper">
                     <div class="contestLoginLoadingCover">

@@ -27,7 +27,7 @@ serverConnection.ondisconnect(() => {
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
 });
 watch(() => route.params.page, () => {
-    if (route.params.page == 'contest') {
+    if (route.params.page == 'contest' && route.query.ignore_server === undefined) {
         serverConnection.handshakePromise.then(() => {
             if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
         });

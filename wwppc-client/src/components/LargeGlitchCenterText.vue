@@ -13,7 +13,7 @@ const dispText = ref(props.text.replace(/./g, ' '));
 
 onMounted(() => {
     if (props.random) {
-        randomGlitchTextTransition(dispText.value, props.text, (t) => {dispText.value = t; }, 20, 0.2);
+        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => {dispText.value = t; }, 20, 2), props.delay);
     } else {
         glitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, 1, props.text.length + (props.delay ?? 0), props.steps, true);
     }

@@ -11,7 +11,7 @@ import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
             text-wrap: nowrap;
             color: lime;
             text-shadow: -0.05em 0.05em 0px #0F05, 0px 0px 0.02em #0F0;
-            " :steps=1 :delay=15 :random=true></LargeGlitchCenterText>
+            " :steps=1 :delay=400 :random=true></LargeGlitchCenterText>
         <br>
         <!-- sorry vikram your code will have all of the conflicts -->
         <LargeGlitchCenterText text="??/??" fontStyle="
