@@ -67,7 +67,7 @@ watch(() => route.params.page, () => {
             <PanelBody name="leaderboard">
                 <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
             </PanelBody>
-            <LoadingCover text="Logging you in..."></LoadingCover>
+            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

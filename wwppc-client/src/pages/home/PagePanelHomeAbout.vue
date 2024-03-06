@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
-import { UIDivider } from '@/components/ui-defaults/UIDefaults';
-import { TitledTable } from '@/components/ui-defaults/UIContainers';
+import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
 </script>
 
 <template>
     <div class="centered">
         <LargeGlitchCenterText text="WWPPC Team" style="font: bold 48px 'Source Code Pro'; color: lime;" :delay=10></LargeGlitchCenterText>
     </div>
-    <TitledTable width="50%" :content="{
+    <HeaderedTable width="50%" :content="{
         headers: ['Our Team'],
         data: [
             ['Arav Maheria'],
@@ -20,7 +19,7 @@ import { TitledTable } from '@/components/ui-defaults/UIContainers';
             ['Vikram Karamsetty'],
         ],
         generator: (row, col, data) => ({ text: `${data}`}),
-    }"></TitledTable>
+    }"></HeaderedTable>
 </template>
 
 <style>
