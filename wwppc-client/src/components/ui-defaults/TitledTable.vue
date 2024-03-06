@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { BaseContainer } from '@/components/ui-defaults/UIContainers';
+
 const props = defineProps<{
     width?: string
     height?: string
-    borderColor?: string
+    borderStyle?: string
     content: TableContent | TableContentGenerated
     headerColor?: string
 }>();
@@ -26,14 +28,14 @@ export interface TableGeneratedData {
 </script>
 
 <template>
-    <div class="titledTableContainer">
+    <BaseContainer class="titledTableContainer" :width="props.width ?? null" :height="props.height ?? null" :borderStyle="props.borderStyle ?? null">
         <div class="titledTableHeader">
-            <div class="titledTableHeaderItem" v-for="header in props.content.columns" :key="header">
+            <BaseContainer class="titledTableHeaderItem" v-for="header in props.content.columns" :key="header"  :borderStyle="props.borderStyle ?? null">
                 {{ header }}
-            </div>
+            </BaseContainer>
         </div>
         <div class="titledTableRow" v-for="(row, rowindex) in props.content.data" :key="row[0]">
-            <div class="titledTableData" v-for="(data, colindex) in row" :key="data">
+            <BaseContainer class="titledTableData" v-for="(data, colindex) in row" :key="data" :borderStyle="props.borderStyle ?? null">
                 {{
                 (() => {
                     if ('generator' in props.content) {
@@ -43,19 +45,15 @@ export interface TableGeneratedData {
                     } else return data;
                 })()
             }}
-            </div>
+            </BaseContainer>
         </div>
-    </div>
+    </BaseContainer>
 </template>
 
 <style>
 .titledTableContainer {
     display: table;
     box-sizing: border-box;
-    width: v-bind("props.width ?? 'initial'");
-    height: v-bind("props.height ?? 'initial'");
-    border: 2px solid;
-    border-color: v-bind("props.borderColor ?? 'white'");
     background-color: black;
     text-align: left;
 }
@@ -63,23 +61,16 @@ export interface TableGeneratedData {
 .titledTableHeader {
     display: table-header-group;
     background-color: v-bind("props.headerColor ?? '#111'");
+    font-weight: bold;
 }
 
-.titledTableHeaderItem {
+.titledTableHeaderItem, .titledTableData {
     display: table-cell;
-    border: 2px solid;
-    border-color: v-bind("props.borderColor ?? 'white'");
     padding: 4px 8px;
-    font-weight: bold;
+    text-align: center;
 }
 
 .titledTableRow {
     display: table-row;
-}
-.titledTableData {
-    display: table-cell;
-    border: 2px solid;
-    border-color: v-bind("props.borderColor ?? 'white'");
-    padding: 4px 8px;
 }
 </style>

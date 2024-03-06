@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { TitledTable } from '@/components/ui-defaults/UIContainers';
+import { BaseContainer, TitledTable, TitledAngleContainer } from '@/components/ui-defaults/UIContainers';
 
 const modal = ref(FullscreenModal);
 
@@ -48,6 +48,14 @@ const thing2 = ref<any>([]);
                     ],
                     generator: (row, col, data) => ({ content: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : ''})
                 }"></TitledTable>
+                <br>
+                <TitledAngleContainer title="title" borderStyle="4px solid white">
+                    titled angle container
+                </TitledAngleContainer>
+                <br>
+                <BaseContainer>
+                    base container
+                </BaseContainer>
             </PanelBody>
             <PanelBody name="example">
                 test

@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { BaseContainer } from '@/components/ui-defaults/UIContainers';
+
 const props = defineProps<{
     title: string
     width?: string
     height?: string
-    borderColor?: string
+    borderStyle?: string
 }>();
 </script>
 
 <template>
-    <div class="titledAngleContainer">
+    <BaseContainer class="titledAngleContainer" :width="props.width ?? null" :height="props.height ?? null" :borderStyle="props.borderStyle ?? null">
         <div class="titledAngleContainerBody">
             <slot></slot>
         </div>
@@ -16,17 +18,13 @@ const props = defineProps<{
         <div class="titledAngleContainerTitle">
             <h2>{{ props.title }}</h2>
         </div>
-    </div>
+    </BaseContainer>
 </template>
 
 <style>
 .titledAngleContainer {
     position: relative;
     box-sizing: border-box;
-    width: v-bind("props.width ?? 'initial'");
-    height: v-bind("props.height ?? 'initial'");
-    border: 4px solid;
-    border-color: v-bind("props.borderColor ?? 'white'");
     background-color: black;
     text-align: left;
     overflow: hidden;
@@ -47,7 +45,7 @@ const props = defineProps<{
     left: calc(-50% - 4px);
     width: calc(100% / cos(3deg) + 2px);
     height: 72px;
-    border-bottom: 4px solid white;
+    border-bottom: v-bind("props.borderStyle ?? '4px solid white'"); /* bad hardcoding */
     transform: rotate(-3deg) translateX(50%);
     background-color: #222;
 }
