@@ -21,7 +21,7 @@ function click() {
 }
 
 // animations for hover
-const buttonText = ref(props.text.replace(/./g, ' '));
+const buttonText = ref(props.text.replace(/./g, ' '));
 let blockingAnimation: AsyncTextTransition | null = null;
 let currentAnimation: AsyncTextTransition | null = null;
 function mouseover() {
