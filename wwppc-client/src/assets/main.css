@@ -77,6 +77,10 @@ i {
     font-style: italic;
 }
 
+a {
+    color: lime;
+}
+
 code {
     font-family: 'Source Code Pro', Courier, monospace;
     background-color: #FFF2;
