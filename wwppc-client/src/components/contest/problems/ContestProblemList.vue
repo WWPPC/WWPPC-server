@@ -7,6 +7,7 @@ import ContestProblemListRound from './ContestProblemListRound.vue';
 // in the meantime just put a loading spinner (i should probably make one of those)
 
 const rounds: ContestRound[] = [];
+//hard code BAD
 rounds.push({
     division: 0,
     number: 0,
