@@ -7,6 +7,7 @@ const props = defineProps<{
     borderColor?: string
     content: TableContent | TableContentGenerated
     headerColor?: string
+    headerBackground?: string
 }>();
 
 const data = ref<TableGeneratedData[][]>([]);
@@ -46,6 +47,7 @@ export interface TableContentGenerated {
 }
 export interface TableGeneratedData {
     text: string
+    color?: string
     backgroundColor?: string
     font?: string
     style?: string
@@ -60,7 +62,7 @@ export interface TableGeneratedData {
             </div>
         </div>
         <div class="titledTableRow" v-for="row in data" :key="row[0]">
-            <div class="titledTableData" v-for="cell in row" :key="cell.text" :style="`font: ${cell.font ?? ''}; background-color: ${cell.backgroundColor ?? ''}; ${cell.style}`">
+            <div class="titledTableData" v-for="cell in row" :key="cell.text" :style="`font: ${cell.font ?? ''}; color: ${cell.color ?? ''}; background-color: ${cell.backgroundColor ?? ''}; ${cell.style}`">
                 {{ cell.text }}
             </div>
         </div>
@@ -81,7 +83,8 @@ export interface TableGeneratedData {
 
 .titledTableHeader {
     display: table-header-group;
-    background-color: v-bind("props.headerColor ?? '#111'");
+    color: v-bind("props.headerColor ?? '#111'");
+    background-color: v-bind("props.headerBackground ?? '#111'");
 }
 
 .titledTableHeaderItem {
