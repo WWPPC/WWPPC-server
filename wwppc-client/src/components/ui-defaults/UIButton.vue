@@ -38,7 +38,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? '32px'");
+    height: v-bind("$props.height ?? 'initial'");
     margin: 0px 4px;
     padding: 0px 4px;
     border: 4px solid white;

@@ -8,9 +8,8 @@ import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
         <LargeGlitchCenterText text="WWPPC Team" style="font: bold 48px 'Source Code Pro'; color: lime;" :delay=10></LargeGlitchCenterText>
     </div>
     <HeaderedTable width="50%" :content="{
-        headers: ['Our Team'],
+        headers: ['Arav Maheria'], //spaghetti moment
         data: [
-            ['Arav Maheria'],
             ['Erik Ji'],
             ['Jie Gao'], 
             ['Maitian Sha'],
@@ -23,10 +22,4 @@ import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
 </template>
 
 <style>
-.aboutTable {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    justify-items: center;
-    width: 100%;
-}
 </style>

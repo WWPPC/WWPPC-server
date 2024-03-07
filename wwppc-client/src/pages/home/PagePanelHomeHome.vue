@@ -14,10 +14,7 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
             text-shadow: -0.05em 0.05em 0px #0F05, 0px 0px 0.02em #0F0;
             " :steps=2 :delay=300 :random=true></LargeGlitchCenterText>
     <br>
-    <div class = "row">
-      <UIButton class = "hackbutton" text="HACKATHON" font-size="25px" height="50px" @click= "() => {$router.push('/hackathon')}"></UIButton>
-      <!-- sorry vikram your code will have all of the conflicts -->
-      <LargeGlitchCenterText text="2/2024" style="
+    <LargeGlitchCenterText text="??/24" style="
             font-weight: bold;
             font-size: min(calc(50vh - 50px), calc(100vw / 12));
             text-wrap: nowrap;
@@ -27,10 +24,12 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
             text-shadow: 0 0 20px red;
             " :steps=1 :delay=20>
       </LargeGlitchCenterText>
-      <UIButton class = "informButton" text="INFORMATICS TOURNAMENT" font-size="25px" height="50px" @click="()=> {$router.push('/contest')}"></UIButton>
-    </div>
     <br>
-    <div class="center" style="text-align: center; font-size: 120%" >
+    <UIButton text="Informatics Tournament" font-size="calc(3vw + 5px)" width="100%" height="calc(6vw + 10px)" :glitchOnMount=true @click="()=> {$router.push('/contest')}"></UIButton>
+    <br><br>
+    <UIButton text="Hackathon" font-size="calc(3vw + 5px)" width="100%" height="calc(6vw + 10px)" :glitchOnMount=true @click= "() => {$router.push('/hackathon')}"></UIButton>
+    <br><br>
+    <div class="center" style="text-align: center; font-size: calc(1vw + 10px)" >
       West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
       WWPHacks, will be held eventually in 2024. Join us on <a href="https://discord.gg/rv23HbH7rB">Discord</a>!
     </div>
@@ -38,10 +37,4 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
 </template>
 
 <style>
-.hackbutton {
-  flex:.25;
-}
-.informButton {
-  flex:.25;
-}
 </style>
