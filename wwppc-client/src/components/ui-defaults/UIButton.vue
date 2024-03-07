@@ -12,6 +12,7 @@ const props = defineProps<{
     backgroundColor?: string
     type?: 'button' | 'submit'
     glitchOnMount?: boolean
+    fontSize?: string
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -37,7 +38,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? '32px'");
+    height: v-bind("$props.height ?? 'initial'");
     margin: 0px 4px;
     padding: 0px 4px;
     border: 4px solid white;
@@ -47,6 +48,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     font: v-bind("$props.font ?? 'inherit'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease transform, 50ms ease border-color;
+    font-size: v-bind("$props.fontSize ?? '16px'");
     cursor: pointer;
 }
 

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+  <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { glitchTextTransition, randomGlitchTextTransition } from './ui-defaults/TextTransitions';
 const props = defineProps<{
