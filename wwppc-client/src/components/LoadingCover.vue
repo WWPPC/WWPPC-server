@@ -31,9 +31,11 @@ const route = useRoute();
 
 <style>
 .loadingCoverContainerWrapper {
-    grid-row: 1;
-    grid-column: 1;
-    position: relative;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
     transition: 1000ms linear opacity;
     background-color: black;
     opacity: 1;
@@ -42,7 +44,6 @@ const route = useRoute();
 .loadingCoverContainer {
     display: flex;
     flex-direction: column;
-    position: absolute;
     box-sizing: border-box;
     width: 100%;
     height: 100%;

@@ -57,17 +57,20 @@ watch(() => route.params.page, () => {
         <PanelMain>
             <PanelBody name="info" is-default>
                 <PagePanelContestInfo></PagePanelContestInfo>
+            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemList">
                 <PagePanelContestProblemList></PagePanelContestProblemList>
+            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemView">
                 <PagePanelContestProblemView></PagePanelContestProblemView>
+            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="leaderboard">
                 <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
-            </PanelBody>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
+            </PanelBody>
         </PanelMain>
     </PanelView>
 </template>
