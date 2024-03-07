@@ -1,10 +1,23 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-const route = useRoute();
+import { setTitlePage } from '@/scripts/title';
+import { onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+
 const props = defineProps<{
     name: string
+    title?: string
     isDefault?: boolean
 }>();
+
+const route = useRoute();
+
+let mounted = false;
+watch(() => route.params, async () => {
+    await nextTick();
+    if (mounted && (route.params.page == props.name || (route.params.page == undefined && props.isDefault))) setTitlePage(props.title ?? '');
+});
+onMounted(() => mounted = true);
+onBeforeUnmount(() => mounted = false);
 </script>
 
 <template>

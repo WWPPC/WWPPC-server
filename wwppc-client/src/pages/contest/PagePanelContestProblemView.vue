@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { setTitlePanel } from '@/scripts/title';
+
+setTitlePanel('Problem none');
+// set title to problem name
 </script>
 
 <template>

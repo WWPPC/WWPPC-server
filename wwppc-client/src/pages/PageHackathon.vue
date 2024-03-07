@@ -5,7 +5,7 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 </script>
 
 <template>
-    <PanelView name="hackathon">
+    <PanelView name="hackathon" title="WWPHacks">
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
@@ -17,7 +17,7 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" is-default>
+            <PanelBody name="default" title="Home" is-default>
                 Hey! This page isn't finished. Check back later for updates!
                 <br><br>
                 oops hacked

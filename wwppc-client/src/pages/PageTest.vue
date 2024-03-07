@@ -32,7 +32,7 @@ const thing2 = ref<any>([]);
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" is-default>
+            <PanelBody name="default" title="Test Page 1" is-default>
                 <UIButton @click="async () => result = await modal?.showModal({ title: 'why is borken', content: 'oof <img src=\'/assets/timer.svg\' style=\'height: 40px;\'>', mode: ModalMode.QUERY })" text="Test modal"></UIButton>
                 <UIDropdown :items="[{ text: result, value: 'a' }, { text: result2, value: 'b' }]" width="100px" default="a" required @input="(t) => actualResult = typeof t == 'string' ? t : t[0]"></UIDropdown>
                 <UITextBox @input="(t) => result2 = t" default-value="hi"></UITextBox>
@@ -60,7 +60,7 @@ const thing2 = ref<any>([]);
                     </TitledCutCornerContainer>
                 </div>
             </PanelBody>
-            <PanelBody name="example">
+            <PanelBody name="example" title="Test Page 2">
                 test
                 <UIButton @click="() => modal.showModal({ title: 'hi', content: 'test' })" text="example button"></UIButton>
                 <UIButton text="disabled button" disabled></UIButton>
@@ -95,6 +95,6 @@ const thing2 = ref<any>([]);
             </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
-        <!-- <SuperSecretFeature show></SuperSecretFeature> -->
+        <SuperSecretFeature show></SuperSecretFeature>
     </PanelView>
 </template>

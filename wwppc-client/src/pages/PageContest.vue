@@ -40,7 +40,7 @@ watch(() => route.params.page, () => {
 </script>
 
 <template>
-    <PanelView name="contest">
+    <PanelView name="contest" title="WWPIT">
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
@@ -55,19 +55,19 @@ watch(() => route.params.page, () => {
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="info" is-default>
+            <PanelBody name="info" title="Home" is-default>
                 <PagePanelContestInfo></PagePanelContestInfo>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
-            <PanelBody name="problemList">
+            <PanelBody name="problemList" title="Problem List">
                 <PagePanelContestProblemList></PagePanelContestProblemList>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
-            <PanelBody name="problemView">
+            <PanelBody name="problemView" title="Problem">
                 <PagePanelContestProblemView></PagePanelContestProblemView>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
-            <PanelBody name="leaderboard">
+            <PanelBody name="leaderboard" title="Leaderboard">
                 <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>

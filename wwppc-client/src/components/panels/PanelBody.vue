@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
+import { setTitlePanel } from '@/scripts/title';
+import { onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 const route = useRoute();
 const props = defineProps<{
     name: string
+    title?: string
     isDefault?: boolean
 }>();
+
+let mounted = false;
+watch(() => route.params, async () => {
+    await nextTick();
+    if (mounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
+});
+onMounted(() => mounted = true);
+onBeforeUnmount(() => mounted = false);
 </script>
 
 <template>
