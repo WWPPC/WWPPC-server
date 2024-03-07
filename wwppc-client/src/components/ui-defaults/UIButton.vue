@@ -12,6 +12,7 @@ const props = defineProps<{
     backgroundColor?: string
     type?: 'button' | 'submit'
     glitchOnMount?: boolean
+    fontSize?: string
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -47,6 +48,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     font: v-bind("$props.font ?? 'inherit'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease transform, 50ms ease border-color;
+    font-size: v-bind("$props.fontSize ?? '16px'");
     cursor: pointer;
 }
 
