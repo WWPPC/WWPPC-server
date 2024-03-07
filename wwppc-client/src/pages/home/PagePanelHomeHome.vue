@@ -45,7 +45,6 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
             " :steps=1 :delay=20>
         </LargeGlitchCenterText>
       </div>
-
     </div>
     <br>
     <div class="center" style="text-align: center; font-size: 120%" >
