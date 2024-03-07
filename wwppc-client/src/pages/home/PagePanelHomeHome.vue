@@ -15,19 +15,37 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
             " :steps=2 :delay=300 :random=true></LargeGlitchCenterText>
     <br>
     <div class = "row">
-      <UIButton class = "hackbutton" text="HACKATHON" font-size="25px" height="50px" @click= "() => {$router.push('/hackathon')}"></UIButton>
-      <!-- sorry vikram your code will have all of the conflicts -->
-      <LargeGlitchCenterText text="2/2024" style="
+      <div class = "column">
+        <!-- animate buttons in from let and right -->
+        <UIButton class = "hackbutton" text="HACKATHON" font-size="25px" height="50px" @click= "() => {$router.push('/hackathon')}"></UIButton>
+        <LargeGlitchCenterText text="9/20/2024" style="
             font-weight: bold;
-            font-size: min(calc(50vh - 50px), calc(100vw / 12));
+            font-size: min(calc(50vh - 60px), calc(100vw / 13));
             text-wrap: nowrap;
             color: red;
             display:flex;
             flex:.5;
             text-shadow: 0 0 20px red;
             " :steps=1 :delay=20>
-      </LargeGlitchCenterText>
-      <UIButton class = "informButton" text="INFORMATICS TOURNAMENT" font-size="25px" height="50px" @click="()=> {$router.push('/contest')}"></UIButton>
+        </LargeGlitchCenterText>
+      </div>
+<!--      <span class = "space"></span>-->
+      <!-- sorry vikram your code will have all of the conflicts -->
+
+      <div class = "column">
+        <UIButton class = "informButton" text="INFORMATICS TOURNAMENT" font-size="25px" height="50px" @click="()=> {$router.push('/contest')}"></UIButton>
+        <LargeGlitchCenterText text="5/10/2024" style="
+            font-weight: bold;
+            font-size: min(calc(50vh - 60px), calc(100vw / 13));
+            text-wrap: nowrap;
+            color: red;
+            display:flex;
+            flex:.5;
+            text-shadow: 0 0 20px red;
+            " :steps=1 :delay=20>
+        </LargeGlitchCenterText>
+      </div>
+
     </div>
     <br>
     <div class="center" style="text-align: center; font-size: 120%" >
@@ -38,6 +56,19 @@ import UIButton from "@/components/ui-defaults/UIButton.vue";
 </template>
 
 <style>
+.row {
+  display:flex;
+  flex-flow: row wrap;
+  flex-direction: row;
+  justify-items: stretch;
+  justify-content: space-evenly;
+  row-gap: 20px;
+}
+.column {
+  display:flex;
+  flex-direction: column;
+}
+
 .hackbutton {
   flex:.25;
 }

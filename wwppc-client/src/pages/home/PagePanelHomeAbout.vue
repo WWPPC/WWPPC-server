@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
-import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
+import { HeaderedThable } from '@/components/ui-defaults/UIContainers';
 </script>
 
 <template>

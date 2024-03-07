@@ -12,6 +12,8 @@
     src: url(./Jura.ttf);
 }
 
+
+
 body {
     font-family: 'Source Code Pro', Courier, monospace;
     background-color: black;
@@ -37,14 +39,6 @@ img {
     text-align: center;
 }
 
-.row {
-    margin-left: 3%;
-    margin-right: 3%;
-    display:flex;
-    flex-direction: row;
-    /*justify-content: center;*/
-    align-items: center;
-}
 
 .hidden {
     display: none;
