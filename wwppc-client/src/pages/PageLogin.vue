@@ -167,8 +167,8 @@ const attemptSignup = async () => {
                         </div>
                     </Transition>
                 </div>
+                <LoadingCover text="Connecting..."></LoadingCover>
             </PanelBody>
-            <LoadingCover text="Connecting..."></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>
