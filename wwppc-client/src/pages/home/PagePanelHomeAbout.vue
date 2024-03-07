@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import LargeGlitchCenterText from '@/components/LargeGlitchCenterText.vue';
-import { HeaderedThable } from '@/components/ui-defaults/UIContainers';
+import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
+import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
     <div class="centered">
-        <LargeGlitchCenterText text="WWPPC Team" style="font: bold 48px 'Source Code Pro'; color: lime;" :delay=10></LargeGlitchCenterText>
+        <GlitchText text="WWPPC Team" color="lime" font-size="80px" :delay=10></GlitchText>
     </div>
     <HeaderedTable width="50%" :content="{
-        headers: ['Arav Maheria'], //spaghetti moment
-        data: [
-            ['Erik Ji'],
-            ['Jie Gao'], 
-            ['Maitian Sha'],
-            ['Rishkesh Anabathula'],
-            ['Suvanth Erranki'],
-            ['Vikram Karamsetty'],
-        ],
-        generator: (row, col, data) => ({ text: `${data}`}),
-    }"></HeaderedTable>
+            headers: ['Arav Maheria'], //spaghetti moment
+            data: [
+                ['Erik Ji'],
+                ['Jie Gao'],
+                ['Maitian Sha'],
+                ['Rishkesh Anabathula'],
+                ['Suvanth Erranki'],
+                ['Vikram Karamsetty'],
+            ],
+            generator: (row, col, data) => ({ text: `${data}` }),
+        }"></HeaderedTable>
 </template>
 
-<style>
-</style>
+<style></style>

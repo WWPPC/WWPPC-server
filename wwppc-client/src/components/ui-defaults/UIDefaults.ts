@@ -10,6 +10,8 @@ import UILoadingSpinner from './UILoadingSpinner.vue';
 import UILoadingSquare from './UILoadingSquare.vue';
 import FullscreenModal, { ModalMode, type ModalParams } from './FullscreenModal.vue';
 import UIDivider from './UIDivider.vue';
+import GlowText from './text/GlowText.vue';
+import GlitchText from './text/GlitchText.vue';
 export {
     UIButton,
     UITextBox,
@@ -23,7 +25,9 @@ export {
     UILoadingSquare,
     FullscreenModal,
     ModalMode,
-    UIDivider
+    UIDivider,
+    GlowText,
+    GlitchText
 }
 
 import { defineStore } from 'pinia';

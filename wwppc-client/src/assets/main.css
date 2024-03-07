@@ -30,6 +30,7 @@ img {
 ::selection {
     background-color: rgba(0, 255, 0, 0.7);
     color: black;
+    text-shadow: none;
 }
 
 .centered {
