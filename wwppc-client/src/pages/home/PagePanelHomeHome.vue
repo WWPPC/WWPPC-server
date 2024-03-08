@@ -7,15 +7,15 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
 <template>
     <div class="fullBlock pagePanelHomeBlock1">
         <div class="centered">
-            <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 :random=true></GlitchText>
+            <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
         </div>
-        <AnimateInContainer type="slideUp" style="flex-grow: 1;">
-            <div class="pagePanelHomeSideBySide">
+        <div class="pagePanelHomeSideBySide">
+            <AnimateInContainer type="slideUp" :delay=300>
                 <CutCornerContainer>
                     <CenteredContainer style="height: 100%">
                         <div class="pagePanelHomeVerticalAlign">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWPIT" font-size="min(7vh, calc(50vw / 5))" glow shadow color="lime"></GlitchText>
+                                <GlitchText text="WWPIT" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
                                 <p style="font-size: 20px;">
@@ -23,16 +23,20 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                                 </p>
                             </div>
                             <div class="centered">
-                                <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="20px" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=500>
+                                    <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="20px" color="lime"></UILinkButton>
+                                </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
                 </CutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" :delay=400>
                 <CutCornerContainer animate-in="slideUp">
                     <CenteredContainer>
                         <div class="pagePanelHomeVerticalAlign">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWPHacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow></GlitchText>
+                                <GlitchText text="WWPHacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
                                 <p style="font-size: 20px;">
@@ -40,15 +44,19 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                                 </p>
                             </div>
                             <div class="centered">
-                                <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="20px" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=600>
+                                    <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="20px" color="lime"></UILinkButton>
+                                </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
                 </CutCornerContainer>
-            </div>
-        </AnimateInContainer>
+            </AnimateInContainer>
+        </div>
         <div class="centered pagePanelHomeScrollIndicatorWrapper">
-            <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
+            <AnimateInContainer type="fade" :delay=1000>
+                <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
+            </AnimateInContainer>
         </div>
     </div>
     <div class="fullBlock">
@@ -73,6 +81,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
     grid-template-columns: 1fr 1fr;
     row-gap: 24px;
     column-gap: 24px;
+    flex-grow: 1;
 }
 
 @media (max-width: 100vh) {
@@ -80,6 +89,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
         grid-template-columns: 1fr;
         grid-template-rows: 1fr 1fr;
     }
+
     .pagePanelHomeScrollIndicatorWrapper {
         display: none;
     }

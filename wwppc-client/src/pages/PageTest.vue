@@ -78,7 +78,7 @@ const thing2 = ref<any>([]);
                 <br>
                 <br>
                 <br>
-                <AnimateInContainer type="slideUp">
+                <AnimateInContainer type="slideUp" :delay=1000>
                         <TitledCutCornerContainer title="FADE IN">
                             HI HI HI HI HI HI HI<br>
                             hi<br>

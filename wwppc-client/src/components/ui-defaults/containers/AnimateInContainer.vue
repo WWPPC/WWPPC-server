@@ -6,11 +6,12 @@ defineProps<{
 }>();
 </script>
 <script lang="ts">
-export type AnimateInType = 'fadeIn' | 'slideUp';
+export type AnimateInType = 'fade' | 'slideUp';
 export default {
     mounted() {
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
+                this.$el.classList.remove(`${this.$props.type}OnLoad`);
                 setTimeout(() => {
                     this.$el.classList.remove('invisible');
                     this.$el.classList.add(`${this.$props.type}OnLoad`);
@@ -25,6 +26,7 @@ export default {
             }
         }, { threshold: 0 });
         observer2.observe(this.$el);
+        this.$el.classList.add('invisible');
     }
 }
 </script>
