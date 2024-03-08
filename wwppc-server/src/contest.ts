@@ -9,8 +9,7 @@ export class ContestManager {
     private database: Database = new Database("tempURL", "tempKey", this.logger);
     public problemCache: Array<Problem> | undefined;
     public static readonly FILE_SIZE_CAP = 1e4; 
-    // controls contest buh
-    // all socketio connections are put here
+    // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
     // uses database to get problems and then caches them
     // also prevent people from opening the contest page multiple times

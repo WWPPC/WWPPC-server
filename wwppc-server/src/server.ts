@@ -1,5 +1,8 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
+import { configDotenv } from 'dotenv';
+configDotenv();
+
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
@@ -41,8 +44,13 @@ if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.
 }
 app.get('/wakeup', (req, res) => res.json('ok'));
 
-import Database from './database';
-const database = new Database(process.env.DATABASE_URL ?? require('../config/local-database.json').uri, process.env.DATABASE_KEY ?? require('../config/local-database.json').key, logger);
+// verify environment variables exist
+if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
+    throw new Error('Missing environment variables. Make sure your .env is set up correctly!');
+}
+
+import Database, { AccountOpResult } from './database';
+const database = new Database(process.env.DATABASE_URL, process.env.DATABASE_KEY, logger);
 config.port = process.env.PORT ?? config.port;
 
 import ContestManager from './contest';
@@ -108,14 +116,45 @@ io.on('connection', async (s) => {
             const e = await database.RSAdecode(creds.email);
             if (u instanceof Buffer || p instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
-                socket.emit('credentialRes', 3);
+                socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
             if (typeof u != 'string' || typeof p != 'string' || (creds.action == 1 && (typeof e != 'string' || typeof creds.token != 'string')) || !database.validate(u, p)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            // validate captcha here
+            if (creds.action == 1) {
+                // verify recaptcha with an unnecessarily long bit of HTTP request code
+                const recaptchaResponse: any = await new Promise((resolve, reject) => {
+                    const req = http.request('https://www.google.com/recaptcha/api/siteverify', {
+                        method: 'POST'
+                    }, (res) => {
+                        if (res.statusCode == 200) {
+                            res.on('error', (err) => reject('HTTPS POST response decode error: ' + err.message));
+                            let chunks: Buffer[] = [];
+                            res.on('data', (chunk) => chunks.push(chunk));
+                            res.on('end', () => {
+                                resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+                            });
+                        } else {
+                            reject('HTTPS POST returned status ' + res.statusCode);
+                        }
+                    });
+                    req.on('error', (err) => {
+                        reject('HTTPS POST request error: ' + err);
+                    });
+                    req.write(JSON.stringify({secret: process.env.RECAPTCHA_SECRET, response: creds.token}))
+                }).catch((err) => {
+                    logger.error('ReCaptcha verification failed:');
+                    logger.error(err);
+                    return; // make sure recaptchaResponse is undefined
+                });
+                if (recaptchaResponse == undefined || recaptchaResponse.success !== true) {
+                    socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
+                    resolve(true);
+                    return;
+                }
+            }
             const res = await (creds.action ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
             socket.emit('credentialRes', res);
             if (res == 0) {
@@ -125,8 +164,7 @@ io.on('connection', async (s) => {
         });
     })) return;
     if (config.superSecretSecret) socket.emit('superSecretMessage');
-    // add rest of stuff here
-    // including submissions oof
+    // TODO: add rest of stuff, add to contest manager instance
 });
 let connectionKickDecrementer = setInterval(function () {
     recentConnections.forEach((val, key) => {
