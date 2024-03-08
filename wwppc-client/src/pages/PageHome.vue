@@ -7,13 +7,13 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 </script>
 
 <template>
-    <PanelView name="home" :is-default=true>
+    <PanelView name="home" title="WWPPC" is-default>
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="Home" for="/home/home" :is-default=true></PanelNavButton>
-                <PanelNavButton text="WWP-Hacks" for="/hackathon"></PanelNavButton>
-                <PanelNavButton text="WWP-IT" for="/contest"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home/home" is-default></PanelNavButton>
+                <PanelNavButton text="WWPHacks" for="/hackathon"></PanelNavButton>
+                <PanelNavButton text="WWPIT" for="/contest"></PanelNavButton>
                 <PanelNavButton text="About" for="/home/about"></PanelNavButton>
                 <PanelNavButton text="Test Page" for="/test"></PanelNavButton>
             </PanelNavList>
@@ -22,10 +22,10 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home" :is-default=true>
+            <PanelBody name="home" title="Home" is-default>
                 <PagePanelHomeHome></PagePanelHomeHome>
             </PanelBody>
-            <PanelBody name="about">
+            <PanelBody name="about" title="About">
                 <PagePanelHomeAbout></PagePanelHomeAbout>
             </PanelBody>
         </PanelMain>

@@ -12,6 +12,8 @@
     src: url(./Jura.ttf);
 }
 
+
+
 body {
     font-family: 'Source Code Pro', Courier, monospace;
     background-color: black;
@@ -28,6 +30,7 @@ img {
 ::selection {
     background-color: rgba(0, 255, 0, 0.7);
     color: black;
+    text-shadow: none;
 }
 
 .centered {
@@ -35,6 +38,10 @@ img {
     display: flex;
     justify-content: center;
     text-align: center;
+}
+
+.invisible {
+    visibility: hidden;
 }
 
 .hidden {
@@ -45,6 +52,9 @@ img {
     width: 100%;
     min-height: 100%;
     margin-bottom: 32px;
+    scroll-snap-align: start;
+    scroll-margin-top: 16px;
+    scroll-margin-bottom: 16px;
 }
 
 .fullBlock:last-child {
@@ -54,6 +64,7 @@ img {
 h1 {
     font-size: 48px;
     font-weight: bold;
+    font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
     margin: 0.2em 0px;
 }
@@ -61,12 +72,14 @@ h1 {
 h2 {
     font-size: 32px;
     font-weight: bold;
+    font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
     margin: 0.2em 0px;
 }
 
 p {
     font-size: 16px;
+    margin: 8px 8px;
 }
 
 b {
@@ -75,6 +88,10 @@ b {
 
 i {
     font-style: italic;
+}
+
+a {
+    color: lime;
 }
 
 code {
@@ -114,6 +131,8 @@ code {
     }
 
     *::-webkit-scrollbar-button {
+        width: 16px;
+        height: 16px;
         background-color: #222;
     }
 
@@ -151,5 +170,35 @@ code {
 @supports (not (selector(::-webkit-scrollbar))) {
     * {
         scrollbar-color: #555 #222;
+    }
+}
+
+.fadeOnLoad {
+    animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;
+}
+
+@keyframes fade-in-on-load {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.slideUpOnLoad {
+    animation: 500ms cubic-bezier(0, 0, 0.5, 1) slide-up-on-load;
+}
+
+@keyframes slide-up-on-load {
+    from {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: initial;
     }
 }

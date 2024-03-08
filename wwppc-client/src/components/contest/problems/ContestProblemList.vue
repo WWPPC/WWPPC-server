@@ -7,6 +7,7 @@ import ContestProblemListRound from './ContestProblemListRound.vue';
 // in the meantime just put a loading spinner (i should probably make one of those)
 
 const rounds: ContestRound[] = [];
+//hard code BAD
 rounds.push({
     division: 0,
     number: 0,
@@ -41,6 +42,16 @@ rounds.push({
             content: 'sdfdsffsdsfsdfdsfdsfsdffds<br>dsfdsfdsfds<br>dsflkjdsfjl<br>slkjfdlkdsflkjds<br>dsflfds',
             constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.SUBMITTED
+        },
+        {
+            division: 0,
+            round: 0,
+            number: 3,
+            name: 'Test 3',
+            author: 'SP^2',
+            content: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeEeEeEeEeEeEeEeEeEeEeEeEeEe',
+            constraints: { time: 2000, memory: 512 },
+            status: ContestProblemCompletionState.GRADED_PARTIAL
         }
     ]
 }, {
@@ -67,6 +78,16 @@ rounds.push({
             content: 'aaaaa<br>bromine moment<br>ooop',
             constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.NOT_UPLOADED
+        },
+        {
+            division: 0,
+            round: 1,
+            number: 2,
+            name: 'Test 2',
+            author: 'SP^2',
+            content: 'oooooooooooooooof',
+            constraints: { time: 4000, memory: 512 },
+            status: ContestProblemCompletionState.ERROR
         }
     ]
 });
@@ -75,7 +96,7 @@ rounds.push({
 <template>
     <div class="contestProblemListWrapperWrapper centered">
         <div class="contestProblemListWrapper">
-            <TitledAngleContainer title="Problems">
+            <TitledAngleContainer title="Problems" height="100%">
                 <div class="contestProblemList">
                     <ContestProblemListRound v-for="round in rounds" :key="round.number" :data="round"></ContestProblemListRound>
                 </div>

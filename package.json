@@ -1,5 +1,25 @@
 {
-  "devDependencies": {
-    "@types/node": "^20.11.24"
-  }
+    "dependencies": {
+    },
+    "scripts": {
+        "install": "cd wwppc-server && npm install && cd ../wwppc-client && npm install",
+        "build": "cd wwppc-server && npx tsc && cd ../wwppc-client && npm run build",
+        "start": "node wwppc-server/build/server.js",
+        "compilerun": "cd wwppc-server && npx tsc && node build/server.js",
+        "deploy": "npm run build && firebase deploy --only hosting"
+    },
+    "name": "wwppc",
+    "version": "1.0.0",
+    "description": "WWP-Hacks and WWP-PC in one!",
+    "main": "wwppc-server/src/server.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/spsquared/CSI-thing.git"
+    },
+    "author": "spsquared",
+    "license": "GPL-3.0",
+    "bugs": {
+        "url": "https://github.com/spsquared/CSI-thing/issues"
+    },
+    "homepage": "https://github.com/spsquared/CSI-thing"
 }

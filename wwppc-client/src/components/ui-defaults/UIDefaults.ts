@@ -1,10 +1,17 @@
 import UIButton from './UIButton.vue';
-import UILinkButton from './UILinkButton.vue';
 import UITextBox from './UITextBox.vue';
 import UINumberBox from './UINumberBox.vue';
 import UIToggle from './UIToggle.vue';
 import UIDropdown from './UIDropdown.vue';
+import UILinkButton from './UILinkButton.vue';
+import UIImage from './UIImage.vue';
+import UILoadingBar from './UILoadingBar.vue';
+import UILoadingSpinner from './UILoadingSpinner.vue';
+import UILoadingSquare from './UILoadingSquare.vue';
 import FullscreenModal, { ModalMode, type ModalParams } from './FullscreenModal.vue';
+import UIDivider from './UIDivider.vue';
+import GlowText from './text/GlowText.vue';
+import GlitchText from './text/GlitchText.vue';
 export {
     UIButton,
     UITextBox,
@@ -12,8 +19,15 @@ export {
     UIToggle,
     UIDropdown,
     UILinkButton,
+    UIImage,
+    UILoadingBar,
+    UILoadingSpinner,
+    UILoadingSquare,
     FullscreenModal,
-    ModalMode
+    ModalMode,
+    UIDivider,
+    GlowText,
+    GlitchText
 }
 
 import { defineStore } from 'pinia';

@@ -1,13 +1,42 @@
 <script setup lang="ts">
+import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
+import { ShowOnscreenContainer } from '@/components/ui-defaults/UIContainers';
+import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
-    Hey! This page isn't finished. Check back later for updates!
-    <br><br>
-    sp^2: made the whole website because nobody else bothered to learn vue
-    <br><br>
-    If you're wondering where the round corners and fancy animations are, I have something to tell you:
-    <br>
-    That's not part of the theme. There will be no round corners and everything will be white-on-black with red-green
-    accents.
+    <div class="fullBlock">
+        <div class="centered">
+            <GlitchText text="About WWPPC" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+        </div>
+    </div>
+    <div class="fullBlock">
+        <div class="centered">
+            <ShowOnscreenContainer single>
+                <GlitchText text="WWPPC Team" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+            </ShowOnscreenContainer>
+        </div>
+        <br>
+        <br>
+        <div class="aboutCreditsTable">
+            <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead, Lead Problem Setter, Backend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Jie Gao" roles="Lead Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Vikram Karamsetty" roles="Frontend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Arav Maheria" roles="oof" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
+        </div>
+    </div>
 </template>
+
+<style scoped>
+.aboutCreditsTable {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    width: 100%;
+    justify-items: center;
+    row-gap: 16px;
+    column-gap: 16px;
+}
+</style>

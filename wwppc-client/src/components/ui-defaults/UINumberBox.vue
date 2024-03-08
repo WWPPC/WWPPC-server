@@ -6,7 +6,7 @@ const props = defineProps<{
     max?: number
     step?: number
     defaultValue?: number
-    highlightInvalid?: number
+    highlightInvalid?: boolean
     title?: string
     width?: string
     height?: string
@@ -57,7 +57,7 @@ defineExpose({
 }
 
 .uiNumberBox:disabled {
-    background-color: #888;
+    border-color: #888 !important;
     cursor: not-allowed;
 }
 </style>

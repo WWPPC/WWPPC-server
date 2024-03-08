@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 
 const props = defineProps<{
@@ -8,6 +8,7 @@ const props = defineProps<{
     width?: string
     height?: string
     font?: string
+    fontSize?: string
     color?: string
     backgroundColor?: string
     type?: 'button' | 'submit'
@@ -24,26 +25,28 @@ const buttonText = ref(props.glitchOnMount ? props.text.replace(/./g, ' ') : pro
 if (props.glitchOnMount) {
     onMounted(() => {
         glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 1, 15, 1);
-    })
+    });
 }
+watch(() => props.text, () => buttonText.value = props.text);
 </script>
 
 <template>
-    <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=title>
+    <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=props.title>
 </template>
 
 <style>
 .uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? '32px'");
+    height: v-bind("$props.height ?? 'initial'");
     margin: 0px 4px;
-    padding: 0px 4px;
+    padding: 0.2em 0.2em;
     border: 4px solid white;
     border-radius: 0px;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
+    font-size: v-bind("$props.fontSize ?? '16px'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease transform, 50ms ease border-color;
     cursor: pointer;

@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
+import { setTitlePanel } from '@/scripts/title';
+import { watch, nextTick, getCurrentInstance } from 'vue';
 const route = useRoute();
 const props = defineProps<{
     name: string
+    title?: string
     isDefault?: boolean
 }>();
+
+const instance = getCurrentInstance();
+watch(() => route.params, async () => {
+    await nextTick();
+    if (instance?.isMounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
+});
 </script>
 
 <template>
@@ -17,6 +26,9 @@ const props = defineProps<{
                 <div class="panelBodyTransitionWipe">
                     <img class="panelBodyTransitionWipeImg" src="/icon.svg">
                 </div>
+            </div>
+            <div class="panelBodyCopyrightNotice">
+                Copyright &copy; 2024 WWPPC
             </div>
         </div>
     </Transition>
@@ -44,6 +56,7 @@ const props = defineProps<{
     font-family: 'Jura', sans-serif;
     font-size: 16px;
     background-color: black;
+    /* scroll-snap-type: y proximity; */
     overflow-y: auto;
 }
 
@@ -75,6 +88,16 @@ const props = defineProps<{
     max-height: 30%;
 }
 
+.panelBodyCopyrightNotice {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 12px;
+    font-family: 'Source Code Pro', Courier, monospace;
+}
+</style>
+
+<style scoped>
 .v-enter-active,
 .v-leave-active {
     transition: 500ms;

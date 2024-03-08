@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-const route = useRoute();
+import { setTitlePage } from '@/scripts/title';
+import { watch, nextTick, getCurrentInstance } from 'vue';
+
 const props = defineProps<{
     name: string
+    title?: string
     isDefault?: boolean
 }>();
+
+const route = useRoute();
+
+const instance = getCurrentInstance();
+watch(() => route.params, async () => {
+    await nextTick();
+    if (instance?.isMounted && (route.params.page == props.name || (route.params.page == undefined && props.isDefault))) setTitlePage(props.title ?? '');
+});
 </script>
 
 <template>
@@ -25,14 +36,6 @@ const props = defineProps<{
     left: 0px;
     width: 100vw;
     height: 100vh;
-}
-
-.v-enter-active {
-    animation: panel-transition-in 500ms linear;
-}
-
-.v-leave-active {
-    animation: panel-transition-out 500ms linear;
 }
 
 @keyframes panel-wipe-vertical {
@@ -89,5 +92,15 @@ const props = defineProps<{
     100% {
         visibility: hidden;
     }
+}
+</style>
+
+<style scoped>
+.v-enter-active {
+    animation: panel-transition-in 500ms linear;
+}
+
+.v-leave-active {
+    animation: panel-transition-out 500ms linear;
 }
 </style>

@@ -6,10 +6,12 @@ wwppc-server/config/.local
 
 # Vite
 *.vite
+vite.config.ts.timestamp*
 
 # Builds and stuff
 dist/
 build/
+*.cache
 
 # Logs
 logs

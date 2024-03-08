@@ -5,8 +5,10 @@ const props = defineProps<{
     width?: string
     height?: string
     font?: string
+    fontSize?: string
     color?: string
     backgroundColor?: string
+    disabled?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -17,9 +19,10 @@ function click() {
 </script>
 
 <template>
-    <label class="uiLinkButtonLabel">
-        <input type="button" class="uiLinkButton" @click=click :title=title>
-        {{ props.text }}
+    <!-- i don't like <button> tags -->
+    <label :class="'uiLinkButtonLabel ' + (props.disabled ? 'uiLinkButtonLabelDisabled' : '')">
+        <input type="button" class="uiLinkButton" @click=click :title=title :disabled=props.disabled>
+        <span class="uiLinkButtonText">{{ props.text }}</span>
         <div class="uiLinkButtonArrow"></div>
     </label>
 </template>
@@ -28,19 +31,25 @@ function click() {
 .uiLinkButtonLabel {
     display: flex;
     box-sizing: border-box;
-    width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? '32px'");
+    width: v-bind("$props.width ?? 'min-content'");
+    height: v-bind("$props.height ?? 'initial'");
     border: 4px solid white;
     margin: 0px 4px;
-    padding: 0px 4px;
+    padding: 0.2em 0.2em;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
+    font-size: v-bind("$props.fontSize ?? '16px'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease background-position, 50ms ease background-color, 50ms ease transform, 50ms ease border-color;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    user-select: none;
+}
+
+.uiLinkButtonText {
+    text-wrap: nowrap;
 }
 
 .uiLinkButtonLabel:hover {
@@ -51,12 +60,6 @@ function click() {
 .uiLinkButtonLabel:active {
     transform: translateY(2px);
     border-color: red;
-}
-
-.uiLinkButtonLabel:disabled {
-    background-color: gray !important;
-    transform: none !important;
-    cursor: not-allowed;
 }
 
 .uiLinkButton {
@@ -73,11 +76,23 @@ function click() {
     background-image: url(/assets/arrow-right.svg);
     transition: 200ms ease background-position;
 }
+
 .uiLinkButtonLabel:hover .uiLinkButtonArrow {
     background-position: right;
 }
+
 .uiLinkButtonLabel:active .uiLinkButtonArrow {
     transition: 500ms ease background-position;
     background-position: 500% 0%;
+}
+
+.uiLinkButtonLabelDisabled {
+    border-color: gray !important;
+    transform: none !important;
+    cursor: not-allowed;
+}
+
+.uiLinkButtonLabelDisabled .uiLinkButtonArrow {
+    background-position: left !important;
 }
 </style>

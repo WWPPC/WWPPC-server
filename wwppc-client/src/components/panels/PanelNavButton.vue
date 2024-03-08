@@ -17,10 +17,11 @@ const router = useRouter();
 function click() {
     emit('click');
     if (props.link) window.location.replace(props.for);
-    else router.push(props.for)
+    else router.push(props.for);
 }
+
 // animations for hover
-const buttonText = ref(props.text.replace(/./g, ' '));
+const buttonText = ref(props.text.replace(/./g, ' '));
 let blockingAnimation: AsyncTextTransition | null = null;
 let currentAnimation: AsyncTextTransition | null = null;
 function mouseover() {

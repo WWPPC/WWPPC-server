@@ -3,6 +3,7 @@ import { ref } from 'vue';
 
 const props = defineProps<{
     defaultValue?: string
+    highlightInvalid?: boolean
     title?: string
     width?: string
     height?: string
@@ -51,8 +52,12 @@ defineExpose({
     border-color: red;
 }
 
+.uiTextBox:invalid {
+    border-color: v-bind("$props.highlightInvalid ? 'yellow' : ''");
+}
+
 .uiTextBox:disabled {
-    background-color: #888;
+    border-color: #888 !important;
     cursor: not-allowed;
 }
 </style>

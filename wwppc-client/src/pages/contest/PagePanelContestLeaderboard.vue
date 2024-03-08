@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
     Hey! This page isn't finished. Check back later for updates!
     <br><br>

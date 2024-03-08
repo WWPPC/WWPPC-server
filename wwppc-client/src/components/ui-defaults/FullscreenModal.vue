@@ -63,7 +63,8 @@ defineExpose({ showModal });
 export const enum ModalMode {
     NOTIFY = 0,
     CONFIRM = 1,
-    QUERY = 2
+    QUERY = 2,
+    INPUT = 3
 }
 export interface ModalParams {
     title: string
@@ -85,15 +86,15 @@ export interface ModalParams {
                     <br>
                 </span>
                 <div class="modalButtons">
-                    <span v-if="modal.mode == ModalMode.CONFIRM">
-                        <UIButton text="YES" @click=modalResolve width="80px" background-color="#0D0"></UIButton>
-                        <UIButton text="NO" @click=modalReject width="80px" background-color="#D00"></UIButton>
+                    <span v-if="modal.mode == ModalMode.QUERY">
+                        <UIButton text="YES" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
+                        <UIButton text="NO" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
                     </span>
                     <span v-else>
-                        <span v-if="modal.mode == ModalMode.QUERY">
-                            <UIButton text="CANCEL" @click=modalReject width="80px"></UIButton>
+                        <span v-if="modal.mode == ModalMode.INPUT || modal.mode == ModalMode.CONFIRM">
+                            <UIButton text="CANCEL" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
                         </span>
-                        <UIButton text="OK" @click=modalResolve width="80px"></UIButton>
+                        <UIButton text="OK" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
                     </span>
                 </div>
             </div>
@@ -132,6 +133,7 @@ export interface ModalParams {
 .modalBody {
     flex-grow: 1;
     display: inline-block;
+    min-width: 0px;
     padding: 4px 16px;
     background-color: black;
     clip-path: polygon(30px 0%, 100% 0%, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0% 100%, 0% 30px);
@@ -147,4 +149,10 @@ export interface ModalParams {
     margin: 8px 0px;
     margin-bottom: 16px;
 }
-</style>
+
+@media (max-width: 600px) {
+    .modalBody h1 {
+        font-size: 32px;
+    }
+}
+</style>./ui-defaults/TextTransitions./ui-defaults/UIDefaults./TextTransitions./UIDefaults

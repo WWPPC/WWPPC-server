@@ -3,7 +3,8 @@
 import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 const salt = 5;
-import { subtle, webcrypto } from 'crypto';
+import { subtle } from 'crypto';
+import Cryptr from 'cryptr';
 import Logger from './log';
 
 /**
@@ -11,36 +12,42 @@ import Logger from './log';
  */
 export class Database {
     #ready = false;
-    #connectPromise;
-    #db;
-    #keys = subtle.generateKey({
+    #connectPromise: Promise<boolean | undefined>;
+    #db: Client;
+    #cryptr: Cryptr;
+    #rsaKeys = subtle.generateKey({
         name: "RSA-OAEP",
         modulusLength: 2048,
         publicExponent: new Uint8Array([1, 0, 1]),
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
     #publicKey;
+    #logger: Logger;
 
     /**
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      * @param {Logger} logger Logging instance
      */
-    constructor(uri: string, logger: Logger) {
+    constructor(uri: string, key: string, logger: Logger) {
+        this.#logger = logger;
         this.#connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server'
         });
+        this.#cryptr = new Cryptr(key);
         this.#connectPromise = this.#db.connect().catch((err) => {
             logger.fatal('Could not connect to database:');
             logger.fatal(err);
+            logger.fatal('Host: ' + this.#db.host);
             logger.destroy();
             process.exit();
         }).then(async () => {
-            this.#publicKey = await subtle.exportKey('jwk', (await this.#keys).publicKey);
-        }).then(this.#ready = true);
+            this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
+        }).then(() => this.#ready = true);
         this.#connectPromise.then(() => {
             logger.info('Database connected');
+            logger.debug('Connected to: ' + this.#db.host);
             // database keepalive
             let keepAlive = setInterval(() => {
                 this.#db.query('BEGIN; END');
@@ -52,7 +59,8 @@ export class Database {
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
-            logger.fatal(err);
+            logger.fatal(err.message);
+            if (err.stack) logger.fatal(err.stack);
             logger.destroy();
             process.exit();
         });
@@ -70,9 +78,9 @@ export class Database {
      */
     async RSAdecode(buf: Buffer | string) {
         try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
+            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
-            console.error(err);
+            this.#logger.error('' + err);
             return buf;
         }
     }
@@ -82,17 +90,17 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     disconnect() {
-        return this.#db.end().then(this.#ready = false);
+        return this.#db.end().then(() => this.#ready = false);
     }
     /**
      * @type {boolean}
      */
-    get ready() { return this.#ready; }
+    get ready(): boolean { return this.#ready; }
     /**
      * @type {Promise<undefined>}
      * Resolves when database is connected.
      */
-    get connectPromise() { return this.#connectPromise; }
+    get connectPromise(): Promise<undefined | boolean> { return this.#connectPromise; }
 
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
@@ -101,57 +109,99 @@ export class Database {
      * @returns {boolean} Validity
      */
     validate(username: string, password: string): boolean {
-        return username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
+        return username.trim().length <= 16 && password.trim().length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {0 | 1 | 4} Creation status: 0 - success | 1 - already exists | 4 - database error
+     * @returns {AccountOpResult} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
-    async createAccount(username: string, password: string): Promise<0 | 1 | 4> {
+    async createAccount(username: string, password: string, email: string): Promise<AccountOpResult> {
         try {
-            const encrypted = await bcrypt.hash(password, salt);
+            const encryptedUsername = this.#cryptr.encrypt(username);
+            const encryptedPassword = await bcrypt.hash(password, salt);
+            const encryptedEmail = this.#cryptr.encrypt(email);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
-            if (data.rowCount > 0) return 1;
-            else await this.#db.query('INSERT INTO users (username, password) VALUES ($1, $2);', [username, encrypted]);
-            return 0;
+            if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
+            else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3);', [encryptedUsername, encryptedPassword, encryptedEmail]);
+            this.#logger.info(`[Database] Created account "${username}"`, true);
+            return AccountOpResult.SUCCESS;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
-            return 4;
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
+            return AccountOpResult.ERROR;
         }
     }
     /**
      * Check credentials against an existing account with the specified username. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
-     * @returns {0 | 2 | 3 | 4} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @returns {AccountOpResult} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async checkAccount(username: string, password: string): Promise<0 | 2 | 3 | 4> {
+    async checkAccount(username: string, password: string): Promise<AccountOpResult> {
         try {
-            const data = await this.#db.query('SELECT password FROM users WHERE username=$1;', [username]);
-            if (data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? 0 : 3;
-            return 2;
+            const encryptedUsername = this.#cryptr.encrypt(username);
+            const data = await this.#db.query('SELECT password FROM users WHERE username=$1;', [encryptedUsername]);
+            if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
+            return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
-            return 4;
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
+            return AccountOpResult.ERROR;
         }
     }
     /**
-     * Delete an account. **Does not validate credentials**.
+     * Delete an account. Allows deletion by users and admins with permission level `AdminPerms.MANAGE_ACCOUNTS` if `adminUsername` is given. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {string} adminpassword The admin password
-     * @returns {0 | 2 | 3 | 4} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @param {string} password Valid password of user, or admin password if `adminUsername` is given
+     * @param {string} adminUsername Valid username of administrator
+     * @returns {AccountOpResult} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect or no permission | 4 - database error
      */
-    async deleteAccount(username: string, adminpassword: string): Promise<0 | 2 | 3 | 4> {
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult> {
         try {
-            return 3;
+            if (adminUsername != undefined) {
+                this.#logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
+                const res = this.checkAccount(adminUsername, password);
+                const encryptedUsername = this.#cryptr.encrypt(username); // wow so fast
+                if ((await res) != AccountOpResult.SUCCESS) return await res;
+                if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
+                const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [encryptedUsername]); // still have to check account exists
+                if (data.rowCount == null || data.rowCount == 0) return AccountOpResult.NOT_EXISTS;
+                await this.#db.query('DELETE FROM users WHERE username=$1;', [encryptedUsername]);
+                this.#logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
+                return AccountOpResult.SUCCESS;
+            } else {
+                const res = this.checkAccount(username, password);
+                const encryptedUsername = this.#cryptr.encrypt(username);
+                if ((await res) != AccountOpResult.SUCCESS) return await res;
+                await this.#db.query('DELETE FROM users WHERE username=$1;', [encryptedUsername]);
+                this.#logger.info(`[Database] Deleted account ${username}`, true);
+                return AccountOpResult.SUCCESS;
+            }
+            return AccountOpResult.INCORRECT_CREDENTIALS;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
-            return 4;
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
+            return AccountOpResult.ERROR;
+        }
+    }
+
+    /**
+     * Check if an administrator has a certain permission.
+     * @param username Valid administrator username
+     * @param flag Permission flag to check against
+     * @returns {boolean} If the administrator has the permission. Also false if the user is not an administrator.
+     */
+    async hasPerms(username: string, flag: AdminPerms): Promise<boolean> {
+        try {
+            const encryptedUsername = this.#cryptr.encrypt(username);
+            const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [encryptedUsername]);
+            return data.rowCount != null && data.rowCount > 0 && (data.rows[0].permissions & flag) != 0;
+        } catch (err) {
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
+            return false;
         }
     }
 
@@ -169,8 +219,8 @@ export class Database {
         try {
             return null;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return null;
         }
     }
@@ -179,17 +229,11 @@ export class Database {
      * @param {Submission} submission Submission to write
      */
     async writeSubmission(submission: Submission): Promise<boolean> {
-        // username: varchar
-        // probRound: smallint
-        // probNum: smallint
-        // file: text
-        // lang: varchar
-        // scores: json
         try {
             return false;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return false;
         }
     }
@@ -231,11 +275,12 @@ export class Database {
             }
             return data2;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return [];
         }
     }
+
     /**
      * lol
      */
@@ -243,13 +288,21 @@ export class Database {
         try {
             return false;
         } catch (err) {
-            console.error('Database error:');
-            console.error(err);
+            this.#logger.error('Database error:');
+            this.#logger.error('' + err);
             return false;
         }
     }
 }
 export default Database;
+
+export enum AccountOpResult {
+    SUCCESS = 0,
+    ALREADY_EXISTS = 1,
+    NOT_EXISTS = 2,
+    INCORRECT_CREDENTIALS = 3,
+    ERROR = 4
+}
 
 /**
  * Descriptor for an account
@@ -316,7 +369,25 @@ export interface Submission {
  * @property {number} memory Memory usage in megabytes
  */
 export interface Score {
-    state: number
+    state: ScoreState
     time: number
     memory: number
+}
+export enum ScoreState {
+    CORRECT = 1,
+    INCORRECT = 2,
+    TIME_LIM_EXCEEDED = 3,
+    MEM_LIM_EXCEEDED = 4,
+    RUNTIME_ERROR = 5
+}
+
+export enum AdminPerms {
+    NO = 0,
+    VIEW_PROBLEMS = 1 << 0,
+    MANAGE_PROBLEMS = 1 << 1,
+    VIEW_ACCOUNTS = 1 << 2,
+    MANAGE_ACCOUNTS = 1 << 3,
+    VIEW_CONTESTS = 1 << 4,
+    MANAGE_CONTESTS = 1 << 5,
+    MANAGE_ADMINS = 1 << 31
 }

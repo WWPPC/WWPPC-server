@@ -9,15 +9,13 @@ const props = defineProps<{
     title?: string
     items: DropdownItem[]
     groupedItems?: { label: string, items: DropdownItem[] }[]
-    multiSelect?: boolean
     width?: string
     height?: string
-    required?: boolean
     default?: string
 }>();
-const selected = ref('');
+const selected = ref<string | string[]>([]);
 const emit = defineEmits<{
-    (e: 'input', value: string): void
+    (e: 'input', value: string | string[]): void
 }>();
 function input() {
     emit('input', selected.value);
@@ -28,7 +26,7 @@ defineExpose({
 </script>
 
 <template>
-    <select class="uiDropdown" @change=input v-model=selected :title=props.title :multiple=props.multiSelect :required=props.required>
+    <select class="uiDropdown" @change=input v-model=selected :title=props.title>
         <option v-for="item in props.items" :key=item.value :value=item.value :selected="item.value == props.default">
             {{ item.text }}
         </option>
@@ -48,6 +46,7 @@ defineExpose({
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'initial'");
     height: v-bind("$props.height ?? '32px'");
+    padding: 0px 4px;
     border: 4px solid white;
     border-radius: 0px;
     color: white;
@@ -55,6 +54,31 @@ defineExpose({
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms linear border-color;
     cursor: pointer;
+}
+
+.uiDropdown option {
+    padding: 0px 4px;
+    background-color: black;
+    cursor: pointer;
+}
+
+.uiDropdown option:nth-child(odd) {
+    background-color: #151515;
+}
+
+.uiDropdown option:checked {
+    color: lime;
+}
+
+.uiDropdown optgroup {
+    padding: 0px 4px;
+    background-color: #222;
+    font-weight: bold;
+}
+
+.uiDropdown[multiple] {
+    padding: 0px 0px;
+    cursor: default;
 }
 
 .uiDropdown:hover {
@@ -66,7 +90,7 @@ defineExpose({
 }
 
 .uiDropdown:disabled {
-    background-color: #888;
+    border-color: gray !important;
     cursor: not-allowed;
 }
 </style>
