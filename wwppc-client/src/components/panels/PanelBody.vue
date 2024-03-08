@@ -56,7 +56,7 @@ watch(() => route.params, async () => {
     font-family: 'Jura', sans-serif;
     font-size: 16px;
     background-color: black;
-    scroll-snap-type: y proximity;
+    /* scroll-snap-type: y proximity; */
     overflow-y: auto;
 }
 

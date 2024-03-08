@@ -6,6 +6,7 @@ import DoubleCutCornerContainer from './containers/DoubleCutCornerContainer.vue'
 import TitledDoubleCutCornerContainer from './containers/TitledDoubleCutCornerContainer.vue';
 import HeaderedTable from './containers/HeaderedTable.vue';
 import AnimateInContainer from './containers/AnimateInContainer.vue';
+import ShowOnscreenContainer from './containers/ShowOnscreenContainer.vue';
 
 export {
     CenteredContainer,
@@ -15,5 +16,6 @@ export {
     DoubleCutCornerContainer,
     TitledDoubleCutCornerContainer,
     HeaderedTable,
+    ShowOnscreenContainer,
     AnimateInContainer
 }

@@ -1,24 +1,40 @@
 <script setup lang="ts">
-import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
+import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
+import { ShowOnscreenContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
-    <div class="centered">
-        <GlitchText text="WWPPC Team" color="lime" font-size="80px" :delay=10></GlitchText>
+    <div class="fullBlock">
+
     </div>
-    <HeaderedTable width="50%" :content="{
-            headers: ['Arav Maheria'], //spaghetti moment
-            data: [
-                ['Erik Ji'],
-                ['Jie Gao'],
-                ['Maitian Sha'],
-                ['Rishkesh Anabathula'],
-                ['Suvanth Erranki'],
-                ['Vikram Karamsetty'],
-            ],
-            generator: (row, col, data) => ({ text: `${data}` }),
-        }"></HeaderedTable>
+    <div class="fullBlock">
+        <div class="centered">
+            <ShowOnscreenContainer>
+                <GlitchText text="WWPPC Team" font-size="80px" color="lime" glow shadow :delay=10></GlitchText>
+            </ShowOnscreenContainer>
+        </div>
+        <br>
+        <br>
+        <div class="aboutCreditsTable">
+            <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead, Lead Problem Setter, Backend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Jie Gao" roles="Lead Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Vikram Karamsetty" roles="Frontend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Arav Maheria" roles="oof" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
+        </div>
+    </div>
 </template>
 
-<style></style>
+<style scoped>
+.aboutCreditsTable {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    width: 100%;
+    justify-items: center;
+    row-gap: 16px;
+    column-gap: 16px;
+}
+</style>

@@ -17,7 +17,7 @@ export default {
                     this.$el.classList.add(`${this.$props.type}OnLoad`);
                 }, this.$props.delay ?? 0);
             }
-        }, { threshold: 0.3 });
+        }, { threshold: 0.2 });
         observer.observe(this.$el);
         const observer2 = new IntersectionObserver(([entry]) => {
             if (!entry.isIntersecting) {
