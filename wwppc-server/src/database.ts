@@ -281,6 +281,12 @@ export class Database {
         }
     }
 
+
+    //JIE implement idk how
+    async getAllProblems() : Promise<Array<Problem>>{
+        return [];
+    }
+
     /**
      * lol
      */
