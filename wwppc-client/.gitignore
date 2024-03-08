@@ -7,13 +7,22 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# npm and builds
 node_modules
-.DS_Store
 dist
 dist-ssr
 coverage
 *.local
 
+# environment variables
+*.env
+*.env.production
+
+# MacOS
+# MAITIAN STOP REMOVING THIS
+.DS_Store
+
+# vue extensions
 /cypress/videos/
 /cypress/screenshots/
 

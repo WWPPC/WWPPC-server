@@ -44,5 +44,5 @@ router.afterEach(() => {
     handledRoute = false;
 });
 app.use(router);
-VueReCaptcha.install(app, { siteKey: process.env.RECAPTCHA_KEY ?? '', loaderOptions: {} });
+VueReCaptcha.install(app, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem', loaderOptions: {} });
 app.mount('#root');
