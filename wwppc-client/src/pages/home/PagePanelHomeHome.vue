@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, HeaderedCollapsible } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UIDefaults";
 </script>
 
@@ -65,6 +65,10 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
             West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
             WWPHacks, will be held eventually in 2024. Join us on <a href="https://discord.gg/rv23HbH7rB">Discord</a>!
         </div>
+        <br>
+        <UIDivider></UIDivider>
+        <br><br>
+        <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
         <!-- we need more here, specifically about what WWPPC is as a whole (mission statement?) -->
         <!-- just copy the discord button from wwphacks or something -->
         <!-- make sure to add row of contact buttons (email?) -->
