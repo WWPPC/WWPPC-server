@@ -29,7 +29,6 @@ export default {
         } else {
             const observer = new IntersectionObserver(([entry]) => {
                 if (entry.isIntersecting) {
-                    this.$el.classList.remove(`${this.$props.type}OnLoad`);
                     setTimeout(() => {
                         this.$el.classList.remove('invisible');
                         this.$el.classList.add(`${this.$props.type}OnLoad`);

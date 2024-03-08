@@ -26,7 +26,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(cors({ origin: '*' }));
-if (process.env.SERVE_STATIC ?? config.serveStatic) {
+if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
     const clientDir = path.resolve(__dirname, './../../wwppc-client/dist');
     const indexDir = path.resolve(clientDir, 'index.html');
     app.use('/', express.static(clientDir));

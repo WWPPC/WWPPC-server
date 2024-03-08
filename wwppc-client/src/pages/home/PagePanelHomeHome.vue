@@ -11,7 +11,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
         </div>
         <div class="homeColumns">
             <AnimateInContainer type="slideUp" :delay=100>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -32,7 +32,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=200>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -69,6 +69,9 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
         <UIDivider></UIDivider>
         <br><br>
         <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
+        <!-- we need more here, specifically about what WWPPC is as a whole (mission statement?) -->
+        <!-- just copy the discord button from wwphacks or something -->
+        <!-- make sure to add row of contact buttons (email?) -->
     </div>
 </template>
 
