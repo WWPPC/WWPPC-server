@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <CutCornerContainer :width=$props.width :height=$props.height :border-color=$props.borderColor>
+    <CutCornerContainer class="cutCornerContainerNoPadding" :width=$props.width :height=$props.height :border-color=$props.borderColor>
         <div class="titledCutCornerContainerTitle">
             <h2>{{ $props.title }}</h2>
         </div>
@@ -23,9 +23,6 @@ defineProps<{
 
 <style>
 .titledCutCornerContainerTitle {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     box-sizing: border-box;
     width: 100%;
     padding-top: 8px;
@@ -36,14 +33,14 @@ defineProps<{
     background-color: #222;
 }
 
+.cutCornerContainerNoPadding>.cutCornerContainer {
+    padding: 0px 0px;
+}
+
 .titledCutCornerContainerBody {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     box-sizing: border-box;
     width: 100%;
     height: calc(100% - 64px);
-    margin-top: 64px;
     padding: 12px 12px;
     overflow-x: hidden;
     overflow-y: auto;

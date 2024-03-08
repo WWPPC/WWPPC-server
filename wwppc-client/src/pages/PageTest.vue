@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { HeaderedTable, TitledCutCornerContainer, TitledAngleContainer } from '@/components/ui-defaults/UIContainers';
+import { HeaderedTable, TitledCutCornerContainer, TitledAngleContainer, AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 
 const modal = ref(FullscreenModal);
 
@@ -59,6 +59,43 @@ const thing2 = ref<any>([]);
                         oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
                     </TitledCutCornerContainer>
                 </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <AnimateInContainer type="slideUp">
+                        <TitledCutCornerContainer title="FADE IN">
+                            HI HI HI HI HI HI HI<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                            hi<br>
+                        </TitledCutCornerContainer>
+                        <span>
+                            second test
+                        </span>
+                </AnimateInContainer>
             </PanelBody>
             <PanelBody name="example" title="Test Page 2">
                 test

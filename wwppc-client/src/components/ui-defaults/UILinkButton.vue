@@ -5,6 +5,7 @@ const props = defineProps<{
     width?: string
     height?: string
     font?: string
+    fontSize?: string
     color?: string
     backgroundColor?: string
     disabled?: boolean
@@ -31,13 +32,14 @@ function click() {
     display: flex;
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'min-content'");
-    height: v-bind("$props.height ?? '32px'");
+    height: v-bind("$props.height ?? 'initial'");
     border: 4px solid white;
     margin: 0px 4px;
-    padding: 0px 4px;
+    padding: 0.2em 0.2em;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
+    font-size: v-bind("$props.fontSize ?? '16px'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease background-position, 50ms ease background-color, 50ms ease transform, 50ms ease border-color;
     align-items: center;

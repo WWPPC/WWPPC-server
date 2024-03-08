@@ -22,6 +22,6 @@ const props = defineProps<{
     text-wrap: nowrap;
     color: v-bind("$props.color ?? 'white'");
     text-shadow: -0.05em 0.05em 0px color-mix(in srgb, currentColor v-bind("$props.shadow ? '40%' : '0%'"), transparent v-bind("$props.shadow ? '60%' : '100%'")),
-        0px 0px 0.03em v-bind("$props.glow ? 'currentColor' : 'transparent'");
+        0px 0px max(2px, 0.03em) v-bind("$props.glow ? 'currentColor' : 'transparent'");
 }
 </style>

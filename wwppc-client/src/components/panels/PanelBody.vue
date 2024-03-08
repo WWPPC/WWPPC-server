@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { setTitlePanel } from '@/scripts/title';
-import { onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { watch, nextTick, getCurrentInstance } from 'vue';
 const route = useRoute();
 const props = defineProps<{
     name: string
@@ -9,13 +9,11 @@ const props = defineProps<{
     isDefault?: boolean
 }>();
 
-let mounted = false;
+const instance = getCurrentInstance();
 watch(() => route.params, async () => {
     await nextTick();
-    if (mounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
+    if (instance?.isMounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
 });
-onMounted(() => mounted = true);
-onBeforeUnmount(() => mounted = false);
 </script>
 
 <template>
@@ -58,6 +56,7 @@ onBeforeUnmount(() => mounted = false);
     font-family: 'Jura', sans-serif;
     font-size: 16px;
     background-color: black;
+    scroll-snap-type: y proximity;
     overflow-y: auto;
 }
 

@@ -14,7 +14,7 @@ defineProps<{
     box-sizing: content-box;
     width: calc(100% - 64px);
     height: 4px;
-    margin: 32px 32px;
+    margin: 8px 32px;
     background-color: v-bind("$props.color ?? 'white'");
 }
 </style>

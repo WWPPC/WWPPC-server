@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import {
-    PanelBody,
-    PanelHeader,
-    PanelMain,
-    PanelNavButton,
-    PanelNavList,
-    PanelRightList,
-    PanelView
-} from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
-import { HeaderedTable } from '@/components/ui-defaults/UIContainers';
-import { GlitchText } from '@/components/ui-defaults/UIDefaults';
+import PagePanelHackathonHome from './hackathon/PagePanelHackathonHome.vue';
 </script>
 
 <template>
@@ -26,53 +17,9 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
                 <UserDisp></UserDisp>
             </PanelRightList>
         </PanelHeader>
-
-
         <PanelMain>
             <PanelBody name="default" title="Home" is-default>
-                <div class="centered column">
-                    <GlitchText text="WWP-HACKS" style="
-            font-weight: bold;
-            font-size: min(calc(50vh - 30px), calc(100vw / 16));
-            text-wrap: nowrap;
-            color: green;;
-            display:flex;
-            flex:.5;
-            text-shadow: 0 0 20px green;
-            " :steps=1 :delay=20>
-                    </GlitchText>
-
-                    <GlitchText text="In Person At: TBD" style="
-          font-weight: bold;
-            font-size: min(calc(50vh - 30px), calc(100vw / 16));
-            text-wrap: nowrap;
-            color: red;;
-            display:flex;
-            flex:.5;
-            text-shadow: 0 0 20px red;
-            " :steps=1 :delay=20>
-                        ">
-                    </GlitchText>
-
-
-                    <!-- Schedule Table -->
-                    <div class="schedule">
-                        <h1>Schedule</h1>
-                        <HeaderedTable width="50%" :content="{
-                headers: [''],
-                data: [
-                    ['asdf'],
-                    ['march']
-                ]
-            }">
-
-                        </HeaderedTable>
-                    </div>
-
-
-
-                </div>
-
+                <PagePanelHackathonHome></PagePanelHackathonHome>
             </PanelBody>
         </PanelMain>
     </PanelView>

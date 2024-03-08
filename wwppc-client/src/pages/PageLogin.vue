@@ -185,7 +185,7 @@ const attemptSignup = async () => {
 .loginLogoFloater {
     display: block;
     height: 30vh;
-    animation: bob 10000ms cubic-bezier(0.7, 0, 0.3, 1) infinite;
+    animation: loginLogoBob 10000ms cubic-bezier(0.7, 0, 0.3, 1) infinite;
 }
 
 .loginFlowHeader {
@@ -224,17 +224,15 @@ const attemptSignup = async () => {
     margin-bottom: 8px;
 }
 
-@keyframes bob {
-    0% {
+@keyframes loginLogoBob {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
 
     50% {
         transform: translateY(-2vh);
-    }
-
-    100% {
-        transform: translateY(0);
     }
 }
 </style>
