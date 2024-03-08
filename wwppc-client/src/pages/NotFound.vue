@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { UIButton } from '@/components/ui-defaults/UIDefaults';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
+import UserDisp from '@/components/UserDisp.vue';
 </script>
 
 <template>
     <div class="notFound">
-        <span style="color: red; font-size: 32px;">BUG: 404 Not Found</span>
-        <br>
-        &lt;span style="color: red;"&gt;IS BORKEN!!!&lt;/span&gt;
+        <span style="color: red; font-size: 50px;">404 Not Found</span>
         <br>
         <br>
         <span>
-            <UIButton text="Magical Fix Button" color="lime" width="200px" @click="$router.push('/')"></UIButton>
+            <UIButton text="Back Home" color="lime" width="200px" @click="$router.push('/')"></UIButton>
         </span>
     </div>
 </template>
