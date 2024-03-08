@@ -6,12 +6,14 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 
 <template>
     <div class="fullBlock">
-
+        <div class="centered">
+            <GlitchText text="About WWPPC" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+        </div>
     </div>
     <div class="fullBlock">
         <div class="centered">
-            <ShowOnscreenContainer>
-                <GlitchText text="WWPPC Team" font-size="80px" color="lime" glow shadow :delay=10></GlitchText>
+            <ShowOnscreenContainer single>
+                <GlitchText text="WWPPC Team" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
             </ShowOnscreenContainer>
         </div>
         <br>

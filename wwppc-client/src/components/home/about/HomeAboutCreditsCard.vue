@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-    <AnimateInContainer type="slideUp">
+    <AnimateInContainer type="slideUp" single>
         <DoubleCutCornerContainer hover-animation="lift">
             <div class="homeAboutCreditsCardContent">
                 <img :src=$props.img class="homeAboutCreditsCardImage">
