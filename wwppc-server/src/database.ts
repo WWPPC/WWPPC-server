@@ -12,31 +12,34 @@ import Logger from './log';
  */
 export class Database {
     #ready = false;
-    #connectPromise: Promise<boolean | undefined>;
-    #db: Client;
-    #cryptr: Cryptr;
-    #rsaKeys = subtle.generateKey({
+    /**
+     * Resolves when database is connected.
+     */
+    readonly connectPromise: Promise<boolean | undefined>;
+    readonly #db: Client;
+    readonly #cryptr: Cryptr;
+    readonly #rsaKeys = subtle.generateKey({
         name: "RSA-OAEP",
         modulusLength: 2048,
         publicExponent: new Uint8Array([1, 0, 1]),
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
     #publicKey;
-    #logger: Logger;
+    readonly logger: Logger;
 
     /**
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      * @param {Logger} logger Logging instance
      */
     constructor(uri: string, key: string, logger: Logger) {
-        this.#logger = logger;
-        this.#connectPromise = new Promise((r) => r(undefined));
+        this.logger = logger;
+        this.connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server'
         });
         this.#cryptr = new Cryptr(key);
-        this.#connectPromise = this.#db.connect().catch((err) => {
+        this.connectPromise = this.#db.connect().catch((err) => {
             logger.fatal('Could not connect to database:');
             logger.fatal(err);
             logger.fatal('Host: ' + this.#db.host);
@@ -45,7 +48,7 @@ export class Database {
         }).then(async () => {
             this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
         }).then(() => this.#ready = true);
-        this.#connectPromise.then(() => {
+        this.connectPromise.then(() => {
             logger.info('Database connected');
             logger.debug('Connected to: ' + this.#db.host);
             // database keepalive
@@ -80,7 +83,7 @@ export class Database {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
-            this.#logger.error('' + err);
+            this.logger.error('' + err);
             return buf;
         }
     }
@@ -96,11 +99,6 @@ export class Database {
      * @type {boolean}
      */
     get ready(): boolean { return this.#ready; }
-    /**
-     * @type {Promise<undefined>}
-     * Resolves when database is connected.
-     */
-    get connectPromise(): Promise<undefined | boolean> { return this.#connectPromise; }
 
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
@@ -125,11 +123,11 @@ export class Database {
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
             else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3);', [encryptedUsername, encryptedPassword, encryptedEmail]);
-            this.#logger.info(`[Database] Created account "${username}"`, true);
+            this.logger.info(`[Database] Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
     }
@@ -146,8 +144,8 @@ export class Database {
             if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
     }
@@ -161,7 +159,7 @@ export class Database {
     async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult> {
         try {
             if (adminUsername != undefined) {
-                this.#logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
+                this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
                 const res = this.checkAccount(adminUsername, password);
                 const encryptedUsername = this.#cryptr.encrypt(username); // wow so fast
                 if ((await res) != AccountOpResult.SUCCESS) return await res;
@@ -169,20 +167,20 @@ export class Database {
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [encryptedUsername]); // still have to check account exists
                 if (data.rowCount == null || data.rowCount == 0) return AccountOpResult.NOT_EXISTS;
                 await this.#db.query('DELETE FROM users WHERE username=$1;', [encryptedUsername]);
-                this.#logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
+                this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = this.checkAccount(username, password);
                 const encryptedUsername = this.#cryptr.encrypt(username);
                 if ((await res) != AccountOpResult.SUCCESS) return await res;
                 await this.#db.query('DELETE FROM users WHERE username=$1;', [encryptedUsername]);
-                this.#logger.info(`[Database] Deleted account ${username}`, true);
+                this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;
             }
             return AccountOpResult.INCORRECT_CREDENTIALS;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
     }
@@ -199,8 +197,8 @@ export class Database {
             const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [encryptedUsername]);
             return data.rowCount != null && data.rowCount > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return false;
         }
     }
@@ -217,10 +215,32 @@ export class Database {
      */
     async readSubmissions(criteria = { username: '*', problemId: '*', problemDiv: '*', problemRound: '*', problemNum: '*' }): Promise<Array<Submission> | null> {
         try {
-            return null;
+            if (criteria.problemId != '*') {
+                let split = criteria.problemId.split('-');
+                if (split.length == 3) {
+                    criteria.problemDiv = split[0];
+                    criteria.problemRound = split[1];
+                    criteria.problemNum = split[2];
+                }
+            }
+            const data = await this.#db.query('SELECT * FROM submissions WHERE username=$1 AND division=$2 AND round=$3 AND problem=$4');
+            const data2: Submission[] = [];
+            for (const submission of data.rows) {
+                data2.push({
+                    username: submission.username,
+                    division: submission.division,
+                    round: submission.round,
+                    number: submission.problem,
+                    time: submission.time,
+                    file: submission.file,
+                    lang: submission.language,
+                    scores: JSON.parse(submission.scores)
+                });
+            }
+            return data2;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return null;
         }
     }
@@ -230,10 +250,11 @@ export class Database {
      */
     async writeSubmission(submission: Submission): Promise<boolean> {
         try {
-            return false;
+            await this.#db.query('INSERT INTO submissions (username, division, round, problem, file, language, time) VALUES ($1, $2, $3, $4, $5, $6, $7)', [submission.username, submission.division, submission.round, submission.number, submission.file, submission.lang, Date.now()]);
+            return true;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return false;
         }
     }
@@ -249,7 +270,7 @@ export class Database {
      * @param {number} criteria.author Filter by author username
      * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
-    async readProblems(criteria = { id: '*', division: '*', round: '*', number: '*', name: '*', author: '*' }): Promise<Array<Problem>> {
+    async readProblems(criteria = { id: '*', division: '*', round: '*', number: '*', name: '*', author: '*', constraints: (constraints: ProblemConstraints) => { return true } }): Promise<Array<Problem>> {
         try {
             if (criteria.id != '*') {
                 let split = criteria.id.split('-');
@@ -261,35 +282,40 @@ export class Database {
             }
             const data = await this.#db.query('SELECT * FROM problems WHERE division=$1 AND round=$2 AND number=$3 AND name=$4 AND author=$5;', [criteria.division, criteria.round, criteria.number, criteria.name, criteria.author]);
             const data2: Problem[] = [];
-            for (let problem of data.rows) {
-                data2.push({
-                    division: problem.division,
-                    round: problem.round,
-                    number: problem.number,
-                    name: problem.name,
-                    author: problem.author,
-                    content: problem.content,
-                    cases: JSON.parse(problem.cases),
-                    constraints: problem.constraints
-                });
+            for (const problem of data.rows) {
+                const constraints = JSON.parse(problem.constraints)
+                if (criteria.constraints(constraints)) {
+                    data2.push({
+                        division: problem.division,
+                        round: problem.round,
+                        number: problem.number,
+                        name: problem.name,
+                        author: problem.author,
+                        content: problem.content,
+                        cases: JSON.parse(problem.cases),
+                        constraints: constraints
+                    });
+                }
             }
             return data2;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return [];
         }
     }
 
     /**
-     * lol
+     * Write a problem to the problems database.
+     * @param {Problem} problem Problem to write
      */
     async writeProblem(problem: Problem): Promise<boolean> {
         try {
-            return false;
+            await this.#db.query('INSERT INTO problems (division, round, problem, name, content, cases, constraints, author) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [problem.division, problem.round, problem.number, problem.name, problem.content, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.author]);
+            return true;
         } catch (err) {
-            this.#logger.error('Database error:');
-            this.#logger.error('' + err);
+            this.logger.error('Database error:');
+            this.logger.error('' + err);
             return false;
         }
     }
@@ -333,6 +359,15 @@ export interface Problem {
     constraints: { time: number, memory: number }
 }
 /**
+ * Descriptor for the constraints of a problem
+ * @property {number} time Time limit per test case in milliseconds
+ * @property {number} memory Memory limit per test case in megabytes
+ */
+export interface ProblemConstraints {
+    time: number
+    memory: number
+}
+/**
  * Descriptor for a single test case
  * @property {string} input Input test data
  * @property {string} output Correct answer
@@ -373,6 +408,7 @@ export interface Score {
     time: number
     memory: number
 }
+
 export enum ScoreState {
     CORRECT = 1,
     INCORRECT = 2,
