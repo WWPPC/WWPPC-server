@@ -4,7 +4,9 @@ defineProps<{
     width?: string
     height?: string
     borderColor?: string
+    hoverAnimation?: 'lift' | 'swell'
 }>();
+
 </script>
 
 <template>
@@ -73,5 +75,9 @@ defineProps<{
     box-shadow: 0px 0px 18px 6px black inset;
     clip-path: xywh(0 0 calc(100% - 40px) 100%);
     pointer-events: none;
+}
+
+.titledAngleContainer:hover {
+    transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
 </style>

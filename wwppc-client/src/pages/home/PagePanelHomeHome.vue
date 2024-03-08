@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, CutCornerContainer } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UIDefaults";
 </script>
 
@@ -10,8 +10,8 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
             <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
         </div>
         <div class="pagePanelHomeSideBySide">
-            <AnimateInContainer type="slideUp" :delay=300>
-                <CutCornerContainer>
+            <AnimateInContainer type="slideUp" :delay=100>
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
                     <CenteredContainer style="height: 100%">
                         <div class="pagePanelHomeVerticalAlign">
                             <div style="flex-grow: 1;">
@@ -23,17 +23,17 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=500>
+                                <AnimateInContainer type="fade" :delay=300>
                                     <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="20px" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
-                </CutCornerContainer>
+                </DoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=400>
-                <CutCornerContainer animate-in="slideUp">
-                    <CenteredContainer>
+            <AnimateInContainer type="slideUp" :delay=200>
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
+                    <CenteredContainer style="height: 100%">
                         <div class="pagePanelHomeVerticalAlign">
                             <div style="flex-grow: 1;">
                                 <GlitchText text="WWPHacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
@@ -44,13 +44,13 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=600>
+                                <AnimateInContainer type="fade" :delay=400>
                                     <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="20px" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
-                </CutCornerContainer>
+                </DoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
         <div class="centered pagePanelHomeScrollIndicatorWrapper">

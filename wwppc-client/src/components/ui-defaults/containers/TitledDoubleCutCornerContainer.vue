@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CutCornerContainer from './CutCornerContainer.vue';
+import DoubleCutCornerContainer from './DoubleCutCornerContainer.vue';
 
 defineProps<{
     title: string
@@ -11,19 +11,19 @@ defineProps<{
 </script>
 
 <template>
-    <CutCornerContainer class="cutCornerContainerNoPadding" :width=$props.width :height=$props.height :border-color=$props.borderColor :hover-animation=$props.hoverAnimation>
-        <div class="titledCutCornerContainerTitle">
+    <DoubleCutCornerContainer class="doubleCutCornerContainerNoPadding" :width=$props.width :height=$props.height :border-color=$props.borderColor :hover-animation=$props.hoverAnimation>
+        <div class="titledDoubleCutCornerContainerTitle">
             <h2>{{ $props.title }}</h2>
         </div>
-        <div class="titledCutCornerContainerBody">
+        <div class="titledDoubleCutCornerContainerBody">
             <slot></slot>
         </div>
-        <div class="titledCutCornerContainerFade"></div>
-    </CutCornerContainer>
+        <div class="titledDoubleCutCornerContainerFade"></div>
+    </DoubleCutCornerContainer>
 </template>
 
 <style>
-.titledCutCornerContainerTitle {
+.titledDoubleCutCornerContainerTitle {
     box-sizing: border-box;
     width: 100%;
     padding-top: 8px;
@@ -38,7 +38,7 @@ defineProps<{
     padding: 0px 0px;
 }
 
-.titledCutCornerContainerBody {
+.titledDoubleCutCornerContainerBody {
     box-sizing: border-box;
     width: 100%;
     height: calc(100% - 64px);
@@ -47,7 +47,7 @@ defineProps<{
     overflow-y: auto;
 }
 
-.titledCutCornerContainerFade {
+.titledDoubleCutCornerContainerFade {
     content: ' ';
     position: absolute;
     bottom: 0px;
