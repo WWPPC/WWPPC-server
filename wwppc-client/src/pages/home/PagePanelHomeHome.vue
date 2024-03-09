@@ -61,11 +61,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     </div>
     <div class="fullBlock">
         <a name="pageHomeScrollTo"></a>
-        <CenteredContainer>
-            <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </ShowOnscreenContainer>
-        </CenteredContainer>
         <CenteredContainer style="font-size: 24px">
             West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
             WWPHacks, will be held virtually in 2024!
@@ -77,24 +72,47 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
             </div>
         </CenteredContainer>
         <UIDivider margin="32px"></UIDivider>
+        <CenteredContainer>
+            <ShowOnscreenContainer>
+                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+            </ShowOnscreenContainer>
+        </CenteredContainer>
         <div class="homeFAQ">
-            <AnimateInContainer type="slideUp" single>
-                <TitledCollapsible title="When is it?" height="100%" startCollapsed>
-                    Eventually in 2024
-                    <br>
-                    <br>
-                </TitledCollapsible>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" single>
-                <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
-                    WWPIT will be held online. WWPHacks is still TBD.
-                </TitledCollapsible>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" single>
-                <TitledCollapsible title="What is the contest format?" height="100%" startCollapsed>
-                    Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.
-                </TitledCollapsible>
-            </AnimateInContainer>
+            <div class="homeFAQ">
+                <h2 class="centered">WWPIT</h2>
+                <AnimateInContainer type="slideUp" single>
+                    <TitledCollapsible title="When is it?" height="100%" startCollapsed>
+                        Eventually in 2024
+                        <br>
+                        <br>
+                    </TitledCollapsible>
+                </AnimateInContainer>
+                <AnimateInContainer type="slideUp" single>
+                    <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
+                        WWPIT will be held online.
+                    </TitledCollapsible>
+                </AnimateInContainer>
+                <AnimateInContainer type="slideUp" single>
+                    <TitledCollapsible title="What is the contest format?" height="100%" startCollapsed>
+                        Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.
+                    </TitledCollapsible>
+                </AnimateInContainer>
+            </div>
+            <div class="homeFAQ">
+                <h2 class="centered">WWPHacks</h2>
+                <AnimateInContainer type="slideUp" single>
+                    <TitledCollapsible title="When is it?" height="100%" startCollapsed>
+                        Eventually in 2024
+                        <br>
+                        <br>
+                    </TitledCollapsible>
+                </AnimateInContainer>
+                <AnimateInContainer type="slideUp" single>
+                    <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
+                        WWPHacks is TBD.
+                    </TitledCollapsible>
+                </AnimateInContainer>
+            </div>
         </div>
         <div class="centered">
         </div>
