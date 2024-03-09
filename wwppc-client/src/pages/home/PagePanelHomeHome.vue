@@ -67,12 +67,23 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
         </div>
         <br>
         <UIDivider></UIDivider>
-        <br><br>
+        <br>
+        <div class="centered">
+            <GlitchText text="FAQ" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+        </div>
+        <br>
         <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
-        <UIImage src="/assets/discordwhite.svg" height="100px"></UIImage>
-        <!-- we need more here, specifically about what WWPPC is as a whole (mission statement?) -->
-        <!-- just copy the discord button from wwphacks or something -->
-        <!-- make sure to add row of contact buttons (email?) -->
+        <br>
+        <HeaderedCollapsible title="Where will it be held?">WWPIT will be held online. WWPHacks is still TBD.</HeaderedCollapsible>
+        <br>
+        <HeaderedCollapsible title="What is the contest format?">Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.</HeaderedCollapsible>
+        <br>
+        <br>
+        <div class="centered">
+            <a href="https://discord.gg/rv23HbH7rB"><UIImage src="/assets/discordwhite.svg" height="100px"></UIImage></a>
+        </div>
+        <!-- more content needed, esp. mission statement -->
+        <!-- add contact buttons (email?) -->
     </div>
 </template>
 
