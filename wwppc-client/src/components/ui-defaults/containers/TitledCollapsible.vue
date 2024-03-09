@@ -66,11 +66,6 @@ const show = ref(props.startCollapsed == false);
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-image: v-bind("show ? 'url(/assets/arrow-up.svg)' : 'url(/assets/arrow-down.svg)'");
-    transition: 200ms ease transform;
-}
-
-.headeredCollapsibleContainerHeader:hover>.headeredCollapsibleContainerImage {
-    transform: scale(110%);
 }
 
 .headeredCollapsibleContainerBodyWrapper {
