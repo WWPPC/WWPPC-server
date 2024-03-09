@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, HeaderedCollapsible } from "@/components/ui-defaults/UIContainers";
-import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UIDefaults";
+import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-defaults/UIDefaults";
 </script>
 
 <template>
@@ -69,6 +69,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
         <UIDivider></UIDivider>
         <br><br>
         <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
+        <UIImage src="/assets/discordwhite.svg" height="100px"></UIImage>
         <!-- we need more here, specifically about what WWPPC is as a whole (mission statement?) -->
         <!-- just copy the discord button from wwphacks or something -->
         <!-- make sure to add row of contact buttons (email?) -->
