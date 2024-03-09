@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
     src: string,
-    link?: string,
+    alt?: string,
     round?: boolean,
     radius?: string,
     width?: string,
@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <img :src="$props.src" class="uiImage">
+    <img :src=$props.src class="uiImage" :alt=$props.alt>
 </template>
 
 <style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, HeaderedCollapsible } from "@/components/ui-defaults/UIContainers";
-import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-defaults/UIDefaults";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer, TitledCollapsible } from "@/components/ui-defaults/UIContainers";
+import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
             <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
         </div>
         <div class="homeColumns">
-            <AnimateInContainer type="slideUp" :delay=100>
+            <AnimateInContainer type="slideUp" :delay=100 single>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -23,7 +23,7 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=300>
+                                <AnimateInContainer type="fade" :delay=300 single>
                                     <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="20px" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
@@ -31,7 +31,7 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
                     </CenteredContainer>
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=200>
+            <AnimateInContainer type="slideUp" :delay=200 single>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -44,7 +44,7 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=400>
+                                <AnimateInContainer type="fade" :delay=400 single>
                                     <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="20px" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
@@ -61,29 +61,44 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
     </div>
     <div class="fullBlock">
         <a name="pageHomeScrollTo"></a>
-        <div class="center" style="text-align: center; font-size: 120%">
+        <CenteredContainer>
+            <ShowOnscreenContainer>
+                <GlitchText text="FAQ" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+            </ShowOnscreenContainer>
+        </CenteredContainer>
+        <CenteredContainer style="font-size: 24px">
             West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
-            WWPHacks, will be held eventually in 2024. Join us on <a href="https://discord.gg/rv23HbH7rB">Discord</a>!
+            WWPHacks, will be held virtually in 2024!
+            <div class="centered" style="margin-top: 16px">
+                <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
+                    <UIIconButton text="Join us on Discord!" img="/assets/discord-white.svg" color="lime" font-size="24px"></UIIconButton>
+                </a>
+                <!-- other contact methods -->
+            </div>
+        </CenteredContainer>
+        <UIDivider margin="32px"></UIDivider>
+        <div class="homeFAQ">
+            <AnimateInContainer type="slideUp" single>
+                <TitledCollapsible title="When is it?" height="100%" startCollapsed>
+                    Eventually in 2024
+                    <br>
+                    <br>
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" single>
+                <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
+                    WWPIT will be held online. WWPHacks is still TBD.
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" single>
+                <TitledCollapsible title="What is the contest format?" height="100%" startCollapsed>
+                    Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.
+                </TitledCollapsible>
+            </AnimateInContainer>
         </div>
-        <br>
-        <UIDivider></UIDivider>
-        <br>
         <div class="centered">
-            <GlitchText text="FAQ" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
-        </div>
-        <br>
-        <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
-        <br>
-        <HeaderedCollapsible title="Where will it be held?">WWPIT will be held online. WWPHacks is still TBD.</HeaderedCollapsible>
-        <br>
-        <HeaderedCollapsible title="What is the contest format?">Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.</HeaderedCollapsible>
-        <br>
-        <br>
-        <div class="centered">
-            <a href="https://discord.gg/rv23HbH7rB"><UIImage src="/assets/discordwhite.svg" height="100px"></UIImage></a>
         </div>
         <!-- more content needed, esp. mission statement -->
-        <!-- add contact buttons (email?) -->
     </div>
 </template>
 
@@ -119,5 +134,12 @@ import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-de
     height: 100%;
     flex-direction: column;
     justify-items: stretch;
+}
+
+.homeFAQ {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    row-gap: 24px;
+    column-gap: 24px;
 }
 </style>

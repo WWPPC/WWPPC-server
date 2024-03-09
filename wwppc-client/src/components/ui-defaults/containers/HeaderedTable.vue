@@ -5,6 +5,7 @@ const props = defineProps<{
     width?: string
     height?: string
     borderColor?: string
+    align?: 'left' | 'center' | 'right'
     content: TableContent | TableContentGenerated
     headerColor?: string
     headerBackground?: string
@@ -85,6 +86,7 @@ export interface TableGeneratedData {
     display: table-header-group;
     color: v-bind("props.headerColor ?? 'white'");
     background-color: v-bind("props.headerBackground ?? '#111'");
+    text-align: v-bind("$props.align ?? 'left'");
 }
 
 .headeredTableHeaderItem, .headeredTableData {

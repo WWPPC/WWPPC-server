@@ -1,3 +1,5 @@
+// also sound tile copy paste
+
 self.addEventListener('install', (e) => {
     e.waitUntil(new Promise(async (resolve) => {
         const pageCache = await caches.open('page');

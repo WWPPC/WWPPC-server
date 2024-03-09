@@ -8,7 +8,7 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
         <br>
         <br>
         <span>
-            <UIButton text="Back Home" color="lime" width="200px" @click="$router.push('https://google.com')"></UIButton>
+            <UIButton text="Back Home" color="lime" width="200px" @click="$router.push('/home')"></UIButton>
         </span>
     </div>
 </template>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { onMounted, ref, watch } from 'vue';
+import { glitchTextTransition } from '../TextTransitions';
+
 const props = defineProps<{
     text: string
+    img: string
     title?: string
     width?: string
     height?: string
@@ -9,6 +13,7 @@ const props = defineProps<{
     color?: string
     backgroundColor?: string
     disabled?: boolean
+    glitchOnMount?: boolean
 }>();
 const emit = defineEmits<{
     (e: 'click'): void
@@ -16,19 +21,26 @@ const emit = defineEmits<{
 function click() {
     emit('click');
 }
+
+const buttonText = ref(props.glitchOnMount ? props.text.replace(/./g, ' ') : props.text);
+if (props.glitchOnMount) {
+    onMounted(() => {
+        glitchTextTransition(buttonText.value, props.text, (text) => { buttonText.value = text; }, 40, 1, 15, 1);
+    });
+}
+watch(() => props.text, () => buttonText.value = props.text);
 </script>
 
 <template>
-    <!-- i don't like <button> tags -->
-    <label :class="'uiLinkButtonLabel ' + (props.disabled ? 'uiLinkButtonLabelDisabled' : '')">
-        <input type="button" class="uiLinkButton" @click=click :title=title :disabled=props.disabled>
-        <span class="uiLinkButtonText">{{ props.text }}</span>
-        <div class="uiLinkButtonArrow"></div>
+    <label :class="'uiIconButtonLabel ' + (props.disabled ? 'uiIconButtonLabelDisabled' : '')">
+        <input type="button" class="uiIconButton" @click=click :title=title :disabled=props.disabled>
+        <img :src=props.img class="uiIconButtonImage">
+        <span class="uiIconButtonText">{{ buttonText }}</span>
     </label>
 </template>
 
 <style>
-.uiLinkButtonLabel {
+.uiIconButtonLabel {
     display: flex;
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'min-content'");
@@ -48,51 +60,32 @@ function click() {
     user-select: none;
 }
 
-.uiLinkButtonText {
+.uiIconButtonImage {
+    height: 1.2em;
+    margin-right: 0.2em;
+}
+
+.uiIconButtonText {
     text-wrap: nowrap;
 }
 
-.uiLinkButtonLabel:hover {
+.uiIconButtonLabel:hover {
     transform: translateY(-2px);
     border-color: lime;
 }
 
-.uiLinkButtonLabel:active {
+.uiIconButtonLabel:active {
     transform: translateY(2px);
     border-color: red;
 }
 
-.uiLinkButton {
+.uiIconButton {
     display: none;
 }
 
-.uiLinkButtonArrow {
-    margin-left: 0.2em;
-    width: 2em;
-    height: 1em;
-    background-position: left;
-    background-repeat: repeat-x;
-    background-size: 50% 100%;
-    background-image: url(/assets/arrow-right.svg);
-    transition: 200ms ease background-position;
-}
-
-.uiLinkButtonLabel:hover .uiLinkButtonArrow {
-    background-position: right;
-}
-
-.uiLinkButtonLabel:active .uiLinkButtonArrow {
-    transition: 500ms ease background-position;
-    background-position: 500% 0%;
-}
-
-.uiLinkButtonLabelDisabled {
+.uiIconButtonLabelDisabled {
     border-color: gray !important;
     transform: none !important;
     cursor: not-allowed;
-}
-
-.uiLinkButtonLabelDisabled .uiLinkButtonArrow {
-    background-position: left !important;
 }
 </style>

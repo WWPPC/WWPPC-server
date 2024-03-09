@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { glitchTextTransition } from './TextTransitions';
+import { glitchTextTransition } from '../TextTransitions';
 
 const props = defineProps<{
     text: string
@@ -67,4 +67,4 @@ watch(() => props.text, () => buttonText.value = props.text);
     transform: none !important;
     cursor: not-allowed;
 }
-</style>
+</style>../TextTransitions

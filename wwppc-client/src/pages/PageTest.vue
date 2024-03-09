@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { HeaderedTable, TitledCutCornerContainer, TitledAngleContainer, AnimateInContainer } from '@/components/ui-defaults/UIContainers';
+import { HeaderedTable, TitledCutCornerContainer, AngledTitledContainer, AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 
 const modal = ref(FullscreenModal);
 
@@ -50,10 +50,10 @@ const thing2 = ref<any>([]);
                         generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);'})
                     }" height="200px"></HeaderedTable>
                     hi
-                    <TitledAngleContainer title="title" width="40%" height="200px">
+                    <AngledTitledContainer title="title" width="40%" height="200px">
                         titled angle container
                         oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
-                    </TitledAngleContainer>
+                    </AngledTitledContainer>
                     hi
                     <TitledCutCornerContainer title="title" width="40%" height="200px" border-color="yellow">
                         oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>

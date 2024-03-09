@@ -1,9 +1,10 @@
-import UIButton from './UIButton.vue';
-import UITextBox from './UITextBox.vue';
-import UINumberBox from './UINumberBox.vue';
-import UIToggle from './UIToggle.vue';
-import UIDropdown from './UIDropdown.vue';
-import UILinkButton from './UILinkButton.vue';
+import UIButton from './inputs/UIButton.vue';
+import UILinkButton from './inputs/UILinkButton.vue';
+import UIIconButton from './inputs/UIIconButton.vue';
+import UITextBox from './inputs/UITextBox.vue';
+import UINumberBox from './inputs/UINumberBox.vue';
+import UIToggle from './inputs/UIToggle.vue';
+import UIDropdown from './inputs/UIDropdown.vue';
 import UIImage from './UIImage.vue';
 import UILoadingBar from './UILoadingBar.vue';
 import UILoadingSpinner from './UILoadingSpinner.vue';
@@ -14,11 +15,12 @@ import GlowText from './text/GlowText.vue';
 import GlitchText from './text/GlitchText.vue';
 export {
     UIButton,
+    UILinkButton,
+    UIIconButton,
     UITextBox,
     UINumberBox,
     UIToggle,
     UIDropdown,
-    UILinkButton,
     UIImage,
     UILoadingBar,
     UILoadingSpinner,

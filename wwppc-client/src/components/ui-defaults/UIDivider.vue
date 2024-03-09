@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
     color?: string
+    margin?: string
 }>();
 </script>
 
@@ -14,7 +15,7 @@ defineProps<{
     box-sizing: content-box;
     width: calc(100% - 64px);
     height: 4px;
-    margin: 8px 32px;
+    margin: v-bind("$props.margin ?? '8px'") 32px;
     background-color: v-bind("$props.color ?? 'white'");
 }
 </style>

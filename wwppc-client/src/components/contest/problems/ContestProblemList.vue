@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TitledAngleContainer } from '@/components/ui-defaults/UIContainers';
+import { AngledTitledContainer } from '@/components/ui-defaults/UIContainers';
 import { ContestProblemCompletionState, type ContestRound } from '@/scripts/ContestManager';
 import ContestProblemListRound from './ContestProblemListRound.vue';
 
@@ -96,11 +96,11 @@ rounds.push({
 <template>
     <div class="contestProblemListWrapperWrapper centered">
         <div class="contestProblemListWrapper">
-            <TitledAngleContainer title="Problems" height="100%">
+            <AngledTitledContainer title="Problems" height="100%">
                 <div class="contestProblemList">
                     <ContestProblemListRound v-for="round in rounds" :key="round.number" :data="round"></ContestProblemListRound>
                 </div>
-            </TitledAngleContainer>
+            </AngledTitledContainer>
         </div>
     </div>
 </template>

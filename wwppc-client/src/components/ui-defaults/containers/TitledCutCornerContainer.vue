@@ -6,6 +6,7 @@ defineProps<{
     width?: string
     height?: string
     borderColor?: string
+    align?: 'left' | 'center' | 'right'
     hoverAnimation?: 'lift' | 'swell'
 }>();
 </script>
@@ -32,6 +33,7 @@ defineProps<{
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
     background-color: #222;
+    text-align: v-bind("$props.align ?? 'left'");
 }
 
 .cutCornerContainerNoPadding>.cutCornerContainer {
