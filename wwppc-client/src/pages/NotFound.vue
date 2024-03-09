@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { UIButton } from '@/components/ui-defaults/UIDefaults';
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
-import UserDisp from '@/components/UserDisp.vue';
 </script>
 
 <template>
@@ -11,7 +8,7 @@ import UserDisp from '@/components/UserDisp.vue';
         <br>
         <br>
         <span>
-            <UIButton text="Back Home" color="lime" width="200px" @click="$router.push('/')"></UIButton>
+            <UIButton text="Back Home" color="lime" width="200px" @click="$router.push('https://google.com')"></UIButton>
         </span>
     </div>
 </template>

@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <img :src="src" :class="'uiImage ' + ($props.round ? 'uiImageRound' : '')">
+    <img :src="$props.src" class="uiImage">
 </template>
 
 <style>
@@ -18,11 +18,8 @@ defineProps<{
     /* prevent image from becoming b i g */
     max-width: 100%;
     max-height: 100%;
-    width: v-bind("$props.width");
-    height: v-bind("$props.height");
-}
-
-.uiImageRound {
-    border-radius: v-bind("$props.radius ?? '50%'");
+    width: v-bind("$props.width ?? 'initial'");
+    height: v-bind("$props.height ?? 'initial'");
+    border-radius: v-bind("$props.round ? ($props.radius ?? '50%') : '0'");
 }
 </style>

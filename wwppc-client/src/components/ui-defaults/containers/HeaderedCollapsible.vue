@@ -22,7 +22,7 @@ const toShow = ref(false);
             <UIImage src="/assets/arrow-down.svg" width="40px" v-show="!toShow"></UIImage>
             <UIImage src="/assets/arrow-up.svg" width="40px" v-show="toShow"></UIImage>
         </div>
-        <div class="headeredCollapsibleContainerBody" v-show="toShow">
+        <div class="headeredCollapsibleContainerBody">
             <slot></slot>
         </div>
     </div>

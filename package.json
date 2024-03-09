@@ -1,13 +1,5 @@
 {
-    "dependencies": {
-        "@types/bcrypt": "^5.0.2",
-        "@types/cors": "^2.8.17",
-        "@types/cryptr": "^4.0.3",
-        "@types/express-rate-limit": "^6.0.0",
-        "@types/node": "^20.11.25",
-        "@types/pg": "^8.11.2",
-        "dotenv": "^16.4.5"
-    },
+    "dependencies": {},
     "scripts": {
         "install": "cd wwppc-server && npm install && cd ../wwppc-client && npm install",
         "build": "cd wwppc-server && npx tsc && cd ../wwppc-client && npm run build",
