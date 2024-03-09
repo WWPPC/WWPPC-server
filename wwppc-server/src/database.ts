@@ -39,15 +39,15 @@ export class Database {
             application_name: 'WWPPC Server'
         });
         this.#cryptr = new Cryptr(key);
-        this.connectPromise = this.#db.connect().catch((err) => {
-            logger.fatal('Could not connect to database:');
-            logger.fatal(err);
-            logger.fatal('Host: ' + this.#db.host);
-            logger.destroy();
-            process.exit();
-        }).then(async () => {
-            this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
-        }).then(() => this.#ready = true);
+        // this.connectPromise = this.#db.connect().catch((err) => {
+        //     logger.fatal('Could not connect to database:');
+        //     logger.fatal(err);
+        //     logger.fatal('Host: ' + this.#db.host);
+        //     logger.destroy();
+        //     process.exit();
+        // }).then(async () => {
+        //     this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
+        // }).then(() => this.#ready = true);
         this.connectPromise.then(() => {
             logger.info('Database connected');
             logger.debug('Connected to: ' + this.#db.host);

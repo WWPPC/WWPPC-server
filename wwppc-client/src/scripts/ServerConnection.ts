@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import { ref } from 'vue';
 
 // send HTTP wakeup request before trying socket.io
-const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : (process.env.SERVER_HOST ?? window.location.host);
+const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : ('https://wwppc.onrender.com' ?? window.location.host);
 const socket = io(serverHostname, {
     // auth.token doesn't exist what are you talking about
     path: '/socket.io',
