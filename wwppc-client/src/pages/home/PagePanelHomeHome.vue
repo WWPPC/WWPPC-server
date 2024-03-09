@@ -15,16 +15,16 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWPIT" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                <GlitchText text="WWP-IT" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: 20px;">
+                                <p style="font-size: min(20px, calc(50vw / 10))" >
                                     WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
                                 </p>
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=300 single>
-                                    <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="20px" color="lime"></UILinkButton>
+                                    <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -36,16 +36,16 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWPHacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                <GlitchText text="WWP-Hacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: 20px;">
+                                <p style="font-size: min(20px, calc(50vw / 10))">
                                     WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
                                 </p>
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=400 single>
-                                    <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="20px" color="lime"></UILinkButton>
+                                    <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
