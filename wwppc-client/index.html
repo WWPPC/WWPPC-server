@@ -98,7 +98,7 @@
         </style>
         <script>
             let canLoad = true;
-            window.addEventListener('load', (e) => {
+            document.addEventListener('DOMContentLoaded', (e) => {
                 if (!canLoad) return;
                 document.getElementById('loadingCover').style.opacity = 0;
                 window.onerror = null;

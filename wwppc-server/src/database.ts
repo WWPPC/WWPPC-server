@@ -305,12 +305,6 @@ export class Database {
         }
     }
 
-
-    //JIE implement idk how
-    async getAllProblems() : Promise<Array<Problem>>{
-        return [];
-    }
-
     /**
      * Write a problem to the problems database.
      * @param {Problem} problem Problem to write
