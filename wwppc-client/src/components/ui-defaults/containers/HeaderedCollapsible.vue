@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { UIImage } from "@/components/ui-defaults/UIDefaults";
 import { ref } from 'vue';
-defineProps<{
+const props = defineProps<{
     title: string
     width?: string
     height?: string
     borderColor?: string
-    // initial?: boolean //default collapsed or shown  probably should implement this 
+    initial?: boolean //default collapsed or shown  probably should implement this  but idk how
     hoverAnimation?: 'lift' | 'swell'
 }>();
-</script>
 
-<script lang="ts">
-const toShow = ref(false);
+const toShow = ref(props.initial ?? false);
 </script>
 
 <template>
