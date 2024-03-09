@@ -3,25 +3,17 @@ defineProps<{
     width?: string
     height?: string
     borderColor?: string
-    flipped? : boolean
+    flipped?: boolean
     hoverAnimation?: 'lift' | 'swell'
 }>();
 </script>
 
 <template>
-
-    <div v-if="!flipped ?? true" class="doubleCutCornerContainerWrapper">
-        <div class="doubleCutCornerContainer">
+    <div :class="'doubleCutCornerContainerWrapper ' + ($props.flipped ? 'doubleCutCornerContainerWrapperReversed' : '')">
+        <div :class="'doubleCutCornerContainer ' + ($props.flipped ? 'doubleCutCornerContainerReversed' : '')">
             <slot></slot>
         </div>
     </div>
-    <!-- cut corner on the other side-->
-    <div v-else class="doubleCutCornerContainerWrapperReverse">
-        <div class="doubleCutCornerContainerReverse">
-            <slot></slot>
-        </div>
-    </div>
-
 </template>
 
 <style>
@@ -49,28 +41,12 @@ defineProps<{
     overflow-y: auto;
 }
 
-.doubleCutCornerContainerWrapperReverse {
-    box-sizing: border-box;
-    width: v-bind("$props.width ?? 'initial'");
-    height: v-bind("$props.height ?? 'initial'");
-    padding: 4px 4px;
-    clip-path: polygon(100% 32px, calc(100% - 32px) 0, 0 0, 0 calc(100% - 32px), 32px 100%, 100% 100%);;
-    background-color: v-bind("$props.borderColor ?? ' white'");
-    text-align: left;
-    transition: 200ms ease transform;
-    overflow: hidden;
+.doubleCutCornerContainerWrapperReversed {
+    clip-path: polygon(100% 32px, calc(100% - 32px) 0, 0 0, 0 calc(100% - 32px), 32px 100%, 100% 100%);
 }
 
-.doubleCutCornerContainerReverse {
-    position: relative;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    padding: 12px 12px;
-    clip-path: polygon(100% 30px, calc(100% - 30px) 0, 0 0, 0 calc(100% - 30px), 30px 100%, 100% 100%);;
-    background-color: black;
-    overflow-x: hidden;
-    overflow-y: auto;
+.doubleCutCornerContainerReversed {
+    clip-path: polygon(100% 30px, calc(100% - 30px) 0, 0 0, 0 calc(100% - 30px), 30px 100%, 100% 100%);
 }
 
 .doubleCutCornerContainerWrapper:hover {

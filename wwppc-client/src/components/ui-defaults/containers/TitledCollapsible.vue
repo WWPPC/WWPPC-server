@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{
     title: string
@@ -74,16 +74,19 @@ const show = ref(props.startCollapsed == false);
 }
 
 .headeredCollapsibleContainerBodyWrapper {
+    display: flex;
     width: 100%;
     min-height: 0px;
     /* min-height: v-bind("show ? ($props.height ?? '100%') : '0px'"); */
     max-height: v-bind("show ? ($props.height ?? '100%') : '0px'");
+    height: 100%;
     margin-top: -4px;
     transition: 500ms ease max-height;
     overflow: clip;
 }
 
 .headeredCollapsibleContainerBody {
+    flex-shrink: 1;
     box-sizing: border-box;
     width: 100%;
     height: 100%;

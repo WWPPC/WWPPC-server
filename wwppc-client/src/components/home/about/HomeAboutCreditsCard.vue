@@ -14,7 +14,7 @@ defineProps<{
             <div class="homeAboutCreditsCardContent">
                 <img :src=$props.img class="homeAboutCreditsCardImage">
                 <div class="homeAboutCreditsCardName">{{ $props.name }}</div>
-                <div class="homeAboutCreditsCardRoles">{{ $props.roles }}</div>
+                <div class="homeAboutCreditsCardRoles" v-html=$props.roles></div>
             </div>
         </DoubleCutCornerContainer>
     </AnimateInContainer>

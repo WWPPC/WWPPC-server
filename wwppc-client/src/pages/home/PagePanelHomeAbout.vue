@@ -7,23 +7,23 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 <template>
     <div class="fullBlock">
         <div class="centered">
-            <GlitchText text="About WWPPC" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+            <GlitchText text="About WWPPC" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
         </div>
     </div>
     <div class="fullBlock">
         <div class="centered">
             <ShowOnscreenContainer single>
-                <GlitchText text="WWPPC Team" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
             </ShowOnscreenContainer>
         </div>
         <br>
         <br>
         <div class="aboutCreditsTable">
-            <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead, Lead Problem Setter, Backend Developer" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Jie Gao" roles="Lead Developer" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead<br>Lead Problem Setter<br>Backend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Jie Gao" roles="Lead Frontend Developer<br>Lead Backend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Vikram Karamsetty" roles="Frontend Developer" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer, Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Arav Maheria" roles="oof" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
         </div>

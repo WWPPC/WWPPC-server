@@ -63,7 +63,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
         <a name="pageHomeScrollTo"></a>
         <CenteredContainer>
             <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="80px" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
         <CenteredContainer style="font-size: 24px">
@@ -138,7 +138,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 
 .homeFAQ {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
     row-gap: 24px;
     column-gap: 24px;
 }
