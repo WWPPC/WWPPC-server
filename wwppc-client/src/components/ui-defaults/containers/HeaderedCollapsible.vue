@@ -19,8 +19,8 @@ const toShow = ref(false);
     <div class="headeredCollapsibleContainer">
         <div class="headeredCollapsibleContainerHeader" @click="toShow = !toShow">
             <h2 class="headeredCollapsibleContainerTitle">{{ $props.title }}</h2>
-            <UIImage src="../../../../public/assets/arrow-down.svg" width="40px" v-show="!toShow"></UIImage>
-            <UIImage src="../../../../public/assets/arrow-up.svg" width="40px" v-show="toShow"></UIImage>
+            <UIImage src="/assets/arrow-down.svg" width="40px" v-show="!toShow"></UIImage>
+            <UIImage src="/assets/arrow-up.svg" width="40px" v-show="toShow"></UIImage>
         </div>
         <div class="headeredCollapsibleContainerBody" v-show="toShow">
             <slot></slot>
