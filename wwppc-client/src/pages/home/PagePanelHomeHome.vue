@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
-import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UIDefaults";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, HeaderedCollapsible } from "@/components/ui-defaults/UIContainers";
+import { GlitchText, UIDivider, UILinkButton, UIImage } from "@/components/ui-defaults/UIDefaults";
 </script>
 
 <template>
@@ -11,7 +11,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
         </div>
         <div class="homeColumns">
             <AnimateInContainer type="slideUp" :delay=100>
-                <DoubleCutCornerContainer style="height: 100%">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -32,7 +32,7 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=200>
-                <DoubleCutCornerContainer :flipped="true" style="height: 100%">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -65,6 +65,25 @@ import { GlitchText, UIDivider, UILinkButton } from "@/components/ui-defaults/UI
             West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
             WWPHacks, will be held eventually in 2024. Join us on <a href="https://discord.gg/rv23HbH7rB">Discord</a>!
         </div>
+        <br>
+        <UIDivider></UIDivider>
+        <br>
+        <div class="centered">
+            <GlitchText text="FAQ" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+        </div>
+        <br>
+        <HeaderedCollapsible title="When is it?">Eventually in 2024</HeaderedCollapsible>
+        <br>
+        <HeaderedCollapsible title="Where will it be held?">WWPIT will be held online. WWPHacks is still TBD.</HeaderedCollapsible>
+        <br>
+        <HeaderedCollapsible title="What is the contest format?">Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.</HeaderedCollapsible>
+        <br>
+        <br>
+        <div class="centered">
+            <a href="https://discord.gg/rv23HbH7rB"><UIImage src="/assets/discordwhite.svg" height="100px"></UIImage></a>
+        </div>
+        <!-- more content needed, esp. mission statement -->
+        <!-- add contact buttons (email?) -->
     </div>
 </template>
 

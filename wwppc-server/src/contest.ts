@@ -7,10 +7,9 @@ import Database from "./database";
 export class ContestManager {
     private logger: Logger = new Logger();
     private database: Database = new Database("tempURL", "tempKey", this.logger);
-    public problemCache: Array<Problem> | undefined;
-    public static readonly FILE_SIZE_CAP = 1e4; 
-    // controls contest buh
-    // all socketio connections are put here
+    problemCache: Array<Problem> | undefined;
+    static readonly FILE_SIZE_CAP = 1e4; 
+    // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
     // uses database to get problems and then caches them
     // also prevent people from opening the contest page multiple times
@@ -29,7 +28,7 @@ export class ContestManager {
      */
 
     async cacheProblems(){
-        this.problemCache = await this.database.getAllProblems().then(value => {return value});
+        this.problemCache = await this.database.readProblems().then(value => {return value});
     }
 
     async submitFile(username: string, problem: Problem, file: File) : Promise<boolean>{

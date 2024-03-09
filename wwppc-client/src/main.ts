@@ -44,6 +44,14 @@ router.afterEach(() => {
     handledRoute = false;
 });
 app.use(router);
-// app.use(VueReCaptcha, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem' });
 VueReCaptcha.install(app, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem', loaderOptions: {} });
 app.mount('#root');
+
+if (window.navigator.serviceWorker !== undefined) {
+    try {
+        window.navigator.serviceWorker.register('./serviceWorker.js', { scope: '/' });
+    } catch (err) {
+        console.error('Service worker installation failed:');
+        console.error(err);
+    }
+}

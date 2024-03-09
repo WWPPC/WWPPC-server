@@ -12,8 +12,6 @@
     src: url(./Jura.ttf);
 }
 
-
-
 body {
     font-family: 'Source Code Pro', Courier, monospace;
     background-color: black;
@@ -30,7 +28,7 @@ img {
 ::selection {
     background-color: rgba(0, 255, 0, 0.7);
     color: black;
-    text-shadow: none;
+    text-shadow: none !important;
 }
 
 .centered {

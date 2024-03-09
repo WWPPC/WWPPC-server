@@ -25,7 +25,7 @@ defineProps<{
     display: grid;
     grid-template-rows: 220px 40px 120px;
     justify-items: center;
-    width: 300px;
+    width: 280px;
     height: 380px;
 }
 .homeAboutCreditsCardImage {
@@ -35,13 +35,16 @@ defineProps<{
 }
 .homeAboutCreditsCardName {
     margin-top: 8px;
+    width: 280px;
     text-align: center;
     text-wrap: nowrap;
-    font-size: 26px;
+    font-size: 24px;
     font-weight: bold;
+    color: lime;
 }
 .homeAboutCreditsCardRoles {
     text-align: center;
-    padding-top: 16px;
+    padding-top: 18px;
+    color: lime;
 }
 </style>
