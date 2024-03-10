@@ -152,12 +152,24 @@ const attemptSignup = async () => {
                         ]" title="Your experience level with competitive programming" required></UIDropdown>
                                             <span>Known languages:</span>
                                             <UIDropdown ref="languageInput" :items="[
-                            { text: 'Java', value: 'java' },
-                            { text: 'Python', value: 'py' },
+                            { text: 'Python', value: 'python' },
                             { text: 'C', value: 'c' },
                             { text: 'C++', value: 'cpp' },
                             { text: 'C#', value: 'cs' },
-                            { text: 'Ruby', value: 'rb' },
+                            { text: 'Java', value: 'java' },
+                            { text: 'JavaScript', value: 'js' },
+                            { text: 'SQL', value: 'sql' },
+                            { text: 'Assembly', value: 'asm' },
+                            { text: 'PHP', value: 'php' },
+                            { text: 'Swift', value: 'swift' },
+                            { text: 'Pascal', value: 'pascal' },
+                            { text: 'Ruby', value: 'python' },
+                            { text: 'Rust', value: 'rust' },
+                            { text: 'Scratch', value: 'scratch' },
+                            { text: 'LabVIEW', value: 'ev3' },
+                            { text: 'Kotlin', value: 'ktx' },
+                            { text: 'Lua', value: 'lua' },
+                            { text: 'Bash', value: 'bash' },
                         ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </div>
                                         <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount></UIButton>

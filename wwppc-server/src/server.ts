@@ -1,6 +1,7 @@
 // Copyright (C) 2024 Sampleprovider(sp)
 
 import fs from 'fs';
+import path from 'path';
 import { configDotenv } from 'dotenv';
 if (fs.existsSync(path.resolve(__dirname, '../.env'))) configDotenv();
 
@@ -9,7 +10,6 @@ const logger = new Logger();
 logger.info('Starting WWPPC server...');
 
 const config = require('../config/config.json');
-import path from 'path';
 import express from 'express';
 import http from 'http';
 import https from 'https';
