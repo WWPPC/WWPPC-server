@@ -48,6 +48,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
+console.log(process.env)
 
 import Database, { AccountOpResult } from './database';
 const database = new Database(process.env.DATABASE_URL, process.env.DATABASE_KEY, logger);

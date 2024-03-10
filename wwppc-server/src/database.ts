@@ -51,14 +51,6 @@ export class Database {
         this.connectPromise.then(() => {
             logger.info('Database connected');
             logger.debug('Connected to: ' + this.#db.host);
-            // database keepalive
-            let keepAlive = setInterval(() => {
-                this.#db.query('BEGIN; END');
-            }, 60000);
-            this.#db.on('end', () => {
-                logger.info('Database disconnected');
-                clearInterval(keepAlive);
-            });
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
