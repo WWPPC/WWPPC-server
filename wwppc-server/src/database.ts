@@ -34,6 +34,7 @@ export class Database {
     constructor(uri: string, key: string, logger: Logger) {
         this.logger = logger;
         this.connectPromise = new Promise((r) => r(undefined));
+        console.log(uri)
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
