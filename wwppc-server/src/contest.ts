@@ -30,9 +30,9 @@ export class ContestManager {
 
     async getNextRound(division: string){
         this.roundNum++;
-        let stuff: Array<Problem> = await this.database.readProblems({id: "*", division: division, round: this.roundNum.toString(), number: "*", name: "*", author: "*", constraints: constraints => {return true}});
-        this.problemCache?.push(stuff);
-        return stuff;
+        // let stuff: Array<Problem> = await this.database.readProblems({id: "*", division: division, round: this.roundNum.toString(), number: "*", name: "*", author: "*", constraints: constraints => {return true}});
+        // this.problemCache?.push(stuff);
+        // return stuff;
     }
 
     async getRound(division: string, round: number){
@@ -54,7 +54,7 @@ export class ContestManager {
         const scores: Score[] = this.scoreSubmission(problem, file)
         const s: Submission = {username: username, division: problem.division, round: problem.round, number: problem.number, time: Date.now(),
             file: await file.text(), lang: this.getLang(file), scores: scores};
-        this.database.writeSubmission(s);
+        // this.database.writeSubmission(s);
         return true;
     }
 
