@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { configDotenv } from 'dotenv';
-if (fs.existsSync(path.resolve(__dirname, '../.env'))) configDotenv();
+configDotenv();
 
 import Logger from './log';
 const logger = new Logger();
@@ -46,7 +46,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // verify environment variables exist
 if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
-    throw new Error('Missing environment variables. Make sure your .env is set up correctly!');
+    throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
 import Database, { AccountOpResult } from './database';

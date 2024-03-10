@@ -36,7 +36,7 @@ export class Database {
         this.connectPromise = new Promise((r) => r(undefined));
         this.#db = new Client({
             connectionString: uri,
-            application_name: 'WWPPC Server'
+            application_name: 'WWPPC Server',
         });
         this.#cryptr = new Cryptr(key);
         this.connectPromise = this.#db.connect().catch((err) => {
