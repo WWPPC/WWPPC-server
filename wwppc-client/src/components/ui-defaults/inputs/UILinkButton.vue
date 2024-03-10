@@ -44,7 +44,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     display: flex;
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'min-content'");
-    height: v-bind("$props.height ?? 'initial'");
+    height: v-bind("$props.height ?? 'min-content'");
     border: 4px solid white;
     margin: 0px 4px;
     padding: 0.2em 0.2em;
@@ -61,6 +61,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 }
 
 .uiLinkButtonText {
+    margin: 0px 0.2em;
     text-wrap: nowrap;
 }
 
@@ -79,7 +80,6 @@ watch(() => props.text, () => buttonText.value = props.text);
 }
 
 .uiLinkButtonArrow {
-    margin-left: 0.2em;
     width: 2em;
     height: 1em;
     background-position: left;

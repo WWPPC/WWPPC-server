@@ -2,6 +2,7 @@
 import type { ContestRound } from '@/scripts/ContestManager';
 import ContestProblemListProblem from './ContestProblemListProblem.vue';
 import { CutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
 
 const props = defineProps<{
     data: ContestRound
@@ -11,7 +12,9 @@ const props = defineProps<{
 <template>
     <h2>Round {{ props.data.number }}</h2>
     <CutCornerContainer>
-        <ContestProblemListProblem v-for="problem in props.data.problems" :key=problem.number :data=problem></ContestProblemListProblem>
+        <AnimateInContainer type="fade" v-for="(problem, index) in props.data.problems" :key=problem.number :delay="index * 100" single>
+            <ContestProblemListProblem :data=problem></ContestProblemListProblem>
+        </AnimateInContainer>
     </CutCornerContainer>
 </template>
 

@@ -40,7 +40,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     width: v-bind("$props.width ?? 'unset'");
     height: v-bind("$props.height ?? 'initial'");
     margin: 0px 4px;
-    padding: 0.2em 0.2em;
+    padding: 0.2em 0.4em;
     border: 4px solid white;
     border-radius: 0px;
     background-color: v-bind("$props.backgroundColor ?? 'black'");

@@ -1,13 +1,120 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
+import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { UIButton, UIDropdown, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
+import { ref, type Ref } from 'vue';
 
 // load problem information from server
+const problem: Ref<ContestProblem> = ref({
+    division: 0,
+    round: 0,
+    number: 0,
+    name: 'Problem Name',
+    author: 'SP^2',
+    content: '<b>Lorem ipsum dolor sit amet</b>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br><code>1 + 1</code>',
+    constraints: { memory: 256, time: 4000 },
+    status: ContestProblemCompletionState.ERROR
+});
 
 </script>
 
 <template>
-    <br><br>
-    {{ $route.params.probDiv }}
-    {{ $route.params.probRound }}
-    {{ $route.params.probNum }}
+    <div class="problemViewPanel">
+        <span style="margin-left: 16px;">
+            <UIIconButton text="Back to Problem List" img="/assets/arrow-left.svg" @click="$router.push('/contest/problemList')" color="lime"></UIIconButton>
+        </span>
+        <div class="problemViewDouble">
+            <TitledCutCornerContainer :title="problem.name" vertical-flipped>
+                <div class="problemViewSubtitle">
+                    <span>Round {{ problem.round }}, problem {{ problem.number }}; by {{ problem.author }}</span>
+                    <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms</span>
+                </div>
+                <div class="problemViewContent" v-html=problem.content></div>
+            </TitledCutCornerContainer>
+            <div>
+                <DoubleCutCornerContainer>
+                    <div style="text-align: center;">
+                        <h3>Submit</h3>
+                        <div style="text-align: justify;">
+                            Submissions aren't graded until the round is over. You can update your submission at any time.
+                        </div>
+                    </div>
+                    <br>
+                    <form class="problemViewSubmitForm" action="javascript:void(0)">
+                        <div class="problemViewSubmitFormInner">
+                            <span>Source code:</span>
+                            <input type="file" required>
+                            <span>Langauge:</span>
+                            <!-- VSCODE WHYYY -->
+                            <UIDropdown :items="[
+                { text: 'Java 8', value: 'java8' },
+                { text: 'Java 17', value: 'java17' },
+                { text: 'Java 21', value: 'java21' },
+                { text: 'C', value: 'c' },
+                { text: 'C++ 11', value: 'cpp11' },
+                { text: 'C++ 17', value: 'cpp17' },
+                { text: 'Python 3.6.9', value: 'py369' }
+            ]" required></UIDropdown>
+                        </div>
+                        <UIButton text="Upload Submission"></UIButton>
+                    </form>
+                </DoubleCutCornerContainer>
+            </div>
+        </div>
+    </div>
 </template>
+
+<style>
+.problemViewPanel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.problemViewDouble {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    row-gap: 16px;
+    column-gap: 16px;
+    height: 100%;
+    margin-top: 16px;
+}
+
+@media (max-width: 800px) {
+    .problemViewDouble {
+        grid-template-columns: 1fr;
+    }
+}
+
+.problemViewSubtitle {
+    display: flex;
+    width: calc(100% - 16px);
+    justify-content: space-between;
+    padding: 8px 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: #333;
+    font-weight: normal;
+    font-size: 18px;
+}
+
+.problemViewContent {
+    text-align: justify;
+}
+
+.problemViewSubmitForm {
+    display: flex;
+    flex-direction: column;
+}
+.problemViewSubmitFormInner {
+    display: grid;
+    grid-template-columns: max-content min-content;
+    row-gap: 8px;
+    column-gap: 8px;
+    margin-bottom: 4px;
+}
+.problemViewSubmitFormInner>*:nth-child(odd) {
+    justify-self: right;
+}
+</style>

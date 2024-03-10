@@ -2,6 +2,7 @@
 import { AngledTitledContainer } from '@/components/ui-defaults/UIContainers';
 import { ContestProblemCompletionState, type ContestRound } from '@/scripts/ContestManager';
 import ContestProblemListRound from './ContestProblemListRound.vue';
+import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
 
 // fetch problems from server on mount
 // in the meantime just put a loading spinner (i should probably make one of those)
@@ -98,7 +99,9 @@ rounds.push({
         <div class="contestProblemListWrapper">
             <AngledTitledContainer title="Problems" height="100%">
                 <div class="contestProblemList">
-                    <ContestProblemListRound v-for="round in rounds" :key="round.number" :data="round"></ContestProblemListRound>
+                    <AnimateInContainer v-for="(round, index) in rounds" :key=round.number type="slideUp" :delay="index * 200" single>
+                        <ContestProblemListRound :data=round></ContestProblemListRound>
+                    </AnimateInContainer>
                 </div>
             </AngledTitledContainer>
         </div>

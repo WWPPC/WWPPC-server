@@ -44,7 +44,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     display: flex;
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'min-content'");
-    height: v-bind("$props.height ?? 'initial'");
+    height: v-bind("$props.height ?? 'min-content'");
     border: 4px solid white;
     margin: 0px 4px;
     padding: 0.2em 0.2em;
@@ -62,10 +62,10 @@ watch(() => props.text, () => buttonText.value = props.text);
 
 .uiIconButtonImage {
     height: 1.2em;
-    margin-right: 0.2em;
 }
 
 .uiIconButtonText {
+    margin: 0px 0.2em;
     text-wrap: nowrap;
 }
 

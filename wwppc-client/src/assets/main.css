@@ -61,7 +61,7 @@ img {
 
 h1 {
     font-size: 48px;
-    font-weight: bold;
+    font-weight: 700;
     font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
     margin: 0.2em 0px;
@@ -69,7 +69,15 @@ h1 {
 
 h2 {
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: 'Source Code Pro', Courier, monospace;
+    line-height: 1.1em;
+    margin: 0.2em 0px;
+}
+
+h3 {
+    font-size: 24px;
+    font-weight: 600;
     font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
     margin: 0.2em 0px;
@@ -93,9 +101,10 @@ a {
 }
 
 code {
+    padding: 0px 0.3em;
     font-family: 'Source Code Pro', Courier, monospace;
-    background-color: #FFF2;
-    border-radius: 0.3em;
+    background-color: #FFF3;
+    border-radius: 0.2em;
 }
 
 @supports selector(::-webkit-scrollbar) {
