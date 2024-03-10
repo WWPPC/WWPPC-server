@@ -7,7 +7,8 @@ import Database from "./database";
 export class ContestManager {
     private logger: Logger = new Logger();
     private database: Database = new Database("tempURL", "tempKey", this.logger);
-    problemCache: Array<Problem> | undefined;
+    problemCache: Array<Array<Problem>> | undefined;
+    roundNum = 0;
     static readonly FILE_SIZE_CAP = 1e4; 
     // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
@@ -27,8 +28,22 @@ export class ContestManager {
      * @param file File submission
      */
 
-    async cacheProblems(){
-        this.problemCache = await this.database.readProblems().then(value => {return value});
+    async getNextRound(division: string){
+        this.roundNum++;
+        let stuff: Array<Problem> = await this.database.readProblems({id: "*", division: division, round: this.roundNum.toString(), number: "*", name: "*", author: "*", constraints: constraints => {return true}});
+        this.problemCache?.push(stuff);
+        return stuff;
+    }
+
+    async getRound(division: string, round: number){
+        if(this.problemCache?.length === undefined){
+            this.getNextRound(division);
+        }
+        // @ts-ignore
+        while(this.problemCache?.length <= round){
+            this.getNextRound(division);
+        }
+        return this.problemCache?.at(round);
     }
 
     async submitFile(username: string, problem: Problem, file: File) : Promise<boolean>{
