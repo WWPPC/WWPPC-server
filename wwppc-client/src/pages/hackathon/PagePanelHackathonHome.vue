@@ -9,17 +9,17 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
         <!-- Schedule Table -->
         <div class="schedule">
             <h1>Schedule</h1>
-            <HeaderedTable :content="{
+            <HeaderedTable width="100%" :content="{
+            headers: ['Time', 'thing'],
             data: [
                 ['10:30', 'meet and register'],
                 ['10:40', 'eat food'],
                 ['10:50', 'start '],
                 ['10:60', 'build app']
             ]
-
-        }
-            "></HeaderedTable>
+        }"></HeaderedTable>
         </div>
+        <i>These are example times and do not reflect any real plans. Especially not the 10:60 part.</i>
     </div>
 </template>
 

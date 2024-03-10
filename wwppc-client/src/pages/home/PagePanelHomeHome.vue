@@ -5,10 +5,12 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 </script>
 
 <template>
+    <div class="centered homeTitle">
+        <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+    </div>
     <div class="fullBlock homeBlock">
-        <div class="centered">
-            <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
-        </div>
+        <!-- spacer for title -->
+        <div style="height: min(25vh, calc(125vw / 8));"></div>
         <div class="homeColumns">
             <AnimateInContainer type="slideUp" :delay=100 single>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
@@ -128,6 +130,15 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     min-height: 100%;
 }
 
+.homeTitle {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transform-origin: top;
+    transform: translate3D(0px, -20vh, -50px) scale(150%);
+    z-index: -1;
+}
+
 .homeColumns {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -157,6 +168,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 .homeFAQ {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+    align-items: start;
     row-gap: 24px;
     column-gap: 24px;
 }

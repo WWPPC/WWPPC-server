@@ -57,7 +57,9 @@ watch(() => route.params, async () => {
     font-size: 16px;
     background-color: black;
     /* scroll-snap-type: y proximity; */
+    perspective: 100px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .panelBodyTransitionWipeContainer {
