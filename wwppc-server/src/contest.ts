@@ -6,7 +6,7 @@ import Logger from "./log";
 import Database from "./database";
 export class ContestManager {
     private logger: Logger = new Logger();
-    private database: Database = new Database("tempURL", "tempKey", this.logger);
+    // private database: Database = new Database("tempURL", "tempKey", this.logger);
     problemCache: Array<Array<Problem>> | undefined;
     roundNum = 0;
     static readonly FILE_SIZE_CAP = 1e4; 
