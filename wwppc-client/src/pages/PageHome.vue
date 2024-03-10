@@ -14,8 +14,7 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
                 <PanelNavButton text="Home" for="/home/home" is-default></PanelNavButton>
                 <PanelNavButton text="WWPHacks" for="/hackathon"></PanelNavButton>
                 <PanelNavButton text="WWPIT" for="/contest"></PanelNavButton>
-                <PanelNavButton text="About" for="/home/about"></PanelNavButton>
-                <PanelNavButton text="Test Page" for="/test"></PanelNavButton>
+                <PanelNavButton text="About Us" for="/home/about"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
