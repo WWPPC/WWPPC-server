@@ -3,7 +3,7 @@ import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UIButton, UIDropdown, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
-import { ref, type Ref } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
@@ -15,6 +15,10 @@ const problem: Ref<ContestProblem> = ref({
     content: '<b>Lorem ipsum dolor sit amet</b>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br><code>1 + 1</code>',
     constraints: { memory: 256, time: 4000 },
     status: ContestProblemCompletionState.ERROR
+});
+
+watch(() => problem.value.name, () => {
+    setTitlePanel(problem.value.name);
 });
 
 </script>

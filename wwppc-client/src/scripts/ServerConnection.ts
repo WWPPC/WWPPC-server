@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import { ref } from 'vue';
 
 // send HTTP wakeup request before trying socket.io
-const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8080' : ('https://wwppc.onrender.com' ?? window.location.host);
+const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
 const socket = io(serverHostname, {
     // auth.token doesn't exist what are you talking about
     path: '/socket.io',
@@ -11,12 +11,20 @@ const socket = io(serverHostname, {
     reconnection: false
 });
 const connectErrorHandlers: (() => void)[] = [];
-fetch(serverHostname + '/wakeup').then(() => {
-    socket.connect();
-}, () => {
-    connectErrorHandlers.forEach(cb => cb());
-    connectError.value = true;
-});
+let connectionAttempts = 0;
+const attemptConnect = () => {
+    connectionAttempts++;
+    fetch(serverHostname + '/wakeup').then(() => {
+        socket.connect();
+    }, () => {
+        if (connectionAttempts <= 5) attemptConnect();
+        else {
+            connectErrorHandlers.forEach(cb => cb());
+            connectError.value = true;
+        }
+    });
+};
+attemptConnect();
 socket.on('connect_error', () => connectError.value = true);
 socket.on('connect_fail', () => connectError.value = true);
 
@@ -64,12 +72,13 @@ const sendCredentials = (username: string, password: string | Array<number>, act
         }
         try {
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encode(password);
+            // for some reason RSA encode of ReCaptcha token throws an error
             socket.emit('credentials', {
                 action: action,
                 username: await RSA.encode(username),
                 password: password2,
                 email: email != undefined ? await RSA.encode(email) : undefined,
-                token: token != undefined ? await RSA.encode(token) : undefined
+                token: token
             });
             socket.once('credentialRes', async (res: number) => {
                 if (res == 0) {
@@ -80,6 +89,7 @@ const sendCredentials = (username: string, password: string | Array<number>, act
                     window.localStorage.setItem('sessionId', RSA.sid.toString());
                     loggedIn.value = true;
                 }
+                console.log(res)
                 resolve(res);
             });
         } catch (err) {

@@ -9,6 +9,9 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
         <div class="centered">
             <GlitchText text="About WWPPC" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
         </div>
+        <p>
+            WWPPC is the combined hosts of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South's Coding Clubs. insert more description here
+        </p>
     </div>
     <div class="fullBlock">
         <div class="centered">
@@ -24,7 +27,6 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
             <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Vikram Karamsetty" roles="Frontend Developer" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Arav Maheria" roles="oof" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
         </div>
     </div>
