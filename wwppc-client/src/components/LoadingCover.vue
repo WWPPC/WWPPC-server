@@ -14,56 +14,45 @@ const route = useRoute();
 
 <template>
     <Transition>
-        <div class="loadingCoverContainerWrapper" v-if="!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer)">
-            <div class="loadingCoverContainer">
-                <div class="loadingCoverWrapper">
-                    <div class="loadingCover">
-                        <UILoadingSquare></UILoadingSquare>
-                    </div>
-                </div>
-                <div class="loadingText">
-                    {{ $props.text }}
-                </div>
+        <div class="loadingCoverContainer" v-if="!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer)">
+            <div class="loadingCoverSquareWrapper">
+                <UILoadingSquare></UILoadingSquare>
+            </div>
+            <div class="loadingCoverText">
+                {{ $props.text }}
             </div>
         </div>
     </Transition>
 </template>
 
 <style>
-.loadingCoverContainerWrapper {
+.loadingCoverContainer {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
     position: absolute;
     bottom: 0px;
     left: 0px;
     width: 100%;
     height: 100%;
-    transition: 1000ms linear opacity;
-    background-color: black;
-    opacity: 1;
-}
-
-.loadingCoverContainer {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     padding: 20vh 20vw;
+    background-color: black;
     align-items: center;
     justify-content: center;
+    transition: 500ms linear opacity;
+    opacity: 1;
 }
 
-.loadingCoverWrapper {
-    display: flex;
-    min-height: 0px;
-    height: 100%;
+.loadingCoverSquareWrapper {
+    width: min(50vw, 50vh);
+    height: min(50vw, 50vh);
+    margin-bottom: min(5vw, 5vh);
 }
 
-.loadingCover {
-    aspect-ratio: 1;
-}
-
-.loadingText {
-    font-size: 24px;
+.loadingCoverText {
+    font-size: 4vh;
 }
 </style>
 

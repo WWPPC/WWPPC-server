@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer, TitledCollapsible } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, IfOnscreenContainer, TitledCollapsible } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 </script>
 
@@ -12,7 +12,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
         <!-- spacer for title -->
         <div style="height: min(25vh, calc(125vw / 8));"></div>
         <div class="homeColumns">
-            <AnimateInContainer type="slideUp" :delay=100 single>
+            <AnimateInContainer type="slideUp" :delay=100>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -20,20 +20,20 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                                 <GlitchText text="WWP-IT" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: min(20px, calc(50vw / 10))" >
+                                <p style="font-size: min(20px, calc(50vw / 10))">
                                     WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=300 single>
-                                    <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=300>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=200 single>
+            <AnimateInContainer type="slideUp" :delay=200>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -46,8 +46,8 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=400 single>
-                                    <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=400>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -55,8 +55,8 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
-        <div class="centered homeScrollIndicator">
-            <AnimateInContainer type="fade" :delay=1000>
+        <div class="centered">
+            <AnimateInContainer type="fade" :delay=1000 show-on-screen>
                 <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
             </AnimateInContainer>
         </div>
@@ -75,26 +75,26 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
         </CenteredContainer>
         <UIDivider margin="32px"></UIDivider>
         <CenteredContainer>
-            <ShowOnscreenContainer>
+            <IfOnscreenContainer>
                 <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </ShowOnscreenContainer>
+            </IfOnscreenContainer>
         </CenteredContainer>
         <div class="homeFAQ">
             <div class="homeFAQ">
                 <h2 class="centered">WWPIT</h2>
-                <AnimateInContainer type="slideUp" single>
+                <AnimateInContainer type="slideUp" show-on-screen single>
                     <TitledCollapsible title="When is it?" height="100%" startCollapsed>
                         Eventually in 2024
                         <br>
                         <br>
                     </TitledCollapsible>
                 </AnimateInContainer>
-                <AnimateInContainer type="slideUp" single>
+                <AnimateInContainer type="slideUp" show-on-screen single>
                     <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
                         WWPIT will be held online.
                     </TitledCollapsible>
                 </AnimateInContainer>
-                <AnimateInContainer type="slideUp" single>
+                <AnimateInContainer type="slideUp" show-on-screen single>
                     <TitledCollapsible title="What is the contest format?" height="100%" startCollapsed>
                         Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.
                     </TitledCollapsible>
@@ -102,14 +102,14 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
             </div>
             <div class="homeFAQ">
                 <h2 class="centered">WWPHacks</h2>
-                <AnimateInContainer type="slideUp" single>
+                <AnimateInContainer type="slideUp" show-on-screen single>
                     <TitledCollapsible title="When is it?" height="100%" startCollapsed>
                         Eventually in 2024
                         <br>
                         <br>
                     </TitledCollapsible>
                 </AnimateInContainer>
-                <AnimateInContainer type="slideUp" single>
+                <AnimateInContainer type="slideUp" show-on-screen single>
                     <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
                         WWPHacks is TBD.
                     </TitledCollapsible>
@@ -127,7 +127,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     display: flex;
     flex-direction: column;
     justify-items: stretch;
-    min-height: 100%;
 }
 
 .homeTitle {

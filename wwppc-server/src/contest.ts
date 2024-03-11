@@ -4,7 +4,7 @@ import { Score } from "./database";
 import Logger from "./log";
 import Database from "./database";
 export class ContestManager {
-    private logger: Logger = new Logger();
+    // private logger: Logger = new Logger();
     // private database: Database = new Database("tempURL", "tempKey", this.logger);
     problemCache: Array<Array<Problem>> | undefined;
     roundNum = 0;

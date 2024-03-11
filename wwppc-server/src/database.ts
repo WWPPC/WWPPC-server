@@ -15,7 +15,7 @@ export class Database {
     /**
      * Resolves when database is connected.
      */
-    readonly connectPromise: Promise<boolean | undefined>;
+    readonly connectPromise: Promise<any>;
     readonly #db: Client;
     readonly #cryptr: Cryptr;
     readonly #rsaKeys = subtle.generateKey({
@@ -32,9 +32,10 @@ export class Database {
      * @param {Logger} logger Logging instance
      */
     constructor(uri: string, key: string, logger: Logger) {
-        this.logger = logger;
-        this.connectPromise = new Promise((r) => r(undefined));
         if (process.env.CONFIG_PATH == undefined) throw new Error('for some reason CONFIG_PATH is undefined and it shouldn\'t be');
+        this.logger = logger;
+        this.connectPromise = new Promise(() => undefined);
+        const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
         const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
         this.#db = new Client({
             connectionString: uri,
@@ -42,15 +43,18 @@ export class Database {
             ssl: process.env.DATABASE_CERT != undefined ? ({ ca: process.env.DATABASE_CERT }) : (fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false })
         });
         this.#cryptr = new Cryptr(key);
-        this.connectPromise = this.#db.connect().catch((err) => {
-            logger.fatal('Could not connect to database:');
-            logger.fatal(err);
-            logger.fatal('Host: ' + this.#db.host);
-            logger.destroy();
-            process.exit();
-        }).then(async () => {
-            this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
-        }).then(() => this.#ready = true);
+        this.connectPromise = Promise.all([
+            this.#db.connect().then(() => {
+                this.#ready = true
+            }, (err) => {
+                logger.fatal('Could not connect to database:');
+                logger.fatal(err);
+                logger.fatal('Host: ' + this.#db.host);
+                logger.destroy();
+                process.exit();
+            }),
+            setPublicKey()
+        ]);
         this.connectPromise.then(() => {
             logger.info('Database connected');
             logger.debug('Connected to: ' + this.#db.host);
@@ -172,7 +176,6 @@ export class Database {
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;
             }
-            return AccountOpResult.INCORRECT_CREDENTIALS;
         } catch (err) {
             this.logger.error('Database error:');
             this.logger.error('' + err);

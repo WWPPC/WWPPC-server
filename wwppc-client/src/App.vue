@@ -8,13 +8,18 @@ import PageLogin from '@/pages/PageLogin.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import { ref, watch } from 'vue';
+import '@/scripts/app';
 
 const modalComponent = ref<InstanceType<typeof FullscreenModal>>();
 
 const modal = globalModal();
 watch(() => modalComponent.value, () => {
     if (modalComponent.value != undefined) modal.setModal(modalComponent.value);
-})
+});
+
+window.addEventListener('error', (err) => {
+    modal.showModal({ title: 'An Error Occured', content: `<span style="color: red;">${err.message}<br>${err.filename} ${err.lineno}:${err.colno}</span>`, color: 'red'});
+});
 </script>
 
 <template name="app">

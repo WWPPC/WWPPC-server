@@ -99,7 +99,7 @@ rounds.push({
         <div class="contestProblemListWrapper">
             <AngledTitledContainer title="Problems" height="100%">
                 <div class="contestProblemList">
-                    <AnimateInContainer v-for="(round, index) in rounds" :key=round.number type="slideUp" :delay="index * 200" single>
+                    <AnimateInContainer v-for="(round, index) in rounds" :key=round.number type="slideUp" :delay="index * 200">
                         <ContestProblemListRound :data=round></ContestProblemListRound>
                     </AnimateInContainer>
                 </div>

@@ -1,5 +1,5 @@
 {
-    "port": 8080,
+    "port": 8000,
     "serveStatic": false,
     "maxConnectPerSecond": 5,
     "superSecretSecret": false

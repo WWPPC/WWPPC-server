@@ -27,7 +27,6 @@ const limiter = rateLimit({
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
-app.enable('trust proxy');
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
@@ -64,7 +63,7 @@ const io = new (require('socket.io')).Server(server, {
 });
 io.on('connection', async (s) => {
     const socket = s;
-    const ip = socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1';
+    const ip = (socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1').split(',')[0].trim();
     // some spam protection stuff
     let kick = (reason = 'unspecified reason') => {
         logger.warn(`${ip} was kicked for violating restrictions; ${reason}`);
@@ -125,36 +124,46 @@ io.on('connection', async (s) => {
             if (creds.action == 1) {
                 // verify recaptcha with an unnecessarily long bit of HTTP request code
                 const recaptchaResponse: any = await new Promise((resolve, reject) => {
-                    const req = http.request('https://www.google.com/recaptcha/api/siteverify', {
-                        method: 'POST'
+                    const req = https.request({
+                        hostname: 'www.google.com',
+                        path: `/recaptcha/api/siteverify`,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
                     }, (res) => {
                         if (res.statusCode == 200) {
-                            res.on('error', (err) => reject('HTTPS POST response decode error: ' + err.message));
+                            res.on('error', (err) => reject(`HTTPS ${req.method} response error: ${err.message}`));
                             let chunks: Buffer[] = [];
                             res.on('data', (chunk) => chunks.push(chunk));
                             res.on('end', () => {
                                 resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
                             });
                         } else {
-                            reject('HTTPS POST returned status ' + res.statusCode);
+                            reject(`HTTPS ${req.method} response returned status ${res.statusCode}`);
                         }
                     });
                     req.on('error', (err) => {
-                        reject('HTTPS POST request error: ' + err);
+                        reject(`HTTPS ${req.method} request error: ${err.message}`);
                     });
-                    req.write(JSON.stringify({secret: process.env.RECAPTCHA_SECRET, response: creds.token}))
+                    req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&response=${encodeURIComponent(creds.token)}&remoteip=${encodeURIComponent(ip)}`);
+                    req.end();
                 }).catch((err) => {
                     logger.error('ReCaptcha verification failed:');
                     logger.error(err);
-                    return; // make sure recaptchaResponse is undefined
+                    return err;
                 });
-                if (recaptchaResponse == undefined || recaptchaResponse.success !== true) {
+                if (recaptchaResponse instanceof Error) {
+                    socket.emit('credentialRes', AccountOpResult.ERROR);
+                    resolve(true);
+                    return;
+                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.7) {
                     socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                     resolve(true);
                     return;
                 }
             }
-            const res = await (creds.action ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
+            const res = await (creds.action == 1 ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
             socket.emit('credentialRes', res);
             if (res == 0) {
                 socket.removeAllListeners('credentials');

@@ -34,8 +34,8 @@ defineProps<{
 }
 
 .uiLoadingSquare div {
-    width: 100%;
-    height: 100%;
+    width: 102%;
+    height: 102%;
     animation: 3500ms cubic-bezier(0.2, 0, 0.8, 1) ui-loading-square-colors infinite;
 }
 
