@@ -26,7 +26,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=300>
-                                    <UILinkButton text="Learn More" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -47,7 +47,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=400>
-                                    <UILinkButton text="Learn More" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -55,7 +55,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
-        <div class="centered homeScrollIndicator">
+        <div class="centered">
             <AnimateInContainer type="fade" :delay=1000 show-on-screen>
                 <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
             </AnimateInContainer>
@@ -127,7 +127,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     display: flex;
     flex-direction: column;
     justify-items: stretch;
-    min-height: 100%;
 }
 
 .homeTitle {

@@ -27,7 +27,6 @@ const limiter = rateLimit({
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
-app.enable('trust proxy');
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
@@ -126,8 +125,8 @@ io.on('connection', async (s) => {
                 // verify recaptcha with an unnecessarily long bit of HTTP request code
                 const recaptchaResponse: any = await new Promise((resolve, reject) => {
                     const req = http.request({
-                        hostname: 'www.weather.com',
-                        // path: `/recaptcha/api/siteverify`,
+                        hostname: 'www.google.com',
+                        path: `/recaptcha/api/siteverify`,
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
