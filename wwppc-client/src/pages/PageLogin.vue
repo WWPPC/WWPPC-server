@@ -60,11 +60,15 @@ const getErrorMessage = (res: number): string => {
     return res == 1 ? 'Account with username already exists' : res == 2 ? 'Account not found' : res == 3 ? 'Incorrect password' : res == 4 ? 'Database error' : 'Unknown error (this is a bug?)';
 };
 const attemptLogin = async () => {
-    if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '')) return;
-    const res = await serverConnection.login(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '');
-    if (res == 0) {
-        router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
-    } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
+    try {
+        if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '')) return;
+        const res = await serverConnection.login(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '');
+        if (res == 0) {
+            router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
+        } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
+    } catch (err) {
+        console.error(err);
+    }
 };
 const toSignUp = () => {
     isSignupPage.value = true;
@@ -74,13 +78,17 @@ const toSignUp = () => {
     if (languageInput.value) languageInput.value.selected = [];
 };
 const attemptSignup = async () => {
-    if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
-    await recaptchaLoaded();
-    const token = await executeRecaptcha('signup');
-    const res = await serverConnection.signup(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '', emailInput.value?.text.trim() ?? '', token ?? '');
-    if (res == 0) {
-        router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
-    } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
+    try {
+        if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
+        await recaptchaLoaded();
+        const token = await executeRecaptcha('signup');
+        const res = await serverConnection.signup(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '', emailInput.value?.text.trim() ?? '', token ?? '');
+        if (res == 0) {
+            router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
+        } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
+    } catch (err) {
+        console.error(err);
+    }
 };
 </script>
 
@@ -88,12 +96,12 @@ const attemptSignup = async () => {
 </script>
 
 <template>
-    <PanelView name="login">
+    <PanelView name="login" title="WWPPC">
         <PanelHeader>
             <PanelNavLargeLogo target="/home/home?clearQuery"></PanelNavLargeLogo>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="login" isDefault>
+            <PanelBody name="login" title="Login" is-default>
                 <!-- matrix rain? that's overdone -->
                 <!-- some other cool effect in the background -->
                 <!-- line of glitches following the mouse? -->

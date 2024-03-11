@@ -12,10 +12,11 @@ const props = defineProps<{
 const route = useRoute();
 
 const instance = getCurrentInstance();
-watch(() => route.params, async () => {
+watch(() => route.params.page, async () => {
     await nextTick();
     if (instance?.isMounted && (route.params.page == props.name || (route.params.page == undefined && props.isDefault))) setTitlePage(props.title ?? '');
 });
+if (route.params.page === undefined && props.isDefault) setTitlePage(props.title ?? '');
 </script>
 
 <template>

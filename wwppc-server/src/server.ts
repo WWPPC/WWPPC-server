@@ -27,6 +27,7 @@ const limiter = rateLimit({
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
+app.enable('trust proxy');
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {

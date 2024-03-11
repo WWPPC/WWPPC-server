@@ -10,10 +10,11 @@ const props = defineProps<{
 }>();
 
 const instance = getCurrentInstance();
-watch(() => route.params, async () => {
+watch(() => route.params.panel, async () => {
     await nextTick();
     if (instance?.isMounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
 });
+if (route.params.panel === undefined && props.isDefault) setTitlePanel(props.title ?? '');
 </script>
 
 <template>
