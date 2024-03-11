@@ -124,7 +124,7 @@ io.on('connection', async (s) => {
             if (creds.action == 1) {
                 // verify recaptcha with an unnecessarily long bit of HTTP request code
                 const recaptchaResponse: any = await new Promise((resolve, reject) => {
-                    const req = http.request({
+                    const req = https.request({
                         hostname: 'www.google.com',
                         path: `/recaptcha/api/siteverify`,
                         method: 'POST',
@@ -133,32 +133,31 @@ io.on('connection', async (s) => {
                         }
                     }, (res) => {
                         if (res.statusCode == 200) {
-                            res.on('error', (err) => reject(`HTTP ${req.method} response error: ${err.message}`));
+                            res.on('error', (err) => reject(`HTTPS ${req.method} response error: ${err.message}`));
                             let chunks: Buffer[] = [];
                             res.on('data', (chunk) => chunks.push(chunk));
                             res.on('end', () => {
                                 resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
                             });
                         } else {
-                            reject(`HTTP ${req.method} response returned status ${res.statusCode}`);
+                            reject(`HTTPS ${req.method} response returned status ${res.statusCode}`);
                         }
                     });
                     req.on('error', (err) => {
-                        reject(`HTTP ${req.method} request error: ${err.message}`);
+                        reject(`HTTPS ${req.method} request error: ${err.message}`);
                     });
-                    req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&reponse=${encodeURIComponent(creds.token)}&remoteip=${encodeURIComponent(ip)}`);
+                    req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&response=${encodeURIComponent(creds.token)}&remoteip=${encodeURIComponent(ip)}`);
                     req.end();
                 }).catch((err) => {
                     logger.error('ReCaptcha verification failed:');
                     logger.error(err);
                     return err;
                 });
-                console.log(recaptchaResponse)
                 if (recaptchaResponse instanceof Error) {
                     socket.emit('credentialRes', AccountOpResult.ERROR);
                     resolve(true);
                     return;
-                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true) {
+                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.7) {
                     socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                     resolve(true);
                     return;
