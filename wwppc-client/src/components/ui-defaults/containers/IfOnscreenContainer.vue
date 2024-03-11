@@ -4,7 +4,7 @@ export default {
         single: Boolean
     },
     data() {
-        return { createdObserver: false }
+        return { show: false, createdObserver: false }
     },
     mounted() {
         if (this.createdObserver) return;
@@ -12,15 +12,14 @@ export default {
         if (this.$props.single) {
             const observer = new IntersectionObserver(([entry]) => {
                 if (entry.isIntersecting) {
-                    this.$el.classList.remove('invisible');
+                    this.$data.show = true;
                     observer.unobserve(this.$el)
                 }
             }, { threshold: 0 });
             observer.observe(this.$el);
         } else {
             const observer = new IntersectionObserver(([entry]) => {
-                if (entry.isIntersecting) this.$el.classList.remove('invisible');
-                else this.$el.classList.add('invisible');
+                this.$data.show = entry.isIntersecting;
             }, { threshold: 0 });
             observer.observe(this.$el);
         }
@@ -30,7 +29,7 @@ export default {
 
 <template>
     <div>
-        <div class="invisible">
+        <div v-if=$data.show>
             <slot></slot>
         </div>
     </div>

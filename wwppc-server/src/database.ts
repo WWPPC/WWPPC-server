@@ -34,7 +34,7 @@ export class Database {
     constructor(uri: string, key: string, logger: Logger) {
         if (process.env.CONFIG_PATH == undefined) throw new Error('for some reason CONFIG_PATH is undefined and it shouldn\'t be');
         this.logger = logger;
-        this.connectPromise = new Promise((r) => r(undefined));
+        this.connectPromise = new Promise(() => undefined);
         const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
         const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
         this.#db = new Client({
@@ -44,13 +44,15 @@ export class Database {
         });
         this.#cryptr = new Cryptr(key);
         this.connectPromise = Promise.all([
-            // this.#db.connect().catch((err) => {
-            //     logger.fatal('Could not connect to database:');
-            //     logger.fatal(err);
-            //     logger.fatal('Host: ' + this.#db.host);
-            //     logger.destroy();
-            //     process.exit();
-            // }).then(() => this.#ready = true),
+            this.#db.connect().then(() => {
+                this.#ready = true
+            }, (err) => {
+                logger.fatal('Could not connect to database:');
+                logger.fatal(err);
+                logger.fatal('Host: ' + this.#db.host);
+                logger.destroy();
+                process.exit();
+            }),
             setPublicKey()
         ]);
         this.connectPromise.then(() => {

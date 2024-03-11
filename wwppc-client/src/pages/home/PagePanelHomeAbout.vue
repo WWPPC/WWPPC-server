@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
-import { ShowOnscreenContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
@@ -15,9 +14,7 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
     </div>
     <div class="fullBlock">
         <div class="centered">
-            <ShowOnscreenContainer single>
-                <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
         </div>
         <br>
         <br>

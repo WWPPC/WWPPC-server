@@ -126,8 +126,8 @@ io.on('connection', async (s) => {
                 // verify recaptcha with an unnecessarily long bit of HTTP request code
                 const recaptchaResponse: any = await new Promise((resolve, reject) => {
                     const req = http.request({
-                        hostname: 'www.google.com',
-                        path: `/recaptcha/api/siteverify`,
+                        hostname: 'www.weather.com',
+                        // path: `/recaptcha/api/siteverify`,
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'

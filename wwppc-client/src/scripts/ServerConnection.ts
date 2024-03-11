@@ -19,6 +19,7 @@ const attemptConnect = () => {
     }, () => {
         if (connectionAttempts <= 5) attemptConnect();
         else {
+            console.error(`ServerConnection: Wakeup call failed for ${serverHostname}`);
             connectErrorHandlers.forEach(cb => cb());
             connectError.value = true;
         }
@@ -142,8 +143,8 @@ export const useServerConnection = defineStore('socketio', {
 });
 
 socket.on('connect', () => console.info(`ServerConnection: Connected to ${serverHostname}`));
-socket.on('connect_error', () => console.info(`ServerConnection: Connection error for ${serverHostname}`));
-socket.on('connect_fail', () => console.info(`ServerConnection: Connection failed for ${serverHostname}`));
-socket.on('disconnect', (reason) => console.info(`ServerConnection: Disconnected: ${reason}`));
-socket.on('timeout', () => console.info(`ServerConnection: Timed out`));
-socket.on('error', (err) => console.info(`ServerConnection: Error: ${err}`));
+socket.on('connect_error', () => console.error(`ServerConnection: Connection error for ${serverHostname}`));
+socket.on('connect_fail', () => console.error(`ServerConnection: Connection failed for ${serverHostname}`));
+socket.on('disconnect', (reason) => console.error(`ServerConnection: Disconnected: ${reason}`));
+socket.on('timeout', () => console.error(`ServerConnection: Timed out`));
+socket.on('error', (err) => console.error(`ServerConnection: Error: ${err}`));
