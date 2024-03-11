@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
+import { IfOnscreenContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
     <div class="fullBlock">
         <div class="centered">
-            <GlitchText text="About WWPPC" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+            <IfOnscreenContainer>
+                <GlitchText text="About WWPPC" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+            </IfOnscreenContainer>
         </div>
         <p>
             WWPPC is the combined hosts of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South's Coding Clubs. insert more description here
@@ -14,7 +17,9 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
     </div>
     <div class="fullBlock">
         <div class="centered">
-            <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+            <IfOnscreenContainer>
+                <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+            </IfOnscreenContainer>
         </div>
         <br>
         <br>
