@@ -39,7 +39,7 @@ export class Database {
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
-            ssl: fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false }
+            ssl: process.env.DATABASE_CERT != undefined ? ({ ca: process.env.DATABASE_CERT }) : (fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false })
         });
         this.#cryptr = new Cryptr(key);
         this.connectPromise = this.#db.connect().catch((err) => {
