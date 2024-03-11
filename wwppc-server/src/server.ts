@@ -1,24 +1,24 @@
-// Copyright (C) 2024 Sampleprovider(sp)
-
 import fs from 'fs';
 import path from 'path';
 import { configDotenv } from 'dotenv';
 configDotenv();
+process.env.CONFIG_PATH ??= path.resolve(__dirname, '../config/');
+process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
 
-const config = require('../config/config.json');
+const config = require(path.resolve(process.env.CONFIG_PATH, 'config.json'));
 import express from 'express';
 import http from 'http';
 import https from 'https';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 const app = express();
-const server = fs.existsSync(path.resolve(__dirname, '../config/.local')) ? https.createServer({
-    key: fs.readFileSync(path.resolve(__dirname, '../config/localhost-key.pem')),
-    cert: fs.readFileSync(path.resolve(__dirname, '../config/localhost.pem'))
+const server = fs.existsSync(path.resolve(process.env.CONFIG_PATH, 'cert.pem')) ? https.createServer({
+    key: fs.readFileSync(path.resolve(process.env.CONFIG_PATH, 'cert-key.pem')),
+    cert: fs.readFileSync(path.resolve(process.env.CONFIG_PATH, 'cert.pem'))
 }, app) : http.createServer(app);
 const limiter = rateLimit({
     windowMs: 100,
@@ -30,9 +30,8 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
-    const clientDir = path.resolve(__dirname, './../../wwppc-client/dist');
-    const indexDir = path.resolve(clientDir, 'index.html');
-    app.use('/', express.static(clientDir));
+    const indexDir = path.resolve(process.env.CLIENT_PATH, 'index.html');
+    app.use('/', express.static(process.env.CLIENT_PATH));
     app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
     app.get('*', (req, res) => {
         // last handler - if nothing else finds the page, just send 404

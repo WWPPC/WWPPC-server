@@ -1,5 +1,5 @@
-// Copyright (C) 2024 Sampleprovider(sp)
-
+import fs from 'fs';
+import path from 'path';
 import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 const salt = 5;
@@ -34,10 +34,12 @@ export class Database {
     constructor(uri: string, key: string, logger: Logger) {
         this.logger = logger;
         this.connectPromise = new Promise((r) => r(undefined));
-        console.log(uri)
+        if (process.env.CONFIG_PATH == undefined) throw new Error('for some reason CONFIG_PATH is undefined and it shouldn\'t be');
+        const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
+            ssl: fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false }
         });
         this.#cryptr = new Cryptr(key);
         this.connectPromise = this.#db.connect().catch((err) => {

@@ -1,4 +1,3 @@
-// Copyright (C) 2024 Sampleprovider(sp)
 import database, { Problem } from "./database";
 import { Submission } from "./database";
 import { Score } from "./database";
