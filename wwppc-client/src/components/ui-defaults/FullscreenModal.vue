@@ -145,6 +145,10 @@ export interface ModalParams {
     margin-top: 16px;
 }
 
+.modalBody p {
+    text-align: center;
+}
+
 .modalButtons {
     margin: 8px 0px;
     margin-bottom: 16px;

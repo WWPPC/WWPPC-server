@@ -10,7 +10,8 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="WWPPC" for="/home"></PanelNavButton>
+                <PanelNavButton text="Home" for="/hackathon/home"></PanelNavButton>
                 <PanelNavButton text="Other Button" for="/extra"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
@@ -18,7 +19,7 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="info" title="Home" is-default>
+            <PanelBody name="home" title="Home" is-default>
                 <PagePanelHackathonInfo></PagePanelHackathonInfo>
             </PanelBody>
         </PanelMain>
