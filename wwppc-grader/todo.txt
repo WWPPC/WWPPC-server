@@ -1,4 +1,0 @@
-grading server
-
-performs http requests to the main website to download submissions
-domjudge
