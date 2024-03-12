@@ -46,7 +46,7 @@ watch(() => route.params.page, () => {
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="WWPPC" for="/home"></PanelNavButton>
-                <PanelNavButton text="Home" for="/contest/home" is-default></PanelNavButton>
+                <PanelNavButton text="WWPIT Home" for="/contest/home" is-default></PanelNavButton>
                 <div v-if="serverConnection.loggedIn || route.query.ignore_server !== undefined" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                 </div>
@@ -57,7 +57,7 @@ watch(() => route.params.page, () => {
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
-                <ContestTimer></ContestTimer>
+                <ContestTimer v-if="serverConnection.loggedIn || route.query.ignore_server !== undefined"></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
