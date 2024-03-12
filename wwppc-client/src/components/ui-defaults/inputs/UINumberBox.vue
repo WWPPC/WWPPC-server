@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted } from 'vue';
+
 
 const props = defineProps<{
     min?: number
@@ -15,13 +16,15 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'input', value: number): void
 }>();
-const number = ref(props.defaultValue ?? 0);
+const number = defineModel({ default: 0 });
 function input() {
     emit('input', number.value);
 }
 defineExpose({
     number
 });
+
+onMounted(() => number.value = props.defaultValue ?? 0);
 </script>
 
 <template>

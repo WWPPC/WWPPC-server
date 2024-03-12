@@ -12,12 +12,12 @@ const props = defineProps<{
 }>();
 
 const show = ref(props.startCollapsed == false);
-const body = ref(HTMLDivElement.prototype);
+const body = ref<HTMLDivElement>();
 const boxHeight = ref(0);
 
 onBeforeUpdate(async () => {
     await nextTick();
-    boxHeight.value = body.value.getBoundingClientRect().height;
+    boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
 });
 
 defineExpose({

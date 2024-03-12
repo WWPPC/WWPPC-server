@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 
 interface DropdownItem {
     text: string
@@ -13,7 +12,7 @@ const props = defineProps<{
     height?: string
     default?: string
 }>();
-const selected = ref<string | string[]>([]);
+const selected = defineModel<string | string[]>({ default: '' });
 const emit = defineEmits<{
     (e: 'input', value: string | string[]): void
 }>();
@@ -21,7 +20,9 @@ function input() {
     emit('input', selected.value);
 }
 defineExpose({
-    selected
+    selected,
+    items: props.items,
+    groupedItems: props.groupedItems
 });
 </script>
 

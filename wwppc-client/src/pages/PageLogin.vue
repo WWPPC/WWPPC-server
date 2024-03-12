@@ -81,7 +81,7 @@ const toSignUp = () => {
     if (emailInput.value) emailInput.value.text = '';
     if (gradeInput.value) gradeInput.value.selected = '';
     if (experienceInput.value) experienceInput.value.selected = '';
-    if (languageInput.value) languageInput.value.selected = [];
+    if (languageInput.value) languageInput.value.selected = '';
 };
 const attemptSignup = async () => {
     try {
@@ -122,7 +122,7 @@ const attemptSignup = async () => {
                                     <h1 class="loginFlowHeader">Log In</h1>
                                     <!-- we're using socketio -->
                                     <form class="loginFlow" action="javascript:void(0)">
-                                        <UITextBox ref="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off" required></UITextBox>
+                                        <UITextBox ref="usernameInput" placeholder="Username" type="username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off" required></UITextBox>
                                         <UITextBox ref="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" autocomplete="current-password" required></UITextBox>
                                         <span>
                                             <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="usernameInput?.text.trim() == ''"></UIButton>

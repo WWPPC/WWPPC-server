@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted } from 'vue';
+
 
 const props = defineProps<{
     defaultValue?: string
@@ -8,20 +9,22 @@ const props = defineProps<{
     width?: string
     height?: string
     font?: string
-    type?: 'text' | 'password' | 'email'
+    type?: 'text' | 'username' | 'password' | 'email'
     placeholder?: string
     autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'off'
 }>();
 const emit = defineEmits<{
     (e: 'input', value: string): void
 }>();
-const text = ref(props.defaultValue ?? '');
+const text = defineModel({ default: '' });
 function input() {
     emit('input', text.value);
 }
 defineExpose({
     text
 });
+
+onMounted(() => text.value = props.defaultValue ?? '');
 </script>
 
 <template>

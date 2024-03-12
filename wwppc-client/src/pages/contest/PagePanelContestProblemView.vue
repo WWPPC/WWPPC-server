@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { UIButton, UIDropdown, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
 import { ref, watch, type Ref } from 'vue';
 
@@ -21,41 +21,27 @@ watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
 
-function sanitize(event: any) {
-    var ext = event.target.files[0].name.split(".").at(-1);
-    //stuff like file type and file size idk
-    autofillLanguage(event, ext);
-}
-
-function autofillLanguage(event: any, ext: string) {
-    var dropdown = event.target.parentElement.getElementsByClassName("uiDropdown")[0];
-    //local storage for language options? rn its hard coded
-    var autofillOption;
-    switch (ext) {
-        case "cpp":
-            autofillOption = "cpp17";
-            break;
-        case "c":
-            autofillOption = "c";
-            break;
-        case "py":
-            autofillOption = "py369";
-            break;
-        case "java":
-            autofillOption = "java21";
-            break;
-        default:
-            break;
+// autofill
+const fileUpload = ref<InstanceType<typeof UIFileUpload>>();
+const languageDropdown = ref<InstanceType<typeof UIDropdown>>();
+// typescript kept complaining about "var" and semicolons
+function sanitizeUpload() {
+    const file: File | undefined | null = fileUpload.value?.files?.item(0);
+    if (fileUpload.value == undefined || file == undefined) return;
+    if (file.size > 10485760) {
+        fileUpload.value.files;
+        return;
     }
-
-    for (var i = 0; i < dropdown.options.length; i++) {
-        if (dropdown.options[i].value == autofillOption) {
-            dropdown.selectedIndex = i;
+    const ext = file.name.split(".").at(-1);
+    if (languageDropdown.value == undefined || ext == undefined) return;
+    const options = Array.from(languageDropdown.value.items).reverse();
+    for (const option of options) {
+        if (option.value.includes(ext)) {
+            languageDropdown.value.selected = option.value;
             break;
         }
     }
 }
-
 </script>
 
 <template>
@@ -83,10 +69,9 @@ function autofillLanguage(event: any, ext: string) {
                     <form class="problemViewSubmitForm" action="javascript:void(0)">
                         <div class="problemViewSubmitFormInner">
                             <span>Source code:</span>
-                            <input type="file" @change="sanitize($event)" required>
+                            <UIFileUpload ref="fileUpload" @input=sanitizeUpload></UIFileUpload>
                             <span>Language:</span>
-                            <!-- dont change these indices without changing autofillLanguage() its hardcoded -->
-                            <UIDropdown :items="[
+                            <UIDropdown ref="languageDropdown" :items="[
                 { text: 'Java 8', value: 'java8' },
                 { text: 'Java 17', value: 'java17' },
                 { text: 'Java 21', value: 'java21' },
@@ -96,7 +81,7 @@ function autofillLanguage(event: any, ext: string) {
                 { text: 'Python 3.6.9', value: 'py369' }
             ]" required></UIDropdown>
                         </div>
-                        <UIButton text="Upload Submission"></UIButton>
+                        <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
                     </form>
                 </DoubleCutCornerContainer>
             </div>
@@ -145,6 +130,7 @@ function autofillLanguage(event: any, ext: string) {
 .problemViewSubmitForm {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 .problemViewSubmitFormInner {
     display: grid;

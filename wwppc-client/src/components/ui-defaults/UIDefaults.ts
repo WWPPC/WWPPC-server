@@ -5,6 +5,7 @@ import UITextBox from './inputs/UITextBox.vue';
 import UINumberBox from './inputs/UINumberBox.vue';
 import UIToggle from './inputs/UIToggle.vue';
 import UIDropdown from './inputs/UIDropdown.vue';
+import UIFileUpload from './inputs/UIFileUpload.vue';
 import UIImage from './UIImage.vue';
 import UILoadingBar from './UILoadingBar.vue';
 import UILoadingSpinner from './UILoadingSpinner.vue';
@@ -21,6 +22,7 @@ export {
     UINumberBox,
     UIToggle,
     UIDropdown,
+    UIFileUpload,
     UIImage,
     UILoadingBar,
     UILoadingSpinner,
