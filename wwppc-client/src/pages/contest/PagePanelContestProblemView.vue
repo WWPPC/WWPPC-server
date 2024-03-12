@@ -12,7 +12,7 @@ const problem: Ref<ContestProblem> = ref({
     number: 0,
     name: 'Problem Name',
     author: 'SP^2',
-    content: '<b>Lorem ipsum dolor sit amet</b>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br><code>1 + 1</code>',
+    content: '<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br><code>1 + 1</code>',
     constraints: { memory: 256, time: 4000 },
     status: ContestProblemCompletionState.ERROR
 });
@@ -20,6 +20,41 @@ const problem: Ref<ContestProblem> = ref({
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
+
+function sanitize(event: any) {
+    var ext = event.target.files[0].name.split(".").at(-1);
+    //stuff like file type and file size idk
+    autofillLanguage(event, ext);
+}
+
+function autofillLanguage(event: any, ext: string) {
+    var dropdown = event.target.parentElement.getElementsByClassName("uiDropdown")[0];
+    //local storage for language options? rn its hard coded
+    var autofillOption;
+    switch (ext) {
+        case "cpp":
+            autofillOption = "cpp17";
+            break;
+        case "c":
+            autofillOption = "c";
+            break;
+        case "py":
+            autofillOption = "py369";
+            break;
+        case "java":
+            autofillOption = "java21";
+            break;
+        default:
+            break;
+    };
+
+    for (var i = 0; i < dropdown.options.length; i++) {
+        if (dropdown.options[i].value == autofillOption) {
+            dropdown.selectedIndex = i;
+            break;
+        }
+    }
+}
 
 </script>
 
@@ -41,16 +76,16 @@ watch(() => problem.value.name, () => {
                     <div style="text-align: center;">
                         <h3>Submit</h3>
                         <div style="text-align: justify;">
-                            Submissions aren't graded until the round is over. You can update your submission at any time.
+                            Submissions are not graded until the round is over, but you can update your submission at any time.
                         </div>
                     </div>
                     <br>
                     <form class="problemViewSubmitForm" action="javascript:void(0)">
                         <div class="problemViewSubmitFormInner">
                             <span>Source code:</span>
-                            <input type="file" required>
-                            <span>Langauge:</span>
-                            <!-- VSCODE WHYYY -->
+                            <input type="file" @change="sanitize($event)" required>
+                            <span>Language:</span>
+                            <!-- dont change these indices without changing autofillLanguage() its hardcoded -->
                             <UIDropdown :items="[
                 { text: 'Java 8', value: 'java8' },
                 { text: 'Java 17', value: 'java17' },
