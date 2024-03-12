@@ -2,13 +2,13 @@ import { defineStore } from "pinia";
 
 // to be used in contest timer, contest problem list displays, etc
 
-export interface ContestRound {
+export type ContestRound = {
     division: number
     number: number
     time: number
     problems: ContestProblem[]
 }
-export interface ContestProblem {
+export type ContestProblem = {
     division: number
     round: number
     number: number

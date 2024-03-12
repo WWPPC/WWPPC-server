@@ -47,28 +47,31 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
-import Database, { AccountOpResult } from './database';
-const database = new Database(process.env.DATABASE_URL, process.env.DATABASE_KEY, logger);
 config.port = process.env.PORT ?? config.port;
 
+// actually start server here
+import Database, { AccountOpResult } from './database';
+import { Server as SocketIOServer } from 'socket.io';
 import ContestManager from './contest';
+
+const database = new Database(process.env.DATABASE_URL, process.env.DATABASE_KEY, logger);
 const contestManager = new ContestManager();
 
 const sessionId = Math.random();
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
-const io = new (require('socket.io')).Server(server, {
+const io = new SocketIOServer(server, {
     path: '/socket.io',
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 io.on('connection', async (s) => {
     const socket = s;
-    const ip = (socket.handshake.headers['x-forwarded-for'] ?? '127.0.0.1').split(',')[0].trim();
+    socket.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
+    const ip = typeof socket.handshake.headers['x-forwarded-for'] == 'string' ? socket.handshake.headers['x-forwarded-for'].split(',')[0].trim() : socket.handshake.headers['x-forwarded-for'][0].trim();
     // some spam protection stuff
-    let kick = (reason = 'unspecified reason') => {
+    let kick = (reason: string | Error = 'unspecified reason') => {
         logger.warn(`${ip} was kicked for violating restrictions; ${reason}`);
         socket.removeAllListeners();
-        socket.onevent = function (packet) { };
         socket.disconnect();
     };
     socket.on('error', kick);
@@ -78,7 +81,6 @@ io.on('connection', async (s) => {
         if (!recentConnectionKicks.has(ip)) kick('too many connections');
         else {
             socket.removeAllListeners();
-            socket.onevent = function (packet) { };
             socket.disconnect();
         }
         recentConnectionKicks.add(ip);
@@ -86,15 +88,9 @@ io.on('connection', async (s) => {
     }
     // spam DOS protection
     let packetCount = 0;
-    const onevent = socket.onevent;
-    socket.onevent = function (packet) {
-        if (packet.data[0] == null) {
-            kick('invalid packet');
-            return;
-        }
-        onevent.call(this, packet);
+    socket.onAny((event, ...args) => {
         packetCount++;
-    };
+    });
     const packetcheck = setInterval(async function () {
         if (!socket.connected) clearInterval(packetcheck);
         packetCount = Math.max(packetCount - 250, 0);
