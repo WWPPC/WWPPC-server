@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps<{
     title: string
@@ -12,6 +12,17 @@ const props = defineProps<{
 }>();
 
 const show = ref(props.startCollapsed == false);
+const body = ref(HTMLDivElement.prototype);
+const boxHeight = ref(0);
+
+onBeforeUpdate(async () => {
+    await nextTick();
+    boxHeight.value = body.value.getBoundingClientRect().height;
+});
+
+defineExpose({
+    show
+});
 </script>
 
 <template>
@@ -22,7 +33,7 @@ const show = ref(props.startCollapsed == false);
             <input type="checkbox" v-model=show style="display: none">
         </label>
         <div class="headeredCollapsibleContainerBodyWrapper">
-            <div class="headeredCollapsibleContainerBody">
+            <div class="headeredCollapsibleContainerBody" ref="body">
                 <slot></slot>
             </div>
         </div>
@@ -45,6 +56,7 @@ const show = ref(props.startCollapsed == false);
     display: flex;
     flex-direction: row;
     padding: 8px 12px;
+    margin-bottom: -4px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
     background-color: #222;
@@ -53,7 +65,7 @@ const show = ref(props.startCollapsed == false);
 }
 
 .headeredCollapsibleContainerTitle {
-    margin: auto;
+    margin: 0px 0px;
     text-align: v-bind("$props.align ?? 'left'");
     text-wrap: wrap;
     flex-grow: 1;
@@ -62,6 +74,7 @@ const show = ref(props.startCollapsed == false);
 .headeredCollapsibleContainerImage {
     width: 1em;
     height: 1em;
+    flex-shrink: 0;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -69,22 +82,18 @@ const show = ref(props.startCollapsed == false);
 }
 
 .headeredCollapsibleContainerBodyWrapper {
-    display: flex;
+    display: relative;
     width: 100%;
-    min-height: 0px;
-    /* min-height: v-bind("show ? ($props.height ?? '100%') : '0px'"); */
-    max-height: v-bind("show ? ($props.height ?? '100%') : '0px'");
-    height: 100%;
-    margin-top: -4px;
-    transition: 500ms ease max-height;
+    max-height: v-bind("show ? (boxHeight + 'px') : '0px'");
+    height: v-bind("boxHeight + 'px'");
+    transition: v-bind("Math.round(Math.sqrt(boxHeight * 200)) + 'ms'") ease max-height;
     overflow: clip;
 }
 
 .headeredCollapsibleContainerBody {
-    flex-shrink: 1;
+    position: absolute;
     box-sizing: border-box;
     width: 100%;
-    height: 100%;
     padding: 12px 12px;
     overflow-x: hidden;
     overflow-y: auto;

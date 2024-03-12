@@ -27,13 +27,13 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 </CutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="Come compete!" align="center" height="100%" hover-animation="lift" flipped>
+                <TitledDoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
                     <p>
-                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from USACO Bronze to Gold (CodeForces 800-3500)
+                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from USACO Bronze to Gold (CodeForces 800-3500).
                         <br><br>
-                        There will be a Novice and an Advanced division, with some overlap in problem difficulty.
+                        The contest will be held online between two divisions with some overlap between problem difficulty.
                         <br><br>
-                        add images here
+                        We hope that you'll have fun competing! :)
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
@@ -56,6 +56,20 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
                     WWP-IT will be held online, on this website!
+                    <br><br>
+                    You can <a href="" target="_blank">register here</a> at any time before the contest starts.
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="What's the contest format?" height="100%" startCollapsed>
+                    We plan on hosting a blend between ICPC and CodeForces contest format:
+                    <br><br>
+                    <ul>
+                        <li>The competition will be split into separate timed rounds, problems are only visible during the rounds</li>
+                        <li>Teams will be ranked by their total scores; partial scores for individual problems will be given</li>
+                        <li>Submission results are only visible once the round ends; teams are allowed to upload a submission at any time during around but only see their scores at the round end</li>
+                        <li>As usual, no outside sources are allowed, be a good sport and let people have fun!</li>
+                    </ul>
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>

@@ -22,8 +22,8 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     justify-content: center;
     text-align: center;
 }

@@ -108,6 +108,10 @@ code {
     border-radius: 0.2em;
 }
 
+ul {
+    margin: 0px 0px;
+}
+
 @supports selector(::-webkit-scrollbar) {
     *::-webkit-scrollbar {
         width: 16px;
