@@ -18,7 +18,6 @@ export class Database {
      */
     readonly connectPromise: Promise<any>;
     readonly #db: Client;
-    readonly #cryptr: Cryptr;
     readonly #rsaKeys = subtle.generateKey({
         name: "RSA-OAEP",
         modulusLength: 2048,
@@ -32,7 +31,7 @@ export class Database {
      * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
      * @param {Logger} logger Logging instance
      */
-    constructor(uri: string, key: string, logger: Logger) {
+    constructor(uri: string, logger: Logger) {
         if (process.env.CONFIG_PATH == undefined) throw new Error('for some reason CONFIG_PATH is undefined and it shouldn\'t be');
         this.logger = logger;
         this.connectPromise = new Promise(() => undefined);
@@ -43,7 +42,6 @@ export class Database {
             application_name: 'WWPPC Server',
             ssl: process.env.DATABASE_CERT != undefined ? ({ ca: process.env.DATABASE_CERT }) : (fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false })
         });
-        this.#cryptr = new Cryptr(key);
         this.connectPromise = Promise.all([
             this.#db.connect().then(() => {
                 this.#ready = true
@@ -117,12 +115,10 @@ export class Database {
      */
     async createAccount(username: string, password: string, email: string): Promise<AccountOpResult> {
         try {
-            const encryptedUsername = this.#cryptr.encrypt(username);
             const encryptedPassword = await bcrypt.hash(password, salt);
-            const encryptedEmail = this.#cryptr.encrypt(email);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3)', [encryptedUsername, encryptedPassword, encryptedEmail]);
+            else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3)', [username, encryptedPassword, email]);
             this.logger.info(`[Database] Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -139,8 +135,8 @@ export class Database {
      */
     async checkAccount(username: string, password: string): Promise<AccountOpResult> {
         try {
-            const encryptedUsername = this.#cryptr.encrypt(username);
-            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [encryptedUsername]);
+            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+            console.log(data.rowCount)
             if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -161,19 +157,17 @@ export class Database {
             if (adminUsername != undefined) {
                 this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
                 const res = this.checkAccount(adminUsername, password);
-                const encryptedUsername = this.#cryptr.encrypt(username); // wow so fast
                 if ((await res) != AccountOpResult.SUCCESS) return await res;
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
-                const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [encryptedUsername]); // still have to check account exists
+                const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rowCount == null || data.rowCount == 0) return AccountOpResult.NOT_EXISTS;
-                await this.#db.query('DELETE FROM users WHERE username=$1', [encryptedUsername]);
+                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = this.checkAccount(username, password);
-                const encryptedUsername = this.#cryptr.encrypt(username);
                 if ((await res) != AccountOpResult.SUCCESS) return await res;
-                await this.#db.query('DELETE FROM users WHERE username=$1', [encryptedUsername]);
+                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;
             }
@@ -192,8 +186,7 @@ export class Database {
      */
     async hasPerms(username: string, flag: AdminPerms): Promise<boolean> {
         try {
-            const encryptedUsername = this.#cryptr.encrypt(username);
-            const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [encryptedUsername]);
+            const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
             return data.rowCount != null && data.rowCount > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
             this.logger.error('Database error:');

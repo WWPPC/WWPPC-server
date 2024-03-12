@@ -44,7 +44,7 @@ if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // verify environment variables exist
-if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
+if (process.env.DATABASE_URL == undefined || process.env.RECAPTCHA_SECRET == undefined) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 config.port = process.env.PORT ?? config.port;
@@ -54,7 +54,7 @@ import Database, { AccountOpResult } from './database';
 import { Server as SocketIOServer } from 'socket.io';
 import ContestManager from './contest';
 
-const database = new Database(process.env.DATABASE_URL, process.env.DATABASE_KEY, logger);
+const database = new Database(process.env.DATABASE_URL, logger);
 const contestManager = new ContestManager();
 
 const sessionId = Math.random();
