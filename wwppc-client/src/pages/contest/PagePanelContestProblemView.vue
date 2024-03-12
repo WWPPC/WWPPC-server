@@ -46,7 +46,7 @@ function autofillLanguage(event: any, ext: string) {
             break;
         default:
             break;
-    };
+    }
 
     for (var i = 0; i < dropdown.options.length; i++) {
         if (dropdown.options[i].value == autofillOption) {
