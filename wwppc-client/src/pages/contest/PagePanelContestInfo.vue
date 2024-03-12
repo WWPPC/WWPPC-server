@@ -7,7 +7,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 <template>
     <div class="fullBlock stretchBlock">
         <div class="centered">
-            <GlitchText text="WWP IT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=20></GlitchText>
+            <GlitchText text="WWP IT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
         </div>
         <!-- a couple of containers containing information about what WWPHacks is (what is a hackathon?) -->
         <div class="contestInfoBlock">
