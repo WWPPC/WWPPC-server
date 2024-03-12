@@ -32,7 +32,7 @@ const { executeRecaptcha, recaptchaLoaded, instance } = useReCaptcha() ?? { exec
 watch(() => route.params.page, async () => {
     if (route.params.page == 'login') {
         serverConnection.handshakePromise.then(() => {
-            if (serverConnection.loggedIn) router.push({ path: (typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home?clearQuery', query: { clearQuery: 1 } });
+            if (serverConnection.loggedIn) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home?clearQuery', query: { clearQuery: 1 } });
         });
         if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
         if (serverConnection.handshakeComplete && !serverConnection.connected) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
@@ -69,7 +69,7 @@ const attemptLogin = async () => {
         const res = await serverConnection.login(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '');
         showLoginWait.value = false;
         if (res == 0) {
-            router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
+            router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
         } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
     } catch (err) {
         console.error(err);
@@ -85,13 +85,13 @@ const toSignUp = () => {
 const attemptSignup = async () => {
     try {
         if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
+        showLoginWait.value = true;
         await recaptchaLoaded();
         const token = await executeRecaptcha('signup');
-        showLoginWait.value = true;
         const res = await serverConnection.signup(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '', emailInput.value?.text.trim() ?? '', token ?? '');
         showLoginWait.value = false;
         if (res == 0) {
-            router.push((typeof route.params.redirect == 'string' ? route.params.redirect : (route.params.redirect ?? [])[0]) ?? '/home');
+            router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
         } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
     } catch (err) {
         console.error(err);

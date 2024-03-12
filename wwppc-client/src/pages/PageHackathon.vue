@@ -2,7 +2,7 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
-import PagePanelHackathonHome from './hackathon/PagePanelHackathonHome.vue';
+import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
 </script>
 
 <template>
@@ -18,8 +18,8 @@ import PagePanelHackathonHome from './hackathon/PagePanelHackathonHome.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" title="Home" is-default>
-                <PagePanelHackathonHome></PagePanelHackathonHome>
+            <PanelBody name="info" title="Home" is-default>
+                <PagePanelHackathonInfo></PagePanelHackathonInfo>
             </PanelBody>
         </PanelMain>
     </PanelView>
@@ -43,4 +43,4 @@ import PagePanelHackathonHome from './hackathon/PagePanelHackathonHome.vue';
     display: flex;
     flex-direction: column;
 }
-</style>
+</style>./hackathon/PagePanelHackathonInfo.vue

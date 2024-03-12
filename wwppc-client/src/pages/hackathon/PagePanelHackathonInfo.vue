@@ -7,35 +7,33 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 <template>
     <div class="fullBlock stretchBlock">
         <div class="centered">
-            <GlitchText text="WWP IT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=20></GlitchText>
+            <GlitchText text="WWP HACKS" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=20></GlitchText>
         </div>
         <!-- a couple of containers containing information about what WWPHacks is (what is a hackathon?) -->
-        <div class="contestInfoBlock">
+        <div class="hacksInfoBlock">
+            <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Come hack with us!" align="center" height="100%" hover-animation="lift">
+                    <p>
+                        explain what a hackathon is here
+                        <br>a
+                        <br>a
+                    </p>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=200>
-                <TitledDoubleCutCornerContainer title="2024 Season" align="center" height="100%" hover-animation="lift">
+                <TitledDoubleCutCornerContainer title="2024 Season" align="center" height="100%" hover-animation="lift" flipped>
                     <div class="centered">
                         <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                     </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=300>
-                <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
+                <CutCornerContainer height="100%" hover-animation="lift">
                     <UILinkButton text="Register"></UILinkButton>
                     <!-- mailing list? -->
                     <!-- other contact information? -->
                     <!-- how to hackathon resources? -->
                 </CutCornerContainer>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="Come compete!" align="center" height="100%" hover-animation="lift" flipped>
-                    <p>
-                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from USACO Bronze to Gold (CodeForces -)
-                        <br><br>
-                        There will be a Novice and an Advanced division, with some overlap in problem difficulty.
-                        <br><br>
-                        add images here
-                    </p>
-                </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
@@ -50,12 +48,17 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" height="100%" startCollapsed>
-                    <i>We're still not telling you...</i>
+                    <i>wink</i>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
-                    WWP-IT will be held online, on this website!
+                    We don't know yet, check back later!
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="How many people can be on a team?" height="100%" startCollapsed>
+                    We plan on small groups of up to 4, but individuals can participate too!
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>
@@ -71,7 +74,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
     max-height: 100%;
 }
 
-.contestInfoBlock {
+.hacksInfoBlock {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: min-content 1fr;

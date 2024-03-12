@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AnimateInContainer } from './ui-defaults/UIContainers';
+
 defineProps<{
     anchor?: string
 }>();
@@ -14,7 +16,10 @@ export default {
 </script>
 
 <template>
-    <div class="scrollIndicator" @click=scroll>
+    <div class="centered">
+        <AnimateInContainer type="fade" :delay=1000 show-on-screen>
+            <div class="scrollIndicator" @click=scroll></div>
+        </AnimateInContainer>
     </div>
 </template>
 

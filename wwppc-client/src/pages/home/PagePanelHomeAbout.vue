@@ -25,7 +25,7 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
                 We hope to continue the legacy as well as creating a new round-based informatics tournament!
             </p>
         </div>
-        <div class="centered">
+        <div class="centered aboutScrollIndicator">
             <AnimateInContainer type="fade" :delay=1000 show-on-screen>
                 <ScrollIndicator anchor="a[name=pageAboutScrollTo]"></ScrollIndicator>
             </AnimateInContainer>
@@ -59,13 +59,18 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 }
 
 .aboutBody {
-    text-align: center;
-    font-size: 24px;
     flex-grow: 1;
 }
 
 .aboutBody p {
     font-size: 24px;
+    text-align: center;
+}
+
+@media (max-width: 100vh) {
+    .aboutScrollIndicator {
+        display: none;
+    }
 }
 
 .aboutCreditsTable {

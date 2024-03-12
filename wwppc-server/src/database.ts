@@ -136,7 +136,6 @@ export class Database {
     async checkAccount(username: string, password: string): Promise<AccountOpResult> {
         try {
             const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-            console.log(data.rowCount)
             if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {

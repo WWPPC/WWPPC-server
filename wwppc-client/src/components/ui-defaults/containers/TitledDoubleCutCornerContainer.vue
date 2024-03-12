@@ -36,7 +36,7 @@ defineProps<{
     text-align: v-bind("$props.align ?? 'left'");
 }
 
-.cutCornerContainerNoPadding>.cutCornerContainer {
+.doubleCutCornerContainerNoPadding>.doubleCutCornerContainer {
     padding: 0px 0px;
 }
 

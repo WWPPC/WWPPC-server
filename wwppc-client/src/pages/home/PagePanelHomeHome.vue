@@ -55,14 +55,9 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
-        <div class="centered">
-            <AnimateInContainer type="fade" :delay=1000 show-on-screen>
-                <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
-            </AnimateInContainer>
-        </div>
+        <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
     </div>
     <div class="fullBlock">
-        <a name="pageHomeScrollTo"></a>
         <CenteredContainer style="font-size: 24px">
             West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
             WWPHacks, will be held virtually in 2024!
@@ -73,51 +68,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 <!-- other contact methods -->
             </div>
         </CenteredContainer>
-        <UIDivider margin="32px"></UIDivider>
-        <CenteredContainer>
-            <IfOnscreenContainer>
-                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
-        </CenteredContainer>
-        <div class="homeFAQ">
-            <div class="homeFAQ">
-                <h2 class="centered">WWPIT</h2>
-                <AnimateInContainer type="slideUp" show-on-screen single>
-                    <TitledCollapsible title="When is it?" height="100%" startCollapsed>
-                        Eventually in 2024
-                        <br>
-                        <br>
-                    </TitledCollapsible>
-                </AnimateInContainer>
-                <AnimateInContainer type="slideUp" show-on-screen single>
-                    <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
-                        WWPIT will be held online.
-                    </TitledCollapsible>
-                </AnimateInContainer>
-                <AnimateInContainer type="slideUp" show-on-screen single>
-                    <TitledCollapsible title="What is the contest format?" height="100%" startCollapsed>
-                        Teams of up to x participants will participate in six successively harder rounds of Codeforces-style informatics problems in Novice and Advanced divisions.
-                    </TitledCollapsible>
-                </AnimateInContainer>
-            </div>
-            <div class="homeFAQ">
-                <h2 class="centered">WWPHacks</h2>
-                <AnimateInContainer type="slideUp" show-on-screen single>
-                    <TitledCollapsible title="When is it?" height="100%" startCollapsed>
-                        Eventually in 2024
-                        <br>
-                        <br>
-                    </TitledCollapsible>
-                </AnimateInContainer>
-                <AnimateInContainer type="slideUp" show-on-screen single>
-                    <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
-                        WWPHacks is TBD.
-                    </TitledCollapsible>
-                </AnimateInContainer>
-            </div>
-        </div>
-        <div class="centered">
-        </div>
         <!-- more content needed, esp. mission statement -->
     </div>
 </template>
@@ -126,7 +76,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 .homeBlock {
     display: flex;
     flex-direction: column;
-    justify-items: stretch;
 }
 
 .homeTitle {
@@ -143,17 +92,12 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     grid-template-columns: 1fr 1fr;
     row-gap: 24px;
     column-gap: 24px;
-    flex-grow: 1;
 }
 
 @media (max-width: 100vh) {
     .homeColumns {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr 1fr;
-    }
-
-    .homeScrollIndicator {
-        display: none;
     }
 }
 
@@ -162,13 +106,5 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     height: 100%;
     flex-direction: column;
     justify-items: stretch;
-}
-
-.homeFAQ {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-    align-items: start;
-    row-gap: 24px;
-    column-gap: 24px;
 }
 </style>
