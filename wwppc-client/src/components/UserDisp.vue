@@ -24,7 +24,7 @@ serverConnection.handshakePromise.then(() => {
         glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
         name.value = 'placeholder';
     }
-})
+});
 </script>
 
 <template v-slot:userDisp>

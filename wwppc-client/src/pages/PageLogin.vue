@@ -76,6 +76,7 @@ const attemptLogin = async () => {
     }
 };
 const toSignUp = () => {
+    if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
     isSignupPage.value = true;
     if (emailInput.value) emailInput.value.text = '';
     if (gradeInput.value) gradeInput.value.selected = '';
