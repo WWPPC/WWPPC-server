@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
-import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, DoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
     <div class="fullBlock stretchBlock">
         <div class="centered">
-            <GlitchText text="WWP IT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+            <GlitchText text="WWPIT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
         </div>
         <!-- a couple of containers containing information about what WWPHacks is (what is a hackathon?) -->
         <div class="contestInfoBlock">
@@ -18,24 +18,18 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                     </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=300>
-                <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                    <UILinkButton text="Register"></UILinkButton>
-                    <!-- mailing list? -->
-                    <!-- other contact information? -->
-                    <!-- how to hackathon resources? -->
-                </CutCornerContainer>
-            </AnimateInContainer>
+            <UILinkButton text="Register" style="margin: auto;"></UILinkButton>
+            <!-- mailing list? -->
+            <!-- other contact information? -->
+            <!-- usaco guide etc -->
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
+                <DoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
                     <p>
-                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CSA to USACO Platinum.
+                        WWP Informatics Tournament (WWPIT) is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CSA to USACO Platinum.
                         <br><br>
-                        The contest will be held online between two divisions with some overlap between problem difficulty.
-                        <br><br>
-                        We hope that you'll have fun competing! :)
+                        The contest will be held online between two divisions: Beginner and Advanced.
                     </p>
-                </TitledDoubleCutCornerContainer>
+                </DoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
@@ -47,29 +41,35 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
             </IfOnscreenContainer>
         </CenteredContainer>
+        <br>
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" height="100%" startCollapsed>
-                    <i>We're still not telling you...</i>
+                    Sometime in 2024
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
-                    WWP-IT will be held online, on this website!
+                    WWPIT will be held online, on this website!
                     <br><br>
-                    You can <a href="" target="_blank">register here</a> at any time before the contest starts.
+                    You can register <a href="" target="_blank"> here</a> at any time before the contest starts.
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What's the contest format?" height="100%" startCollapsed>
-                    We plan on hosting a blend between ICPC and CodeForces contest format:
-                    <br><br>
                     <ul>
-                        <li>The competition will be split into separate timed rounds, problems are only visible during the rounds</li>
-                        <li>Teams will be ranked by their total scores; partial scores for individual problems will be given</li>
-                        <li>Submission results are only visible once the round ends; teams are allowed to upload a submission at any time during around but only see their scores at the round end</li>
-                        <li>As usual, no outside sources are allowed, be a good sport and let people have fun!</li>
+                        <li>There will be n separate timed rounds of roughly 45 minutes</li>
+                        <li>Teams will be ranked by their total score, with partial credit</li>
+                        <li>Submissions are only graded after the round ends</li>
+                        <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                     </ul>
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="How can I prepare?" height="100%" startCollapsed>
+                    For those experienced in programming, helpful resources include <a href="https://usaco.guide" target="_blank">USACO Guide</a> and <a href="https://codeforces.com" target="_blank">Codeforces</a>.
+                    <br><br>
+                    To learn C++, see <a href="https://cplusplus.com/doc/tutorial/" target="_blank">CPlusPlus.com</a>. To learn Python, a more beginner-friendly language, the <a href="https://runestone.academy/ns/books/published/thinkcspy/index.html" target="_blank">thinkcspy textbook</a> is useful.
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>
@@ -99,7 +99,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 
 .faq {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     grid-auto-flow: dense;
     width: 100%;
     row-gap: 24px;
