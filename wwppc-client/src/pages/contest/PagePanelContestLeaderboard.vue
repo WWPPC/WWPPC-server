@@ -12,3 +12,5 @@
     <br>
     &pi;. SampIeprovider(sp) - -5 xp
 </template>
+
+<style scoped></style>

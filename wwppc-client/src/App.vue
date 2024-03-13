@@ -5,6 +5,7 @@ import PageTest from '@/pages/PageTest.vue';
 import PageHackathon from '@/pages/PageHackathon.vue';
 import PageHome from '@/pages/PageHome.vue';
 import PageLogin from '@/pages/PageLogin.vue';
+import PageAccount from './pages/PageAccount.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import { ref, watch } from 'vue';
@@ -28,6 +29,7 @@ window.addEventListener('error', (err) => {
     <PageHackathon></PageHackathon>
     <PageContest></PageContest>
     <PageTest></PageTest>
+    <PageAccount></PageAccount>
     <PageLogin></PageLogin>
     <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>

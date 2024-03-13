@@ -4,25 +4,24 @@ import { UIButton, UIImage } from './ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { glitchTextTransition } from './ui-defaults/TextTransitions';
 import { useRouter } from 'vue-router';
+import { useAccountManager } from '@/scripts/AccountManager';
 
 const serverConnection = useServerConnection();
+const accountManager = useAccountManager();
 const router = useRouter();
 
 const name = ref('Not logged in');
 const buttonText = ref('Log in');
 
 const buttonAction = () => {
-    if (serverConnection.loggedIn) {
-        // go to account page
-    } else {
-        router.push('/login');
-    }
+    if (serverConnection.loggedIn) router.push('/account');
+    else router.push('/login');
 };
 
 serverConnection.handshakePromise.then(() => {
     if (serverConnection.loggedIn) {
         glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
-        name.value = 'placeholder';
+        name.value = accountManager.username;
     }
 });
 </script>
@@ -30,7 +29,7 @@ serverConnection.handshakePromise.then(() => {
 <template v-slot:userDisp>
     <div class="userDispContainer">
         <div class="userDispUser">
-            <UIImage :src="'lol'" width="32px" height="32px" :round="true"></UIImage>
+            <UIImage :src=accountManager.profileImage width="32px" height="32px" :round="true"></UIImage>
             <span class="userDispUserName">{{ name }}</span>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>
@@ -58,13 +57,14 @@ serverConnection.handshakePromise.then(() => {
 .userDispUserName {
     min-width: calc(100% - 32px);
     max-width: calc(100% - 32px);
+    margin-left: 4px;
     transition: 500ms ease min-width, 500ms ease opacity;
     text-wrap: nowrap;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     .userDispContainer {
-        min-width: 90px;
+        min-width: 110px;
     }
 
     .userDispUserName {
@@ -73,6 +73,4 @@ serverConnection.handshakePromise.then(() => {
         max-width: 0px;
     }
 }
-
-/* use container query to hide username if viewport is too small */
 </style>

@@ -6,6 +6,7 @@ import PanelNavButton from "./PanelNavButton.vue";
 import PanelNavList from "./PanelNavList.vue";
 import PanelRightList from "./PanelRightList.vue";
 import PanelView from "./PanelView.vue";
+import PanelNavLargeLogo from "./PanelNavLargeLogo.vue";
 
 export {
     PanelBody,
@@ -14,5 +15,6 @@ export {
     PanelNavButton,
     PanelNavList,
     PanelRightList,
-    PanelView
+    PanelView,
+    PanelNavLargeLogo
 }

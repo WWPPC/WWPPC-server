@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import PagePanelHomeAbout from '@/pages/home/PagePanelHomeAbout.vue';
 import PagePanelHomeHome from '@/pages/home/PagePanelHomeHome.vue';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 </script>
 
 <template>
@@ -30,3 +29,5 @@ import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
         </PanelMain>
     </PanelView>
 </template>
+
+<style scoped></style>

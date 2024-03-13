@@ -28,7 +28,7 @@ const router = useRouter();
     transform: scale(0.98);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     .wwppcLargeLogo {
         max-height: 40%;
     }

@@ -4,10 +4,11 @@ export class ContestManager {
     #rooms: Map<string, Set<Socket>> = new Map();
     // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
-    // uses database to get problems and then caches them
-    // also prevent people from opening the contest page multiple times
+    // uses database to get problems and then caches them (also stores division, round, number since client needs that)
+    // also only one contest page open per account
     // remember to prevent large file submissions (over 10kb is probably unnecessarily large for these problems)
     // use socket.io rooms
+    // 
 }
 
 export default ContestManager;

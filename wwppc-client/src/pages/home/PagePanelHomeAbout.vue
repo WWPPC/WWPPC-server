@@ -1,42 +1,13 @@
 <script setup lang="ts">
-import ScrollIndicator from '@/components/ScrollIndicator.vue';
 import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
-import { AnimateInContainer, IfOnscreenContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
-    <div class="fullBlock aboutBlock">
-        <div class="centered">
-            <IfOnscreenContainer>
-                <GlitchText text="About WWPPC" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
-        </div>
-        <div class="aboutBody">
-            <p>
-                WWPPC is the combined hosts of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club.
-            </p>
-            <p>
-                WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
-                <br>
-                <a href="https://wwphacks.github.io" target="_blank">2021 Contest Page</a>
-            </p>
-            <p>
-                We hope to continue the legacy as well as creating a new round-based informatics tournament!
-            </p>
-        </div>
-        <div class="centered aboutScrollIndicator">
-            <AnimateInContainer type="fade" :delay=1000 show-on-screen>
-                <ScrollIndicator anchor="a[name=pageAboutScrollTo]"></ScrollIndicator>
-            </AnimateInContainer>
-        </div>
-    </div>
     <div class="fullBlock">
         <a name="pageAboutScrollTo"></a>
         <div class="centered">
-            <IfOnscreenContainer>
-                <GlitchText text="WWPPC Team" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
+            <GlitchText text="WWPPC Team" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
         </div>
         <br>
         <br>
@@ -48,31 +19,13 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
             <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
         </div>
+        <p style="font-size: var(--font-medium); text-align: center;">
+            Questions? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+        </p>
     </div>
 </template>
 
 <style scoped>
-.aboutBlock {
-    display: flex;
-    flex-direction: column;
-    justify-items: stretch;
-}
-
-.aboutBody {
-    flex-grow: 1;
-}
-
-.aboutBody p {
-    font-size: 24px;
-    text-align: center;
-}
-
-@media (max-width: 100vh) {
-    .aboutScrollIndicator {
-        display: none;
-    }
-}
-
 .aboutCreditsTable {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

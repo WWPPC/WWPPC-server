@@ -28,6 +28,7 @@ let getCached = async (request, preloadResponse) => {
         // serve from cache while also updating the cache if possible
         const cached = await cache.match(request);
         if (cached !== undefined) {
+            await preloadResponse;
             updateCache(cache, request, undefined);
             return cached;
         } else {
@@ -42,19 +43,21 @@ let getCached = async (request, preloadResponse) => {
     }
 };
 let updateCache = async (cache, request, preloadResponse) => {
-    try {
-        const preloaded = await preloadResponse;
-        if (preloaded !== undefined && preloaded.ok) {
-            cache.put(request.url, preloaded.clone());
-            return preloaded;
-        }
-    } catch { 0 }
+    if (preloadResponse != undefined) {
+        try {
+            const preloaded = await preloadResponse;
+            if (preloaded !== undefined && preloaded.ok) {
+                cache.put(request.url, preloaded.clone());
+                return preloaded;
+            }
+        } catch { /* no */ }
+    }
     try {
         const networked = await fetch(request);
         if (networked.ok) cache.put(request.url, networked.clone());
         return networked;
     } catch (err) {
-        if (preloadResponse != undefined) console.error(err);
+        console.error(err);
         return new Response('timed out', {
             status: 408,
             headers: { "Content-Type": "text/plain" }
@@ -62,18 +65,7 @@ let updateCache = async (cache, request, preloadResponse) => {
     }
 };
 self.addEventListener("fetch", (e) => {
-    if (e.request.method != 'GET') return;
-    if (e.request.url.startsWith(self.location.origin)) {
+    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin)) {
         e.respondWith(getCached(e.request, e.preloadResponse));
-    } else {
-        try {
-            e.respondWith(fetch(e.request));
-        } catch (err) {
-            console.error(err);
-            return new Response('timed out', {
-                status: 408,
-                headers: { "Content-Type": "text/plain" }
-            });
-        }
     }
 });

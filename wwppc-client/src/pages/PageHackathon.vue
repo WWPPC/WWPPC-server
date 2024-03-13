@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
 </script>
 
@@ -10,9 +9,9 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="WWPPC" for="/home"></PanelNavButton>
-                <PanelNavButton text="Home" for="/hackathon/home"></PanelNavButton>
-                <PanelNavButton text="Other Button" for="/extra"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="WWPHacks" for="/hackathon/home" is-default></PanelNavButton>
+                <PanelNavButton text="Other Button" for="/test"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
@@ -26,7 +25,7 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
     </PanelView>
 </template>
 
-<style>
+<style scoped>
 .row {
     display: flex;
     flex-flow: row wrap;

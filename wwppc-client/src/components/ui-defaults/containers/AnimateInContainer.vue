@@ -61,3 +61,35 @@ export default {
         <slot></slot>
     </div>
 </template>
+
+<style scoped>
+.fadeOnLoad {
+    animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;
+}
+
+@keyframes fade-in-on-load {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.slideUpOnLoad {
+    animation: 500ms cubic-bezier(0, 0, 0.5, 1) slide-up-on-load;
+}
+
+@keyframes slide-up-on-load {
+    from {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: initial;
+    }
+}
+</style>

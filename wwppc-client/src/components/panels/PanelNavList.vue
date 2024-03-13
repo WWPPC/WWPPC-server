@@ -1,4 +1,16 @@
-<script setup lang="ts"></script>
+<script lang="ts">
+export default {
+    mounted() {
+        const navBar: HTMLElement = this.$el?.querySelector('.panelNav');
+        if (navBar == undefined) return;
+        navBar.addEventListener('wheel', (e) => {
+            if (e.deltaX == 0) {
+                navBar.scrollBy({ left: e.deltaY / 10, behavior: 'auto' });
+            }
+        }, { passive: true });
+    },
+}
+</script>
 
 <template>
     <div class="panelNavOuter">

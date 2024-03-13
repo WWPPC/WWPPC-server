@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-
-
 const props = defineProps<{
     min?: number
     max?: number
@@ -17,14 +14,13 @@ const emit = defineEmits<{
     (e: 'input', value: number): void
 }>();
 const number = defineModel({ default: 0 });
+number.value = props.defaultValue ?? 0;
 function input() {
     emit('input', number.value);
 }
 defineExpose({
     number
 });
-
-onMounted(() => number.value = props.defaultValue ?? 0);
 </script>
 
 <template>

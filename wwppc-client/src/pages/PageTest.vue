@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import { FullscreenModal, ModalMode, UIButton, UIDropdown, UILinkButton, UILoadingBar, UILoadingSquare, UILoadingSpinner, UITextBox, UIToggle } from '@/components/ui-defaults/UIDefaults';
 import { ref } from 'vue';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { HeaderedTable, TitledCutCornerContainer, AngledTitledContainer, AnimateInContainer } from '@/components/ui-defaults/UIContainers';
@@ -25,6 +24,7 @@ const thing2 = ref<any>([]);
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="Example" for="/test/default"></PanelNavButton>
                 <PanelNavButton text="Example" for="/test/example"></PanelNavButton>
+                <PanelNavButton text="Fonts" for="/test/fonts"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
@@ -130,8 +130,39 @@ const thing2 = ref<any>([]);
                 ]" width="400px" height="100px" multiple></UIDropdown>
                 {{ thing2 }}
             </PanelBody>
+            <PanelBody name="fonts" title="Fonts">
+                <span style="font-size: var(--font-huge-title);">Huge Title</span>
+                <br>
+                <span style="font-size: var(--font-title);">Title</span>
+                <br>
+                <span style="font-size: var(--font-subtitle);">Subtitle</span>
+                <br>
+                <span style="font-size: var(--font-subsubtitle);">Sub-Subtitle</span>
+                <br>
+                <h1>Header 1</h1>
+                <h2>Header 2</h2>
+                <h3>Header 3</h3>
+                <p>Paragraph</p>
+                <p><b>Bold</b></p>
+                <p><i>Italic</i></p>
+                <p><code>const buh: number = NaN;</code></p>
+                <p style="font-size: var(--font-16);">Size 16</p>
+                <p style="font-size: var(--font-18);">Size 18</p>
+                <p style="font-size: var(--font-20);">Size 20</p>
+                <p style="font-size: var(--font-24);">Size 24</p>
+                <p style="font-size: var(--font-28);">Size 28</p>
+                <p style="font-size: var(--font-32);">Size 32</p>
+                <p style="font-size: var(--font-40);">Size 40</p>
+                <p style="font-size: var(--font-48);">Size 48</p>
+                <p style="font-size: var(--font-small);">Small</p>
+                <p style="font-size: var(--font-medium);">Medium</p>
+                <p style="font-size: var(--font-large);">Large</p>
+                <p style="font-size: var(--font-huge);">Huge</p>
+            </PanelBody>
         </PanelMain>
         <FullscreenModal ref="modal"></FullscreenModal>
         <SuperSecretFeature show></SuperSecretFeature>
     </PanelView>
 </template>
+
+<style scoped></style>

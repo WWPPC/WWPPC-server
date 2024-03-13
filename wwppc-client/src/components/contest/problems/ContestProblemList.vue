@@ -8,50 +8,45 @@ import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInCon
 // in the meantime just put a loading spinner (i should probably make one of those)
 
 const rounds: ContestRound[] = [];
-//hard code BAD
 rounds.push({
     division: 0,
     number: 0,
     time: 1800,
     problems: [
         {
+            id: 'buh',
             division: 0,
             round: 0,
             number: 0,
             name: 'Problem 0',
             author: 'SP^2',
-            content: '<img src="/assets/timer.svg">test</img>omg working<br>oooooo',
-            constraints: { time: 2000, memory: 512 },
             status: ContestProblemCompletionState.GRADED_PASS
         },
         {
+            id: 'buh',
             division: 0,
             round: 0,
             number: 1,
             name: 'Problem 1',
             author: 'SP^2',
-            content: 'aaaaa<br>bromine moment<br>ooop',
-            constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.GRADED_FAIL
         },
         {
+            id: 'buh',
             division: 0,
             round: 0,
             number: 2,
             name: 'Problem 2',
             author: 'SP^2',
-            content: 'sdfdsffsdsfsdfdsfdsfsdffds<br>dsfdsfdsfds<br>dsflkjdsfjl<br>slkjfdlkdsflkjds<br>dsflfds',
-            constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.SUBMITTED
         },
         {
+            id: 'buh',
             division: 0,
             round: 0,
             number: 3,
             name: 'Problem 3',
             author: 'SP^2',
-            content: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeEeEeEeEeEeEeEeEeEeEeEeEeEe',
-            constraints: { time: 2000, memory: 512 },
             status: ContestProblemCompletionState.GRADED_PARTIAL
         }
     ]
@@ -61,33 +56,30 @@ rounds.push({
     time: 3600,
     problems: [
         {
+            id: 'buh',
             division: 0,
             round: 1,
             number: 0,
             name: 'Problem 0',
             author: 'SP^2',
-            content: '<img src="/assets/timer.svg">test</img>omg working<br>oooooo',
-            constraints: { time: 2000, memory: 512 },
             status: ContestProblemCompletionState.UPLOADED
         },
         {
+            id: 'buh',
             division: 0,
             round: 1,
             number: 1,
             name: 'Problem 1',
             author: 'SP^2',
-            content: 'aaaaa<br>bromine moment<br>ooop',
-            constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.NOT_UPLOADED
         },
         {
+            id: 'buh',
             division: 0,
             round: 1,
             number: 2,
             name: 'Problem 2',
             author: 'SP^2',
-            content: 'oooooooooooooooof',
-            constraints: { time: 4000, memory: 512 },
             status: ContestProblemCompletionState.ERROR
         }
     ]

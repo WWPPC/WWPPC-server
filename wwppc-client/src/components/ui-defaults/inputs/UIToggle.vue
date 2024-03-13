@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-
-
 const props = defineProps<{
     startChecked?: boolean
     title?: string
     disabled?: boolean
 }>();
 const checked = defineModel({ default: false });
+checked.value = props.startChecked ?? false;
 const emit = defineEmits<{
     (e: 'input', checked: boolean): void
 }>();
 function input() {
     emit('input', checked.value);
 }
-
-onMounted(() => checked.value = props.startChecked ?? false);
 </script>
 
 <template>

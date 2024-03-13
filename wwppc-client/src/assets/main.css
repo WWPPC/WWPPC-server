@@ -1,3 +1,5 @@
+/* fonts and stuff */
+
 @font-face {
     font-family: 'Source Code Pro';
     font-weight: 200, 300, 400, 500, 600, 700, 800;
@@ -20,9 +22,23 @@ body {
     margin: 0px 0px;
 }
 
-img {
-    user-select: none;
-    -webkit-user-drag: none;
+* {
+    --font-16: max(10px, min(16px, 4vw, 8vh));
+    --font-18: max(10px, min(18px, 4vw, 8vh));
+    --font-20: max(10px, min(20px, 5vw, 10vh));
+    --font-24: max(12px, min(24px, 5vw, 10vh));
+    --font-28: max(14px, min(28px, 7vw, 14vh));
+    --font-32: max(14px, min(32px, 8vw, 16vh));
+    --font-40: max(16px, min(40px, 9vw, 18vh));
+    --font-48: max(18px, min(48px, 10vw, 20vh));
+    --font-small: var(--font-18);
+    --font-medium: var(--font-24);
+    --font-large: var(--font-32);
+    --font-huge: var(--font-48);
+    --font-huge-title: min(12.5vw, 20vh);
+    --font-title: min(12.5vw, 15vh);
+    --font-subtitle: min(10vw, 7vh);
+    --font-subsubtitle: min(5vw, 5vh);
 }
 
 ::selection {
@@ -30,6 +46,13 @@ img {
     color: black;
     text-shadow: none !important;
 }
+
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* common stuff used everywhere */
 
 .centered {
     width: 100%;
@@ -59,8 +82,10 @@ img {
     margin-bottom: 0px;
 }
 
+/* more font stuff */
+
 h1 {
-    font-size: 48px;
+    font-size: var(--font-huge);
     font-weight: 700;
     font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
@@ -68,7 +93,7 @@ h1 {
 }
 
 h2 {
-    font-size: 32px;
+    font-size: var(--font-large);
     font-weight: 600;
     font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
@@ -76,7 +101,7 @@ h2 {
 }
 
 h3 {
-    font-size: 24px;
+    font-size: var(--font-medium);
     font-weight: 600;
     font-family: 'Source Code Pro', Courier, monospace;
     line-height: 1.1em;
@@ -84,7 +109,7 @@ h3 {
 }
 
 p {
-    font-size: 20px;
+    font-size: var(--font-small);
     margin: 8px 8px;
     text-align: justify;
 }
@@ -111,6 +136,8 @@ code {
 ul {
     margin: 0px 0px;
 }
+
+/* scroll bars */
 
 @supports selector(::-webkit-scrollbar) {
     *::-webkit-scrollbar {
@@ -182,35 +209,5 @@ ul {
 @supports (not (selector(::-webkit-scrollbar))) {
     * {
         scrollbar-color: #555 #222;
-    }
-}
-
-.fadeOnLoad {
-    animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;
-}
-
-@keyframes fade-in-on-load {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-.slideUpOnLoad {
-    animation: 500ms cubic-bezier(0, 0, 0.5, 1) slide-up-on-load;
-}
-
-@keyframes slide-up-on-load {
-    from {
-        opacity: 0;
-        transform: translateY(32px);
-    }
-
-    to {
-        opacity: 1;
-        transform: initial;
     }
 }

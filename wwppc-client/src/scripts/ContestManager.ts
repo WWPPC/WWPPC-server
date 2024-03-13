@@ -1,14 +1,24 @@
 import { defineStore } from "pinia";
-
-// to be used in contest timer, contest problem list displays, etc
+import { useServerConnection } from "./ServerConnection";
+import { reactive } from "vue";
 
 export type ContestRound = {
     division: number
     number: number
     time: number
-    problems: ContestProblem[]
+    problems: ContestProblemMetaData[]
+}
+export type ContestProblemMetaData = {
+    id: string
+    division: number
+    round: number
+    number: number
+    name: string
+    author: string
+    status: ContestProblemCompletionState
 }
 export type ContestProblem = {
+    id: string
     division: number
     round: number
     number: number
@@ -28,6 +38,32 @@ export enum ContestProblemCompletionState {
     ERROR = 6
 }
 
-export const useContestStore = defineStore('contestManager', {
-    state: () => ({})
-})
+const state = reactive({
+    inContest: false,
+    problems: new Array<ContestProblem>()
+    // contest timer
+});
+
+export const useContestManager = defineStore('contestManager', {
+    state: () => state,
+    actions: {
+        async getProblemList() {
+            const serverConnection = useServerConnection();
+            return await new Promise((resolve) => {
+                serverConnection.emit('getAvailableProblems');
+                serverConnection.once('availableProblems', (problems: ContestProblem[]) => {
+                    resolve(problems);
+                });
+            })
+        }
+    }
+});
+
+window.addEventListener('load', () => {
+    const serverConnection = useServerConnection();
+    serverConnection.handshakePromise.then(() => {
+        serverConnection.socket.on('roundData', (rounds: ContestRound[]) => {
+            console.log(rounds)
+        });
+    });
+});

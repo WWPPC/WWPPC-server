@@ -372,14 +372,14 @@ export enum AdminPerms {
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the filter */
-type ReadRoundsCriteria = {
+interface ReadRoundsCriteria {
     /**Zero-indexed division number */
     division?: number
     /**Zero-indexed round within the division */
     round?: number
 }
 /**Criteria to filter by. Leaving a value undefined removes the filter */
-type ProblemRoundCriteria = {
+interface ProblemRoundCriteria {
     /**Zero-indexed division number */
     division?: number
     /**Zero-indexed round within the division */
@@ -388,7 +388,7 @@ type ProblemRoundCriteria = {
     number?: number
 }
 /**Criteria to filter by. Leaving a value undefined removes the filter */
-type ReadProblemsCriteria = {
+interface ReadProblemsCriteria {
     /**UUID of problem */
     id?: UUID
     /**Display name of problem */
@@ -401,7 +401,7 @@ type ReadProblemsCriteria = {
     round?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the filter */
-type ReadSubmissionsCriteria = {
+interface ReadSubmissionsCriteria {
     /**UUID of problem */
     id?: UUID
     /**Username of submitter */
@@ -411,13 +411,13 @@ type ReadSubmissionsCriteria = {
 }
 
 /**Descriptor for an account */
-export type AccountData = {
+export interface AccountData {
     /**Username */
     username: string
 }
 
 /**Descriptor for a single round */
-export type Round = {
+export interface Round {
     /**Zero-indexed division number */
     division: number
     /**Zero-indexed round number in division */
@@ -430,7 +430,7 @@ export type Round = {
     endTime: number
 }
 /**Descriptor for a single problem */
-export type Problem = {
+export interface Problem {
     /**UUID */
     id: UUID
     /**Display name */
@@ -445,21 +445,21 @@ export type Problem = {
     constraints: { time: number, memory: number }
 }
 /**Descriptor for the constraints of a single problem */
-export type ProblemConstraints = {
+export interface ProblemConstraints {
     /**Time limit per test case in millseconds */
     time: number
     /**Memory limit per test case in megabytes */
     memory: number
 }
 /**Descriptor for a single test case */
-export type TestCase = {
+export interface TestCase {
     /**Input string */
     input: string
     /**Correct output string */
     output: string
 }
 /**Descriptor for a single submission */
-export type Submission = {
+export interface Submission {
     /**Username of submitter */
     username: string
     /**UUID of problem submitted to */
@@ -474,7 +474,7 @@ export type Submission = {
     scores: Score[]
 }
 /**Descriptor for the score of a single test case */
-export type Score = {
+export interface Score {
     /**Pass/fail status */
     state: ScoreState
     /**Time used in milliseconds */

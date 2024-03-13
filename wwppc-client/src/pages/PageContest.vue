@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
-import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
+import PagePanelContestContest from './contest/PagePanelContestContest.vue';
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
+import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
 import { watch } from 'vue';
 import LoadingCover from '@/components/LoadingCover.vue';
-import PagePanelContestContest from './contest/PagePanelContestContest.vue';
+import { useContestManager } from '@/scripts/ContestManager';
 
 const router = useRouter();
 const route = useRoute();
 
 const modal = globalModal();
 const serverConnection = useServerConnection();
+const contestManager = useContestManager();
+
 serverConnection.onconnecterror(() => {
     if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || route.query.ignore_server !== undefined) return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
@@ -45,8 +47,8 @@ watch(() => route.params.page, () => {
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="WWPPC" for="/home"></PanelNavButton>
-                <PanelNavButton text="Home" for="/contest/home" is-default></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
+                <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
                 <div v-if="serverConnection.loggedIn || route.query.ignore_server !== undefined" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                 </div>
@@ -57,7 +59,7 @@ watch(() => route.params.page, () => {
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
-                <ContestTimer></ContestTimer>
+                <ContestTimer v-if="contestManager.inContest || route.query.ignore_server !== undefined"></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
@@ -83,3 +85,5 @@ watch(() => route.params.page, () => {
         </PanelMain>
     </PanelView>
 </template>
+
+<style scoped></style>

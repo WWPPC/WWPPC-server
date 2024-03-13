@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
-import { ref } from 'vue';
+import { reactive } from 'vue';
 
 // send HTTP wakeup request before trying socket.io
 const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
@@ -21,20 +21,22 @@ const attemptConnect = () => {
         else {
             console.error(`ServerConnection: Wakeup call failed for ${serverHostname}`);
             connectErrorHandlers.forEach(cb => cb());
-            connectError.value = true;
+            state.connectError = true;
         }
     });
 };
 attemptConnect();
-socket.on('connect_error', () => connectError.value = true);
-socket.on('connect_fail', () => connectError.value = true);
+socket.on('connect_error', () => state.connectError = true);
+socket.on('connect_fail', () => state.connectError = true);
 
-const loggedIn = ref(false);
-const connectError = ref(false);
-const handshakeComplete = ref(false);
 let handshakeResolve: (v: any) => void = () => { };
-const handshakePromise = new Promise((resolve) => handshakeResolve = resolve);
-const manualLogin = ref(true);
+const state = reactive({
+    loggedIn: false,
+    connectError: false,
+    handshakeComplete: false,
+    handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
+    manualLogin: true
+});
 const RSA: {
     publicKey: CryptoKey | null,
     sid: number,
@@ -57,16 +59,16 @@ socket.once('getCredentials', async (session) => {
         // autologin if possible
         if (sessionCreds != null && RSA.sid.toString() === window.localStorage.getItem('sessionId')) {
             const creds = JSON.parse(sessionCreds);
-            loggedIn.value = await sendCredentials(creds.username, creds.password, 0) == 0;
-            manualLogin.value = false;
+            state.loggedIn = await sendCredentials(creds.username, creds.password, 0) == 0;
+            state.manualLogin = false;
         }
-        handshakeComplete.value = true;
+        state.handshakeComplete = true;
         handshakeResolve(undefined);
     }
 });
 const sendCredentials = (username: string, password: string | Array<number>, action: 0 | 1, email?: string, token?: string): Promise<number> => {
     return new Promise(async (resolve, reject) => {
-        if (loggedIn.value) {
+        if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
             resolve(4);
             return;
@@ -88,9 +90,8 @@ const sendCredentials = (username: string, password: string | Array<number>, act
                         password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
                     }));
                     window.localStorage.setItem('sessionId', RSA.sid.toString());
-                    loggedIn.value = true;
+                    state.loggedIn = true;
                 }
-                console.log(res)
                 resolve(res);
             });
         } catch (err) {
@@ -99,11 +100,11 @@ const sendCredentials = (username: string, password: string | Array<number>, act
     });
 };
 
-export const useServerConnection = defineStore('socketio', {
-    state: () => ({ socket, loggedIn, handshakeComplete, manualLogin, connectError }),
+export const useServerConnection = defineStore('serverconnection', {
+    state: () => state,
     getters: {
-        connected() { return socket.connected; },
-        handshakePromise() { return handshakePromise; }
+        socket() { return socket; },
+        connected() { return socket.connected; }
     },
     actions: {
         login(username: string, password: string | Array<number>): Promise<number> {

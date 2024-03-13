@@ -7,6 +7,7 @@ import { ref, watch, type Ref } from 'vue';
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
+    id: 'buh',
     division: 0,
     round: 0,
     number: 0,
@@ -89,7 +90,7 @@ function sanitizeUpload() {
     </div>
 </template>
 
-<style>
+<style scoped>
 .problemViewPanel {
     display: flex;
     flex-direction: column;

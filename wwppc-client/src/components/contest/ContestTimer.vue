@@ -45,7 +45,7 @@
     transition: 500ms font-size;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .contestTimerContainer {
         min-width: 110px;
         max-width: 110px;

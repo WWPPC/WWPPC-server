@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelView } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
-import PanelNavLargeLogo from '@/components/panels/PanelNavLargeLogo.vue';
 import { ref, watch } from 'vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
@@ -120,9 +119,8 @@ const attemptSignup = async () => {
                                 <div class="loginFlow">
                                     <img src="/logo.svg" class="loginLogoFloater">
                                     <h1 class="loginFlowHeader">Log In</h1>
-                                    <!-- we're using socketio -->
                                     <form class="loginFlow" action="javascript:void(0)">
-                                        <UITextBox ref="usernameInput" placeholder="Username" type="username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off" required></UITextBox>
+                                        <UITextBox ref="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off" required></UITextBox>
                                         <UITextBox ref="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" autocomplete="current-password" required></UITextBox>
                                         <span>
                                             <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="usernameInput?.text.trim() == ''"></UIButton>
@@ -202,7 +200,7 @@ const attemptSignup = async () => {
     </PanelView>
 </template>
 
-<style>
+<style scoped>
 .loginNoScroll {
     width: 100%;
     height: 100%;

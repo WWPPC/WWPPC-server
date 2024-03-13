@@ -15,6 +15,7 @@ defineProps<{
         <div class="titledAngleContainerBody">
             <slot></slot>
         </div>
+        <div class="titledAngleContainerFade"></div>
         <div class="titledAngleContainerHeader"></div>
         <div class="titledAngleContainerTitle">
             <h2>{{ $props.title }}</h2>
@@ -58,6 +59,7 @@ defineProps<{
 }
 
 .titledAngleContainerBody {
+    position: relative;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -67,7 +69,7 @@ defineProps<{
     overflow-y: auto;
 }
 
-.titledAngleContainerBody::after {
+.titledAngleContainerFade {
     content: ' ';
     position: absolute;
     bottom: 0px;

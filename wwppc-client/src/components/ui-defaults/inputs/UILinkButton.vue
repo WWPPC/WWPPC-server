@@ -63,6 +63,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiLinkButtonText {
     margin: 0px 0.2em;
     text-wrap: nowrap;
+    font-size: v-bind("$props.fontSize ?? '16px'");
 }
 
 .uiLinkButtonLabel:hover {

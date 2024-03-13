@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, IfOnscreenContainer, TitledCollapsible } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, IfOnscreenContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 </script>
 
 <template>
     <div class="centered homeTitle">
-        <GlitchText text="WWPPC 2024" font-size="min(20vh, calc(100vw / 8))" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+        <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
     </div>
     <div class="fullBlock homeBlock">
         <!-- spacer for title -->
@@ -17,16 +17,16 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWP-IT" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: min(20px, calc(50vw / 10))">
+                                <p style="font-size: var(--font-small)">
                                     WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
                                 </p>
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=300>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-medium)" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -38,16 +38,16 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
-                                <GlitchText text="WWP-Hacks" font-size="min(7vh, calc(50vw / 5))" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                <GlitchText text="WWP-Hacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: min(20px, calc(50vw / 10))">
+                                <p style="font-size: var(--font-20)">
                                     WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
                                 </p>
                             </div>
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=400>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="min(24px, calc(50vw / 5))" color="lime"></UILinkButton>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-24)" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -57,18 +57,34 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
     </div>
-    <div class="fullBlock">
-        <CenteredContainer style="font-size: 24px">
-            West Windsor-Plainsboro Programming Competition (WWPPC), comprised of the WWP Informatics Tournament (WWPIT) and
-            WWPHacks, will be held virtually in 2024!
+    <div class="fullBlock homeBlock">
+        <a name="pageHomeScrollTo"></a>
+        <div class="centered">
+            <IfOnscreenContainer>
+                <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
+            </IfOnscreenContainer>
+        </div>
+        <div style="flex-grow: 1;">
+            <p>
+                WWPPC is the combined hosts of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club.
+            </p>
+            <p>
+                WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
+            </p>
+            <p>
+                We hope to continue the legacy as well as foster a passion for competitive programming for many through our new informatics tournament!
+            </p>
             <div class="centered" style="margin-top: 16px">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/assets/discord-white.svg" color="lime" font-size="24px"></UIIconButton>
+                    <UIIconButton text="Join us on Discord!" img="/assets/discord-white.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
-                <!-- other contact methods -->
             </div>
-        </CenteredContainer>
-        <!-- more content needed, esp. mission statement -->
+        </div>
+        <div>
+            <p style="font-size: var(--font-medium)">
+                Questions? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+            </p>
+        </div>
     </div>
 </template>
 
@@ -106,5 +122,10 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     height: 100%;
     flex-direction: column;
     justify-items: stretch;
+}
+
+p {
+    font-size: min(24px, 100vw / 20);
+    text-align: center;
 }
 </style>

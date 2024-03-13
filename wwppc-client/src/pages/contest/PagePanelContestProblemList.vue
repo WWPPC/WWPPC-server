@@ -5,3 +5,5 @@ import ContestProblemList from '@/components/contest/problems/ContestProblemList
 <template>
     <ContestProblemList></ContestProblemList>
 </template>
+
+<style scoped></style>

@@ -29,7 +29,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
                     <p>
-                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from USACO Bronze to Gold (CodeForces 800-3500).
+                        WWP Informatics Tournament is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CSA to USACO Platinum.
                         <br><br>
                         The contest will be held online between two divisions with some overlap between problem difficulty.
                         <br><br>
