@@ -28,7 +28,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=300>
-                <CutCornerContainer height="100%" hover-animation="lift">
+                <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
                     <UILinkButton text="Register"></UILinkButton>
                     <!-- mailing list? -->
                     <!-- other contact information? -->

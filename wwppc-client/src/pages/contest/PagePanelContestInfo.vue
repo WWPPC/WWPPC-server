@@ -18,10 +18,14 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                     </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
-            <UILinkButton text="Register" style="margin: auto;"></UILinkButton>
-            <!-- mailing list? -->
-            <!-- other contact information? -->
-            <!-- usaco guide etc -->
+            <AnimateInContainer type="slideUp" :delay=300>
+                <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
+                    <UILinkButton text="Register"></UILinkButton>
+                    <!-- mailing list? -->
+                    <!-- other contact information? -->
+                    <!-- how to hackathon resources? -->
+                </CutCornerContainer>
+            </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
                 <DoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
                     <p>
