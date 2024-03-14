@@ -26,6 +26,7 @@
     <meta property="og:image:height" content="256">
     <title>WWPPC</title>
     <link rel="icon" href="/favicon.png" type="image/png">
+    <script src="/mathjax/tex-chtml.js" id="MathJax-script" async></script>
 </head>
 
 <body>
@@ -118,6 +119,11 @@
             window.onerror = (e, filename, lineno, colno, err) => {
                 document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
                 canLoad = false;
+            };
+            MathJax = {
+                tex: {
+                    inlineMath: [['$', '$']]
+                }
             };
         </script>
     </div>
