@@ -37,8 +37,9 @@ const languageDropdown = ref<InstanceType<typeof UIDropdown>>();
 const sanitizeUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
-    if (file.size > 10485760) {
+    if (file.size > 10240) {
         fileUpload.value.files;
+        //show an error idk
         return;
     }
     const ext = file.name.split(".").at(-1);
@@ -78,7 +79,7 @@ const sanitizeUpload = () => {
                     <form class="problemViewSubmitForm" action="javascript:void(0)">
                         <div class="problemViewSubmitFormInner">
                             <span>Source code:</span>
-                            <UIFileUpload ref="fileUpload" @input=sanitizeUpload></UIFileUpload>
+                            <UIFileUpload ref="fileUpload" @input=sanitizeUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
                             <span>Language:</span>
                             <UIDropdown ref="languageDropdown" :items="[
                 { text: 'Java 8', value: 'java8' },
