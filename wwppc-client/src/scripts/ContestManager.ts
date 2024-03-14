@@ -62,7 +62,7 @@ export const useContestManager = defineStore('contestManager', {
 window.addEventListener('load', () => {
     const serverConnection = useServerConnection();
     serverConnection.handshakePromise.then(() => {
-        serverConnection.socket.on('roundData', (rounds: ContestRound[]) => {
+        serverConnection.on('roundData', (rounds: ContestRound[]) => {
             console.log(rounds)
         });
     });

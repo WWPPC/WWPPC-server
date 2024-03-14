@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { useAccountManager } from '@/scripts/AccountManager';
+import { toDivName, useAccountManager } from '@/scripts/AccountManager';
 
 const accountManager = useAccountManager();
 </script>
 
 <template>
-    <div class="accountUserDisp">
-        <img class="accountUserDispImg" :src=accountManager.profileImage>
-        <img class="accountuserDispImgReplaceOverlay" :src=accountManager.profileImage>
-        <span class="accountUserUsername">{{ accountManager.username }}</span>
+    <div class="accountUserDispWrapper">
+        <div class="accountUserDisp">
+            <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
+            <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
+            <span class="accountUserUsername">{{ accountManager.username }}</span>
+            <div class="accountUserRegistrations">
+                <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
+                    {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
+                    <br>
+                </span>
+            </div>
+        </div>
     </div>
     <div class="accountScrollbox">
         <slot></slot>
@@ -16,13 +24,18 @@ const accountManager = useAccountManager();
 </template>
 
 <style scoped>
-.accountUserDisp {
-    display: grid;
-    grid-template-rows: max(20vw, 20vh) 40px;
+.accountUserDispWrapper {
+    display: flex;
     position: sticky;
     top: 0px;
     left: 0px;
     width: max(20vw, 20vh);
+    justify-content: center;
+}
+
+.accountUserDisp {
+    display: grid;
+    grid-template-rows: max(20vw, 20vh) 40px 1fr;
     justify-items: center;
 }
 
@@ -30,8 +43,8 @@ const accountManager = useAccountManager();
     grid-row: 1;
     grid-column: 1;
     box-sizing: border-box;
-    width: 100%;
-    height: 100%;
+    width: max(20vw, 20vh);
+    width: max(20vw, 20vh);
     border: 4px solid white;
     border-radius: 50%;
 }
@@ -39,17 +52,23 @@ const accountManager = useAccountManager();
 .accountuserDispImgReplaceOverlay {
     grid-row: 1;
     grid-column: 1;
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
+    padding: 20% 20%;
     border-radius: 50%;
     cursor: pointer;
     background-color: #FFF3;
     opacity: 0;
-    transition: 50ms linear opacity;
+    transition: 100ms linear opacity;
 }
 
 .accountuserDispImgReplaceOverlay:hover {
-    opacity: 1;
+    opacity: 0.5;
+}
+
+.accountUserRegistrations {
+    text-align: center;
 }
 
 .accountScrollbox {
@@ -60,9 +79,11 @@ const accountManager = useAccountManager();
 }
 
 @media (max-width: 600px) {
-    .accountUserDisp {
+    .accountUserDispWrapper {
+        position: static;
         width: 100%;
     }
+
     .accountScrollbox {
         margin-left: 0px;
         margin-top: 16px;

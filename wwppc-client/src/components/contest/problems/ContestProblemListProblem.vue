@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
-import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
+import { ContestProblemCompletionState, type ContestProblemMetaData } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{
-    data: ContestProblem
+    data: ContestProblemMetaData
 }>();
 
 const router = useRouter();

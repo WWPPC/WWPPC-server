@@ -22,11 +22,11 @@ watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
 
-// autofill
+// uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();
 const languageDropdown = ref<InstanceType<typeof UIDropdown>>();
 // typescript kept complaining about "var" and semicolons
-function sanitizeUpload() {
+const sanitizeUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
     if (file.size > 10485760) {
