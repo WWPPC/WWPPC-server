@@ -1,5 +1,8 @@
 {
-    "dependencies": {},
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "uuid": "^9.0.1"
+    },
     "scripts": {
         "install": "cd wwppc-server && npm install && cd ../wwppc-client && npm install",
         "build": "cd wwppc-server && npx tsc && cd ../wwppc-client && npm run build",
