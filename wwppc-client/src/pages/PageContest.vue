@@ -63,7 +63,7 @@ watch(() => route.params, () => {
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home" title="Home" is-default>
+            <PanelBody name="home" title="Home" is-default scroll-snap>
                 <PagePanelContestInfo></PagePanelContestInfo>
             </PanelBody>
             <PanelBody name="contest" title="Contest">

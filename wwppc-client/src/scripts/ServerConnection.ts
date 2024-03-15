@@ -75,7 +75,7 @@ export interface CredentialsSignupData {
     experience: number
     languages: string[]
 }
-const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<number> => {
+export const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<number> => {
     return new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
@@ -123,12 +123,6 @@ export const useServerConnection = defineStore('serverconnection', {
         connected() { return socket.connected; }
     },
     actions: {
-        login(username: string, password: string | Array<number>): Promise<number> {
-            return sendCredentials(username, password);
-        },
-        signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<number> {
-            return sendCredentials(username, password, token, signupData);
-        },
         encode: RSA.encode,
         // shorthands
         emit(event: string, ...data: any[]) {

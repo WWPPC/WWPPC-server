@@ -14,10 +14,12 @@ const emit = defineEmits<{
     (e: 'input', value: number): void
 }>();
 const number = defineModel({ default: 0 });
-number.value = props.defaultValue ?? 0;
 function input() {
     emit('input', number.value);
 }
+onMounted(() => {
+    number.value = props.defaultValue ?? 0;
+});
 defineExpose({
     value: number
 });

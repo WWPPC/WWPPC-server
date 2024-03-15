@@ -2,23 +2,22 @@ import fs from 'fs';
 import path from 'path';
 import { configDotenv } from 'dotenv';
 configDotenv();
-process.env.CONFIG_PATH ??= path.resolve(__dirname, '../config/');
-process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 
+import config from './config';
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
 
-const config = require(path.resolve(process.env.CONFIG_PATH, 'config.json'));
+process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 import express from 'express';
 import http from 'http';
 import https from 'https';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 const app = express();
-const server = fs.existsSync(path.resolve(process.env.CONFIG_PATH, 'cert.pem')) ? https.createServer({
-    key: fs.readFileSync(path.resolve(process.env.CONFIG_PATH, 'cert-key.pem')),
-    cert: fs.readFileSync(path.resolve(process.env.CONFIG_PATH, 'cert.pem'))
+const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.createServer({
+    key: fs.readFileSync(path.resolve(config.path, 'cert-key.pem')),
+    cert: fs.readFileSync(path.resolve(config.path, 'cert.pem'))
 }, app) : http.createServer(app);
 const limiter = rateLimit({
     windowMs: 100,
@@ -47,7 +46,6 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 if (process.env.DATABASE_URL == undefined || process.env.RECAPTCHA_SECRET == undefined) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
-config.port = process.env.PORT ?? config.port;
 
 // actually start server here
 import Database, { AccountOpResult } from './database';
@@ -175,12 +173,19 @@ io.on('connection', async (s) => {
                     resolve(true);
                     return;
                 }
-                const res = await database.createAccount(username, password, firstName, lastName, email);
+                const res = await database.createAccount(username, password, {
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    school: school,
+                    languages: creds.signupData.languages,
+                    grade: creds.signupData.grade,
+                    experience: creds.signupData.experience,
+                });
                 socket.emit('credentialRes', res);
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
                     resolve(false);
-                    await database.updateAccount(username, password, { username, email, firstName, lastName, displayName: `${firstName} ${lastName}`, profileImage: '', school, languages: creds.signupData.languages, grade: creds.signupData.grade, experience: creds.signupData.experience, registrations: [] });
                 }
             } else {
                 const res = await database.checkAccount(username, password);

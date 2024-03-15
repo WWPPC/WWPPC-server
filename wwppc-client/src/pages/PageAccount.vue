@@ -39,7 +39,7 @@ watch(() => route.params.page, () => {
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="Profile" for="/account/profile" is-default></PanelNavButton>
+                <PanelNavButton text="Account" for="/account/profile" is-default></PanelNavButton>
                 <PanelNavButton text="Register" for="/account/registrations"></PanelNavButton>
             </PanelNavList>
         </PanelHeader>

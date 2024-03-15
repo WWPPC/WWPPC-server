@@ -8,6 +8,7 @@ import { useReCaptcha } from 'vue-recaptcha-v3';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
+import { useAccountManager } from '@/scripts/AccountManager';
 
 const router = useRouter();
 const route = useRoute();
@@ -15,6 +16,7 @@ const route = useRoute();
 // connection modals
 const modal = globalModal();
 const serverConnection = useServerConnection();
+const accountManager = useAccountManager();
 serverConnection.onconnecterror(() => {
     if (route.params.page != 'login') return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
@@ -67,14 +69,14 @@ const getErrorMessage = (res: number): string => {
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
     showLoginWait.value = true;
-    const res = await serverConnection.login(usernameInput.value ?? '', passwordInput.value ?? '');
+    const res = await accountManager.login(usernameInput.value ?? '', passwordInput.value ?? '');
     showLoginWait.value = false;
     if (res == 0) {
         router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
     } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
 };
 const toSignUp = () => {
-    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((emailInput.value.trim() ?? '') == '')) return;
+    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
     isSignupPage.value = true;
     if (emailInput.value) emailInput.value = '';
     if (gradeInput.value) gradeInput.value = '';
@@ -86,7 +88,7 @@ const attemptSignup = async () => {
     showLoginWait.value = true;
     await recaptchaLoaded();
     const token = await executeRecaptcha('signup');
-    const res = await serverConnection.signup(usernameInput.value ?? '', passwordInput.value ?? '', token ?? '', {
+    const res = await accountManager.signup(usernameInput.value ?? '', passwordInput.value ?? '', token ?? '', {
         firstName: firstNameInput.value.trim(),
         lastName: lastNameInput.value.trim(),
         email: emailInput.value.trim(),
@@ -143,15 +145,16 @@ const attemptSignup = async () => {
                                             <UITextBox :value="passwordInput.replace(/./g, '•')" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
                                         </span>
                                         <span style="margin-bottom: 8px;">
-                                            <UITextBox v-model=firstNameInput width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name"></UITextBox>
-                                            <UITextBox v-model=lastNameInput width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name"></UITextBox>
+                                            <UITextBox v-model=firstNameInput width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name" required></UITextBox>
+                                            <UITextBox v-model=lastNameInput width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name" required></UITextBox>
                                         </span>
+                                        <UITextBox v-model=schoolInput style="margin-bottom: 8px;" width="424px" title="Your school name" placeholder="School name" maxlength="64" required></UITextBox>
                                         <UITextBox v-model=emailInput type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
-                                        <PairedGridContainer>
+                                        <PairedGridContainer width="424px" style="margin-bottom: 6px;">
                                             <span>
                                                 Grade Level:
                                             </span>
-                                            <UIDropdown v-model="gradeInput" :items="[
+                                            <UIDropdown v-model="gradeInput" width="calc(100% - 4px)" :items="[
                             { text: 'Pre-High School', value: '8' },
                             { text: '9', value: '9' },
                             { text: '10', value: '10' },
@@ -163,7 +166,7 @@ const attemptSignup = async () => {
                                             <span>
                                                 Experience Level:
                                             </span>
-                                            <UIDropdown v-model="experienceInput" :items="[
+                                            <UIDropdown v-model="experienceInput" width="calc(100% - 4px)" :items="[
                             { text: 'Beginner / AP CS A', value: '0' },
                             { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
                             { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
@@ -173,7 +176,7 @@ const attemptSignup = async () => {
                                             <span>
                                                 Known languages:<br>(use CTRL/SHIFT)
                                             </span>
-                                            <UIDropdown v-model="languageInput" :items="[
+                                            <UIDropdown v-model="languageInput" width="calc(100% - 4px)" :items="[
                             { text: 'Python', value: 'python' },
                             { text: 'C', value: 'c' },
                             { text: 'C++', value: 'cpp' },

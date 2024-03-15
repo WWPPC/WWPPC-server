@@ -2,6 +2,7 @@ import UIButton from './inputs/UIButton.vue';
 import UILinkButton from './inputs/UILinkButton.vue';
 import UIIconButton from './inputs/UIIconButton.vue';
 import UITextBox from './inputs/UITextBox.vue';
+import UITextArea from './inputs/UITextArea.vue';
 import UINumberBox from './inputs/UINumberBox.vue';
 import UIToggle from './inputs/UIToggle.vue';
 import UIDropdown from './inputs/UIDropdown.vue';
@@ -19,6 +20,7 @@ export {
     UILinkButton,
     UIIconButton,
     UITextBox,
+    UITextArea,
     UINumberBox,
     UIToggle,
     UIDropdown,

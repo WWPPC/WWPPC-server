@@ -3,14 +3,16 @@ import { onMounted } from 'vue';
 
 const props = defineProps<{
     defaultValue?: string
-    highlightInvalid?: boolean
     title?: string
     width?: string
     height?: string
+    minWidth?: string
+    minHeight?: string
+    maxWidth?: string
+    maxHeight?: string
     font?: string
-    type?: 'text' | 'password' | 'email'
     placeholder?: string
-    autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'name' | 'honorific-prefix' | 'given-name' | 'additional-name' | 'family-name' | 'honorific-suffix' | 'nickname' | 'off'
+    resize?: 'vertical' | 'horizontal' | 'both' | 'none'
 }>();
 const emit = defineEmits<{
     (e: 'input', value: string): void
@@ -28,14 +30,18 @@ defineExpose({
 </script>
 
 <template>
-    <input :type="props.type ?? 'text'" class="uiTextBox" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
+    <textarea class="uiTextArea" @input=input v-model=text :title=props.title :placeholder=props.placeholder></textarea>
 </template>
 
 <style>
-.uiTextBox {
+.uiTextArea {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? '32px'");
+    height: v-bind("$props.height ?? 'unset'");
+    min-width: v-bind("$props.minWidth ?? 'unset'");
+    min-height: v-bind("$props.minHeight ?? 'unset'");
+    max-width: v-bind("$props.maxWidth ?? 'unset'");
+    max-height: v-bind("$props.maxHeight ?? 'unset'");
     margin: 0px 4px;
     padding: 0px 4px;
     border: 4px solid white;
@@ -45,21 +51,18 @@ defineExpose({
     font: v-bind("$props.font ?? '14px inherit'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms linear border-color;
+    resize: v-bind("$props.resize ?? 'both'");
 }
 
-.uiTextBox:hover {
+.uiTextArea:hover {
     border-color: lime;
 }
 
-.uiTextBox:focus {
+.uiTextArea:focus {
     border-color: red;
 }
 
-.uiTextBox:invalid {
-    border-color: v-bind("$props.highlightInvalid ? 'yellow' : ''");
-}
-
-.uiTextBox:disabled {
+.uiTextArea:disabled {
     border-color: #888 !important;
     cursor: not-allowed;
 }
