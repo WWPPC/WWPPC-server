@@ -89,7 +89,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 
 .faq {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     grid-auto-flow: dense;
     width: 100%;
     row-gap: 24px;

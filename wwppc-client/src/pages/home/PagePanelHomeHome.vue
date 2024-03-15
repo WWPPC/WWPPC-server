@@ -72,7 +72,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
             </p>
             <p>
-                We hope to continue the legacy as well as foster a passion for competitive programming for many through our new informatics tournament!
+                We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
             </p>
             <div class="centered" style="margin-top: 16px">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
@@ -83,9 +83,18 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </a>
             </div>
         </div>
+        <br><br>
+        <div class="centered">
+            <IfOnscreenContainer>
+                <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
+            </IfOnscreenContainer>
+        </div>
+        <div class="centered">
+            
+        </div>
         <div>
             <p style="font-size: var(--font-medium)">
-                Questions? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+                Questions? Want to become a sponsor? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
             </p>
         </div>
     </div>
