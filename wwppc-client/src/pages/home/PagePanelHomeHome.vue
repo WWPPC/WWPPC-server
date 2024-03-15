@@ -76,7 +76,10 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
             </p>
             <div class="centered" style="margin-top: 16px">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/assets/discord-white.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
+                    <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
+                </a>
+                <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
+                    <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
             </div>
         </div>
@@ -105,7 +108,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 
 .homeColumns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     row-gap: 24px;
     column-gap: 24px;
 }
@@ -113,7 +116,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 @media (max-width: 100vh) {
     .homeColumns {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 }
 

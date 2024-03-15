@@ -4,7 +4,7 @@ import { reactive, ref } from 'vue';
 import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
 
-const modalInput = ref<InstanceType<typeof UITextBox>>();
+const modalInput = ref('');
 const modal = reactive({
     title: '',
     content: '',
@@ -29,13 +29,13 @@ const showModal = (params: ModalParams): Promise<boolean | string | null> => {
     modal.content = content;
     modal.mode = mode;
     modalColor = color;
-    modalInput.value && (modalInput.value.text = '');
+    modalInput.value = '';
     modal.open = true;
     return new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = () => {
                 modal.open = false;
-                resolve(modalInput.value?.text ?? '');
+                resolve(modalInput.value);
                 showNextModal();
             };
             modalReject = () => {
@@ -82,7 +82,7 @@ export interface ModalParams {
                 <h1 v-html=modal.title></h1>
                 <p v-html=modal.content></p>
                 <span v-if="modal.mode == ModalMode.QUERY">
-                    <UITextBox ref="modalInput"></UITextBox>
+                    <UITextBox v-model=modalInput></UITextBox>
                     <br>
                 </span>
                 <div class="modalButtons">

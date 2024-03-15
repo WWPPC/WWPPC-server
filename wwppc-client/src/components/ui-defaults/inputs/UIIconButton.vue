@@ -62,6 +62,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 
 .uiIconButtonImage {
     height: 1.2em;
+    margin-left: 0.2em;
 }
 
 .uiIconButtonText {

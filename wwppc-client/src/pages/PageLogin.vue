@@ -7,6 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useReCaptcha } from 'vue-recaptcha-v3';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
+import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 
 const router = useRouter();
 const route = useRoute();
@@ -15,11 +16,11 @@ const route = useRoute();
 const modal = globalModal();
 const serverConnection = useServerConnection();
 serverConnection.onconnecterror(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
+    if (route.params.page != 'login') return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
 });
 serverConnection.ondisconnect(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
+    if (route.params.page != 'login') return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
 });
 
@@ -44,14 +45,16 @@ watch(() => route.params.page, async () => {
     }
 });
 
-const usernameInput = ref<InstanceType<typeof UITextBox>>();
-const passwordInput = ref<InstanceType<typeof UITextBox>>();
+const usernameInput = ref('');
+const passwordInput = ref('');
 const isSignupPage = ref(false);
-const signupForm = ref<HTMLFormElement>();
-const emailInput = ref<InstanceType<typeof UITextBox>>();
-const gradeInput = ref<InstanceType<typeof UIDropdown>>();
-const experienceInput = ref<InstanceType<typeof UIDropdown>>();
-const languageInput = ref<InstanceType<typeof UIDropdown>>();
+const firstNameInput = ref('');
+const lastNameInput = ref('');
+const emailInput = ref('');
+const schoolInput = ref('');
+const gradeInput = ref('');
+const experienceInput = ref('');
+const languageInput = ref(new Array<string>());
 
 const showLoginWait = ref(false);
 
@@ -62,40 +65,40 @@ const getErrorMessage = (res: number): string => {
     return res == 1 ? 'Account with username already exists' : res == 2 ? 'Account not found' : res == 3 ? 'Incorrect password' : res == 4 ? 'Database error' : 'Unknown error (this is a bug?)';
 };
 const attemptLogin = async () => {
-    try {
-        if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '')) return;
-        showLoginWait.value = true;
-        const res = await serverConnection.login(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '');
-        showLoginWait.value = false;
-        if (res == 0) {
-            router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
-        } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
-    } catch (err) {
-        console.error(err);
-    }
+    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
+    showLoginWait.value = true;
+    const res = await serverConnection.login(usernameInput.value ?? '', passwordInput.value ?? '');
+    showLoginWait.value = false;
+    if (res == 0) {
+        router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
+    } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
 };
 const toSignUp = () => {
-    if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
+    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((emailInput.value.trim() ?? '') == '')) return;
     isSignupPage.value = true;
-    if (emailInput.value) emailInput.value.text = '';
-    if (gradeInput.value) gradeInput.value.selected = '';
-    if (experienceInput.value) experienceInput.value.selected = '';
-    if (languageInput.value) languageInput.value.selected = '';
+    if (emailInput.value) emailInput.value = '';
+    if (gradeInput.value) gradeInput.value = '';
+    if (experienceInput.value) experienceInput.value = '';
+    if (languageInput.value) languageInput.value = [];
 };
 const attemptSignup = async () => {
-    try {
-        if (!validateCredentials(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '') || ((emailInput.value?.text.trim() ?? '') == '')) return;
-        showLoginWait.value = true;
-        await recaptchaLoaded();
-        const token = await executeRecaptcha('signup');
-        const res = await serverConnection.signup(usernameInput.value?.text ?? '', passwordInput.value?.text ?? '', emailInput.value?.text.trim() ?? '', token ?? '');
-        showLoginWait.value = false;
-        if (res == 0) {
-            router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
-        } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
-    } catch (err) {
-        console.error(err);
-    }
+    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((emailInput.value.trim() ?? '') == '')) return;
+    showLoginWait.value = true;
+    await recaptchaLoaded();
+    const token = await executeRecaptcha('signup');
+    const res = await serverConnection.signup(usernameInput.value ?? '', passwordInput.value ?? '', token ?? '', {
+        firstName: firstNameInput.value.trim(),
+        lastName: lastNameInput.value.trim(),
+        email: emailInput.value.trim(),
+        school: schoolInput.value.trim(),
+        grade: Number(gradeInput.value),
+        experience: Number(experienceInput.value),
+        languages: languageInput.value
+    });
+    showLoginWait.value = false;
+    if (res == 0) {
+        router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
+    } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
 };
 </script>
 
@@ -109,9 +112,6 @@ const attemptSignup = async () => {
         </PanelHeader>
         <PanelMain>
             <PanelBody name="login" title="Login" is-default>
-                <!-- matrix rain? that's overdone -->
-                <!-- some other cool effect in the background -->
-                <!-- line of glitches following the mouse? -->
                 <div class="loginNoScroll">
                     <Transition name="main">
                         <div class="fullBlock" v-show="!isSignupPage">
@@ -120,11 +120,11 @@ const attemptSignup = async () => {
                                     <img src="/logo.svg" class="loginLogoFloater">
                                     <h1 class="loginFlowHeader">Log In</h1>
                                     <form class="loginFlow" action="javascript:void(0)">
-                                        <UITextBox ref="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" autocomplete="username" autocapitalize="off" required></UITextBox>
-                                        <UITextBox ref="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" autocomplete="current-password" required></UITextBox>
+                                        <UITextBox v-model=usernameInput placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
+                                        <UITextBox v-model=passwordInput placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
-                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="usernameInput?.text.trim() == ''"></UIButton>
-                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="usernameInput?.text.trim() == ''"></UIButton>
+                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="usernameInput.trim() == ''"></UIButton>
+                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="usernameInput.trim() == ''"></UIButton>
                                         </span>
                                     </form>
                                 </div>
@@ -137,17 +137,21 @@ const attemptSignup = async () => {
                                 <div class="loginFlow">
                                     <UIButton @click="isSignupPage = false" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
                                     <h1 class="loginFlowHeader2">Sign Up</h1>
-                                    <form ref="signupForm" class="loginFlow" onsubmit="return false">
-                                        <span>
-                                            <UITextBox :value="usernameInput?.text" action="javascript:void(0)" style="margin-bottom: 8px;" width="208px" title="Username" disabled autocomplete="off"></UITextBox>
-                                            <UITextBox :value="passwordInput?.text.replace(/./g, '•')" style="margin-bottom: 8px;" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
+                                    <form class="loginFlow" action="javascript:void(0)">
+                                        <span style="margin-bottom: 8px;">
+                                            <UITextBox :value=usernameInput width="208px" title="Username" disabled autocomplete="off"></UITextBox>
+                                            <UITextBox :value="passwordInput.replace(/./g, '•')" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
                                         </span>
-                                        <UITextBox ref="emailInput" type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" required highlight-invalid></UITextBox>
-                                        <div class="loginFlow2">
+                                        <span style="margin-bottom: 8px;">
+                                            <UITextBox v-model=firstNameInput width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name"></UITextBox>
+                                            <UITextBox v-model=lastNameInput width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name"></UITextBox>
+                                        </span>
+                                        <UITextBox v-model=emailInput type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <PairedGridContainer>
                                             <span>
                                                 Grade Level:
                                             </span>
-                                            <UIDropdown ref="gradeInput" :items="[
+                                            <UIDropdown v-model="gradeInput" :items="[
                             { text: 'Pre-High School', value: '8' },
                             { text: '9', value: '9' },
                             { text: '10', value: '10' },
@@ -159,13 +163,17 @@ const attemptSignup = async () => {
                                             <span>
                                                 Experience Level:
                                             </span>
-                                            <UIDropdown ref="experienceInput" :items="[
-                            { text: 'Beginner', value: '0' },
-                            { text: 'Intermediate', value: '1' },
-                            { text: 'Advanced', value: '2' },
+                                            <UIDropdown v-model="experienceInput" :items="[
+                            { text: 'Beginner / AP CS A', value: '0' },
+                            { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+                            { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
+                            { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
+                            { text: 'Cracked / IOI / USACO Camp', value: '4' },
                         ]" title="Your experience level with competitive programming" required></UIDropdown>
-                                            <span>Known languages:<br>(use CTRL/SHIFT)</span>
-                                            <UIDropdown ref="languageInput" :items="[
+                                            <span>
+                                                Known languages:<br>(use CTRL/SHIFT)
+                                            </span>
+                                            <UIDropdown v-model="languageInput" :items="[
                             { text: 'Python', value: 'python' },
                             { text: 'C', value: 'c' },
                             { text: 'C++', value: 'cpp' },
@@ -185,7 +193,7 @@ const attemptSignup = async () => {
                             { text: 'Lua', value: 'lua' },
                             { text: 'Bash', value: 'bash' },
                         ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
-                                        </div>
+                                        </PairedGridContainer>
                                         <UIButton text="Sign Up" type="submit" @click="attemptSignup" width="424px" glitchOnMount></UIButton>
                                     </form>
                                 </div>
@@ -231,24 +239,6 @@ const attemptSignup = async () => {
     align-items: center;
     text-align: center;
     width: max(300px, 40vw);
-}
-
-.loginFlow2 {
-    display: grid;
-    grid-template-columns: 150px 200px;
-    align-items: start;
-}
-
-.loginFlow2>*:nth-child(odd) {
-    justify-self: end;
-    margin-right: 4px;
-}
-
-.loginFlow2>*:nth-child(even) {
-    justify-self: start;
-    margin-left: 4px;
-    width: 100%;
-    margin-bottom: 8px;
 }
 
 @keyframes loginLogoBob {

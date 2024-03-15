@@ -46,7 +46,7 @@ const sanitizeUpload = () => {
     const options = Array.from(languageDropdown.value.items).reverse();
     for (const option of options) {
         if (option.value.includes(ext)) {
-            languageDropdown.value.selected = option.value;
+            languageDropdown.value.value = option.value;
             break;
         }
     }

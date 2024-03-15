@@ -9,6 +9,7 @@ import TitledCollapsible from './containers/TitledCollapsible.vue';
 import AnimateInContainer from './containers/AnimateInContainer.vue';
 import IfOnscreenContainer from './containers/IfOnscreenContainer.vue';
 import ShowOnscreenContainer from './containers/ShowOnscreenContainer.vue';
+import PairedGridContainer from './containers/PairedGridContainer.vue';
 
 export {
     CenteredContainer,
@@ -21,5 +22,6 @@ export {
     TitledCollapsible,
     ShowOnscreenContainer,
     IfOnscreenContainer,
-    AnimateInContainer
+    AnimateInContainer,
+    PairedGridContainer
 }

@@ -59,14 +59,23 @@ socket.once('getCredentials', async (session) => {
         // autologin if possible
         if (sessionCreds != null && RSA.sid.toString() === window.localStorage.getItem('sessionId')) {
             const creds = JSON.parse(sessionCreds);
-            state.loggedIn = await sendCredentials(creds.username, creds.password, 0) == 0;
+            state.loggedIn = await sendCredentials(creds.username, creds.password) == 0;
             state.manualLogin = false;
         }
         state.handshakeComplete = true;
         handshakeResolve(undefined);
     }
 });
-const sendCredentials = (username: string, password: string | Array<number>, action: 0 | 1, email?: string, token?: string): Promise<number> => {
+export interface CredentialsSignupData {
+    firstName: string
+    lastName: string
+    email: string
+    school: string
+    grade: number
+    experience: number
+    languages: string[]
+}
+const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<number> => {
     return new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
@@ -77,11 +86,18 @@ const sendCredentials = (username: string, password: string | Array<number>, act
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encode(password);
             // for some reason RSA encode of ReCaptcha token throws an error
             socket.emit('credentials', {
-                action: action,
                 username: await RSA.encode(username),
                 password: password2,
-                email: email != undefined ? await RSA.encode(email) : undefined,
-                token: token
+                token: token,
+                signupData: signupData !== undefined ? {
+                    firstName: await RSA.encode(signupData.firstName),
+                    lastName: await RSA.encode(signupData.lastName),
+                    email: await RSA.encode(signupData.email),
+                    school: await RSA.encode(signupData.school),
+                    grade: signupData.grade,
+                    experience: signupData.experience,
+                    languages: signupData.languages,
+                } : undefined
             });
             socket.once('credentialRes', async (res: number) => {
                 if (res == 0) {
@@ -108,10 +124,10 @@ export const useServerConnection = defineStore('serverconnection', {
     },
     actions: {
         login(username: string, password: string | Array<number>): Promise<number> {
-            return sendCredentials(username, password, 0);
+            return sendCredentials(username, password);
         },
-        signup(username: string, password: string, email: string, token: string): Promise<number> {
-            return sendCredentials(username, password, 1, email, token);
+        signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<number> {
+            return sendCredentials(username, password, token, signupData);
         },
         encode: RSA.encode,
         // shorthands

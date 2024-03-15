@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
-import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, DoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
+import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
@@ -20,20 +20,30 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=300>
                 <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                    <UILinkButton text="Register"></UILinkButton>
-                    <!-- mailing list? -->
-                    <!-- other contact information? -->
-                    <!-- how to hackathon resources? -->
+                    <CenteredContainer>
+                        <span style="font-size: var(--font-20);">
+                            You can register to compete here:
+                            <div class="centered" style="margin-top: 4px;">
+                                <UILinkButton text="Register" color="lime" width="40%" disabled></UILinkButton>
+                            </div>
+                            <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
+                        </span>
+                    </CenteredContainer>
+                    <UIDivider></UIDivider>
+                    <ul>
+                        <li>Anyone can register! All you need is an account!</li>
+                        <!-- other info? -->
+                    </ul>
                 </CutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
-                <DoubleCutCornerContainer title="Contest Information" align="center" height="100%" hover-animation="lift" flipped>
-                    <p>
-                        WWP Informatics Tournament (WWPIT) is a IPCP / CodeForces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CSA to USACO Platinum.
+                <TitledDoubleCutCornerContainer title="General Information" align="center" height="100%" hover-animation="lift" flipped>
+                    <p style="font-size: var(--font-20);">
+                        WWP Informatics Tournament (WWPIT) is a IPCP / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CS A to USACO Platinum.
                         <br><br>
-                        The contest will be held online between two divisions: Beginner and Advanced.
+                        The contest will be held online between two divisions: Beginner and Advanced, with some difficulty overlap.
                     </p>
-                </DoubleCutCornerContainer>
+                </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
@@ -56,14 +66,14 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
                     WWPIT will be held online, on this website!
                     <br><br>
-                    You can register <a href="" target="_blank"> here</a> at any time before the contest starts.
+                    You can register <a href="/account/registrations/new" target="_blank"> here</a> at any time before the contest starts.
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What's the contest format?" height="100%" startCollapsed>
                     <ul>
-                        <li>There will be n separate timed rounds of roughly 45 minutes</li>
-                        <li>Teams will be ranked by their total score, with partial credit</li>
+                        <li>There will be n separate timed rounds of roughly 45 minutes each</li>
+                        <li>Teams will be ranked by their total score, with partial credit for problems</li>
                         <li>Submissions are only graded after the round ends</li>
                         <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                     </ul>
@@ -91,8 +101,8 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 
 .contestInfoBlock {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: min-content 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: min-content minmax(0, 1fr);
     grid-auto-flow: column dense;
     row-gap: 24px;
     column-gap: 24px;

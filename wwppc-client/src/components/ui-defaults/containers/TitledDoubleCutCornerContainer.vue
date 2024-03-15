@@ -36,8 +36,7 @@ defineProps<{
     grid-column: 1;
     box-sizing: border-box;
     width: 100%;
-    padding-top: 8px;
-    padding-left: 12px;
+    padding: 8px 12px;
     padding-bottom: 4px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
@@ -62,11 +61,11 @@ defineProps<{
     grid-row: 2;
     grid-column: 1;
     position: relative;
-    left: -24px;
-    width: calc(100% + 48px);
+    left: -12px;
+    width: calc(100% + 24px);
     height: 100%;
-    box-shadow: 0px 0px 18px 6px black inset;
-    clip-path: xywh(0 0 calc(100% - 40px) 100%);
+    box-shadow: 0px 0px 12px black inset;
+    clip-path: xywh(0 0 calc(100% - 28px) 100%);
     pointer-events: none;
 }
 </style>

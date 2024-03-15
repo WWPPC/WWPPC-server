@@ -99,27 +99,44 @@ io.on('connection', async (s) => {
     // await credentials before allowing anything (in a weird way)
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
     if (await new Promise((resolve, reject) => {
-        socket.on('credentials', async (creds) => {
-            if (creds == null || (creds.action != 0 && creds.action != 1)) {
+        socket.on('credentials', async (creds: { username: Buffer | string, password: Buffer | string, token?: string, signupData?: { firstName: Buffer | string, lastName: Buffer | string, email: Buffer | string, school: Buffer | string, grade: number, experience: number, languages: string[] } }) => {
+            if (creds == null) {
                 kick('null credentials');
                 resolve(true);
                 return;
             }
-            const u = await database.RSAdecode(creds.username);
-            const p = await database.RSAdecode(creds.password);
-            const e = await database.RSAdecode(creds.email);
-            if (u instanceof Buffer || p instanceof Buffer) {
+            // some validation
+            const username = await database.RSAdecode(creds.username);
+            const password = await database.RSAdecode(creds.password);
+            if (username instanceof Buffer || password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
-            if (typeof u != 'string' || typeof p != 'string' || (creds.action == 1 && (typeof e != 'string' || typeof creds.token != 'string')) || !database.validate(u, p)) {
+            if (typeof username != 'string' || typeof password != 'string' || !database.validate(username, password)) {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            if (creds.action == 1) {
+            // actually create/check account
+            if (creds.signupData) {
+                // more validation
+                const firstName = await database.RSAdecode(creds.signupData.firstName);
+                const lastName = await database.RSAdecode(creds.signupData.lastName);
+                const email = await database.RSAdecode(creds.signupData.email);
+                const school = await database.RSAdecode(creds.signupData.school);
+                if (typeof firstName != 'string' || typeof lastName != 'string' || typeof email != 'string' || typeof school != 'string'
+                    || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
+                    || typeof creds.signupData.experience != 'number' || typeof creds.signupData.grade != 'number' || creds.token == undefined || typeof creds.token != 'string') {
+                    kick('invalid sign up data');
+                    resolve(true);
+                    return;
+                }
                 // verify recaptcha with an unnecessarily long bit of HTTP request code
                 const recaptchaResponse: any = await new Promise((resolve, reject) => {
+                    if (creds.token === undefined) {
+                        reject('what');
+                        return;
+                    }
                     const req = https.request({
                         hostname: 'www.google.com',
                         path: `/recaptcha/api/siteverify`,
@@ -158,12 +175,20 @@ io.on('connection', async (s) => {
                     resolve(true);
                     return;
                 }
-            }
-            const res = await (creds.action == 1 ? database.createAccount(u, p, typeof e == 'string' ? e : '') : database.checkAccount(u, p));
-            socket.emit('credentialRes', res);
-            if (res == 0) {
-                socket.removeAllListeners('credentials');
-                resolve(false);
+                const res = await database.createAccount(username, password, firstName, lastName, email);
+                socket.emit('credentialRes', res);
+                if (res == 0) {
+                    socket.removeAllListeners('credentials');
+                    resolve(false);
+                    await database.updateAccount(username, password, { username, email, firstName, lastName, displayName: `${firstName} ${lastName}`, profileImage: '', school, languages: creds.signupData.languages, grade: creds.signupData.grade, experience: creds.signupData.experience, registrations: [] });
+                }
+            } else {
+                const res = await database.checkAccount(username, password);
+                socket.emit('credentialRes', res);
+                if (res == 0) {
+                    socket.removeAllListeners('credentials');
+                    resolve(false);
+                }
             }
         });
     })) return;

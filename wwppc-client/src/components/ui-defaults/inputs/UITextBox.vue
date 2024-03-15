@@ -8,7 +8,7 @@ const props = defineProps<{
     font?: string
     type?: 'text' | 'password' | 'email'
     placeholder?: string
-    autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'off'
+    autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'name' | 'honorific-prefix' | 'given-name' | 'additional-name' | 'family-name' | 'honorific-suffix' | 'nickname' | 'off'
 }>();
 const emit = defineEmits<{
     (e: 'input', value: string): void
@@ -19,7 +19,7 @@ function input() {
     emit('input', text.value);
 }
 defineExpose({
-    text
+    value: text
 });
 </script>
 

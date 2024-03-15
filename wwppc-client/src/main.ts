@@ -6,6 +6,7 @@ import { createPinia } from 'pinia';
 import App from '@/App.vue';
 import { PanelBody, PanelNavButton } from './components/panels/PanelManager';
 import { VueReCaptcha } from 'vue-recaptcha-v3';
+import PagePanelAccountRegistrations from './pages/account/PagePanelAccountRegistrations.vue';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -20,11 +21,21 @@ const router = createRouter({
             children: [{
                 path: ':panel',
                 components: { PanelBody, PanelNavButton },
-                children: [{
-                    path: ':probDiv-:probRound-:probNum',
-                    component: PanelBody
-                }],
+                children: [
+                    {
+                        path: ':probDiv-:probRound-:probNum',
+                        component: PanelBody
+                    },
+                    {
+                        path: 'new/:contestName',
+                        component: PagePanelAccountRegistrations
+                    }
+                ],
             }]
+        },
+        {
+            path: '/team/:viewTeam',
+            components: { }
         }
     ]
 });

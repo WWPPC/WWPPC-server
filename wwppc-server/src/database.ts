@@ -113,16 +113,16 @@ export class Database {
      * @param {string} password Valid pasword
      * @returns {AccountOpResult} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
-    async createAccount(username: string, password: string, email: string): Promise<AccountOpResult> {
+    async createAccount(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountOpResult> {
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3)', [username, encryptedPassword, email]);
+            else await this.#db.query('INSERT INTO users (username, password, email, firstName, lastName) VALUES ($1, $2, $3, $4, $5)', [username, encryptedPassword, email, firstName, lastName]);
             this.logger.info(`[Database] Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (createAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -139,7 +139,32 @@ export class Database {
             if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (checkAccount):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        }
+    }
+    /**
+     * Overwrite user data for an existing account with the specified username. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @param {string} password Valid pasword
+     * @param {AccountData} userData New data
+     * @returns {AccountOpResult} Update status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     */
+    async updateAccount(username: string, password: string, userData: AccountData): Promise<AccountOpResult> {
+        try {
+            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+            if (data.rowCount != null && data.rowCount > 0) {
+                if (await bcrypt.compare(password, data.rows[0].password)) {
+                    await this.#db.query('UPDATE users SET firstName=$2, lastName=$3, school=$4, grade=$5, experience=$6, languages=$7 WHERE username=$1', [username, userData.firstName, userData.lastName, userData.school, userData.grade, userData.experience, userData.languages]);
+                    return AccountOpResult.SUCCESS;
+                } else {
+                    return AccountOpResult.INCORRECT_CREDENTIALS;
+                }
+            }
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (updateAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -171,7 +196,7 @@ export class Database {
                 return AccountOpResult.SUCCESS;
             }
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (deleteAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -188,7 +213,7 @@ export class Database {
             const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
             return data.rowCount != null && data.rowCount > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (hasPerms):');
             this.logger.error('' + err);
             return false;
         }
@@ -210,7 +235,7 @@ export class Database {
                 endTime: round.endTime
             }));
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (readRounds):');
             this.logger.error('' + err);
             return [];
         }
@@ -230,7 +255,7 @@ export class Database {
             }
             return true;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (writeRound):');
             this.logger.error('' + err);
             return false;
         }
@@ -263,7 +288,7 @@ export class Database {
                 constraints: problem.constraints
             }));
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (readProblems):');
             this.logger.error('' + err);
             return [];
         }
@@ -283,7 +308,7 @@ export class Database {
             }
             return true;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (writeProblem):');
             this.logger.error('' + err);
             return false;
         }
@@ -316,7 +341,7 @@ export class Database {
                 scores: submission.scores
             }));
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (readSubmissions):');
             this.logger.error('' + err);
             return null;
         }
@@ -336,7 +361,7 @@ export class Database {
             }
             return true;
         } catch (err) {
-            this.logger.error('Database error:');
+            this.logger.error('Database error (writeSubmission):');
             this.logger.error('' + err);
             return false;
         }
@@ -414,6 +439,36 @@ interface ReadSubmissionsCriteria {
 export interface AccountData {
     /**Username */
     username: string
+    /**Email */
+    email: string
+    /**First name */
+    firstName: string
+    /**Last name */
+    lastName: string
+    /**Alternate name used in front-end */
+    displayName: string
+    /**Encoded image */
+    profileImage: string
+    /**School name */
+    school: string
+    /**Grade level (8 = below HS, 13 = above HS) */
+    grade: number
+    /**Experience level, 0 to 4, with 4 being the highest */
+    experience: number
+    /**Known languages, in file extension form */
+    languages: string[]
+    /**List of registrations */
+    registrations: Registration[]
+}
+
+/**Descriptor for a registration */
+export interface Registration {
+    /**The contest (does not specify when) */
+    contest: 'WWPIT' | 'WWPHacks'
+    /**Division number */
+    division: number
+    /**Which of the actual contests (e.g. 2024 Fall) */
+    name: string
 }
 
 /**Descriptor for a single round */

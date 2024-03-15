@@ -33,6 +33,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                     <!-- mailing list? -->
                     <!-- other contact information? -->
                     <!-- how to hackathon resources? -->
+                    <!-- do something similar to the wwpit homepage -->
                 </CutCornerContainer>
             </AnimateInContainer>
         </div>
@@ -76,8 +77,8 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 
 .hacksInfoBlock {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: min-content 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: min-content minmax(0, 1fr);
     grid-auto-flow: column dense;
     row-gap: 24px;
     column-gap: 24px;

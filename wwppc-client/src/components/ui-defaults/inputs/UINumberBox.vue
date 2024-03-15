@@ -19,7 +19,7 @@ function input() {
     emit('input', number.value);
 }
 defineExpose({
-    number
+    value: number
 });
 </script>
 

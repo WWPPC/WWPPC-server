@@ -20,7 +20,7 @@ function input() {
     emit('input', selected.value);
 }
 defineExpose({
-    selected,
+    value: selected,
     items: props.items,
     groupedItems: props.groupedItems
 });

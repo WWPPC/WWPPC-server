@@ -12,6 +12,9 @@ const emit = defineEmits<{
 function input() {
     emit('input', checked.value);
 }
+defineExpose({
+    checked
+});
 </script>
 
 <template>

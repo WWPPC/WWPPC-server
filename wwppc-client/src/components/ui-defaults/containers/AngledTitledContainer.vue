@@ -39,8 +39,7 @@ defineProps<{
 .titledAngleContainerTitle {
     position: absolute;
     top: 0px;
-    margin-top: 8px;
-    margin-left: 12px;
+    padding: 8px 12px;
     text-align: v-bind("$props.align ?? 'left'");
 }
 
@@ -74,10 +73,11 @@ defineProps<{
     position: absolute;
     bottom: 0px;
     left: -24px;
-    width: calc(100% + 48px);
+    left: -12px;
+    width: calc(100% + 24px);
     height: 100%;
-    box-shadow: 0px 0px 18px 6px black inset;
-    clip-path: xywh(0 0 calc(100% - 40px) 100%);
+    box-shadow: 0px 0px 12px black inset;
+    clip-path: xywh(0 0 calc(100% - 12px) 100%);
     pointer-events: none;
 }
 

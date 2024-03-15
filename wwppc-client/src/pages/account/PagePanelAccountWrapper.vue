@@ -44,7 +44,7 @@ const accountManager = useAccountManager();
     grid-column: 1;
     box-sizing: border-box;
     width: max(20vw, 20vh);
-    width: max(20vw, 20vh);
+    height: max(20vw, 20vh);
     border: 4px solid white;
     border-radius: 50%;
 }
@@ -72,10 +72,14 @@ const accountManager = useAccountManager();
 }
 
 .accountScrollbox {
+    display: flex;
+    flex-direction: column;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     margin-left: calc(max(20vw, 20vh) + 16px);
-    margin-top: calc(max(20vw, 20vh) * -1 - 48px);
+    margin-top: calc(max(20vw, 20vh) * -1 - 40px);
+    row-gap: 16px;
+    column-gap: 16px;
 }
 
 @media (max-width: 600px) {

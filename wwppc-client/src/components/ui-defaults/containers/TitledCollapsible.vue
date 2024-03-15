@@ -56,6 +56,7 @@ defineExpose({
     display: flex;
     flex-direction: row;
     padding: 8px 12px;
+    padding-bottom: 4px;
     margin-bottom: -4px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
@@ -84,7 +85,7 @@ defineExpose({
 .headeredCollapsibleContainerBodyWrapper {
     display: relative;
     width: 100%;
-    max-height: v-bind("show ? (boxHeight + 'px') : '0px'");
+    max-height: v-bind("show ? ($props.height ?? (boxHeight + 'px')) : '0px'");
     height: v-bind("boxHeight + 'px'");
     transition: v-bind("Math.round(Math.sqrt(boxHeight * 200)) + 'ms'") ease max-height;
     overflow: clip;
