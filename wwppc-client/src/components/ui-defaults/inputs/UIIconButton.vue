@@ -43,7 +43,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiIconButtonLabel {
     display: flex;
     box-sizing: border-box;
-    width: v-bind("$props.width ?? 'unset'");
+    width: v-bind("$props.width ?? 'min-content'");
     height: v-bind("$props.height ?? 'min-content'");
     border: 4px solid white;
     margin: 0px 4px;
@@ -68,7 +68,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiIconButtonText {
     margin: 0px 0.2em;
     text-wrap: nowrap;
-    font-size: v-bind("$props.fontSize ?? '16px'");
+    font-size: v-bind("$props.fontSize ?? 'var(--font-16)'");
 }
 
 .uiIconButtonLabel:hover {

@@ -3,7 +3,7 @@ import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
-import { ref, watch, onMounted, type Ref, onUpdated } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
@@ -47,10 +47,10 @@ const sanitizeUpload = () => {
 </script>
 
 <template>
+    <div style="margin-left: -4px;">
+        <UIIconButton text="Back to Problem List" img="/assets/arrow-left.svg" @click="$router.push('/contest/problemList')" color="lime"></UIIconButton>
+    </div>
     <div class="problemViewPanel">
-        <span style="margin-left: 16px;">
-            <UIIconButton text="Back to Problem List" img="/assets/arrow-left.svg" @click="$router.push('/contest/problemList')" color="lime"></UIIconButton>
-        </span>
         <div class="problemViewDouble">
             <TitledCutCornerContainer :title="problem.name" vertical-flipped>
                 <div class="problemViewSubtitle">
@@ -74,14 +74,14 @@ const sanitizeUpload = () => {
                             <UIFileUpload ref="fileUpload" @input=sanitizeUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
                             <span>Language:</span>
                             <UIDropdown ref="languageDropdown" :items="[
-                { text: 'Java 8', value: 'java8' },
-                { text: 'Java 17', value: 'java17' },
-                { text: 'Java 21', value: 'java21' },
-                { text: 'C', value: 'c' },
-                { text: 'C++ 11', value: 'cpp11' },
-                { text: 'C++ 17', value: 'cpp17' },
-                { text: 'Python 3.6.9', value: 'py369' }
-            ]" required></UIDropdown>
+        { text: 'Java 8', value: 'java8' },
+        { text: 'Java 17', value: 'java17' },
+        { text: 'Java 21', value: 'java21' },
+        { text: 'C', value: 'c' },
+        { text: 'C++ 11', value: 'cpp11' },
+        { text: 'C++ 17', value: 'cpp17' },
+        { text: 'Python 3.6.9', value: 'py369' }
+    ]" required></UIDropdown>
                         </div>
                         <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
                     </form>
@@ -95,7 +95,7 @@ const sanitizeUpload = () => {
 .problemViewPanel {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: calc(100% - 32px);
 }
 
 .problemViewDouble {
@@ -108,6 +108,10 @@ const sanitizeUpload = () => {
 }
 
 @media (max-width: 800px) {
+    .problemViewPanel {
+        height: unset;
+    }
+
     .problemViewDouble {
         grid-template-columns: 1fr;
     }
@@ -134,6 +138,7 @@ const sanitizeUpload = () => {
     flex-direction: column;
     align-items: center;
 }
+
 .problemViewSubmitFormInner {
     display: grid;
     grid-template-columns: max-content min-content;
@@ -141,6 +146,7 @@ const sanitizeUpload = () => {
     column-gap: 8px;
     margin-bottom: 4px;
 }
+
 .problemViewSubmitFormInner>*:nth-child(odd) {
     justify-self: right;
 }
