@@ -169,12 +169,37 @@ export class Database {
     /**
      * Get use data for an account. **DOES NOT VALIDATE CREDENTIALS**
      * @param {string} username Valid username
+     * @returns {AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} AccountData or an error code
      */
-    async getAccountData(username: string): Promise<AccountData | null> {
+    async getAccountData(username: string): Promise<AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
         if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
         else {
-            return null;
+            try {
+                // it probably doesn't matter that we fetch everything
+                const data = await this.#db.query('SELECT * FROM users WHERE username=$1', [username]);
+                if (data.rows.length > 0) {
+                    return {
+                        username: data.rows[0].username,
+                        email: data.rows[0].email,
+                        firstName: data.rows[0].firstname,
+                        lastName: data.rows[0].lastname,
+                        displayName: data.rows[0].displayname,
+                        profileImage: data.rows[0].profileimg,
+                        bio: data.rows[0].biography,
+                        school: data.rows[0].school,
+                        grade: data.rows[0].grade,
+                        experience: data.rows[0].experience,
+                        languages: data.rows[0].languages,
+                        registrations: data.rows[0].registrations
+                    }
+                }
+                return AccountOpResult.NOT_EXISTS;
+            } catch (err) {
+                this.logger.error('Database error (getAccountData):');
+                this.logger.error('' + err);
+                return AccountOpResult.ERROR;
+            }
         }
     }
     /**
@@ -184,7 +209,7 @@ export class Database {
      * @param {AccountData} userData New data
      * @returns {AccountOpResult} Update status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
      */
-    async updateAccount(username: string, password: string, userData: AccountData): Promise<AccountOpResult> {
+    async updateAccountData(username: string, password: string, userData: AccountData): Promise<AccountOpResult> {
         try {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             let encryptedPassword: string;
@@ -211,7 +236,7 @@ export class Database {
             this.logger.info(`[Database] Updated account data for "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (updateAccount):');
+            this.logger.error('Database error (deleteAccountData):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -319,9 +344,8 @@ export class Database {
             if (c.id != undefined && isUUID(c.id)) problemIdList.push(c.id);
             if (c.round != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                // random nullish operators and optional chaining are because typescript kinda dumb
                 const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round?.number ?? NaN]).filter(v => v != undefined));
+                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined));
                 else problemIdList.push(...rounds.flatMap((r) => r.problems));
             }
             const problemIdRegex = problemIdList.reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
@@ -372,9 +396,8 @@ export class Database {
             if (c.id != undefined && isUUID(c.id)) problemIdList.push(c.id);
             if (c.round != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                // random nullish operators and optional chaining are because typescript kinda dumb
                 const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round?.number ?? NaN]).filter(v => v != undefined));
+                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined));
                 else problemIdList.push(...rounds.flatMap((r) => r.problems));
             }
             const problemIdRegex = problemIdList.reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
@@ -441,45 +464,6 @@ export enum AdminPerms {
     VIEW_CONTESTS = 1 << 4,
     MANAGE_CONTESTS = 1 << 5,
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
-}
-
-/**Criteria to filter by. Leaving a value undefined removes the filter */
-interface ReadRoundsCriteria {
-    /**Zero-indexed division number */
-    division?: number
-    /**Zero-indexed round within the division */
-    round?: number
-}
-/**Criteria to filter by. Leaving a value undefined removes the filter */
-interface ProblemRoundCriteria {
-    /**Zero-indexed division number */
-    division?: number
-    /**Zero-indexed round within the division */
-    round?: number
-    /**Zero-indexed problem number within the round */
-    number?: number
-}
-/**Criteria to filter by. Leaving a value undefined removes the filter */
-interface ReadProblemsCriteria {
-    /**UUID of problem */
-    id?: UUID
-    /**Display name of problem */
-    name?: string
-    /**Author username of problem */
-    author?: string
-    /**Constraints validator for problem */
-    constraints?: (c: ProblemConstraints) => boolean
-    /**Round-based filter for problems */
-    round?: ProblemRoundCriteria
-}
-/**Criteria to filter by. Leaving a value undefined removes the filter */
-interface ReadSubmissionsCriteria {
-    /**UUID of problem */
-    id?: UUID
-    /**Username of submitter */
-    username?: string
-    /**Round-based filter for problems */
-    round?: ProblemRoundCriteria
 }
 
 /**Descriptor for an account */
@@ -591,4 +575,43 @@ export enum ScoreState {
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
+}
+
+/**Criteria to filter by. Leaving a value undefined removes the filter */
+interface ReadRoundsCriteria {
+    /**Zero-indexed division number */
+    division?: number
+    /**Zero-indexed round within the division */
+    round?: number
+}
+/**Criteria to filter by. Leaving a value undefined removes the filter */
+interface ProblemRoundCriteria {
+    /**Zero-indexed division number */
+    division?: number
+    /**Zero-indexed round within the division */
+    round?: number
+    /**Zero-indexed problem number within the round */
+    number?: number
+}
+/**Criteria to filter by. Leaving a value undefined removes the filter */
+interface ReadProblemsCriteria {
+    /**UUID of problem */
+    id?: UUID
+    /**Display name of problem */
+    name?: string
+    /**Author username of problem */
+    author?: string
+    /**Constraints validator for problem */
+    constraints?: (c: ProblemConstraints) => boolean
+    /**Round-based filter for problems */
+    round?: ProblemRoundCriteria
+}
+/**Criteria to filter by. Leaving a value undefined removes the filter */
+interface ReadSubmissionsCriteria {
+    /**UUID of problem */
+    id?: UUID
+    /**Username of submitter */
+    username?: string
+    /**Round-based filter for problems */
+    round?: ProblemRoundCriteria
 }

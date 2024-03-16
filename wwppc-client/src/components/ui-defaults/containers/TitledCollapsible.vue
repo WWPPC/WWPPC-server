@@ -7,6 +7,7 @@ const props = defineProps<{
     height?: string
     borderColor?: string
     align?: 'left' | 'center' | 'right'
+    fontSize?: string
     startCollapsed?: boolean
     hoverAnimation?: 'lift' | 'swell'
 }>();
@@ -69,6 +70,7 @@ defineExpose({
     margin: 0px 0px;
     text-align: v-bind("$props.align ?? 'left'");
     text-wrap: wrap;
+    font-size: v-bind("$props.fontSize ?? 'var(--font-large)'"); /* idk why */
     flex-grow: 1;
 }
 
@@ -92,7 +94,7 @@ defineExpose({
 }
 
 .headeredCollapsibleContainerBody {
-    position: absolute;
+    position: relative;
     box-sizing: border-box;
     width: 100%;
     padding: 12px 12px;

@@ -31,7 +31,6 @@ serverConnection.ondisconnect(() => {
 });
 watch(() => route.params, () => {
     if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || route.query.ignore_server !== undefined) return;
-    console.log('buh')
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
     });

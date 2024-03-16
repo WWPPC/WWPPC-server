@@ -5,6 +5,7 @@ defineProps<{
     height?: string
     borderColor?: string
     align?: 'left' | 'center' | 'right'
+    fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
 }>();
 
@@ -41,6 +42,7 @@ defineProps<{
     top: 0px;
     padding: 8px 12px;
     text-align: v-bind("$props.align ?? 'left'");
+    font-size: v-bind("$props.fontSize ?? 'initial'");
 }
 
 .titledAngleContainerHeader {

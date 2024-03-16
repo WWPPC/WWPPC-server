@@ -54,6 +54,7 @@ defineExpose({
     color: white;
     background-color: black;
     font-family: 'Source Code Pro', Courier, monospace;
+    font-size: var(--font-16);
     transition: 50ms linear border-color;
     cursor: pointer;
 }
@@ -61,6 +62,7 @@ defineExpose({
 .uiDropdown option {
     padding: 0px 4px;
     background-color: black;
+    font-size: var(--font-16);
     cursor: pointer;
 }
 

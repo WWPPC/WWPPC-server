@@ -1,11 +1,22 @@
 <script setup lang="ts">
+import { nextTick, ref } from 'vue';
 import { UILoadingSpinner } from './ui-defaults/UIDefaults';
 
 defineProps<{
     text: string
     show: boolean
 }>();
-
+</script>
+<script lang="ts">
+const size = ref(0);
+export default {
+    async beforeUpdate() {
+        await nextTick();
+        if (this.$el.getBoundingClientRect == undefined) return;
+        const rect = this.$el.getBoundingClientRect();
+        size.value = Math.min(rect.width * 0.25, rect.height * 0.25);
+    }
+}
 </script>
 
 <template>
@@ -40,9 +51,9 @@ defineProps<{
 }
 
 .waitCoverSpinnerWrapper {
-    width: min(25vw, 25vh);
-    height: min(25vw, 25vh);
-    margin-bottom: min(5vw, 5vh);
+    width: v-bind("size + 'px'");
+    height: v-bind("size + 'px'");
+    margin-bottom: calc(v-bind("size + 'px'") * 0.25);
 }
 
 .waitCoverText {
@@ -53,7 +64,7 @@ defineProps<{
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-    transition: 200ms linear opacity;
+    transition: 100ms linear opacity;
 }
 
 .v-enter-to,

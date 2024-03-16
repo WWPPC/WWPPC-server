@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
 import { reactive } from 'vue';
+import { useAccountManager } from './AccountManager';
 
 // send HTTP wakeup request before trying socket.io
 const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
@@ -30,12 +31,20 @@ socket.on('connect_error', () => state.connectError = true);
 socket.on('connect_fail', () => state.connectError = true);
 
 let handshakeResolve: (v: any) => void = () => { };
-const state = reactive({
+const state = reactive<{
+    loggedIn: boolean
+    connectError: boolean
+    handshakeComplete: boolean
+    handshakePromise: Promise<undefined>
+    manualLogin: boolean
+    encryptedPassword: ArrayBuffer | string | null
+}>({
     loggedIn: false,
     connectError: false,
     handshakeComplete: false,
     handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
-    manualLogin: true
+    manualLogin: true,
+    encryptedPassword: null
 });
 const RSA: {
     publicKey: CryptoKey | null,
@@ -49,6 +58,8 @@ const RSA: {
         else return text;
     }
 };
+
+// RSA keys + autologin
 socket.once('getCredentials', async (session) => {
     if (window.crypto.subtle === undefined) {
         console.warn('<h1>Insecure context!</h1><br>The page has been opened in an insecure context and cannot perform encryption processes. Credentials and submissions will be sent in PLAINTEXT!');
@@ -59,13 +70,24 @@ socket.once('getCredentials', async (session) => {
         // autologin if possible
         if (sessionCreds != null && RSA.sid.toString() === window.localStorage.getItem('sessionId')) {
             const creds = JSON.parse(sessionCreds);
-            state.loggedIn = await sendCredentials(creds.username, creds.password) == 0;
+            state.loggedIn = await sendCredentials(creds.username, creds.password) == AccountOpResult.SUCCESS;
             state.manualLogin = false;
         }
         state.handshakeComplete = true;
         handshakeResolve(undefined);
     }
 });
+
+export enum AccountOpResult {
+    SUCCESS = 0,
+    ALREADY_EXISTS = 1,
+    NOT_EXISTS = 2,
+    INCORRECT_CREDENTIALS = 3,
+    ERROR = 4
+}
+export const getAccountOpMessage = (res: number): string => {
+    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect password' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)';
+};
 export interface CredentialsSignupData {
     firstName: string
     lastName: string
@@ -75,7 +97,7 @@ export interface CredentialsSignupData {
     experience: number
     languages: string[]
 }
-export const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<number> => {
+export const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
     return new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
@@ -83,6 +105,7 @@ export const sendCredentials = (username: string, password: string | Array<numbe
             return;
         }
         try {
+            const accountManager = useAccountManager();
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encode(password);
             // for some reason RSA encode of ReCaptcha token throws an error
             socket.emit('credentials', {
@@ -99,14 +122,17 @@ export const sendCredentials = (username: string, password: string | Array<numbe
                     languages: signupData.languages,
                 } : undefined
             });
-            socket.once('credentialRes', async (res: number) => {
-                if (res == 0) {
+            socket.once('credentialRes', async (res: AccountOpResult) => {
+                if (res == AccountOpResult.SUCCESS) {
                     window.localStorage.setItem('sessionCredentials', JSON.stringify({
                         username: username,
                         password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
                     }));
+                    state.encryptedPassword = password2;
                     window.localStorage.setItem('sessionId', RSA.sid.toString());
                     state.loggedIn = true;
+                    accountManager.username = username;
+                    accountManager.updateOwnUserData();
                 }
                 resolve(res);
             });

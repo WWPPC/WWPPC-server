@@ -95,6 +95,9 @@ io.on('connection', async (s) => {
         if (packetCount > 0) kick('too many packets');
     }, 1000);
     // await credentials before allowing anything (in a weird way)
+    const self = {
+        username: ''
+    };
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds: { username: Buffer | string, password: Buffer | string, token?: string, signupData?: { firstName: Buffer | string, lastName: Buffer | string, email: Buffer | string, school: Buffer | string, grade: number, experience: number, languages: string[] } }) => {
@@ -115,8 +118,9 @@ io.on('connection', async (s) => {
                 resolve(true);
                 return;
             }
+            self.username = username;
             // actually create/check account
-            if (creds.signupData) {
+            if (creds.signupData != undefined) {
                 // more validation
                 const firstName = await database.RSAdecode(creds.signupData.firstName);
                 const lastName = await database.RSAdecode(creds.signupData.lastName);
@@ -197,8 +201,31 @@ io.on('connection', async (s) => {
             }
         });
     })) return;
+    // you can only reach this point by signing in
     if (config.superSecretSecret) socket.emit('superSecretMessage');
-    // TODO: add rest of stuff, add to contest manager instance
+    socket.on('getUserData', async ({ username }: { username: string }) => {
+        socket.emit('userData', await database.getAccountData(username));
+    });
+    socket.on('setUserData', async ({ password, data }: { password: Buffer | string, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
+        const password2 = await database.RSAdecode(password);
+        if (typeof password2 != 'string' || !database.validate(self.username, password2)) {
+            kick('invalid credentials');
+            return;
+        }
+        const existingData = await database.getAccountData(self.username);
+        if (typeof existingData == 'object') {
+            const res = await database.updateAccountData(self.username, password2, {
+                ...data,
+                username: self.username,
+                email: existingData.username,
+                registrations: existingData.registrations
+            });
+            socket.emit('setUserDataResponse', res);
+        } else {
+            socket.emit('setUserDataResponse', existingData);
+        }
+    });
+    // TODO: Add to ContestManager instance
 });
 let connectionKickDecrementer = setInterval(function () {
     recentConnections.forEach((val, key) => {

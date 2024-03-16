@@ -10,24 +10,25 @@ const changeProfileImage = () => {
 </script>
 
 <template>
-    <div class="accountContainer">
-        <div class="accountUserDispWrapper">
-            <div class="accountUserDisp">
-                <label class="accountUserDispImgContainer">
-                    <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
-                    <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
-                    <input type="file" class="accountUserDispImgUpload" accept="image/*" @change=changeProfileImage>
-                </label>
-                <span class="accountUserUsername">{{ accountManager.username }}</span>
-                <div class="accountUserRegistrations">
-                    <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
-                        {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
-                        <br>
-                    </span>
-                </div>
-                <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
+    <div class="accountUserDispWrapper">
+        <div class="accountUserDisp">
+            <label class="accountUserDispImgContainer">
+                <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
+                <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
+                <input type="file" class="accountUserDispImgUpload" accept="image/*" @change=changeProfileImage>
+            </label>
+            <span class="accountUserDisplayName">{{ accountManager.displayName }}</span>
+            <span class="accountUserUsername">@{{ accountManager.username }}</span>
+            <div class="accountUserRegistrations">
+                <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
+                    {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
+                    <br>
+                </span>
             </div>
+            <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
         </div>
+    </div>
+    <div class="accountScrollboxWrapper">
         <div class="accountScrollbox">
             <slot></slot>
         </div>
@@ -35,7 +36,7 @@ const changeProfileImage = () => {
 </template>
 
 <style scoped>
-.accountContainer {
+* {
     --imageSize: max(20vw, 20vh);
     --dispWidth: max(30vw, 20vh);
 }
@@ -45,14 +46,16 @@ const changeProfileImage = () => {
     position: absolute;
     top: 16px;
     left: 16px;
+    box-sizing: border-box;
     width: var(--dispWidth);
+    padding: 0px calc((var(--dispWidth) - var(--imageSize)) / 2);
     justify-content: center;
 }
 
 .accountUserDisp {
     display: grid;
     grid-auto-flow: column;
-    grid-template-rows: var(--imageSize) 40px 1fr 1fr 1fr;
+    grid-template-rows: var(--imageSize) 1fr 1fr 1fr 1fr;
     justify-items: center;
 }
 
@@ -96,8 +99,13 @@ const changeProfileImage = () => {
     display: none;
 }
 
-.accountUserUsername {
+.accountUserDisplayName {
+    margin-top: 8px;
     font-size: var(--font-24);
+}
+
+.accountUserUsername {
+    font-size: var(--font-18);
 }
 
 .accountUserRegistrations {
@@ -105,12 +113,19 @@ const changeProfileImage = () => {
     text-align: center;
 }
 
+.accountScrollboxWrapper {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: calc(100% - var(--dispWidth) - 48px);
+    padding: 16px 16px;
+    height: calc(100% - 32px);
+    overflow-y: auto;
+}
+
 .accountScrollbox {
     display: flex;
     flex-direction: column;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    margin-left: calc(var(--dispWidth) + 16px);
     row-gap: 16px;
     column-gap: 16px;
 }
@@ -121,9 +136,11 @@ const changeProfileImage = () => {
         width: 100%;
     }
 
-    .accountScrollbox {
-        margin-left: 0px;
-        margin-top: 16px;
+    .accountScrollboxWrapper {
+        position: static;
+        width: 100%;
+        height: min-content;
+        padding: 16px 0px;
     }
 }
 </style>

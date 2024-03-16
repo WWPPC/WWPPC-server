@@ -16,26 +16,26 @@ const serverConnection = useServerConnection();
 
 serverConnection.onconnecterror(() => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
+    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
 });
 serverConnection.ondisconnect(() => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
+    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
 });
 watch(() => route.params.page, () => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
     });
-    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
+    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
     if (serverConnection.handshakeComplete && !serverConnection.connected && route.query.ignore_server == undefined) {
-        modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home/home'));
+        modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
     }
 });
 </script>
 
 <template>
-    <PanelView name="account" title="Account">
+    <PanelView name="account" title="WWPPC">
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
@@ -44,12 +44,12 @@ watch(() => route.params.page, () => {
             </PanelNavList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="profile" title="" is-default>
+            <PanelBody name="profile" title="Account" is-default>
                 <PagePanelAccountWrapper>
                     <PagePanelAccountProfile></PagePanelAccountProfile>
                 </PagePanelAccountWrapper>
             </PanelBody>
-            <PanelBody name="registrations" title="Contests">
+            <PanelBody name="registrations" title="Registrations">
                 <PagePanelAccountWrapper>
                 </PagePanelAccountWrapper>
             </PanelBody>

@@ -2,7 +2,7 @@
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
-import { useServerConnection } from '@/scripts/ServerConnection';
+import { getAccountOpMessage, useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
 import { useReCaptcha } from 'vue-recaptcha-v3';
 import LoadingCover from '@/components/LoadingCover.vue';
@@ -63,9 +63,6 @@ const showLoginWait = ref(false);
 const validateCredentials = (username: string, password: string): boolean => {
     return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
 };
-const getErrorMessage = (res: number): string => {
-    return res == 1 ? 'Account with username already exists' : res == 2 ? 'Account not found' : res == 3 ? 'Incorrect password' : res == 4 ? 'Database error' : 'Unknown error (this is a bug?)';
-};
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
     showLoginWait.value = true;
@@ -73,7 +70,7 @@ const attemptLogin = async () => {
     showLoginWait.value = false;
     if (res == 0) {
         router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
-    } else modal.showModal({ title: 'Could not log in:', content: getErrorMessage(res), color: 'red' });
+    } else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toSignUp = () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
@@ -84,7 +81,7 @@ const toSignUp = () => {
     if (languageInput.value) languageInput.value = [];
 };
 const attemptSignup = async () => {
-    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((emailInput.value.trim() ?? '') == '')) return;
+    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((firstNameInput.value.trim() ?? '') == '') || ((lastNameInput.value.trim() ?? '') == '') || ((schoolInput.value.trim() ?? '') == '') || ((emailInput.value.trim() ?? '') == '') || gradeInput.value == '' || experienceInput.value == '') return;
     showLoginWait.value = true;
     await recaptchaLoaded();
     const token = await executeRecaptcha('signup');
@@ -100,7 +97,7 @@ const attemptSignup = async () => {
     showLoginWait.value = false;
     if (res == 0) {
         router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
-    } else modal.showModal({ title: 'Could not sign up:', content: getErrorMessage(res), color: 'red' });
+    } else modal.showModal({ title: 'Could not sign up:', content: getAccountOpMessage(res), color: 'red' });
 };
 </script>
 
@@ -125,8 +122,8 @@ const attemptSignup = async () => {
                                         <UITextBox v-model=usernameInput placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
                                         <UITextBox v-model=passwordInput placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
-                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="usernameInput.trim() == ''"></UIButton>
-                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="usernameInput.trim() == ''"></UIButton>
+                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled=showLoginWait></UIButton>
+                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled=showLoginWait></UIButton>
                                         </span>
                                     </form>
                                 </div>
@@ -139,7 +136,7 @@ const attemptSignup = async () => {
                                 <div class="loginFlow">
                                     <UIButton @click="isSignupPage = false" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
                                     <h1 class="loginFlowHeader2">Sign Up</h1>
-                                    <form class="loginFlow" action="javascript:void(0)">
+                                    <form class="loginFlow" action="javascript:void(0)" @submit=attemptSignup>
                                         <span style="margin-bottom: 8px;">
                                             <UITextBox :value=usernameInput width="208px" title="Username" disabled autocomplete="off"></UITextBox>
                                             <UITextBox :value="passwordInput.replace(/./g, '•')" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
@@ -197,7 +194,7 @@ const attemptSignup = async () => {
                             { text: 'Bash', value: 'bash' },
                         ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </PairedGridContainer>
-                                        <UIButton text="Sign Up" type="submit" @click="attemptSignup" width="424px" glitchOnMount></UIButton>
+                                        <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
                                     </form>
                                 </div>
                             </div>
@@ -205,7 +202,7 @@ const attemptSignup = async () => {
                     </Transition>
                 </div>
                 <LoadingCover text="Connecting..."></LoadingCover>
-                <WaitCover text="Please wait..." :show=showLoginWait></WaitCover>
+                <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
             </PanelBody>
         </PanelMain>
     </PanelView>

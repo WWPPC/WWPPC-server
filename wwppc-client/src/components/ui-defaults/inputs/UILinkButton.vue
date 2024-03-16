@@ -43,15 +43,15 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiLinkButtonLabel {
     display: flex;
     box-sizing: border-box;
-    width: v-bind("$props.width ?? 'min-content'");
+    width: v-bind("$props.width ?? 'unset'");
     height: v-bind("$props.height ?? 'min-content'");
     border: 4px solid white;
     margin: 0px 4px;
-    padding: 0.2em 0.2em;
+    padding: 0.125em 0.2em;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
-    font-size: v-bind("$props.fontSize ?? '16px'");
+    font-size: v-bind("$props.fontSize ?? 'var(--font-16)'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease background-position, 50ms ease background-color, 50ms ease transform, 50ms ease border-color;
     align-items: center;

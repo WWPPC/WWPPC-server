@@ -38,15 +38,15 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");
-    height: v-bind("$props.height ?? 'initial'");
+    height: v-bind("$props.height ?? 'min-content'");
     margin: 0px 4px;
-    padding: 0.2em 0.4em;
+    padding: 0.125em 0.4em;
     border: 4px solid white;
     border-radius: 0px;
     background-color: v-bind("$props.backgroundColor ?? 'black'");
     color: v-bind("$props.color ?? 'white'");
     font: v-bind("$props.font ?? 'inherit'");
-    font-size: v-bind("$props.fontSize ?? '16px'");
+    font-size: v-bind("$props.fontSize ?? 'var(--font-16)'");
     font-family: 'Source Code Pro', Courier, monospace;
     transition: 50ms ease transform, 50ms ease border-color;
     cursor: pointer;
