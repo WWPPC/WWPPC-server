@@ -13,21 +13,13 @@ const problem: Ref<ContestProblem> = ref({
     number: 0,
     name: 'Problem Name',
     author: 'SP^2',
-    content: '<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$  $$\\sum_{i=0}^{\\infty}$$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br><code>1 + 1</code>',
+    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$  $$\\sum_{i=0}^{\\infty}$$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  <div v-katex="'\\sum_{i=0}^{\\infty}'" v-inline></div>`,
     constraints: { memory: 256, time: 4000 },
     status: ContestProblemCompletionState.ERROR
 });
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
-});
-
-onMounted(() => {
-    MathJax.typeset();
-});
-
-onUpdated(() => {
-    MathJax.typeset();
 });
 
 // uploads
