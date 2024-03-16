@@ -6,33 +6,14 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 
 <template>
     <div class="centered homeTitle">
-        <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+        <IfOnscreenContainer>
+            <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+        </IfOnscreenContainer>
     </div>
     <div class="fullBlock homeBlock">
         <!-- spacer for title -->
-        <div style="height: min(25vh, calc(125vw / 8));"></div>
+        <div style="height: calc(1.25 * var(--font-huge-title))"></div>
         <div class="homeColumns">
-            <AnimateInContainer type="slideUp" :delay=100>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
-                    <CenteredContainer style="height: 100%">
-                        <div class="homeVertical">
-                            <div style="flex-grow: 1;">
-                                <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                                <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: var(--font-small)">
-                                    WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
-                                </p>
-                            </div>
-                            <div class="centered">
-                                <AnimateInContainer type="fade" :delay=300>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-medium)" color="lime"></UILinkButton>
-                                </AnimateInContainer>
-                            </div>
-                        </div>
-                    </CenteredContainer>
-                </DoubleCutCornerContainer>
-            </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=200>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
                     <CenteredContainer style="height: 100%">
@@ -48,6 +29,27 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                             <div class="centered">
                                 <AnimateInContainer type="fade" :delay=400>
                                     <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-24)" color="lime"></UILinkButton>
+                                </AnimateInContainer>
+                            </div>
+                        </div>
+                    </CenteredContainer>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" :delay=100>
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
+                    <CenteredContainer style="height: 100%">
+                        <div class="homeVertical">
+                            <div style="flex-grow: 1;">
+                                <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                <UIDivider color="#AAA"></UIDivider>
+                                <p style="font-size: var(--font-small)">
+                                    WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
+                                </p>
+                            </div>
+                            <div class="centered">
+                                <AnimateInContainer type="fade" :delay=300>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-medium)" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
@@ -83,18 +85,23 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </a>
             </div>
         </div>
-        <br><br>
+        <ScrollIndicator anchor="a[name=pageHomeScrollTo2]"></ScrollIndicator>
+    </div>
+    <div class="fullBlock homeBlock">
         <div class="centered">
+            <a name="pageHomeScrollTo2"></a>
             <IfOnscreenContainer>
                 <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
             </IfOnscreenContainer>
         </div>
-        <div class="centered">
-            
+        <div style="flex-grow: 1;">
+            <CenteredContainer>
+                <!-- if saya gets us a sponsor then put them here -->
+            </CenteredContainer>
         </div>
         <div>
             <p style="font-size: var(--font-medium)">
-                Questions? Want to become a sponsor? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+                Want to become a sponsor? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
             </p>
         </div>
     </div>

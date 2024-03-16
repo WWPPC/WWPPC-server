@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
-import { useServerConnection } from "./ServerConnection";
+import { sendCredentials, type CredentialsSignupData, useServerConnection } from "./ServerConnection";
 
 export type Registration = {
     contest: 'WWPIT' | 'WWPHacks'
@@ -13,6 +13,7 @@ export interface AccountData {
     lastName: string
     displayName: string
     profileImage: string
+    bio: string
     school: string
     grade: number
     experience: number
@@ -30,6 +31,7 @@ const state = reactive<AccountData>({
     lastName: '',
     displayName: '',
     profileImage: '',
+    bio: '',
     school: '',
     grade: 0,
     experience: 0,
@@ -39,7 +41,18 @@ const state = reactive<AccountData>({
 export const useAccountManager = defineStore('accountManager', {
     state: () => state,
     actions: {
-        async updateUserData() {
+        login(username: string, password: string | Array<number>): Promise<number> {
+            return sendCredentials(username, password);
+        },
+        signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<number> {
+            return sendCredentials(username, password, token, signupData);
+        },
+        signOut() {
+            window.localStorage.removeItem('sessionCredentials');
+            window.localStorage.removeItem('sessionId');
+            window.location.replace('/home');
+        },
+        async getUserData() {
             // get stuff
         },
         async writeUserData() {

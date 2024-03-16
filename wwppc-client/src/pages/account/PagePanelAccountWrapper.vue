@@ -1,50 +1,75 @@
 <script setup lang="ts">
+import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { toDivName, useAccountManager } from '@/scripts/AccountManager';
 
 const accountManager = useAccountManager();
+
+const changeProfileImage = () => {
+
+};
 </script>
 
 <template>
-    <div class="accountUserDispWrapper">
-        <div class="accountUserDisp">
-            <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
-            <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
-            <span class="accountUserUsername">{{ accountManager.username }}</span>
-            <div class="accountUserRegistrations">
-                <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
-                    {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
-                    <br>
-                </span>
+    <div class="accountContainer">
+        <div class="accountUserDispWrapper">
+            <div class="accountUserDisp">
+                <label class="accountUserDispImgContainer">
+                    <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
+                    <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
+                    <input type="file" class="accountUserDispImgUpload" accept="image/*" @change=changeProfileImage>
+                </label>
+                <span class="accountUserUsername">{{ accountManager.username }}</span>
+                <div class="accountUserRegistrations">
+                    <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
+                        {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
+                        <br>
+                    </span>
+                </div>
+                <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
             </div>
         </div>
-    </div>
-    <div class="accountScrollbox">
-        <slot></slot>
+        <div class="accountScrollbox">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.accountContainer {
+    --imageSize: max(20vw, 20vh);
+    --dispWidth: max(30vw, 20vh);
+}
+
 .accountUserDispWrapper {
     display: flex;
-    position: sticky;
-    top: 0px;
-    left: 0px;
-    width: max(20vw, 20vh);
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: var(--dispWidth);
     justify-content: center;
 }
 
 .accountUserDisp {
     display: grid;
-    grid-template-rows: max(20vw, 20vh) 40px 1fr;
+    grid-auto-flow: column;
+    grid-template-rows: var(--imageSize) 40px 1fr 1fr 1fr;
     justify-items: center;
+}
+
+.accountUserDispImgContainer {
+    display: grid;
+    grid-row: 1;
+    grid-column: 1;
+    width: var(--imageSize);
+    height: var(--imageSize);
 }
 
 .accountUserDispImg {
     grid-row: 1;
     grid-column: 1;
     box-sizing: border-box;
-    width: max(20vw, 20vh);
-    height: max(20vw, 20vh);
+    width: 100%;
+    height: 100%;
     border: 4px solid white;
     border-radius: 50%;
 }
@@ -67,7 +92,16 @@ const accountManager = useAccountManager();
     opacity: 0.5;
 }
 
+.accountUserDispImgUpload {
+    display: none;
+}
+
+.accountUserUsername {
+    font-size: var(--font-24);
+}
+
 .accountUserRegistrations {
+    font-size: var(--font-20);
     text-align: center;
 }
 
@@ -76,13 +110,12 @@ const accountManager = useAccountManager();
     flex-direction: column;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
-    margin-left: calc(max(20vw, 20vh) + 16px);
-    margin-top: calc(max(20vw, 20vh) * -1 - 40px);
+    margin-left: calc(var(--dispWidth) + 16px);
     row-gap: 16px;
     column-gap: 16px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .accountUserDispWrapper {
         position: static;
         width: 100%;

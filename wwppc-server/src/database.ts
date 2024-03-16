@@ -4,9 +4,9 @@ import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 const salt = 5;
 import { subtle } from 'crypto';
-import Cryptr from 'cryptr';
 import Logger from './log';
 import uuid from 'uuid';
+import config from './config';
 
 /**
  * PostgreSQL database connection for handling accounts, including submissions.
@@ -98,6 +98,7 @@ export class Database {
      */
     get ready(): boolean { return this.#ready; }
 
+    #userCache: Map<string, { password: string, data: AccountData, expiration: number }> = new Map();
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
@@ -111,14 +112,29 @@ export class Database {
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid pasword
+     * @param {AccountData} userData Initial user data
      * @returns {AccountOpResult} Creation status: 0 - success | 1 - already exists | 4 - database error
      */
-    async createAccount(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountOpResult> {
+    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult> {
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, email, firstName, lastName) VALUES ($1, $2, $3, $4, $5)', [username, encryptedPassword, email, firstName, lastName]);
+            else await this.#db.query('INSERT INTO users (username, password, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)', [
+                username, encryptedPassword, userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, []
+            ]);
+            this.#userCache.set(username, {
+                password: encryptedPassword,
+                data: {
+                    ...userData,
+                    username: username,
+                    displayName: `${userData.firstName} ${userData.lastName}`,
+                    profileImage: 'data:image/png;base64,',
+                    bio: '',
+                    registrations: []
+                },
+                expiration: performance.now() + config.dbCacheTime
+            });
             this.logger.info(`[Database] Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -135,13 +151,30 @@ export class Database {
      */
     async checkAccount(username: string, password: string): Promise<AccountOpResult> {
         try {
-            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-            if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
+            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
+            if (this.#userCache.has(username)) {
+                const encryptedPassword = this.#userCache.get(username)!.password;
+                return (await bcrypt.compare(password, encryptedPassword)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
+            } else {
+                const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+                if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
+            }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
             this.logger.error('Database error (checkAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        }
+    }
+    /**
+     * Get use data for an account. **DOES NOT VALIDATE CREDENTIALS**
+     * @param {string} username Valid username
+     */
+    async getAccountData(username: string): Promise<AccountData | null> {
+        if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
+        if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
+        else {
+            return null;
         }
     }
     /**
@@ -153,16 +186,30 @@ export class Database {
      */
     async updateAccount(username: string, password: string, userData: AccountData): Promise<AccountOpResult> {
         try {
-            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-            if (data.rowCount != null && data.rowCount > 0) {
-                if (await bcrypt.compare(password, data.rows[0].password)) {
-                    await this.#db.query('UPDATE users SET firstName=$2, lastName=$3, school=$4, grade=$5, experience=$6, languages=$7 WHERE username=$1', [username, userData.firstName, userData.lastName, userData.school, userData.grade, userData.experience, userData.languages]);
-                    return AccountOpResult.SUCCESS;
+            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
+            let encryptedPassword: string;
+            if (this.#userCache.has(username)) {
+                encryptedPassword = this.#userCache.get(username)!.password;
+                if (!(await bcrypt.compare(password, encryptedPassword))) return AccountOpResult.INCORRECT_CREDENTIALS;
+            } else {
+                const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+                if (data.rowCount != null && data.rowCount > 0) {
+                    encryptedPassword = data.rows[0].password;
+                    if (!(await bcrypt.compare(password, encryptedPassword))) return AccountOpResult.INCORRECT_CREDENTIALS;
                 } else {
-                    return AccountOpResult.INCORRECT_CREDENTIALS;
+                    return AccountOpResult.NOT_EXISTS;
                 }
             }
-            return AccountOpResult.NOT_EXISTS;
+            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, school=$5, grade=$6, experience=$7, languages=$8, biography=$9, registrations=$10 WHERE username=$1', [
+                username, userData.firstName, userData.lastName, userData.displayName, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
+            ]);
+            this.#userCache.set(username, {
+                password: encryptedPassword,
+                data: userData,
+                expiration: performance.now() + config.dbCacheTime
+            });
+            this.logger.info(`[Database] Updated account data for "${username}"`, true);
+            return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (updateAccount):');
             this.logger.error('' + err);
@@ -393,7 +440,7 @@ export enum AdminPerms {
     MANAGE_ACCOUNTS = 1 << 3,
     VIEW_CONTESTS = 1 << 4,
     MANAGE_CONTESTS = 1 << 5,
-    MANAGE_ADMINS = 1 << 31
+    MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the filter */
@@ -449,6 +496,8 @@ export interface AccountData {
     displayName: string
     /**Encoded image */
     profileImage: string
+    /**User-written short biography */
+    bio: string
     /**School name */
     school: string
     /**Grade level (8 = below HS, 13 = above HS) */
@@ -460,7 +509,6 @@ export interface AccountData {
     /**List of registrations */
     registrations: Registration[]
 }
-
 /**Descriptor for a registration */
 export interface Registration {
     /**The contest (does not specify when) */

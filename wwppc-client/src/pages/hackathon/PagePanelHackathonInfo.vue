@@ -5,11 +5,14 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
+    <div class="centered hackathonTitle">
+        <IfOnscreenContainer>
+            <GlitchText text="WWP HACKS" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+        </IfOnscreenContainer>
+    </div>
     <div class="fullBlock stretchBlock">
-        <div class="centered">
-            <GlitchText text="WWP HACKS" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
-        </div>
-        <!-- a couple of containers containing information about what WWPHacks is (what is a hackathon?) -->
+        <!-- spacer -->
+        <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="hacksInfoBlock">
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Come hack with us!" align="center" height="100%" hover-animation="lift">
@@ -67,6 +70,15 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </template>
 
 <style scoped>
+.hackathonTitle {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transform-origin: top;
+    transform: translate3D(0px, -20vh, -50px) scale(150%);
+    z-index: -1;
+}
+
 .stretchBlock {
     display: flex;
     flex-direction: column;

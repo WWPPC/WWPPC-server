@@ -18,7 +18,7 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="home" title="Home" is-default>
+            <PanelBody name="home" title="Home" is-default scroll-snap>
                 <PagePanelHackathonInfo></PagePanelHackathonInfo>
             </PanelBody>
         </PanelMain>

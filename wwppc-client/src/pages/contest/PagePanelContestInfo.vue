@@ -5,11 +5,14 @@ import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UI
 </script>
 
 <template>
+    <div class="centered contestTitle">
+        <IfOnscreenContainer>
+            <GlitchText text="WWPIT" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+        </IfOnscreenContainer>
+    </div>
     <div class="fullBlock stretchBlock">
-        <div class="centered">
-            <GlitchText text="WWPIT" font-size="min(15vh, calc(100vw / 8))" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
-        </div>
-        <!-- a couple of containers containing information about what WWPHacks is (what is a hackathon?) -->
+        <!-- spacer -->
+        <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="contestInfoBlock">
             <AnimateInContainer type="slideUp" :delay=200>
                 <TitledDoubleCutCornerContainer title="2024 Season" align="center" height="100%" hover-animation="lift">
@@ -91,6 +94,15 @@ import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UI
 </template>
 
 <style scoped>
+.contestTitle {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transform-origin: top;
+    transform: translate3D(0px, -20vh, -50px) scale(150%);
+    z-index: -1;
+}
+
 .stretchBlock {
     display: flex;
     flex-direction: column;
