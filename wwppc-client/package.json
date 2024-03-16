@@ -12,6 +12,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@hsorby/vue3-katex": "^0.6.0-rc.7",
+    "katex": "^0.16.9",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.7.4",
     "vue": "^3.4.15",
