@@ -18,12 +18,12 @@ const statusToAnimation = (status: ContestProblemCompletionState) => {
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'pstatus-graded-partial' : 'pstatus-error'
 }
 const statusToDescription = (status: ContestProblemCompletionState) => {
-    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Solution not uploaded' :
-        status == ContestProblemCompletionState.UPLOADED ? 'Solution uploaded' :
-            status == ContestProblemCompletionState.SUBMITTED ? 'Solution submitted' :
-                status == ContestProblemCompletionState.GRADED_PASS ? 'Solution passed' :
-                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Solution failed' :
-                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Solution partially correct' : 'Error fetching status'
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
 }
 </script>
 
