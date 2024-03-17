@@ -3,7 +3,8 @@ import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
-import { ref, watch, compile, render, h, type Ref } from 'vue';
+import { ref, watch, type Ref } from 'vue';
+import katex from 'katex';
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
@@ -12,8 +13,8 @@ const problem: Ref<ContestProblem> = ref({
     round: 0,
     number: 0,
     name: 'Problem Name',
-    author: '<img src="" onerror="alert(`buh`)"></img>',
-    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$  $$\\sum_{i=0}^{\\infty}$$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  <div v-katex="\\sum_{i=0}^{\\infty}" v-inline></div>`,
+    author: '<img src="" onerror="alert(`buh`)"/>',
+    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
     constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
 });
@@ -25,6 +26,25 @@ const statusToDescription = (status: ContestProblemCompletionState) => {
                 status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
                     status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
+}
+
+const latexify = (str: string) => {
+    //math rendering errors are handled by katex itself since throwOnError=false
+    return str.replace(/\$\$.+\$\$/gm, (match) => {
+        try {
+            return katex.renderToString(match.substring(2, match.length-2).trim(), {throwOnError: false});
+        } catch (e) {
+            console.error(e);
+            return "<span style='color: red'>Math error</span>";
+        }
+    }).replace(/\$.+\$/gm, (match) => {
+        try {
+            return katex.renderToString(match.substring(1, match.length-1).trim(), {throwOnError: false});
+        } catch (e) {
+            console.error(e);
+            return "<span style='color: red'>Math error</span>";
+        }
+    });
 }
 
 watch(() => problem.value.name, () => {
@@ -67,8 +87,7 @@ const sanitizeUpload = () => {
                     <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms</span>
                     <span>{{ statusToDescription(problem.status) }}</span>
                 </div>
-                <component class="problemViewContent" :is="h('div', {'v-html': problem.content})"></component>
-                <div class="problemViewContent" v-html="problem.content"></div>
+                <div class="problemViewContent" v-html="latexify(problem.content)"></div>
             </TitledCutCornerContainer>
             <div>
                 <DoubleCutCornerContainer>
