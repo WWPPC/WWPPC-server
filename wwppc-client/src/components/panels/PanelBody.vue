@@ -71,7 +71,6 @@ if ((route.params.panel === undefined && props.isDefault) || route.params.panel 
     }
 }
 
-
 .panelBodyTransitionWipeContainer {
     position: relative;
     grid-row: 1;
