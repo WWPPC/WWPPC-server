@@ -30,11 +30,14 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=300>
                 <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
-                    <UILinkButton text="Register"></UILinkButton>
-                    <!-- mailing list? -->
-                    <!-- other contact information? -->
-                    <!-- how to hackathon resources? -->
-                    <!-- do something similar to the wwpit homepage -->
+                    <CenteredContainer>
+                        <span style="font-size: var(--font-20);">
+                            <div class="centered" style="margin: 4px;">
+                                <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
+                            </div>
+                            <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
+                        </span>
+                    </CenteredContainer>
                 </CutCornerContainer>
             </AnimateInContainer>
         </div>

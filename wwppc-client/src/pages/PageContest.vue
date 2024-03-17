@@ -48,17 +48,13 @@ watch(() => route.params, () => {
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
-                <div v-if="!(serverConnection.loggedIn || route.query.ignore_server !== undefined)" style="display: flex;">
-                    <PanelNavButton text="WWPHacks" for="/hackathon"></PanelNavButton>
-                </div>
                 <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
                 <div v-if="serverConnection.loggedIn || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
+                </div>
+                <div v-if="contestManager.inContest || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
                     <PanelNavButton text="Leaderboard" for="/contest/leaderboard"></PanelNavButton>
-                </div>
-                <div v-if="!(serverConnection.loggedIn || route.query.ignore_server !== undefined)" style="display: flex;">
-                    <PanelNavButton text="About Us" for="/home/about"></PanelNavButton>
                 </div>
             </PanelNavList>
             <PanelRightList>

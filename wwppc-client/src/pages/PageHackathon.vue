@@ -9,10 +9,8 @@ import PagePanelHackathonInfo from './hackathon/PagePanelHackathonInfo.vue';
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
-                <PanelNavButton text="Home" for="/home/home"></PanelNavButton>
+                <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWPHacks" for="/hackathon" is-default></PanelNavButton>
-                <PanelNavButton text="WWPIT" for="/contest"></PanelNavButton>
-                <PanelNavButton text="About Us" for="/home/about"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>

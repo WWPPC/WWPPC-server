@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
@@ -26,7 +26,7 @@ import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UI
                     <CenteredContainer>
                         <span style="font-size: var(--font-20);">
                             <div class="centered" style="margin: 4px;">
-                                <UILinkButton text="Register" color="lime" width="40%" disabled></UILinkButton>
+                                <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
                             </div>
                             <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                         </span>
