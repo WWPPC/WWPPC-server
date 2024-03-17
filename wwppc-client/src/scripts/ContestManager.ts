@@ -38,6 +38,15 @@ export enum ContestProblemCompletionState {
     ERROR = 6
 }
 
+export const completionStateString = (status: ContestProblemCompletionState) => {
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
+};
+
 const state = reactive({
     inContest: false,
     problems: new Array<ContestProblem>()

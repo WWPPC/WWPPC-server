@@ -2,7 +2,7 @@
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
+import { ContestProblemCompletionState, completionStateString, type ContestProblem } from '@/scripts/ContestManager';
 import { ref, watch, type Ref } from 'vue';
 import katex from 'katex';
 
@@ -18,15 +18,6 @@ const problem: Ref<ContestProblem> = ref({
     constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
 });
-
-const statusToDescription = (status: ContestProblemCompletionState) => {
-    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
-        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
-            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
-                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
-                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
-                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
-}
 
 const latexify = (str: string) => {
     //math rendering errors are handled by katex itself since throwOnError=false
@@ -85,7 +76,7 @@ const sanitizeUpload = () => {
                 <div class="problemViewSubtitle">
                     <span>Problem {{ problem.round }}-{{ problem.number }}; by {{ problem.author }}</span>
                     <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms</span>
-                    <span>{{ statusToDescription(problem.status) }}</span>
+                    <span>{{ completionStateString(problem.status) }}</span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
             </TitledCutCornerContainer>
