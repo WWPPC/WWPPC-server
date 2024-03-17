@@ -15,7 +15,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
         <div style="height: calc(1.25 * var(--font-huge-title))"></div>
         <div class="homeColumns">
             <AnimateInContainer type="slideUp" :delay=200>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -36,7 +36,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="swell">
+                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
                             <div style="flex-grow: 1;">
@@ -127,6 +127,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     row-gap: 24px;
     column-gap: 24px;
+    flex-grow: 1;
 }
 
 @media (max-width: 100vh) {
