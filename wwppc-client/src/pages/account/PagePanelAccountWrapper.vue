@@ -1,8 +1,24 @@
 <script setup lang="ts">
+import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { toDivName, useAccountManager } from '@/scripts/AccountManager';
+import { onMounted, ref, watch } from 'vue';
 
 const accountManager = useAccountManager();
+
+const dispName = ref('');
+const username = ref('');
+watch(() => accountManager.displayName, () => {
+    glitchTextTransition(dispName.value, accountManager.displayName, (t) => { dispName.value = t; }, 40, 1, 20);
+});
+watch(() => accountManager.username, () => {
+    glitchTextTransition(username.value, '@' + accountManager.username, (t) => { username.value = t; }, 40, 1, 20);
+});
+onMounted(() => {
+    glitchTextTransition(dispName.value, accountManager.displayName, (t) => { dispName.value = t; }, 40, 1, 20);
+    glitchTextTransition(username.value, '@' + accountManager.username, (t) => { username.value = t; }, 40, 1, 20);
+});
 
 const changeProfileImage = () => {
 
@@ -17,13 +33,12 @@ const changeProfileImage = () => {
                 <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
                 <input type="file" class="accountUserDispImgUpload" accept="image/*" @change=changeProfileImage>
             </label>
-            <span class="accountUserDisplayName">{{ accountManager.displayName }}</span>
-            <span class="accountUserUsername">@{{ accountManager.username }}</span>
+            <span class="accountUserDisplayName">{{ dispName }}</span>
+            <span class="accountUserUsername">{{ username }}</span>
             <div class="accountUserRegistrations">
-                <span v-for="reg in accountManager.registrations" :key="reg.contest + reg.division">
+                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="reg.contest + reg.division" :delay="i * 200">
                     {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
-                    <br>
-                </span>
+                </AnimateInContainer>
             </div>
             <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
         </div>
@@ -102,10 +117,12 @@ const changeProfileImage = () => {
 .accountUserDisplayName {
     margin-top: 8px;
     font-size: var(--font-24);
+    font-family: 'Source Code Pro', Courier, monospace;
 }
 
 .accountUserUsername {
     font-size: var(--font-18);
+    font-family: 'Source Code Pro', Courier, monospace;
 }
 
 .accountUserRegistrations {

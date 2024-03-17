@@ -46,12 +46,12 @@ watch(() => route.params.page, () => {
         </PanelHeader>
         <PanelMain>
             <PanelBody name="profile" title="Account" is-default>
-                <PagePanelAccountWrapper>
+                <PagePanelAccountWrapper v-if="serverConnection.loggedIn">
                     <PagePanelAccountProfile></PagePanelAccountProfile>
                 </PagePanelAccountWrapper>
             </PanelBody>
             <PanelBody name="registrations" title="Registrations">
-                <PagePanelAccountWrapper>
+                <PagePanelAccountWrapper v-if="serverConnection.loggedIn">
                 </PagePanelAccountWrapper>
             </PanelBody>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>

@@ -4,10 +4,10 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from '@/App.vue';
-import { PanelBody, PanelNavButton } from './components/panels/PanelManager';
+import { PanelBody, PanelNavButton } from '@/components/panels/PanelManager';
 import 'katex/dist/katex.min.css';
 import { VueReCaptcha } from 'vue-recaptcha-v3';
-import PagePanelAccountRegistrations from './pages/account/PagePanelAccountRegistrations.vue';
+import PagePanelAccountRegistrations from '@/pages/account/PagePanelAccountRegistrations.vue';
 
 const app = createApp(App);
 const pinia = createPinia();
