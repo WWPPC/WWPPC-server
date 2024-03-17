@@ -16,21 +16,22 @@ import { useContestManager } from '@/scripts/ContestManager';
 
 const router = useRouter();
 const route = useRoute();
+const ignoreServer = route.query.ignore_server !== undefined;
 
 const modal = globalModal();
 const serverConnection = useServerConnection();
 const contestManager = useContestManager();
 
 serverConnection.onconnecterror(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || route.query.ignore_server !== undefined) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
 });
 serverConnection.ondisconnect(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || route.query.ignore_server !== undefined) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
 });
 watch(() => route.params, () => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || route.query.ignore_server !== undefined) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
     });
@@ -48,17 +49,17 @@ watch(() => route.params, () => {
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
-                <div v-if="serverConnection.loggedIn || route.query.ignore_server !== undefined" style="display: flex;">
+                <div v-if="serverConnection.loggedIn || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                 </div>
-                <div v-if="'' || route.query.ignore_server !== undefined" style="display: flex;">
+                <div v-if="'' || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
                     <PanelNavButton text="Leaderboard" for="/contest/leaderboard"></PanelNavButton>
                 </div>
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
-                <ContestTimer v-if="contestManager.inContest || route.query.ignore_server !== undefined"></ContestTimer>
+                <ContestTimer v-if="contestManager.inContest || ignoreServer"></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
@@ -66,19 +67,19 @@ watch(() => route.params, () => {
                 <PagePanelContestInfo></PagePanelContestInfo>
             </PanelBody>
             <PanelBody name="contest" title="Contest">
-                <PagePanelContestContest></PagePanelContestContest>
+                <PagePanelContestContest v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestContest>
                 <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemList" title="Problem List">
-                <PagePanelContestProblemList></PagePanelContestProblemList>
+                <PagePanelContestProblemList v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestProblemList>
                 <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemView" title="Problem">
-                <PagePanelContestProblemView></PagePanelContestProblemView>
+                <PagePanelContestProblemView v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestProblemView>
                 <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="leaderboard" title="Leaderboard">
-                <PagePanelContestLeaderboard></PagePanelContestLeaderboard>
+                <PagePanelContestLeaderboard v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestLeaderboard>
                 <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
         </PanelMain>

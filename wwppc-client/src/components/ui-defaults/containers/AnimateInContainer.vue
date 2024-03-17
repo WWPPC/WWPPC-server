@@ -65,6 +65,7 @@ export default {
 <style scoped>
 .fadeOnLoad {
     animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;
+    animation-fill-mode: forwards;
 }
 
 @keyframes fade-in-on-load {

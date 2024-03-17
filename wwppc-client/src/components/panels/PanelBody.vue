@@ -64,6 +64,14 @@ if ((route.params.panel === undefined && props.isDefault) || route.params.panel 
     overflow-x: hidden;
 }
 
+/* disable stuff on webkit because bugs */
+@media (-webkit-min-device-pixel-ratio: 0) {
+    .panelBodySlotContainer {
+        scroll-snap-type: none;
+    }
+}
+
+
 .panelBodyTransitionWipeContainer {
     position: relative;
     grid-row: 1;
