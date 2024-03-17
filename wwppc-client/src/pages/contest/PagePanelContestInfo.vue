@@ -25,18 +25,12 @@ import { GlitchText, UIDivider, UILinkButton } from '@/components/ui-defaults/UI
                 <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
                     <CenteredContainer>
                         <span style="font-size: var(--font-20);">
-                            You can register to compete here:
-                            <div class="centered" style="margin-top: 4px;">
+                            <div class="centered" style="margin: 4px;">
                                 <UILinkButton text="Register" color="lime" width="40%" disabled></UILinkButton>
                             </div>
                             <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                         </span>
                     </CenteredContainer>
-                    <UIDivider></UIDivider>
-                    <ul>
-                        <li>Anyone can register! All you need is an account!</li>
-                        <!-- other info? -->
-                    </ul>
                 </CutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">

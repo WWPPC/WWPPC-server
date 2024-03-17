@@ -17,9 +17,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Come hack with us!" align="center" height="100%" hover-animation="lift">
                     <p>
-                        explain what a hackathon is here
-                        <br>a
-                        <br>a
+                        WWPHacks is a hackathon where programmers compete to develop technological solutions to real-world problems within 24 hours. Teams will build projects, attend workshops, and compete for prizes. Judges will evaluate the projects, with winners receiving interesting awards. At the end of the day, participants be leaving the hackathon with technical experience, new friends, and the feeling of fulfillment.
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
