@@ -3,7 +3,7 @@ import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, type ContestProblem } from '@/scripts/ContestManager';
-import { ref, watch, type Ref } from 'vue';
+import { ref, watch, compile, render, h, type Ref } from 'vue';
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
@@ -12,11 +12,20 @@ const problem: Ref<ContestProblem> = ref({
     round: 0,
     number: 0,
     name: 'Problem Name',
-    author: 'SP^2',
-    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$  $$\\sum_{i=0}^{\\infty}$$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  <div v-katex="'\\sum_{i=0}^{\\infty}'" v-inline></div>`,
-    constraints: { memory: 256, time: 4000 },
+    author: '<img src="" onerror="alert(`buh`)"></img>',
+    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$  $$\\sum_{i=0}^{\\infty}$$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.  <div v-katex="\\sum_{i=0}^{\\infty}" v-inline></div>`,
+    constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
 });
+
+const statusToDescription = (status: ContestProblemCompletionState) => {
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
+}
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
@@ -54,10 +63,12 @@ const sanitizeUpload = () => {
         <div class="problemViewDouble">
             <TitledCutCornerContainer :title="problem.name" vertical-flipped>
                 <div class="problemViewSubtitle">
-                    <span>Round {{ problem.round }}, problem {{ problem.number }}; by {{ problem.author }}</span>
+                    <span>Problem {{ problem.round }}-{{ problem.number }}; by {{ problem.author }}</span>
                     <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms</span>
+                    <span>{{ statusToDescription(problem.status) }}</span>
                 </div>
-                <div class="problemViewContent" v-html=problem.content></div>
+                <component class="problemViewContent" :is="h('div', {'v-html': problem.content})"></component>
+                <div class="problemViewContent" v-html="problem.content"></div>
             </TitledCutCornerContainer>
             <div>
                 <DoubleCutCornerContainer>
