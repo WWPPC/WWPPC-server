@@ -64,8 +64,7 @@ if ((route.params.panel === undefined && props.isDefault) || route.params.panel 
     overflow-x: hidden;
 }
 
-/* disable stuff on webkit because bugs */
-@media (-webkit-min-device-pixel-ratio: 0) {
+@media (max-width: 100vh) {
     .panelBodySlotContainer {
         scroll-snap-type: none;
     }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContactFooter from '@/components/ContactFooter.vue';
 import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
@@ -19,9 +20,7 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
             <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
         </div>
-        <p style="font-size: var(--font-medium)">
-            Questions? Want to become a sponsor? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
-        </p>
+        <ContactFooter></ContactFooter>
     </div>
 </template>
 

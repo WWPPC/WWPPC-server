@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUpdate, ref } from 'vue';
+import { nextTick, onBeforeUpdate, onMounted, ref } from 'vue';
 
 const props = defineProps<{
     title: string
@@ -17,6 +17,10 @@ const body = ref<HTMLDivElement>();
 const boxHeight = ref(0);
 
 onBeforeUpdate(async () => {
+    await nextTick();
+    boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
+});
+onMounted(async () => {
     await nextTick();
     boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
 });
@@ -81,7 +85,9 @@ defineExpose({
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
-    background-image: v-bind("show ? 'url(/assets/arrow-up.svg)' : 'url(/assets/arrow-down.svg)'");
+    background-image: url(/assets/arrow-down.svg);
+    transition: 200ms ease transform;
+    transform: v-bind("show ? 'scaleY(-1)' : 'scaleY(1)'");
 }
 
 .headeredCollapsibleContainerBodyWrapper {
@@ -93,10 +99,10 @@ defineExpose({
 }
 
 .headeredCollapsibleContainerBody {
-    position: relative;
+    position: absolute;
     box-sizing: border-box;
     width: 100%;
-    padding: 12px 12px;
+    padding: 16px 12px;
     overflow-x: hidden;
     overflow-y: auto;
 }

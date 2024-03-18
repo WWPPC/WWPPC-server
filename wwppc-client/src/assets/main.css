@@ -20,6 +20,7 @@ body {
     color: white;
     overflow: hidden;
     margin: 0px 0px;
+    scroll-behavior: smooth;
 }
 
 * {

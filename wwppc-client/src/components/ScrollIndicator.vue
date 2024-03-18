@@ -53,6 +53,12 @@ export default {
     transform: translate(11px, 14px) rotate(-45deg);
 }
 
+@media (max-width: 100vh) {
+    .scrollIndicator {
+        display: none;
+    }
+}
+
 @keyframes scrollIndicatorBob {
 
     0%,

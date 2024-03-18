@@ -11,9 +11,10 @@ defineProps<{
 export type AnimateInType = 'fade' | 'slideUp';
 export default {
     data() {
-        return { createdObserver: false }
+        return { show: false, createdObserver: false }
     },
     mounted() {
+        this.$el.classList.add(`${this.$props.type}OnLoad`);
         if (this.$props.showOnScreen) {
             if (this.createdObserver) return;
             this.createdObserver = true;
@@ -22,7 +23,7 @@ export default {
                     if (entry.isIntersecting) {
                         setTimeout(() => {
                             this.$el.classList.remove('invisible');
-                            this.$el.classList.add(`${this.$props.type}OnLoad`);
+                            this.show = true;
                         }, this.$props.delay ?? 0);
                         observer.unobserve(this.$el);
                     }
@@ -33,23 +34,23 @@ export default {
                     if (entry.isIntersecting) {
                         setTimeout(() => {
                             this.$el.classList.remove('invisible');
-                            this.$el.classList.add(`${this.$props.type}OnLoad`);
+                            this.show = true;
                         }, this.$props.delay ?? 0);
                     }
                 }, { threshold: 0.2 });
                 observer.observe(this.$el);
                 const observer2 = new IntersectionObserver(([entry]) => {
                     if (!entry.isIntersecting) {
-                        this.$el.classList.remove(`${this.$props.type}OnLoad`);
                         this.$el.classList.add('invisible');
+                        this.show = false;
                     }
                 }, { threshold: 0 });
                 observer2.observe(this.$el);
             }
         } else {
             setTimeout(() => {
-                this.$el.classList.remove(`invisible`);
-                this.$el.classList.add(`${this.$props.type}OnLoad`);
+                this.$el.classList.remove('invisible');
+                this.show = true;
             }, this.$props.delay ?? 0);
         }
     }
@@ -58,39 +59,37 @@ export default {
 
 <template>
     <div class="invisible">
-        <slot></slot>
+        <Transition>
+            <div v-show=show>
+                <slot></slot>
+            </div>
+        </Transition>
     </div>
 </template>
 
 <style scoped>
-.fadeOnLoad {
-    animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;
-    animation-fill-mode: forwards;
+.v-enter-active,
+.v-leave-active {
+    transition: 500ms cubic-bezier(0, 0, 0.5, 1) opacity, 500ms cubic-bezier(0, 0, 0.5, 1) transform;
 }
 
-@keyframes fade-in-on-load {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+.v-enter-from,
+.v-leave-to {
+    opacity: 0;
 }
 
-.slideUpOnLoad {
-    animation: 500ms cubic-bezier(0, 0, 0.5, 1) slide-up-on-load;
+.v-enter-to,
+.v-leave-from {
+    opacity: 1;
 }
 
-@keyframes slide-up-on-load {
-    from {
-        opacity: 0;
-        transform: translateY(32px);
-    }
+.v-enter-from.slideUpOnLoad,
+.v-leave-to.slideUpOnLoad {
+    transform: translateY(32px);
+}
 
-    to {
-        opacity: 1;
-        transform: initial;
-    }
+.v-enter-to.slideUpOnLoad,
+.v-leave-from.slideUpOnLoad {
+    transform: initial;
 }
 </style>

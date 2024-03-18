@@ -2,6 +2,7 @@
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, IfOnscreenContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
+import ContactFooter from '@/components/ContactFooter.vue';
 </script>
 
 <template>
@@ -22,7 +23,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                                 <GlitchText text="WWP-Hacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: var(--font-20)">
+                                <p>
                                     WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
                                 </p>
                             </div>
@@ -43,7 +44,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                                 <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                 <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                 <UIDivider color="#AAA"></UIDivider>
-                                <p style="font-size: var(--font-small)">
+                                <p>
                                     WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
                                 </p>
                             </div>
@@ -76,14 +77,15 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
             <p>
                 We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
             </p>
-            <div class="centered" style="margin-top: 16px">
+            <p style="text-align: center;">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
                     <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
                     <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
-            </div>
+                These buttons hate being centered
+            </p>
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo2]"></ScrollIndicator>
     </div>
@@ -99,11 +101,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
                 <!-- if saya gets us a sponsor then put them here -->
             </CenteredContainer>
         </div>
-        <div>
-            <p style="font-size: var(--font-medium)">
-                Want to become a sponsor? Email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
-            </p>
-        </div>
+        <ContactFooter></ContactFooter>
     </div>
 </template>
 
@@ -125,6 +123,7 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 .homeColumns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row;
     row-gap: 24px;
     column-gap: 24px;
     flex-grow: 1;
@@ -133,7 +132,8 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 @media (max-width: 100vh) {
     .homeColumns {
         grid-template-columns: 1fr;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        grid-auto-flow: column;
     }
 }
 
@@ -145,7 +145,6 @@ import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/
 }
 
 p {
-    font-size: min(24px, 100vw / 20);
     text-align: center;
 }
 </style>

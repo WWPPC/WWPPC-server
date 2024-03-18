@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContactFooter from '@/components/ContactFooter.vue';
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
@@ -43,7 +44,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
-    <div class="fullBlock">
+    <div class="fullBlock stretchBlock">
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
             <IfOnscreenContainer>
@@ -67,6 +68,8 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>
+        <div class="spacer"></div>
+        <ContactFooter></ContactFooter>
     </div>
 </template>
 
@@ -83,9 +86,6 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 .stretchBlock {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    height: 100%;
-    max-height: 100%;
 }
 
 .hacksInfoBlock {
@@ -93,11 +93,20 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: min-content minmax(0, 1fr);
     grid-auto-flow: column dense;
+    /* flexbox moment */
+    min-height: 0px;
     row-gap: 24px;
     column-gap: 24px;
     flex: 1;
-    min-height: 0px;
-    /* flexbox moment */
+}
+
+@media (max-width: 100vh) {
+    .hacksInfoBlock {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(4, min-content);
+        grid-auto-flow: column;
+        min-height: min-content;
+    }
 }
 
 .faq {
@@ -107,5 +116,13 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
     width: 100%;
     row-gap: 24px;
     column-gap: 24px;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.faq>div {
+    max-width: 100%;
 }
 </style>
