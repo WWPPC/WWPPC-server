@@ -85,7 +85,6 @@ defineExpose({
 }
 
 .headeredCollapsibleContainerBodyWrapper {
-    display: relative;
     width: 100%;
     max-height: v-bind("show ? ($props.height ?? (boxHeight + 'px')) : '0px'");
     height: v-bind("boxHeight + 'px'");

@@ -149,7 +149,7 @@ export const useServerConnection = defineStore('serverconnection', {
         connected() { return socket.connected; }
     },
     actions: {
-        encode: RSA.encode,
+        RSAencode: RSA.encode,
         // shorthands
         emit(event: string, ...data: any[]) {
             return socket.emit(event, ...data);

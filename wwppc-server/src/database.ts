@@ -236,7 +236,7 @@ export class Database {
             this.logger.info(`[Database] Updated account data for "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (deleteAccountData):');
+            this.logger.error('Database error (updateAccountData):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }

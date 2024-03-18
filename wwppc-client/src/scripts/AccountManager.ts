@@ -89,16 +89,16 @@ export const useAccountManager = defineStore('accountManager', {
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
-            return await new Promise((resolve) => {
+            return await new Promise(async (resolve) => {
                 serverConnection.emit('setUserData', {
                     password: serverConnection.encryptedPassword,
                     data: {
-                        firstName: this.firstName,
-                        lastName: this.lastName,
-                        displayName: this.displayName,
+                        firstName: await serverConnection.RSAencode(this.firstName),
+                        lastName: await serverConnection.RSAencode(this.lastName),
+                        displayName: await serverConnection.RSAencode(this.displayName),
                         profileImage: this.profileImage,
-                        bio: this.bio,
-                        school: this.school,
+                        bio: await serverConnection.RSAencode(this.bio),
+                        school: await serverConnection.RSAencode(this.school),
                         grade: this.grade,
                         experience: this.experience,
                         languages: this.languages

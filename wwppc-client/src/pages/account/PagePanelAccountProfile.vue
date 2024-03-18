@@ -10,8 +10,10 @@ import { onMounted, ref, watch } from 'vue';
 const modal = globalModal();
 const accountManager = useAccountManager();
 
-onMounted(() => {
-    accountManager.updateOwnUserData();
+onMounted(async () => {
+    await accountManager.updateOwnUserData();
+    gradeInput.value = accountManager.grade.toString();
+    experienceInput.value = accountManager.experience.toString();
 });
 
 // oops
@@ -21,6 +23,9 @@ watch(gradeInput, () => accountManager.grade = Number(gradeInput.value));
 watch(experienceInput, () => accountManager.experience = Number(experienceInput.value));
 watch(() => accountManager.grade, () => gradeInput.value = accountManager.grade.toString());
 watch(() => accountManager.experience, () => experienceInput.value = accountManager.experience.toString());
+
+const remainingBioCharacters = ref(2048);
+watch(() => accountManager.bio, () => remainingBioCharacters.value = 2048 - accountManager.bio.length);
 
 const showWriteDataWait = ref(false);
 const writeData = async () => {
@@ -49,7 +54,7 @@ const newPasswordInput = ref('');
                         <UITextBox v-model=accountManager.lastName maxlength="32" width="var(--hwidth)" title="Last name" required></UITextBox>
                     </span>
                     <span>School:</span>
-                    <UITextBox v-model=accountManager.school width="var(--fwidth)" title="Your school name" required></UITextBox>
+                    <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
                     <span>Grade/experience:</span>
                     <span style="text-wrap: nowrap;">
                         <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
@@ -69,8 +74,8 @@ const newPasswordInput = ref('');
                 { text: 'Cracked / IOI / USACO Camp', value: '4' },
             ]" title="Your experience level with competitive programming" required></UIDropdown>
                     </span>
-                    <span>Bio ({{ 0 }} characters):</span>
-                    <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
+                    <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
+                    <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
                 </PairedGridContainer>
                 <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
             </form>

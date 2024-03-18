@@ -101,7 +101,7 @@ io.on('connection', async (s) => {
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds: { username: Buffer | string, password: Buffer | string, token?: string, signupData?: { firstName: Buffer | string, lastName: Buffer | string, email: Buffer | string, school: Buffer | string, grade: number, experience: number, languages: string[] } }) => {
-            if (creds == null) {
+            if (creds == undefined) {
                 kick('null credentials');
                 resolve(true);
                 return;
@@ -126,8 +126,8 @@ io.on('connection', async (s) => {
                 const lastName = await database.RSAdecode(creds.signupData.lastName);
                 const email = await database.RSAdecode(creds.signupData.email);
                 const school = await database.RSAdecode(creds.signupData.school);
-                if (typeof firstName != 'string' || typeof lastName != 'string' || typeof email != 'string' || typeof school != 'string'
-                    || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
+                if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof email != 'string' || email.length > 32
+                    || typeof school != 'string' || school.length > 64 || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
                     || typeof creds.signupData.experience != 'number' || typeof creds.signupData.grade != 'number' || creds.token == undefined || typeof creds.token != 'string') {
                     kick('invalid sign up data');
                     resolve(true);
@@ -203,21 +203,50 @@ io.on('connection', async (s) => {
     })) return;
     // you can only reach this point by signing in
     if (config.superSecretSecret) socket.emit('superSecretMessage');
-    socket.on('getUserData', async ({ username }: { username: string }) => {
-        socket.emit('userData', await database.getAccountData(username));
+    socket.on('getUserData', async (data: { username: string }) => {
+        if (data == undefined || typeof data.username != 'string') {
+            kick('invalid getUserData parameters');
+            return;
+        }
+        socket.emit('userData', await database.getAccountData(data.username));
     });
-    socket.on('setUserData', async ({ password, data }: { password: Buffer | string, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
-        const password2 = await database.RSAdecode(password);
-        if (typeof password2 != 'string' || !database.validate(self.username, password2)) {
+    socket.on('setUserData', async (data: { password: Buffer | string, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
+
+        if (data == undefined || data.data == undefined) {
+            kick('invalid setUserData parameters');
+            return;
+        }
+        const password = await database.RSAdecode(data.password);
+        const firstName = await database.RSAdecode(data.data.firstName);
+        const lastName = await database.RSAdecode(data.data.lastName);
+        const displayName = await database.RSAdecode(data.data.displayName);
+        const bio = await database.RSAdecode(data.data.bio);
+        const school = await database.RSAdecode(data.data.school);
+        if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof displayName != 'string'
+            || displayName.length > 32 || typeof data.data.profileImage != 'string' || typeof bio != 'string' || bio.length > 2048
+            || typeof school != 'string' || school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'
+            || !Array.isArray(data.data.languages) || data.data.languages.length > 64 || data.data.languages.find((v) => typeof v != 'string') !== undefined) {
+            kick('invalid setUserData parameters');
+            return;
+        }
+        if (typeof password != 'string' || !database.validate(self.username, password)) {
             kick('invalid credentials');
             return;
         }
         const existingData = await database.getAccountData(self.username);
         if (typeof existingData == 'object') {
-            const res = await database.updateAccountData(self.username, password2, {
-                ...data,
+            const res = await database.updateAccountData(self.username, password, {
                 username: self.username,
                 email: existingData.username,
+                firstName,
+                lastName,
+                displayName,
+                profileImage: data.data.profileImage,
+                bio,
+                school,
+                grade: data.data.grade,
+                experience: data.data.experience,
+                languages: data.data.languages,
                 registrations: existingData.registrations
             });
             socket.emit('setUserDataResponse', res);
