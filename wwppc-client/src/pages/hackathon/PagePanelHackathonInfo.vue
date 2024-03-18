@@ -53,17 +53,17 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         </CenteredContainer>
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="When is it?" height="100%" startCollapsed>
+                <TitledCollapsible title="When is it?" startCollapsed>
                     <i>wink</i>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
+                <TitledCollapsible title="Where will it be held?" startCollapsed>
                     We don't know yet, check back later!
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="How many people can be on a team?" height="100%" startCollapsed>
+                <TitledCollapsible title="How many people can be on a team?" startCollapsed>
                     We plan on small groups of up to 4, but individuals can participate too!
                 </TitledCollapsible>
             </AnimateInContainer>

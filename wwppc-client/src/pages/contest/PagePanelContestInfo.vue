@@ -56,19 +56,19 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <br>
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="When is it?" height="100%" startCollapsed>
+                <TitledCollapsible title="When is it?" startCollapsed>
                     Sometime in 2024
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="Where will it be held?" height="100%" startCollapsed>
+                <TitledCollapsible title="Where will it be held?" startCollapsed>
                     WWPIT will be held online, on this website!
                     <br><br>
                     You can register <a href="/account/registrations/new" target="_blank"> here</a> at any time before the contest starts.
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="What's the contest format?" height="100%" startCollapsed>
+                <TitledCollapsible title="What's the contest format?" startCollapsed>
                     <ul>
                         <li>There will be n separate timed rounds of roughly 45 minutes each</li>
                         <li>Teams will be ranked by their total score, with partial credit for problems</li>
@@ -78,7 +78,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="How can I prepare?" height="100%" startCollapsed>
+                <TitledCollapsible title="How can I prepare?" startCollapsed>
                     For those experienced in programming, helpful resources include <a href="https://usaco.guide" target="_blank">USACO Guide</a> and <a href="https://codeforces.com" target="_blank">Codeforces</a>.
                     <br><br>
                     To learn C++, see <a href="https://cplusplus.com/doc/tutorial/" target="_blank">CPlusPlus.com</a>. To learn Python, a more beginner-friendly language, the <a href="https://runestone.academy/ns/books/published/thinkcspy/index.html" target="_blank">thinkcspy textbook</a> is useful.

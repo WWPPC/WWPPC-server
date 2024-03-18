@@ -101,12 +101,12 @@ const thing2 = ref<any>([]);
                                                                             column-gap: 24px;
                                                                             ">
                             <AnimateInContainer type="slideUp" show-on-screen>
-                                <TitledCollapsible title="da hECK">
+                                <TitledCollapsible title="da hECK" height="100%">
                                     ?????????
                                 </TitledCollapsible>
                             </AnimateInContainer>
                             <AnimateInContainer type="slideUp" show-on-screen>
-                                <TitledCollapsible title="da hECK">
+                                <TitledCollapsible title="da hECK" height="100%">
                                     ?????????
                                 </TitledCollapsible>
                             </AnimateInContainer>
