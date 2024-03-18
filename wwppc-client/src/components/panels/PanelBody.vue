@@ -59,6 +59,7 @@ if ((route.params.panel === undefined && props.isDefault) || route.params.panel 
     font-size: 16px;
     background-color: black;
     scroll-snap-type: y v-bind("$props.scrollSnap ? 'mandatory' : 'none'");
+    scroll-timeline-name: --panelScrollTimeline;
     perspective: 100px;
     overflow-y: auto;
     overflow-x: hidden;

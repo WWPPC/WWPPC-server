@@ -63,7 +63,9 @@ img {
 }
 
 .invisible {
-    visibility: hidden;
+    /* visibility: hidden; */
+    opacity: 0;
+    pointer-events: none;
 }
 
 .hidden {

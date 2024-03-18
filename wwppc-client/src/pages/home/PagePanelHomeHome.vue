@@ -15,7 +15,7 @@ import ContactFooter from '@/components/ContactFooter.vue';
         <!-- spacer for title -->
         <div style="height: calc(1.25 * var(--font-huge-title))"></div>
         <div class="homeColumns">
-            <AnimateInContainer type="slideUp" :delay=200>
+            <AnimateInContainer type="slideUp" :delay=100>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -28,15 +28,15 @@ import ContactFooter from '@/components/ContactFooter.vue';
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=400>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-24)" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=300>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-20)" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
                     </CenteredContainer>
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=100>
+            <AnimateInContainer type="slideUp" :delay=200>
                 <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
                     <CenteredContainer style="height: 100%">
                         <div class="homeVertical">
@@ -49,8 +49,8 @@ import ContactFooter from '@/components/ContactFooter.vue';
                                 </p>
                             </div>
                             <div class="centered">
-                                <AnimateInContainer type="fade" :delay=300>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-medium)" color="lime"></UILinkButton>
+                                <AnimateInContainer type="fade" :delay=400>
+                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-20)" color="lime"></UILinkButton>
                                 </AnimateInContainer>
                             </div>
                         </div>
