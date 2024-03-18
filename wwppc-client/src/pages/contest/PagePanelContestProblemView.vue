@@ -13,7 +13,7 @@ const problem: Ref<ContestProblem> = ref({
     round: 0,
     number: 0,
     name: 'Problem Name',
-    author: '<img src="" onerror="alert(`buh`)"/>',
+    author: 'buh',
     content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
     constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
@@ -23,14 +23,14 @@ const latexify = (str: string) => {
     //math rendering errors are handled by katex itself since throwOnError=false
     return str.replace(/\$\$.+\$\$/gm, (match) => {
         try {
-            return katex.renderToString(match.substring(2, match.length-2).trim(), {throwOnError: false});
+            return katex.renderToString(match.substring(2, match.length - 2).trim(), { throwOnError: false });
         } catch (e) {
             console.error(e);
             return "<span style='color: red'>Math error</span>";
         }
     }).replace(/\$.+\$/gm, (match) => {
         try {
-            return katex.renderToString(match.substring(1, match.length-1).trim(), {throwOnError: false});
+            return katex.renderToString(match.substring(1, match.length - 1).trim(), { throwOnError: false });
         } catch (e) {
             console.error(e);
             return "<span style='color: red'>Math error</span>";
@@ -72,42 +72,43 @@ const sanitizeUpload = () => {
     </div>
     <div class="problemViewPanel">
         <div class="problemViewDouble">
-            <TitledCutCornerContainer :title="problem.name" vertical-flipped>
+            <TitledCutCornerContainer :title="problem.name" style="grid-row: span 3;" vertical-flipped>
+                <!-- add custom title with the subtitle and most recent submission status? -->
                 <div class="problemViewSubtitle">
                     <span>Problem {{ problem.round }}-{{ problem.number }}; by {{ problem.author }}</span>
-                    <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms</span>
-                    <span>{{ completionStateString(problem.status) }}</span>
+                    <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms&emsp;|&emsp;{{ completionStateString(problem.status) }}</span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
             </TitledCutCornerContainer>
-            <div>
-                <DoubleCutCornerContainer>
-                    <div style="text-align: center;">
-                        <h3>Submit</h3>
-                        <div style="text-align: justify;">
-                            Submissions are not graded until the round is over, but you can update your submission at any time.
-                        </div>
+            <DoubleCutCornerContainer>
+                <div style="text-align: center;">
+                    <h3>Submit</h3>
+                    <div style="text-align: justify;">
+                        Submissions are not graded until the round is over, but you can update your submission at any time.
                     </div>
-                    <br>
-                    <form class="problemViewSubmitForm" action="javascript:void(0)">
-                        <div class="problemViewSubmitFormInner">
-                            <span>Source code:</span>
-                            <UIFileUpload ref="fileUpload" @input=sanitizeUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
-                            <span>Language:</span>
-                            <UIDropdown ref="languageDropdown" :items="[
-        { text: 'Java 8', value: 'java8' },
-        { text: 'Java 17', value: 'java17' },
-        { text: 'Java 21', value: 'java21' },
-        { text: 'C', value: 'c' },
-        { text: 'C++ 11', value: 'cpp11' },
-        { text: 'C++ 17', value: 'cpp17' },
-        { text: 'Python 3.6.9', value: 'py369' }
-    ]" required></UIDropdown>
-                        </div>
-                        <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
-                    </form>
-                </DoubleCutCornerContainer>
-            </div>
+                </div>
+                <br>
+                <form class="problemViewSubmitForm" action="javascript:void(0)">
+                    <div class="problemViewSubmitFormInner">
+                        <span>Source code:</span>
+                        <UIFileUpload ref="fileUpload" @input=sanitizeUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
+                        <span>Language:</span>
+                        <UIDropdown ref="languageDropdown" :items="[
+            { text: 'Java 8', value: 'java8' },
+            { text: 'Java 17', value: 'java17' },
+            { text: 'Java 21', value: 'java21' },
+            { text: 'C', value: 'c' },
+            { text: 'C++ 11', value: 'cpp11' },
+            { text: 'C++ 17', value: 'cpp17' },
+            { text: 'Python 3.6.9', value: 'py369' }
+        ]" required></UIDropdown>
+                    </div>
+                    <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
+                </form>
+            </DoubleCutCornerContainer>
+            <DoubleCutCornerContainer flipped>
+                put previous submissions here?
+            </DoubleCutCornerContainer>
         </div>
     </div>
 </template>
@@ -121,7 +122,8 @@ const sanitizeUpload = () => {
 
 .problemViewDouble {
     display: grid;
-    grid-template-columns: 1fr min-content;
+    grid-template-columns: minmax(0, 1fr) minmax(0, min-content);
+    grid-template-rows: minmax(0, min-content) minmax(0, min-content) minmax(0, 1fr);
     row-gap: 16px;
     column-gap: 16px;
     height: 100%;

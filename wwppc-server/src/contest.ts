@@ -1,7 +1,15 @@
 import { Socket } from "socket.io";
+import { AccountData } from "./database";
+
+/**
+ * 
+ */
 export class ContestManager {
-    #clients: Set<Socket> = new Set();
-    #rooms: Map<string, Set<Socket>> = new Map();
+    #users: Map<string, Set<Socket>> = new Map();
+    // socketio connections are put in sets mapped to username
+    // responsible for serving round data and problem data
+    // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
+
     // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
     // uses database to get problems and then caches them (also stores division, round, number since client needs that)

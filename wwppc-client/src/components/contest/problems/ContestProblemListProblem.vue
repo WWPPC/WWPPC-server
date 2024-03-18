@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
-import { ContestProblemCompletionState, type ContestProblemMetaData } from '@/scripts/ContestManager';
+import { completionStateAnimation, completionStateString, type ContestProblemMetaData } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{
@@ -9,22 +9,6 @@ const props = defineProps<{
 
 const router = useRouter();
 
-const statusToAnimation = (status: ContestProblemCompletionState) => {
-    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
-        status == ContestProblemCompletionState.UPLOADED ? 'pstatus-uploaded' :
-            status == ContestProblemCompletionState.SUBMITTED ? 'pstatus-submitted' :
-                status == ContestProblemCompletionState.GRADED_PASS ? 'pstatus-graded-pass' :
-                    status == ContestProblemCompletionState.GRADED_FAIL ? 'pstatus-graded-fail' :
-                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'pstatus-graded-partial' : 'pstatus-error'
-}
-const statusToDescription = (status: ContestProblemCompletionState) => {
-    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
-        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
-            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
-                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
-                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
-                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
-}
 </script>
 
 <template>
@@ -32,11 +16,11 @@ const statusToDescription = (status: ContestProblemCompletionState) => {
         <span class="contestProblemListProblemId">
             {{ props.data.round }}-{{ props.data.number }}
         </span>
-        <div class="contestProblemListProblemStatus" :title="statusToDescription(props.data.status)"></div>
+        <div class="contestProblemListProblemStatus" :title="completionStateString(props.data.status)"></div>
         <span class="contestProblemListProblemName"><b>{{ props.data.name }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>Author: {{ props.data.author }}</i></span>
         <span class="contestProblemListProblemButton">
-            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/problemView/${props.data.division}-${props.data.round}-${props.data.number}`)"></UILinkButton>
+            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/${$route.params.contestName}/problemView/${props.data.id}`)"></UILinkButton>
         </span>
     </div>
 </template>
@@ -70,7 +54,7 @@ const statusToDescription = (status: ContestProblemCompletionState) => {
     grid-column: 1;
     width: 32px;
     height: 32px;
-    animation: 2000ms linear v-bind("statusToAnimation(props.data.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
+    animation: 2000ms linear v-bind("completionStateAnimation(props.data.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
     border-radius: 50%;
     cursor: help;
 }

@@ -4,10 +4,8 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from '@/App.vue';
-import { PanelBody, PanelNavButton } from '@/components/panels/PanelManager';
 import 'katex/dist/katex.min.css';
 import { VueReCaptcha } from 'vue-recaptcha-v3';
-import PagePanelAccountRegistrations from '@/pages/account/PagePanelAccountRegistrations.vue';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -16,27 +14,33 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         { path: '/', redirect: '/home' },
+        // not the right way to do this (but oh well)
         {
+            // uhhh this causes error because of bug
+            // path: '/:page(^(?:(?!contest).)*$)',
             path: '/:page',
-            components: { App, PanelNavButton },
+            components: { App },
             children: [{
                 path: ':panel',
-                components: { PanelBody, PanelNavButton },
-                children: [
-                    {
-                        path: ':probDiv-:probRound-:probNum',
-                        component: PanelBody
-                    },
-                    {
-                        path: 'new/:contestName',
-                        component: PagePanelAccountRegistrations
-                    }
-                ],
+                components: { App }
             }]
         },
         {
-            path: '/team/:viewTeam',
-            components: { }
+            path: '/:page(contest)',
+            components: { App },
+            children: [{
+                path: ':contestName',
+                children: [
+                    {
+                        path: ':panel',
+                        components: { App }
+                    },
+                    {
+                        path: ':panel(problemView)/:problemId',
+                        components: { App }
+                    }
+                ]
+            }]
         }
     ]
 });

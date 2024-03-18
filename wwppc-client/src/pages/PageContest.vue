@@ -10,13 +10,16 @@ import PagePanelContestContest from './contest/PagePanelContestContest.vue';
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 import LoadingCover from '@/components/LoadingCover.vue';
 import { useContestManager } from '@/scripts/ContestManager';
 
 const router = useRouter();
 const route = useRoute();
-const ignoreServer = route.query.ignore_server !== undefined;
+const ignoreServer = ref(route.query.ignore_server !== undefined);
+watch(() => route.query, () => {
+    ignoreServer.value = route.query.ignore_server !== undefined;
+});
 
 const modal = globalModal();
 const serverConnection = useServerConnection();

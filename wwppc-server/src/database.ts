@@ -252,8 +252,8 @@ export class Database {
         try {
             if (adminUsername != undefined) {
                 this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
-                const res = this.checkAccount(adminUsername, password);
-                if ((await res) != AccountOpResult.SUCCESS) return await res;
+                const res = await this.checkAccount(adminUsername, password);
+                if (res != AccountOpResult.SUCCESS) return res;
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rowCount == null || data.rowCount == 0) return AccountOpResult.NOT_EXISTS;
@@ -261,8 +261,8 @@ export class Database {
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
             } else {
-                const res = this.checkAccount(username, password);
-                if ((await res) != AccountOpResult.SUCCESS) return await res;
+                const res = await this.checkAccount(username, password);
+                if (res != AccountOpResult.SUCCESS) return res;
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;

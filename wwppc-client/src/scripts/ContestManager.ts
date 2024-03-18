@@ -38,6 +38,14 @@ export enum ContestProblemCompletionState {
     ERROR = 6
 }
 
+export const completionStateAnimation = (status: ContestProblemCompletionState) => {
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'pstatus-uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'pstatus-submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'pstatus-graded-pass' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'pstatus-graded-fail' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'pstatus-graded-partial' : 'pstatus-error'
+};
 export const completionStateString = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
         status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
