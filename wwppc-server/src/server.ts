@@ -58,6 +58,7 @@ const contestManager = new ContestManager();
 const sessionId = Math.random();
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
+const recentSignups = new Map<string, number>();
 const io = new SocketIOServer(server, {
     path: '/socket.io',
     cors: { origin: '*', methods: ['GET', 'POST'] }
@@ -121,6 +122,12 @@ io.on('connection', async (s) => {
             self.username = username;
             // actually create/check account
             if (creds.signupData != undefined) {
+                // spam prevention
+                if ((recentConnections.get(ip) ?? 0) > config.maxSignupPerMinute) {
+                    kick('too many sign-ups');
+                    return;
+                }
+                recentSignups.set(ip, (recentSignups.get(ip) ?? 0) + 60);
                 // more validation
                 const firstName = await database.RSAdecode(creds.signupData.firstName);
                 const lastName = await database.RSAdecode(creds.signupData.lastName);
@@ -172,7 +179,7 @@ io.on('connection', async (s) => {
                     socket.emit('credentialRes', AccountOpResult.ERROR);
                     resolve(true);
                     return;
-                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.7) {
+                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
                     socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                     resolve(true);
                     return;
@@ -211,7 +218,6 @@ io.on('connection', async (s) => {
         socket.emit('userData', await database.getAccountData(data.username));
     });
     socket.on('setUserData', async (data: { password: Buffer | string, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
-
         if (data == undefined || data.data == undefined) {
             kick('invalid setUserData parameters');
             return;
@@ -223,7 +229,7 @@ io.on('connection', async (s) => {
         const bio = await database.RSAdecode(data.data.bio);
         const school = await database.RSAdecode(data.data.school);
         if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof displayName != 'string'
-            || displayName.length > 32 || typeof data.data.profileImage != 'string' || typeof bio != 'string' || bio.length > 2048
+            || displayName.length > 32 || typeof data.data.profileImage != 'string' || data.data.profileImage.length > 40960 || typeof bio != 'string' || bio.length > 2048
             || typeof school != 'string' || school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'
             || !Array.isArray(data.data.languages) || data.data.languages.length > 64 || data.data.languages.find((v) => typeof v != 'string') !== undefined) {
             kick('invalid setUserData parameters');
@@ -259,6 +265,9 @@ io.on('connection', async (s) => {
 let connectionKickDecrementer = setInterval(function () {
     recentConnections.forEach((val, key) => {
         recentConnections.set(key, Math.max(val - 1, 0));
+    });
+    recentSignups.forEach((val, key) => {
+        recentSignups.set(key, Math.max(val - 1, 0));
     });
     recentConnectionKicks.clear();
 }, 1000);

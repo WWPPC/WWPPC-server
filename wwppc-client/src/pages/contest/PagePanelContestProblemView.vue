@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, completionStateString, type ContestProblem } from '@/scripts/ContestManager';
 import { ref, watch, type Ref } from 'vue';
 import katex from 'katex';
+
+const modal = globalModal();
 
 // load problem information from server
 const problem: Ref<ContestProblem> = ref({
@@ -50,8 +52,8 @@ const sanitizeUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
     if (file.size > 10240) {
-        fileUpload.value.files;
-        //show an error idk
+        fileUpload.value.resetFileList();
+        modal.showModal({ title: 'File size too large', content: 'The maximum file size for submissions is 10kB', color: 'red' });
         return;
     }
     const ext = file.name.split(".").at(-1);

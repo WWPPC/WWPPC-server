@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { getAccountOpMessage, useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
 import { useReCaptcha } from 'vue-recaptcha-v3';
@@ -57,11 +57,10 @@ const schoolInput = ref('');
 const gradeInput = ref('');
 const experienceInput = ref('');
 const languageInput = ref(new Array<string>());
-
 const showLoginWait = ref(false);
 
 const validateCredentials = (username: string, password: string): boolean => {
-    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
+    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9\-_=+]+$/.test(username);
 };
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
@@ -75,10 +74,6 @@ const attemptLogin = async () => {
 const toSignUp = () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
     isSignupPage.value = true;
-    if (emailInput.value) emailInput.value = '';
-    if (gradeInput.value) gradeInput.value = '';
-    if (experienceInput.value) experienceInput.value = '';
-    if (languageInput.value) languageInput.value = [];
 };
 const attemptSignup = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((firstNameInput.value.trim() ?? '') == '') || ((lastNameInput.value.trim() ?? '') == '') || ((schoolInput.value.trim() ?? '') == '') || ((emailInput.value.trim() ?? '') == '') || gradeInput.value == '' || experienceInput.value == '') return;

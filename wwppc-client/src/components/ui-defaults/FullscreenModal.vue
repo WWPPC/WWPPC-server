@@ -87,14 +87,14 @@ export interface ModalParams {
                 </span>
                 <div class="modalButtons">
                     <span v-if="modal.mode == ModalMode.QUERY">
-                        <UIButton text="YES" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
-                        <UIButton text="NO" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
+                        <UIButton text="YES" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
+                        <UIButton text="NO" @click=modalReject width="5em" color="red" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                     </span>
                     <span v-else>
                         <span v-if="modal.mode == ModalMode.INPUT || modal.mode == ModalMode.CONFIRM">
-                            <UIButton text="CANCEL" @click=modalReject width="80px" color="red" font="bold 16px 'Source Code Pro'"></UIButton>
+                            <UIButton text="CANCEL" @click=modalReject width="5em" color="red" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                         </span>
-                        <UIButton text="OK" @click=modalResolve width="80px" color="lime" font="bold 16px 'Source Code Pro'"></UIButton>
+                        <UIButton text="OK" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                     </span>
                 </div>
             </div>
@@ -134,7 +134,7 @@ export interface ModalParams {
     flex-grow: 1;
     display: inline-block;
     min-width: 0px;
-    padding: 4px 16px;
+    padding: 4px 1em;
     background-color: black;
     clip-path: polygon(30px 0%, 100% 0%, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0% 100%, 0% 30px);
     text-align: center;
@@ -142,7 +142,7 @@ export interface ModalParams {
 
 .modalBody h1 {
     margin: 0px 0px;
-    margin-top: 16px;
+    margin-top: 0.5em;
 }
 
 .modalBody p {
@@ -153,10 +153,4 @@ export interface ModalParams {
     margin: 8px 0px;
     margin-bottom: 16px;
 }
-
-@media (max-width: 600px) {
-    .modalBody h1 {
-        font-size: 32px;
-    }
-}
-</style>./ui-defaults/TextTransitions./ui-defaults/UIDefaults./TextTransitions./UIDefaults
+</style>

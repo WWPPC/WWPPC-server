@@ -2,6 +2,7 @@
     "port": 8000,
     "serveStatic": false,
     "maxConnectPerSecond": 5,
+    "maxSignupPerMinute": 1,
     "dbCacheTime": 60000,
     "superSecretSecret": false
 }

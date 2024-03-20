@@ -106,7 +106,7 @@ export class Database {
      * @returns {boolean} Validity
      */
     validate(username: string, password: string): boolean {
-        return username.trim().length <= 16 && password.trim().length <= 1024 && /^[a-zA-Z0-9]+$/.test(username);
+        return username.trim().length <= 16 && password.trim().length <= 1024 && /^[a-zA-Z0-9-_=+]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.

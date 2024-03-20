@@ -4,7 +4,11 @@ import { ref } from 'vue';
 defineProps<{
     title?: string
 }>();
+const fileInput = ref<HTMLInputElement>();
 const files = ref<FileList>();
+const resetFileList = () => {
+    if (fileInput.value !== undefined) fileInput.value.value = '';
+}
 const emit = defineEmits<{
     (e: 'input', value: FileList | undefined): void
 }>();
@@ -13,12 +17,13 @@ function input(event: any) {
     emit('input', files.value);
 }
 defineExpose({
-    files
+    files,
+    resetFileList
 });
 </script>
 
 <template>
-    <input type="file" class="uiFileUpload" @change=input>
+    <input ref="fileInput" type="file" class="uiFileUpload" @change=input>
 </template>
 
 <style>

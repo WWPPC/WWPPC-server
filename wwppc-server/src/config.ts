@@ -5,6 +5,7 @@ const config: {
     port: string
     serveStatic: boolean
     maxConnectPerSecond: number
+    maxSignupPerMinute: number
     dbCacheTime: number
     superSecretSecret: boolean
     path: string

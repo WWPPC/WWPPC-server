@@ -12,20 +12,27 @@ const accountManager = useAccountManager();
 
 onMounted(async () => {
     await accountManager.updateOwnUserData();
-    gradeInput.value = accountManager.grade.toString();
-    experienceInput.value = accountManager.experience.toString();
+    gradeInput.value = accountManager.grade?.toString();
+    experienceInput.value = accountManager.experience?.toString();
 });
+
+// prevent username being overwritten
+const usernameNotEditable = ref('');
+watch(() => accountManager.username, () => usernameNotEditable.value = accountManager.username);
 
 // oops
 const gradeInput = ref('');
 const experienceInput = ref('');
+const languagesInput = ref<string[]>([]);
 watch(gradeInput, () => accountManager.grade = Number(gradeInput.value));
 watch(experienceInput, () => accountManager.experience = Number(experienceInput.value));
-watch(() => accountManager.grade, () => gradeInput.value = accountManager.grade.toString());
-watch(() => accountManager.experience, () => experienceInput.value = accountManager.experience.toString());
+watch(languagesInput, () => accountManager.languages = languagesInput.value);
+watch(() => accountManager.grade, () => gradeInput.value = accountManager.grade?.toString());
+watch(() => accountManager.experience, () => experienceInput.value = accountManager.experience?.toString());
+watch(() => accountManager.languages, () => languagesInput.value = accountManager.languages);
 
 const remainingBioCharacters = ref(2048);
-watch(() => accountManager.bio, () => remainingBioCharacters.value = 2048 - accountManager.bio.length);
+watch(() => accountManager.bio, () => remainingBioCharacters.value = 2048 - accountManager.bio?.length);
 
 const showWriteDataWait = ref(false);
 const writeData = async () => {
@@ -58,22 +65,43 @@ const newPasswordInput = ref('');
                     <span>Grade/experience:</span>
                     <span style="text-wrap: nowrap;">
                         <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
-                { text: 'Pre-High School', value: '8' },
-                { text: '9', value: '9' },
-                { text: '10', value: '10' },
-                { text: '11', value: '11' },
-                { text: '12', value: '12' },
-                { text: 'College Student', value: '13' },
-                { text: 'Graduated', value: '14' }
-            ]" title="Your current grade level" required></UIDropdown>
+        { text: 'Pre-High School', value: '8' },
+        { text: '9', value: '9' },
+        { text: '10', value: '10' },
+        { text: '11', value: '11' },
+        { text: '12', value: '12' },
+        { text: 'College Student', value: '13' },
+        { text: 'Graduated', value: '14' }
+    ]" title="Your current grade level" required></UIDropdown>
                         <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="[
-                { text: 'Beginner / AP CS A', value: '0' },
-                { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
-                { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-                { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
-                { text: 'Cracked / IOI / USACO Camp', value: '4' },
-            ]" title="Your experience level with competitive programming" required></UIDropdown>
+        { text: 'Beginner / AP CS A', value: '0' },
+        { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+        { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
+        { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
+        { text: 'Cracked / IOI / USACO Camp', value: '4' },
+    ]" title="Your experience level with competitive programming" required></UIDropdown>
                     </span>
+                    <span>Known languages:<br>(Use CTRL/SHIFT)</span>
+                    <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="[
+        { text: 'Python', value: 'python' },
+        { text: 'C', value: 'c' },
+        { text: 'C++', value: 'cpp' },
+        { text: 'C#', value: 'cs' },
+        { text: 'Java', value: 'java' },
+        { text: 'JavaScript', value: 'js' },
+        { text: 'SQL', value: 'sql' },
+        { text: 'Assembly', value: 'asm' },
+        { text: 'PHP', value: 'php' },
+        { text: 'Swift', value: 'swift' },
+        { text: 'Pascal', value: 'pascal' },
+        { text: 'Ruby', value: 'python' },
+        { text: 'Rust', value: 'rust' },
+        { text: 'Scratch', value: 'scratch' },
+        { text: 'LabVIEW', value: 'ev3' },
+        { text: 'Kotlin', value: 'ktx' },
+        { text: 'Lua', value: 'lua' },
+        { text: 'Bash', value: 'bash' },
+    ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                     <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
                     <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
                 </PairedGridContainer>
@@ -91,9 +119,9 @@ const newPasswordInput = ref('');
         <TitledCutCornerContainer title="Account" hover-animation="lift">
             <PairedGridContainer>
                 <span>Username:</span>
-                <UITextBox :value=accountManager.username width="var(--fwidth)" title="Your unique username (you cannot edit this)" disabled></UITextBox>
+                <UITextBox v-model=usernameNotEditable width="var(--fwidth)" title="Your unique username (you cannot edit this)" disabled></UITextBox>
                 <span>Email:</span>
-                <UITextBox :value=accountManager.email width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
+                <UITextBox v-model=accountManager.email width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
             </PairedGridContainer>
             <br>
             <TitledCollapsible title="Danger buttons" font-size="var(--font-medium)" border-color="red" start-collapsed>

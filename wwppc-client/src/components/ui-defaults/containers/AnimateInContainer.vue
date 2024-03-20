@@ -80,6 +80,7 @@ export default {
 
 .slideUpOnLoad {
     animation: 500ms cubic-bezier(0, 0, 0.5, 1) slide-up-on-load;
+    animation-fill-mode: forwards;
 }
 
 @keyframes slide-up-on-load {

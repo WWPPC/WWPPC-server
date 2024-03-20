@@ -4,24 +4,47 @@ import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { toDivName, useAccountManager } from '@/scripts/AccountManager';
 import { onMounted, ref, watch } from 'vue';
+import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
+const modal = globalModal();
 const accountManager = useAccountManager();
 
+// random nullish coalescers fix weird bug in dev
 const dispName = ref('');
 const username = ref('');
 watch(() => accountManager.displayName, () => {
-    glitchTextTransition(dispName.value, accountManager.displayName, (t) => { dispName.value = t; }, 40, 1, 20);
+    glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
 });
 watch(() => accountManager.username, () => {
-    glitchTextTransition(username.value, '@' + accountManager.username, (t) => { username.value = t; }, 40, 1, 20);
+    glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
 });
 onMounted(() => {
-    glitchTextTransition(dispName.value, accountManager.displayName, (t) => { dispName.value = t; }, 40, 1, 20);
-    glitchTextTransition(username.value, '@' + accountManager.username, (t) => { username.value = t; }, 40, 1, 20);
+    glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
+    glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
 });
 
+const fileUpload = ref<HTMLInputElement>();
 const changeProfileImage = () => {
-
+    const file: File | undefined | null = fileUpload.value?.files?.item(0);
+    if (fileUpload.value == undefined || file == undefined) return;
+    if (file.size > 40960) {
+        fileUpload.value.value = '';
+        modal.showModal({ title: 'Image too large', content: 'The maximum file size for profile images is 40kB<br>(this is due to a database limitation)', color: 'red' });
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        if (typeof reader.result != 'string') return; // idk should never happen
+        if (/^data:image\/(png|jpeg)/.test(reader.result)) {
+            accountManager.profileImage = reader.result;
+        } else {
+            modal.showModal({ title: 'Unsupported file type', content: 'Only .png and .jpg/.jpeg images are allowed.', color: 'red'});
+        }
+    };
+    reader.onerror = () => {
+        modal.showModal({ title: 'Error decoding image', content: 'An error occured and your profile image could not be used. Try using a .png or .jpg/.jpeg image instead.', color: 'red'});
+    };
+    reader.readAsDataURL(file);
 };
 </script>
 
@@ -31,7 +54,7 @@ const changeProfileImage = () => {
             <label class="accountUserDispImgContainer">
                 <img class="accountUserDispImg" :src=accountManager.profileImage alt="Profile picture">
                 <img class="accountuserDispImgReplaceOverlay" src="/assets/upload.svg" title="Upload profile image">
-                <input type="file" class="accountUserDispImgUpload" accept="image/*" @change=changeProfileImage>
+                <input type="file" class="accountUserDispImgUpload" accept="image/png,image/jpeg" @change=changeProfileImage>
             </label>
             <span class="accountUserDisplayName">{{ dispName }}</span>
             <span class="accountUserUsername">{{ username }}</span>
