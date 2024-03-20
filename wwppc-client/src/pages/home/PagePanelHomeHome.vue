@@ -77,15 +77,14 @@ import ContactFooter from '@/components/ContactFooter.vue';
             <p>
                 We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
             </p>
-            <p style="text-align: center;">
+            <div class="centered">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
                     <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
                     <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
                 </a>
-                These buttons hate being centered
-            </p>
+            </div>
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo2]"></ScrollIndicator>
     </div>

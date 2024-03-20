@@ -36,10 +36,10 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="General Information" align="center" height="100%" hover-animation="lift" flipped>
-                    <p style="font-size: var(--font-20);">
-                        WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from AP CS A to USACO Platinum.
+                    <p>
+                        WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
                         <br><br>
-                        The contest will be held online between two divisions: Beginner and Advanced, with some difficulty overlap.
+                        The contest will be held online between two divisions: Beginner and Advanced.
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
