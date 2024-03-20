@@ -4,7 +4,7 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
 
 <template>
     <div class="notFound">
-        <span style="color: red; font-size: 32px;">BUG: 404 Not Found</span>
+        <span style="color: red; font-size: var(--font-32);">BUG: 404 Not Found</span>
         <br>
         &lt;span style="color: red;"&gt;IS BORKEN!!!&lt;/span&gt;
         <br>
@@ -26,5 +26,6 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
     height: 100%;
     justify-content: center;
     text-align: center;
+    overflow: clip;
 }
 </style>
