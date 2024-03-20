@@ -68,6 +68,7 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiIconButtonText {
     margin: 0px 0.2em;
     text-wrap: nowrap;
+    white-space: nowrap;
     font-size: v-bind("$props.fontSize ?? 'var(--font-16)'");
 }
 
