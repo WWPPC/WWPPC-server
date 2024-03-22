@@ -15,9 +15,9 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
         <div class="aboutCreditsTable">
             <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead<br>Lead Problem Setter<br>Backend Developer" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Jie Gao" roles="Lead Frontend Developer<br>Lead Backend Developer" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Backend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Suvanth Erranki" roles="Problem Setter<br>Backend Developer" img="oof"></HomeAboutCreditsCard>
+            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Backend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Vikram Karamsetty" roles="Frontend Developer" img="oof"></HomeAboutCreditsCard>
-            <HomeAboutCreditsCard name="Erik Ji" roles="Frontend Developer<br>Problem Setter" img="oof"></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Maitian Sha" roles="Problem Setter" img="oof"></HomeAboutCreditsCard>
         </div>
         <ContactFooter></ContactFooter>

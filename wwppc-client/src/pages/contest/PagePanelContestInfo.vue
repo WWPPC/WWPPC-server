@@ -15,34 +15,40 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <!-- spacer -->
         <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="contestInfoBlock">
-            <AnimateInContainer type="slideUp" :delay=200>
-                <TitledDoubleCutCornerContainer title="2024 Season" align="center" height="100%" hover-animation="lift">
-                    <div class="centered">
-                        <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                    </div>
-                </TitledDoubleCutCornerContainer>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=300>
-                <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                    <CenteredContainer>
-                        <span style="font-size: var(--font-20);">
-                            <div class="centered" style="margin: 4px;">
-                                <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
-                            </div>
-                            <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
-                        </span>
-                    </CenteredContainer>
-                </CutCornerContainer>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=100 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="General Information" align="center" height="100%" hover-animation="lift" flipped>
-                    <p>
-                        WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
-                        <br><br>
-                        The contest will be held online between two divisions: Beginner and Advanced.
-                    </p>
-                </TitledDoubleCutCornerContainer>
-            </AnimateInContainer>
+            <div>
+                <AnimateInContainer type="slideUp" height="100%" :delay=200>
+                    <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
+                        <div class="centered">
+                            <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                        </div>
+                    </TitledDoubleCutCornerContainer>
+                </AnimateInContainer>
+            </div>
+            <div>
+                <AnimateInContainer type="slideUp" height="100%" :delay=300>
+                    <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
+                        <CenteredContainer>
+                            <span style="font-size: var(--font-20);">
+                                <div class="centered" style="margin: 4px;">
+                                    <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
+                                </div>
+                                <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
+                            </span>
+                        </CenteredContainer>
+                    </CutCornerContainer>
+                </AnimateInContainer>
+            </div>
+            <div style="grid-row: span 2;">
+                <AnimateInContainer type="slideUp" height="100%" :delay=100>
+                    <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
+                        <p>
+                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
+                            <br><br>
+                            The contest will be held online between two divisions: Beginner and Advanced.
+                        </p>
+                    </TitledDoubleCutCornerContainer>
+                </AnimateInContainer>
+            </div>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
@@ -115,6 +121,10 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
     row-gap: 24px;
     column-gap: 24px;
     flex: 1;
+}
+
+.contestInfoBlock>div {
+    height: 100%;
 }
 
 @media (max-width: 100vh) {

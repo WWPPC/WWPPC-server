@@ -1,4 +1,7 @@
 <script setup lang="ts">
+defineProps<{
+    height?: string
+}>();
 </script>
 
 <template>
@@ -9,7 +12,11 @@
     </div>
 </template>
 
-<style>
+<style scoped>
+.centered {
+    height: v-bind("$props.height ?? 'unset'");
+}
+
 .centered2 {
     position: relative;
     width: 100%;

@@ -15,48 +15,52 @@ import ContactFooter from '@/components/ContactFooter.vue';
         <!-- spacer for title -->
         <div style="height: calc(1.25 * var(--font-huge-title))"></div>
         <div class="homeColumns">
-            <AnimateInContainer type="slideUp" :delay=100>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
-                    <CenteredContainer style="height: 100%">
-                        <div class="homeVertical">
-                            <div style="flex-grow: 1;">
-                                <GlitchText text="WWP-Hacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                                <UIDivider color="#AAA"></UIDivider>
-                                <p>
-                                    WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
-                                </p>
+            <div>
+                <AnimateInContainer type="slideUp" height="100%" :delay=100>
+                    <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                        <CenteredContainer height="100%">
+                            <div class="homeVertical">
+                                <div style="flex-grow: 1;">
+                                    <GlitchText text="WWP-Hacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                    <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                    <UIDivider color="#AAA"></UIDivider>
+                                    <p>
+                                        WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
+                                    </p>
+                                </div>
+                                <div class="centered">
+                                    <AnimateInContainer type="fade" :delay=300>
+                                        <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-20)" color="lime"></UILinkButton>
+                                    </AnimateInContainer>
+                                </div>
                             </div>
-                            <div class="centered">
-                                <AnimateInContainer type="fade" :delay=300>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-20)" color="lime"></UILinkButton>
-                                </AnimateInContainer>
+                        </CenteredContainer>
+                    </DoubleCutCornerContainer>
+                </AnimateInContainer>
+            </div>
+            <div>
+                <AnimateInContainer type="slideUp" height="100%" :delay=200>
+                    <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                        <CenteredContainer height="100%">
+                            <div class="homeVertical">
+                                <div style="flex-grow: 1;">
+                                    <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                    <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                    <UIDivider color="#AAA"></UIDivider>
+                                    <p>
+                                        WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
+                                    </p>
+                                </div>
+                                <div class="centered">
+                                    <AnimateInContainer type="fade" :delay=400>
+                                        <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-20)" color="lime"></UILinkButton>
+                                    </AnimateInContainer>
+                                </div>
                             </div>
-                        </div>
-                    </CenteredContainer>
-                </DoubleCutCornerContainer>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" :delay=200>
-                <DoubleCutCornerContainer style="height: 100%" hover-animation="lift">
-                    <CenteredContainer style="height: 100%">
-                        <div class="homeVertical">
-                            <div style="flex-grow: 1;">
-                                <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                                <UIDivider color="#AAA"></UIDivider>
-                                <p>
-                                    WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
-                                </p>
-                            </div>
-                            <div class="centered">
-                                <AnimateInContainer type="fade" :delay=400>
-                                    <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-20)" color="lime"></UILinkButton>
-                                </AnimateInContainer>
-                            </div>
-                        </div>
-                    </CenteredContainer>
-                </DoubleCutCornerContainer>
-            </AnimateInContainer>
+                        </CenteredContainer>
+                    </DoubleCutCornerContainer>
+                </AnimateInContainer>
+            </div>
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
     </div>
@@ -126,6 +130,10 @@ import ContactFooter from '@/components/ContactFooter.vue';
     row-gap: 24px;
     column-gap: 24px;
     flex-grow: 1;
+}
+
+.homeColumns>div {
+    height: 100%;
 }
 
 @media (max-width: 100vh) {

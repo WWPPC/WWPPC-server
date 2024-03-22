@@ -2,6 +2,8 @@
 // sacrilege
 defineProps<{
     type: AnimateInType
+    width?: string
+    height?: string
     showOnScreen?: boolean
     delay?: number
     single?: boolean
@@ -57,11 +59,17 @@ export default {
 </script>
 
 <template>
-    <div class="invisible">
+    <div class="animateInContainer invisible">
         <slot></slot>
     </div>
 </template>
 
+<style>
+.animateInContainer {
+    width: v-bind("$props.width ?? 'initial'");
+    height: v-bind("$props.height ?? 'initial'");
+}
+</style>
 <style scoped>
 .fadeOnLoad {
     animation: 500ms cubic-bezier(0, 0, 0.5, 1) fade-in-on-load;

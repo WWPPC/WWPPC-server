@@ -33,7 +33,7 @@ body {
     --font-40: max(16px, min(40px, 9vw, 16vh));
     --font-48: max(18px, min(48px, 10vw, 18vh));
     --font-small: var(--font-18);
-    --font-medium: var(--font-20);
+    --font-medium: var(--font-24);
     --font-large: var(--font-32);
     --font-huge: var(--font-48);
     --font-huge-title: min(12.5vw, 20vh);
@@ -112,7 +112,7 @@ h3 {
 }
 
 p {
-    font-size: var(--font-small);
+    font-size: var(--font-medium);
     margin: 8px 8px;
     text-align: justify;
 }

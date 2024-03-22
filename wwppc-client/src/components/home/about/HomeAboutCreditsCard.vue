@@ -38,13 +38,14 @@ defineProps<{
     width: 280px;
     text-align: center;
     text-wrap: nowrap;
-    font-size: 24px;
+    font-size: var(--font-24);
     font-weight: bold;
     color: lime;
 }
 .homeAboutCreditsCardRoles {
     text-align: center;
     padding-top: 18px;
+    font-size: var(--font-18);
     color: lime;
 }
 </style>
