@@ -63,12 +63,12 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
-                    Sometime in 2024
+                    TBD
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
-                    WWPIT will be held online, on this website!
+                    WWPIT will be held on this website!
                     <br><br>
                     You can register <a href="/account/registrations/new" target="_blank"> here</a> at any time before the contest starts.
                 </TitledCollapsible>

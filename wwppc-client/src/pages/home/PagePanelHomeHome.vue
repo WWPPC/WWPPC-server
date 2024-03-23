@@ -101,7 +101,8 @@ import ContactFooter from '@/components/ContactFooter.vue';
         </div>
         <div style="flex-grow: 1;">
             <CenteredContainer>
-                <!-- if saya gets us a sponsor then put them here -->
+                <!-- if sayam gets us a sponsor then put them here -->
+                <!-- buh that will never happen-->
             </CenteredContainer>
         </div>
         <ContactFooter></ContactFooter>

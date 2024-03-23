@@ -65,12 +65,12 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
-                    We don't know yet, check back later!
+                    TBD
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How many people can be on a team?" startCollapsed>
-                    We plan on small groups of up to 4, but individuals can participate too!
+                    TBD, but between 1-4.
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>

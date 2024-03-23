@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { UIButton, UIImage } from './ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { glitchTextTransition } from './ui-defaults/TextTransitions';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAccountManager } from '@/scripts/AccountManager';
 
 const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
 const router = useRouter();
+const route = useRoute();
+const ignoreServer = ref(route.query.ignore_server !== undefined);
+watch(() => route.query, () => {
+    ignoreServer.value = route.query.ignore_server !== undefined;
+});
 
 const name = ref('Not logged in');
 const buttonText = ref('Log in');
@@ -29,7 +34,7 @@ serverConnection.handshakePromise.then(() => {
 <template v-slot:userDisp>
     <div class="userDispContainer">
         <div class="userDispUser">
-            <UIImage :src=accountManager.profileImage width="32px" height="32px" :round="true"></UIImage>
+            <UIImage :src=accountManager.profileImage width="32px" height="32px" :round="true" v-if="serverConnection.loggedIn || ignoreServer"></UIImage>
             <span class="userDispUserName">{{ name }}</span>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>
