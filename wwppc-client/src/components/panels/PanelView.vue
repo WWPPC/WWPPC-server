@@ -32,11 +32,11 @@ if ((route.params.page === undefined && props.isDefault) || route.params.page ==
     display: grid;
     grid-template-rows: 100px minmax(0, 1fr);
     grid-template-columns: minmax(0, 1fr);
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 }
 
 @keyframes panel-wipe-vertical {

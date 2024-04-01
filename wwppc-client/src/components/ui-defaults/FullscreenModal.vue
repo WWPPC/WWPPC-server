@@ -104,6 +104,9 @@ export interface ModalParams {
 
 <style>
 .modalContainer {
+    display: grid;
+    grid-template-rows: 1fr min-content 1fr;
+    grid-template-columns: 1fr min-content 1fr;
     position: fixed;
     top: 0px;
     left: 0px;
@@ -118,10 +121,11 @@ export interface ModalParams {
 }
 
 .modalBodyWrapper {
+    grid-row: 2;
+    grid-column: 2;
     display: flex;
-    position: fixed;
-    bottom: 100vh;
-    left: calc(25vw - 20px);
+    position: relative;
+    bottom: calc(50vh + 50%);
     width: 50vw;
     padding: 4px 4px;
     background-color: v-bind("modalColor");
