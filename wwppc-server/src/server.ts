@@ -53,7 +53,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import ContestManager from './contest';
 
 const database = new Database(process.env.DATABASE_URL, logger);
-const contestManager = new ContestManager();
+const contestManager = new ContestManager(database, app);
 
 const sessionId = Math.random();
 const recentConnections = new Map<string, number>();
