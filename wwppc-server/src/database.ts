@@ -3,7 +3,7 @@ import path from 'path';
 import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 const salt = 5;
-import { subtle } from 'crypto';
+import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 import Logger from './log';
 import uuid from 'uuid';
 import config from './config';
@@ -24,7 +24,8 @@ export class Database {
         publicExponent: new Uint8Array([1, 0, 1]),
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
-    #publicKey;
+    #publicKey: webcrypto.JsonWebKey | undefined;
+    readonly #dbKey: Buffer;
     readonly logger: Logger;
 
     /**
@@ -32,11 +33,12 @@ export class Database {
      * @param {Logger} logger Logging instance
      */
     constructor(uri: string, logger: Logger) {
-        if (process.env.CONFIG_PATH == undefined) throw new Error('for some reason CONFIG_PATH is undefined and it shouldn\'t be');
+        if (process.env.CONFIG_PATH == undefined || process.env.DATABASE_KEY == undefined) throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
         this.logger = logger;
         this.connectPromise = new Promise(() => undefined);
         const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
         const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
+        this.#dbKey = Buffer.from(process.env.DATABASE_KEY, 'base64');
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
@@ -77,12 +79,44 @@ export class Database {
      * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns {string} Decrypted string
      */
-    async RSAdecode(buf: Buffer | string) {
+    async RSAdecrypt(buf: Buffer | string) {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
             this.logger.error('' + err);
             return buf;
+        }
+    }
+
+    /**
+     * Symmetrically encrypt using AES-256 GCM and the database key.
+     * @param {string} plaintext Plaintext
+     * @returns {string} Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext if there was an error)
+     */
+    #RSAencryptSymmetric(plaintext: string): string {
+        try {
+            const initVector = randomBytes(12);
+            const cipher = createCipheriv('aes-256-gcm', this.#dbKey, initVector);
+            return `${cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64')}:${initVector.toString('base64')}:${cipher.getAuthTag().toString('base64')}`;
+        } catch (err) {
+            this.logger.error('' + err);
+            return plaintext;
+        }
+    }
+    /**
+     * Symmetrically decrypt using AES-256 GCM and the database key.
+     * @param {string} encrypted Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
+     * @returns {string} Plaintext (the encrypted text if there was an error)
+     */
+    #RSAdecryptSymmetric(encrypted: string): string {
+        try {
+            const text = encrypted.split(':');
+            const decipher = createDecipheriv('aes-256-gcm', this.#dbKey, Buffer.from(text[1]));
+            decipher.setAuthTag(Buffer.from(text[2], 'base64'));
+            return decipher.update(text[0], 'base64', 'utf8') + decipher.final('utf8');
+        } catch (err) {
+            this.logger.error('' + err);
+            return encrypted;
         }
     }
 
@@ -98,7 +132,7 @@ export class Database {
      */
     get ready(): boolean { return this.#ready; }
 
-    #userCache: Map<string, { password: string, data: AccountData, expiration: number }> = new Map();
+    #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
@@ -111,11 +145,11 @@ export class Database {
     /**
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {string} password Valid pasword
+     * @param {string} password Valid password
      * @param {AccountData} userData Initial user data
-     * @returns {AccountOpResult} Creation status: 0 - success | 1 - already exists | 4 - database error
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR} Creation status
      */
-    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult> {
+    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR> {
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
@@ -124,7 +158,6 @@ export class Database {
                 username, encryptedPassword, userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, []
             ]);
             this.#userCache.set(username, {
-                password: encryptedPassword,
                 data: {
                     ...userData,
                     username: username,
@@ -145,19 +178,20 @@ export class Database {
     }
     /**
      * Check credentials against an existing account with the specified username. **Does not validate credentials**.
+     * If successful, the `recoverypass` field is rotated to a new random string.
      * @param {string} username Valid username
-     * @param {string} password Valid pasword
-     * @returns {AccountOpResult} Check status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @param {string} password Valid password
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Check status
      */
-    async checkAccount(username: string, password: string): Promise<AccountOpResult> {
+    async checkAccount(username: string, password: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         try {
-            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
-            if (this.#userCache.has(username)) {
-                const encryptedPassword = this.#userCache.get(username)!.password;
-                return (await bcrypt.compare(password, encryptedPassword)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
-            } else {
-                const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-                if (data.rowCount != null && data.rowCount > 0) return (await bcrypt.compare(password, data.rows[0].password)) ? AccountOpResult.SUCCESS : AccountOpResult.INCORRECT_CREDENTIALS;
+            // cache not needed for sign-in as password is inexpensive and not frequent enough
+            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+            if (data.rowCount != null && data.rowCount > 0) {
+                if (await bcrypt.compare(password, data.rows[0].password)) {
+                    this.#rotateRecoveryPassword(username);
+                    return AccountOpResult.SUCCESS;
+                } else return AccountOpResult.INCORRECT_CREDENTIALS;
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -176,10 +210,10 @@ export class Database {
         if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
         else {
             try {
-                // it probably doesn't matter that we fetch everything
+                // it probably doesn't matter that we fetch everything (though passwords are also fetched...)
                 const data = await this.#db.query('SELECT * FROM users WHERE username=$1', [username]);
                 if (data.rows.length > 0) {
-                    return {
+                    const userData: AccountData = {
                         username: data.rows[0].username,
                         email: data.rows[0].email,
                         firstName: data.rows[0].firstname,
@@ -192,7 +226,12 @@ export class Database {
                         experience: data.rows[0].experience,
                         languages: data.rows[0].languages,
                         registrations: data.rows[0].registrations
-                    }
+                    };
+                    this.#userCache.set(username, {
+                        data: userData,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    return userData;
                 }
                 return AccountOpResult.NOT_EXISTS;
             } catch (err) {
@@ -204,39 +243,76 @@ export class Database {
     }
     /**
      * Overwrite user data for an existing account with the specified username. **Does not validate credentials**.
+     * If successful, the `recoverypass` field is rotated to a new random string.
      * @param {string} username Valid username
-     * @param {string} password Valid pasword
+     * @param {string} password Valid password
      * @param {AccountData} userData New data
-     * @returns {AccountOpResult} Update status: 0 - success | 2 - does not exist | 3 - incorrect | 4 - database error
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
-    async updateAccountData(username: string, password: string, userData: AccountData): Promise<AccountOpResult> {
+    async updateAccountData(username: string, password: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         try {
-            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
-            let encryptedPassword: string;
-            if (this.#userCache.has(username)) {
-                encryptedPassword = this.#userCache.get(username)!.password;
-                if (!(await bcrypt.compare(password, encryptedPassword))) return AccountOpResult.INCORRECT_CREDENTIALS;
-            } else {
-                const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-                if (data.rowCount != null && data.rowCount > 0) {
-                    encryptedPassword = data.rows[0].password;
-                    if (!(await bcrypt.compare(password, encryptedPassword))) return AccountOpResult.INCORRECT_CREDENTIALS;
-                } else {
-                    return AccountOpResult.NOT_EXISTS;
-                }
-            }
+            const res = await this.checkAccount(username, password);
+            if (res != AccountOpResult.SUCCESS) return res;
             await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, school=$5, grade=$6, experience=$7, languages=$8, biography=$9, registrations=$10 WHERE username=$1', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
             ]);
             this.#userCache.set(username, {
-                password: encryptedPassword,
                 data: userData,
                 expiration: performance.now() + config.dbCacheTime
             });
             this.logger.info(`[Database] Updated account data for "${username}"`, true);
+            // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (updateAccountData):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        }
+    }
+    /**
+     * Change the password of an account. Requires that the existing password is correct. **Does not validate credentials**.
+     * If successful, the `recoverypass` field is rotated to a new random string.
+     * @param {string} username Valid username
+     * @param {string} password Valid current password
+     * @param {string} newPassword Valid new password
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
+     */
+    async changePasswordAccount(username: string, password: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        try {
+            const res = await this.checkAccount(username, password);
+            if (res != AccountOpResult.SUCCESS) return res;
+            const encryptedPassword = await bcrypt.hash(newPassword, salt);
+            await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+            // recovery password already rotated in checkAccount
+            return AccountOpResult.SUCCESS;
+        } catch (err) {
+            this.logger.error('Database error (changePasswordAccount):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        }
+    }
+    /**
+     * Change the password of an account using the alternative rotating password. Requires that the alternative rotating password is correct. **Does not validate credentials**.
+     * If successful, the `recoverypass` field is rotated to a new random string.
+     * @param {string} username Valid username
+     * @param {string} password Valid current password
+     * @param {string} newPassword Valid new password
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
+     */
+    async changePasswordTokenAccount(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        try {
+            const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
+            if (data.rowCount != null && data.rowCount > 0) {
+                if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
+                    const encryptedPassword = await bcrypt.hash(newPassword, salt);
+                    await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+                    this.#rotateRecoveryPassword(username);
+                    return AccountOpResult.SUCCESS;
+                } else return AccountOpResult.INCORRECT_CREDENTIALS;
+            }
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (changePasswordAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -246,9 +322,9 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} password Valid password of user, or admin password if `adminUsername` is given
      * @param {string} adminUsername Valid username of administrator
-     * @returns {AccountOpResult} Deletion status: 0 - success | 2 - does not exist | 3 - incorrect or no permission | 4 - database error
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Deletion status
      */
-    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult> {
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         try {
             if (adminUsername != undefined) {
                 this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
@@ -269,6 +345,23 @@ export class Database {
             }
         } catch (err) {
             this.logger.error('Database error (deleteAccount):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        }
+    }
+    /**
+     * Rotates the recovery password of an account to a new random string.
+     * @param {string} username Username to rotate
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Rotation status
+     */
+    async #rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        try {
+            const newPass = this.#RSAencryptSymmetric(uuid.v4());
+            const data = await this.#db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
+            if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            return AccountOpResult.SUCCESS;
+        } catch (err) {
+            this.logger.error('Database error (rotateRecoveryPassword):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         }
@@ -333,6 +426,7 @@ export class Database {
         }
     }
 
+    #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Filter and get a list of problems from the problems database according to a criteria
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
@@ -340,24 +434,42 @@ export class Database {
      */
     async readProblems(c: ReadProblemsCriteria): Promise<Array<Problem>> {
         try {
-            const problemIdList: string[] = [];
-            if (c.id != undefined && isUUID(c.id)) problemIdList.push(c.id);
+            const problemIdList: Set<string> = new Set();
+            if (c.id != undefined && isUUID(c.id)) problemIdList.add(c.id);
             if (c.round != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
                 const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined));
-                else problemIdList.push(...rounds.flatMap((r) => r.problems));
+                if (c.round.number != undefined) rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined).forEach((v) => problemIdList.add(v));
+                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdList.add(v));
             }
-            const problemIdRegex = problemIdList.reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
+            const problems: Problem[] = [];
+            problemIdList.forEach((id) => {
+                if (this.#problemCache.has(id) && this.#problemCache.get(id)!.expiration < performance.now()) this.#problemCache.delete(id);
+                if (this.#problemCache.has(id)) {
+                    problemIdList.delete(id);
+                    problems.push(this.#problemCache.get(id)!.problem);
+                }
+            });
+            const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
             const data = await this.#db.query('SELECT * FROM problems WHERE id~\'$1\' AND name=$2 AND author=$3', [problemIdRegex, c.name ?? '*', c.author ?? '*']);
-            return data.rows.filter((v) => c.constraints == undefined || c.constraints(v)).map((problem) => ({
-                id: problem.id,
-                name: problem.name,
-                author: problem.author,
-                content: problem.content,
-                cases: problem.cases,
-                constraints: problem.constraints
-            }));
+            // also add the problems to cache
+            const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
+            for (const problem of filteredRows) {
+                const p = {
+                    id: problem.id,
+                    name: problem.name,
+                    author: problem.author,
+                    content: problem.content,
+                    cases: problem.cases,
+                    constraints: problem.constraints
+                };
+                this.#problemCache.set(problem.id, {
+                    problem: p,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+                problems.push(problem);
+            }
+            return problems;
         } catch (err) {
             this.logger.error('Database error (readProblems):');
             this.logger.error('' + err);
@@ -377,6 +489,10 @@ export class Database {
             } else {
                 await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints) VALUES ($1, $2, $3, $4, $5, $6)', [problem.id, problem.name, problem.content, problem.author, problem.cases, problem.constraints]);
             }
+            this.#problemCache.set(problem.id, {
+                problem: problem,
+                expiration: performance.now() + config.dbCacheTime
+            });
             return true;
         } catch (err) {
             this.logger.error('Database error (writeProblem):');
@@ -385,6 +501,7 @@ export class Database {
         }
     }
 
+    #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Filter and get a list of submissions from the submissions database according to a criteria.
      * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the filter
@@ -392,24 +509,41 @@ export class Database {
      */
     async readSubmissions(c: ReadSubmissionsCriteria): Promise<Array<Submission> | null> {
         try {
-            const problemIdList: string[] = [];
-            if (c.id != undefined && isUUID(c.id)) problemIdList.push(c.id);
+            // reusing code from readProblems (oops)
+            const problemIdList: Set<string> = new Set();
+            if (c.id != undefined && isUUID(c.id)) problemIdList.add(c.id);
             if (c.round != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
                 const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) problemIdList.push(...rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined));
-                else problemIdList.push(...rounds.flatMap((r) => r.problems));
+                if (c.round.number != undefined) rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined).forEach((v) => problemIdList.add(v));
+                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdList.add(v));
             }
-            const problemIdRegex = problemIdList.reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
+            const submissions: Submission[] = [];
+            problemIdList.forEach((id) => {
+                if (this.#submissionCache.has(id) && this.#submissionCache.get(id)!.expiration < performance.now()) this.#submissionCache.delete(id);
+                if (this.#submissionCache.has(id)) {
+                    problemIdList.delete(id);
+                    submissions.push(this.#submissionCache.get(id)!.submission);
+                }
+            });
+            const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
             const data = await this.#db.query('SELECT * FROM submissions WHERE username=$1 AND id~\'$2\'', [c.username ?? '*', problemIdRegex]);
-            return data.rows.map((submission) => ({
-                username: submission.username,
-                problemId: submission.id,
-                time: submission.time,
-                file: submission.file,
-                lang: submission.language,
-                scores: submission.scores
-            }));
+            for (const submission of data.rows) {
+                const s = {
+                    username: submission.username,
+                    problemId: submission.id,
+                    time: submission.time,
+                    file: submission.file,
+                    lang: submission.language,
+                    scores: submission.scores
+                };
+                this.#submissionCache.set(submission.id, {
+                    submission: s,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+                submissions.push(s);
+            }
+            return submissions;
         } catch (err) {
             this.logger.error('Database error (readSubmissions):');
             this.logger.error('' + err);
@@ -429,6 +563,10 @@ export class Database {
             } else {
                 await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [submission.username, submission.problemId, submission.file, submission.lang, submission.scores, Date.now()]);
             }
+            this.#submissionCache.set(submission.problemId, {
+                submission: submission,
+                expiration: performance.now() + config.dbCacheTime
+            });
             return true;
         } catch (err) {
             this.logger.error('Database error (writeSubmission):');
@@ -469,7 +607,7 @@ export enum AdminPerms {
 /**Descriptor for an account */
 export interface AccountData {
     /**Username */
-    username: string
+    readonly username: string
     /**Email */
     email: string
     /**First name */
@@ -548,9 +686,9 @@ export interface TestCase {
 /**Descriptor for a single submission */
 export interface Submission {
     /**Username of submitter */
-    username: string
+    readonly username: string
     /**UUID of problem submitted to */
-    problemId: UUID
+    readonly problemId: UUID
     /**Time of submission, UTC */
     time: number
     /**Contents of the submission file */

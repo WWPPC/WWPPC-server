@@ -1,9 +1,10 @@
+import config from './config';
+
 import fs from 'fs';
 import path from 'path';
 import { configDotenv } from 'dotenv';
-configDotenv();
+configDotenv({ path: path.resolve(config.path, '.env') });
 
-import config from './config';
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
@@ -43,7 +44,7 @@ if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // verify environment variables exist
-if (process.env.DATABASE_URL == undefined || process.env.RECAPTCHA_SECRET == undefined) {
+if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -108,8 +109,8 @@ io.on('connection', async (s) => {
                 return;
             }
             // some validation
-            const username = await database.RSAdecode(creds.username);
-            const password = await database.RSAdecode(creds.password);
+            const username = await database.RSAdecrypt(creds.username);
+            const password = await database.RSAdecrypt(creds.password);
             if (username instanceof Buffer || password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
@@ -129,10 +130,10 @@ io.on('connection', async (s) => {
                 }
                 recentSignups.set(ip, (recentSignups.get(ip) ?? 0) + 60);
                 // more validation
-                const firstName = await database.RSAdecode(creds.signupData.firstName);
-                const lastName = await database.RSAdecode(creds.signupData.lastName);
-                const email = await database.RSAdecode(creds.signupData.email);
-                const school = await database.RSAdecode(creds.signupData.school);
+                const firstName = await database.RSAdecrypt(creds.signupData.firstName);
+                const lastName = await database.RSAdecrypt(creds.signupData.lastName);
+                const email = await database.RSAdecrypt(creds.signupData.email);
+                const school = await database.RSAdecrypt(creds.signupData.school);
                 if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof email != 'string' || email.length > 32
                     || typeof school != 'string' || school.length > 64 || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
                     || typeof creds.signupData.experience != 'number' || typeof creds.signupData.grade != 'number' || creds.token == undefined || typeof creds.token != 'string') {
@@ -222,12 +223,12 @@ io.on('connection', async (s) => {
             kick('invalid setUserData parameters');
             return;
         }
-        const password = await database.RSAdecode(data.password);
-        const firstName = await database.RSAdecode(data.data.firstName);
-        const lastName = await database.RSAdecode(data.data.lastName);
-        const displayName = await database.RSAdecode(data.data.displayName);
-        const bio = await database.RSAdecode(data.data.bio);
-        const school = await database.RSAdecode(data.data.school);
+        const password = await database.RSAdecrypt(data.password);
+        const firstName = await database.RSAdecrypt(data.data.firstName);
+        const lastName = await database.RSAdecrypt(data.data.lastName);
+        const displayName = await database.RSAdecrypt(data.data.displayName);
+        const bio = await database.RSAdecrypt(data.data.bio);
+        const school = await database.RSAdecrypt(data.data.school);
         if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof displayName != 'string'
             || displayName.length > 32 || typeof data.data.profileImage != 'string' || data.data.profileImage.length > 40960 || typeof bio != 'string' || bio.length > 2048
             || typeof school != 'string' || school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'

@@ -93,12 +93,12 @@ export const useAccountManager = defineStore('accountManager', {
                 serverConnection.emit('setUserData', {
                     password: serverConnection.encryptedPassword,
                     data: {
-                        firstName: await serverConnection.RSAencode(this.firstName),
-                        lastName: await serverConnection.RSAencode(this.lastName),
-                        displayName: await serverConnection.RSAencode(this.displayName),
+                        firstName: await serverConnection.RSAencrypt(this.firstName),
+                        lastName: await serverConnection.RSAencrypt(this.lastName),
+                        displayName: await serverConnection.RSAencrypt(this.displayName),
                         profileImage: this.profileImage,
-                        bio: await serverConnection.RSAencode(this.bio),
-                        school: await serverConnection.RSAencode(this.school),
+                        bio: await serverConnection.RSAencrypt(this.bio),
+                        school: await serverConnection.RSAencrypt(this.school),
                         grade: this.grade,
                         experience: this.experience,
                         languages: this.languages

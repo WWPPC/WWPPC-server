@@ -151,6 +151,7 @@ export interface ModalParams {
 
 .modalBody p {
     text-align: center;
+    font-size: var(--font-small);
 }
 
 .modalButtons {

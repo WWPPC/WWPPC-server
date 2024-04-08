@@ -49,11 +49,11 @@ const state = reactive<{
 const RSA: {
     publicKey: CryptoKey | null,
     sid: number,
-    encode(text: string): Promise<ArrayBuffer | string>
+    encrypt(text: string): Promise<ArrayBuffer | string>
 } = {
     publicKey: null,
     sid: 0,
-    async encode(text) {
+    async encrypt(text) {
         if (RSA.publicKey != null) return await window.crypto.subtle.encrypt({ name: 'RSA-OAEP' }, RSA.publicKey, new TextEncoder().encode(text));
         else return text;
     }
@@ -106,17 +106,17 @@ export const sendCredentials = (username: string, password: string | Array<numbe
         }
         try {
             const accountManager = useAccountManager();
-            const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encode(password);
+            const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encrypt(password);
             // for some reason RSA encode of ReCaptcha token throws an error
             socket.emit('credentials', {
-                username: await RSA.encode(username),
+                username: await RSA.encrypt(username),
                 password: password2,
                 token: token,
                 signupData: signupData !== undefined ? {
-                    firstName: await RSA.encode(signupData.firstName),
-                    lastName: await RSA.encode(signupData.lastName),
-                    email: await RSA.encode(signupData.email),
-                    school: await RSA.encode(signupData.school),
+                    firstName: await RSA.encrypt(signupData.firstName),
+                    lastName: await RSA.encrypt(signupData.lastName),
+                    email: await RSA.encrypt(signupData.email),
+                    school: await RSA.encrypt(signupData.school),
                     grade: signupData.grade,
                     experience: signupData.experience,
                     languages: signupData.languages,
@@ -149,7 +149,7 @@ export const useServerConnection = defineStore('serverconnection', {
         connected() { return socket.connected; }
     },
     actions: {
-        RSAencode: RSA.encode,
+        RSAencrypt: RSA.encrypt,
         // shorthands
         emit(event: string, ...data: any[]) {
             return socket.emit(event, ...data);

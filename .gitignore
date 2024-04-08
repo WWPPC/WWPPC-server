@@ -1,8 +1,5 @@
 # dev stuff
-wwppc-server/config/localhost-key.pem
-wwppc-server/config/localhost.pem
-wwppc-server/config/local-database.json
-wwppc-server/config/.local
+# nothing here for now
 
 # Vite
 *.vite
@@ -31,5 +28,7 @@ node_modules/
 .env
 *.pem
 *.crt
+*.key
 
+# stupid
 *.DS_STORE
