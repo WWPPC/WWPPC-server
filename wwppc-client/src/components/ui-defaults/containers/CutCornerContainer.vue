@@ -70,4 +70,10 @@ defineProps<{
 .cutCornerContainerWrapper:hover {
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
+
+@media (max-width: 100vh) {
+    .cutCornerContainerWrapper:hover {
+        transform: none !important;
+    }
+}
 </style>

@@ -49,11 +49,16 @@ defineProps<{
     clip-path: polygon(100% 30px, calc(100% - 30px) 0, 0 0, 0 calc(100% - 30px), 30px 100%, 100% 100%);
 }
 
-.doubleCutCornerContainerWrapper:hover {
+.doubleCutCornerContainerWrapper:hover,
+.doubleCutCornerContainerWrapperReverse:hover {
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
 
-.doubleCutCornerContainerWrapperReverse:hover {
-    transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
+@media (max-width: 100vh) {
+
+    .doubleCutCornerContainerWrapper:hover,
+    .doubleCutCornerContainerWrapperReverse:hover {
+        transform: none !important;
+    }
 }
 </style>
