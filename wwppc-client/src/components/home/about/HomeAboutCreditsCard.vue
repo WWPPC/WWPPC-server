@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { AnimateInContainer, DoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import HomeAboutCreditsCardIcon from './HomeAboutCreditsCardIcon.vue';
 
 defineProps<{
     name: string,
     roles: string,
     codeforces?: string,
     github?: string,
+    discord?: string,
     img: string
 }>();
 </script>
@@ -18,15 +19,11 @@ defineProps<{
                 <img :src=$props.img class="homeAboutCreditsCardImage">
                 <div class="homeAboutCreditsCardName">{{ $props.name }}</div>
                 <div class="homeAboutCreditsCardRoles" v-html=$props.roles></div>
-            </div>
-            <div class="homeAboutCreditsCardIcons">
-                <!-- Maybe we should create a reusable component for buttons with external links -->
-                <a class="homeAboutCreditsCardIconLink" :href="'https://codeforces.com/profile/' + codeforces" target="_blank" v-if="codeforces != undefined && codeforces != null">
-                    <img class="homeAboutCreditsCardIconImage" src="/assets/codeforces.svg"/>
-                </a>
-                <a class="homeAboutCreditsCardIconLink" :href="'https://github.com/' + github" target="_blank" v-if="github != undefined && github != null">
-                    <img class="homeAboutCreditsCardIconImage" src="/assets/github.svg"/>
-                </a>
+                <div class="homeAboutCreditsCardIcons">
+                    <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/assets/codeforces.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/assets/github.svg" color="#F05032"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/assets/discord.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
+                </div>
             </div>
         </DoubleCutCornerContainer>
     </AnimateInContainer>
@@ -35,16 +32,18 @@ defineProps<{
 <style>
 .homeAboutCreditsCardContent {
     display: grid;
-    grid-template-rows: 220px 40px 120px;
+    grid-template-rows: 220px 40px 90px 30px;
     justify-items: center;
     width: 280px;
     height: 380px;
 }
+
 .homeAboutCreditsCardImage {
     width: 212px;
     height: 212px;
     border: 4px solid white;
 }
+
 .homeAboutCreditsCardName {
     margin-top: 8px;
     width: 100%;
@@ -54,20 +53,17 @@ defineProps<{
     font-weight: bold;
     color: lime;
 }
+
 .homeAboutCreditsCardRoles {
     text-align: center;
-    padding-top: var(--font-18);
+    margin-top: 8px;
     font-size: var(--font-18);
     color: lime;
 }
+
 .homeAboutCreditsCardIcons {
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
-}
-.homeAboutCreditsCardIconLink {
-    text-decoration: none;
-}
-.homeAboutCreditsCardIconImage {
-    height: var(--font-32);
 }
 </style>

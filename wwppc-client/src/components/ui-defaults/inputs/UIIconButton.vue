@@ -12,6 +12,8 @@ const props = defineProps<{
     fontSize?: string
     color?: string
     backgroundColor?: string
+    imgColor?: string
+    imgHoverColor?: string
     disabled?: boolean
     glitchOnMount?: boolean
 }>();
@@ -34,7 +36,8 @@ watch(() => props.text, () => buttonText.value = props.text);
 <template>
     <label :class="'uiIconButtonLabel ' + (props.disabled ? 'uiIconButtonLabelDisabled' : '')">
         <input type="button" class="uiIconButton" @click=click :title=title :disabled=props.disabled>
-        <img :src=props.img class="uiIconButtonImage">
+        <!-- <img :src=props.img class="uiIconButtonImage"> -->
+        <div class="uiIconButtonImage"></div>
         <span class="uiIconButtonText">{{ buttonText }}</span>
     </label>
 </template>
@@ -61,8 +64,15 @@ watch(() => props.text, () => buttonText.value = props.text);
 }
 
 .uiIconButtonImage {
+    width: 1.2em;
     height: 1.2em;
     margin-left: 0.2em;
+    mask-size: 1.2em;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-image: v-bind("`url('${$props.img}')`");
+    background-color: v-bind("$props.imgColor ?? 'white'");
+    transition: 50ms linear background-color;
 }
 
 .uiIconButtonText {
@@ -80,6 +90,10 @@ watch(() => props.text, () => buttonText.value = props.text);
 .uiIconButtonLabel:active {
     transform: translateY(2px);
     border-color: red;
+}
+
+.uiIconButtonLabel:hover > .uiIconButtonImage {
+    background-color: v-bind("$props.imgHoverColor ?? $props.imgColor ?? 'white'");
 }
 
 .uiIconButton {

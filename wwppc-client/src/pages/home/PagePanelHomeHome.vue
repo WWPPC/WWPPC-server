@@ -83,10 +83,10 @@ import ContactFooter from '@/components/ContactFooter.vue';
             </p>
             <div class="centered">
                 <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
+                    <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)"></UIIconButton>
+                    <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
                 </a>
             </div>
         </div>
