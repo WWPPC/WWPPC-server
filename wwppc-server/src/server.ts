@@ -5,11 +5,17 @@ import path from 'path';
 import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(config.path, '.env') });
 
+// verify environment variables exist
+if (['DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH'].some((v) => process.env[v] == undefined)) {
+    throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
+}
+
+// start server
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
 
-process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
+// set up networking
 import express from 'express';
 import http from 'http';
 import https from 'https';
@@ -30,7 +36,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
-    const indexDir = path.resolve(process.env.CLIENT_PATH, 'index.html');
+    const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
     app.use('/', express.static(process.env.CLIENT_PATH));
     app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
     app.get('*', (req, res) => {
@@ -43,19 +49,29 @@ if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.
 }
 app.get('/wakeup', (req, res) => res.json('ok'));
 
-// verify environment variables exist
-if (process.env.DATABASE_URL == undefined || process.env.DATABASE_KEY == undefined || process.env.RECAPTCHA_SECRET == undefined) {
-    throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
-}
-
-// actually start server here
-import Database, { AccountOpResult } from './database';
+// init modules
 import { Server as SocketIOServer } from 'socket.io';
+import Database, { AccountOpResult } from './database';
 import ContestManager from './contest';
+import { Mailer } from './email';
 
-const database = new Database(process.env.DATABASE_URL, logger);
+const mailer = new Mailer({
+    host: process.env.SMTP_HOST!,
+    port: Number(process.env.SMTP_PORT ?? 587), // another default
+    username: process.env.SMTP_USER!,
+    password: process.env.SMTP_PASS!,
+    logger: logger
+});
+const database = new Database({
+    uri: process.env.DATABASE_URL!,
+    key: process.env.DATABASE_KEY!,
+    sslCert: process.env.DATABASE_CERT,
+    logger: logger,
+    mailer: mailer
+});
 const contestManager = new ContestManager(database, app);
 
+// complete networking
 const sessionId = Math.random();
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
@@ -290,7 +306,7 @@ let stopServer = async () => {
     process.on('SIGILL', actuallyStop);
     io.close();
     clearInterval(connectionKickDecrementer);
-    await database.disconnect();
+    await Promise.all([mailer.disconnect(), database.disconnect()]);
     process.exit();
 };
 process.on('SIGTERM', stopServer);

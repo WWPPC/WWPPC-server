@@ -1,41 +1,52 @@
+import config from './config';
 import { Socket } from "socket.io";
-import { AccountData, Submission, Database } from "./database";
+import { AccountData, Submission, Database, Registration, AccountOpResult } from "./database";
 import express from 'express';
+
+interface ContestUser {
+    username: string
+    email: string
+    displayName: string
+    registrations: Registration[]
+    sockets: Set<Socket>
+}
 
 /**
  * 
  */
 export class ContestManager {
-    #users: Map<string, Set<Socket>> = new Map();
-    // socketio connections are put in sets mapped to username
-    // responsible for serving round data and problem data
-    // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
-    #judgehosts: Set<string> = new Set();
-    //probably only going to be one judgehost but "scalability"
-    //See the Judgehost schema, may need to create new class etc
+    readonly #users: Map<string, ContestUser> = new Map();
+    // will replace with black-box judgehost API class?
+    readonly #judgehosts: Set<string> = new Set();
 
-    #db: Database;
-    #app: express;
+    readonly #db: Database;
+    readonly #app: express;
 
     #submissionQueue: Submission[] = new Array<Submission>();
     // stack of submissions, will be popped from when /api/v4/judgehosts/fetch-work is called
 
     // all socketio connections are put here (IN A SET NOT AN ARRAY)
     // start/stop rounds, control which problems are where
-    // uses database to get problems and then caches them (also stores division, round, number since client needs that)
     // also only one contest page open per account
     // remember to prevent large file submissions (over 10kb is probably unnecessarily large for these problems)
-    // use socket.io rooms
-    // 
+    // use socket.io rooms? put all sockets in contest in room?
+    // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
 
-    constructor (db: Database, app: express) {
+    // make sure to also handle REGISTRATION (update the cached user data when a registration is made!) (call updateUserData)
+
+    /**
+     * 
+     * @param {Database} db 
+     * @param {express} app 
+     */
+    constructor(db: Database, app: express) {
         this.#db = db;
         this.#app = app;
-        app.post("/api/v4/judgehosts", (req, res) => {
+        this.#app.post("/api/v4/judgehosts", (req, res) => {
             //no parameters for some reason?
             res.send("hi");
         });
-        app.post("/api/v4/judgehosts/fetch-work", (req, res) => {
+        this.#app.post("/api/v4/judgehosts/fetch-work", (req, res) => {
             if (typeof req.hostname === "undefined" || typeof req.max_batchsize === "undefined") {
                 //malformed
                 res.sendStatus(400);
@@ -75,7 +86,38 @@ export class ContestManager {
     }
 
     /**
-     * Queue a submission to be judged
+     * please use punctuation in "documentation".
+     */
+    /**
+     * Add a username-linked SocketIO connection to the user list.
+     * @param {string} username Username to link this socket to
+     * @param {Socket} socket SocketIO connection
+     * @returns {number} The number of sockets linked to that username. If 0, then adding the user was unsuccessful.
+     */
+    async addUser(username: string, socket: Socket): Promise<number> {
+        if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
+        const userData = await this.#db.getAccountData(username);
+        if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
+        this.#users.set(username, {
+            username: username,
+            email: userData.email,
+            displayName: userData.displayName,
+            registrations: userData.registrations,
+            sockets: new Set<Socket>().add(socket)
+        });
+        return 1;
+    }
+
+    /**
+     * 
+     * @param {string} username Username to update information for
+     */
+    async updateUserData(username: string) {
+
+    }
+
+    /**
+     * Queue a submission to be judged.
      * @param {Submission} submission submission data
      * @returns {boolean} whether the thing was successfully pushed to the queue
      */

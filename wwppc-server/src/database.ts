@@ -1,23 +1,35 @@
-import fs from 'fs';
-import path from 'path';
-import bcrypt from 'bcrypt';
-import { Client } from 'pg';
-const salt = 5;
-import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
-import Logger from './log';
-import uuid from 'uuid';
 import config from './config';
+import Logger from './log';
+import { Mailer } from './email';
+import { Client } from 'pg';
+import bcrypt from 'bcrypt';
+import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import uuid from 'uuid';
+const salt = 5;
+
+interface DatabaseConstructorParams {
+    /**Valid PostgreSQL connection URI (postgresql://username:password@host:port/database) */
+    uri: string
+    /**AES-256 GCM 32-byte key (base64 string) */
+    key: string | Buffer
+    /**Optional SSL Certificate */
+    sslCert?: string | Buffer
+    /**Logging instance */
+    logger: Logger
+    /**Nodemailer wrapper instance */
+    mailer: Mailer
+}
 
 /**
  * PostgreSQL database connection for handling accounts, including submissions.
  */
 export class Database {
-    #ready = false;
     /**
-     * Resolves when database is connected.
+     * Resolves when the database is connected.
      */
     readonly connectPromise: Promise<any>;
     readonly #db: Client;
+    readonly #dbKey: Buffer;
     readonly #rsaKeys = subtle.generateKey({
         name: "RSA-OAEP",
         modulusLength: 2048,
@@ -25,29 +37,24 @@ export class Database {
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
     #publicKey: webcrypto.JsonWebKey | undefined;
-    readonly #dbKey: Buffer;
     readonly logger: Logger;
-
+    readonly mailer: Mailer;
     /**
-     * @param {string} uri Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
-     * @param {Logger} logger Logging instance
+     * @param params Parameters
      */
-    constructor(uri: string, logger: Logger) {
-        if (process.env.CONFIG_PATH == undefined || process.env.DATABASE_KEY == undefined) throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
+    constructor({ uri, key, sslCert, logger, mailer }: DatabaseConstructorParams) {
         this.logger = logger;
+        this.mailer = mailer;
         this.connectPromise = new Promise(() => undefined);
         const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
-        const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
-        this.#dbKey = Buffer.from(process.env.DATABASE_KEY, 'base64');
+        this.#dbKey = key instanceof Buffer ? key : Buffer.from(key, 'base64');
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
-            ssl: process.env.DATABASE_CERT != undefined ? ({ ca: process.env.DATABASE_CERT }) : (fs.existsSync(certPath) ? { ca: fs.readFileSync(certPath) } : { rejectUnauthorized: false })
+            ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
         this.connectPromise = Promise.all([
-            this.#db.connect().then(() => {
-                this.#ready = true
-            }, (err) => {
+            this.#db.connect().catch((err) => {
                 logger.fatal('Could not connect to database:');
                 logger.fatal(err);
                 logger.fatal('Host: ' + this.#db.host);
@@ -124,13 +131,9 @@ export class Database {
      * Disconnect from the PostgreSQL database.
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
-    disconnect() {
-        return this.#db.end().then(() => this.#ready = false);
+    async disconnect(): Promise<void> {
+        await this.#db.end();
     }
-    /**
-     * @type {boolean}
-     */
-    get ready(): boolean { return this.#ready; }
 
     #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
     /**

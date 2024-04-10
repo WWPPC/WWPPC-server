@@ -56,14 +56,14 @@ const newPasswordInput = ref('');
                     <span>Display Name:</span>
                     <UITextBox v-model=accountManager.displayName maxlength="32" width="var(--fwidth)" title="Name used in profile, contests, etc." required></UITextBox>
                     <span>Name:</span>
-                    <span style="text-wrap: nowrap;">
+                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
                         <UITextBox v-model=accountManager.firstName maxlength="32" width="var(--hwidth)" title="First name" required></UITextBox>
                         <UITextBox v-model=accountManager.lastName maxlength="32" width="var(--hwidth)" title="Last name" required></UITextBox>
                     </span>
                     <span>School:</span>
                     <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
                     <span>Grade/experience:</span>
-                    <span style="text-wrap: nowrap;">
+                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
                         <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
         { text: 'Pre-High School', value: '8' },
         { text: '9', value: '9' },

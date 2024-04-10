@@ -8,6 +8,7 @@ defineProps<{
     codeforces?: string,
     github?: string,
     discord?: string,
+    youtube?: string,
     img: string
 }>();
 </script>
@@ -23,6 +24,7 @@ defineProps<{
                     <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/assets/codeforces.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
                     <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/assets/github.svg" color="#F05032"></HomeAboutCreditsCardIcon>
                     <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/assets/discord.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://youtube.com/" :user=$props.youtube icon="/assets/youtube.svg" color="#FF0000"></HomeAboutCreditsCardIcon>
                 </div>
             </div>
         </DoubleCutCornerContainer>
