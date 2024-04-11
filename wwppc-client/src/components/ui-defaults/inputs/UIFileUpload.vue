@@ -10,7 +10,7 @@ const resetFileList = () => {
     if (fileInput.value !== undefined) fileInput.value.value = '';
 }
 const emit = defineEmits<{
-    (e: 'input', value: FileList | undefined): void
+    (e: 'input', value: FileList | undefined): any
 }>();
 function input(event: any) {
     files.value = event.target?.files;

@@ -7,7 +7,7 @@ const props = defineProps<{
 const checked = defineModel({ default: false });
 checked.value = props.startChecked ?? false;
 const emit = defineEmits<{
-    (e: 'input', checked: boolean): void
+    (e: 'input', checked: boolean): any
 }>();
 function input() {
     emit('input', checked.value);

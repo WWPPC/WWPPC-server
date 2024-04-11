@@ -20,7 +20,7 @@ const buttonText = ref('Log in');
 
 const buttonAction = () => {
     if (serverConnection.loggedIn) router.push('/account');
-    else router.push('/login');
+    else if (serverConnection.manualLogin) router.push('/login');
 };
 
 serverConnection.handshakePromise.then(() => {

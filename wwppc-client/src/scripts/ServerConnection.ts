@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
 import { reactive } from 'vue';
 import { useAccountManager } from './AccountManager';
+import recaptcha from './recaptcha';
 
 // send HTTP wakeup request before trying socket.io
 const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
@@ -70,8 +71,14 @@ socket.once('getCredentials', async (session) => {
         // autologin if possible
         if (sessionCreds != null && RSA.sid.toString() === window.localStorage.getItem('sessionId')) {
             const creds = JSON.parse(sessionCreds);
-            state.loggedIn = await sendCredentials(creds.username, creds.password) == AccountOpResult.SUCCESS;
-            state.manualLogin = false;
+            const res = await sendCredentials(creds.username, creds.password, await recaptcha.execute('autologin'));
+            if (res == AccountOpResult.SUCCESS) {
+                state.loggedIn = true;
+                state.manualLogin = false;
+            } else {
+                window.localStorage.removeItem('sessionCredentials');
+                window.localStorage.removeItem('sessionId');
+            }
         }
         state.handshakeComplete = true;
         handshakeResolve(undefined);
@@ -97,11 +104,11 @@ export interface CredentialsSignupData {
     experience: number
     languages: string[]
 }
-export const sendCredentials = (username: string, password: string | Array<number>, token?: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
-    return new Promise(async (resolve, reject) => {
+export const sendCredentials = async (username: string, password: string | Array<number>, token: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
+    return await new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
-            resolve(4);
+            resolve(AccountOpResult.ERROR);
             return;
         }
         try {
@@ -123,7 +130,7 @@ export const sendCredentials = (username: string, password: string | Array<numbe
                 } : undefined
             });
             socket.once('credentialRes', async (res: AccountOpResult) => {
-                if (res == AccountOpResult.SUCCESS) {
+                if (res === AccountOpResult.SUCCESS) {
                     window.localStorage.setItem('sessionCredentials', JSON.stringify({
                         username: username,
                         password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
@@ -137,6 +144,7 @@ export const sendCredentials = (username: string, password: string | Array<numbe
                 resolve(res);
             });
         } catch (err) {
+            socket.removeAllListeners('credentialRes')
             reject(err);
         }
     });
@@ -163,6 +171,9 @@ export const useServerConnection = defineStore('serverconnection', {
         off(event: string, handler: (...args: any[]) => void) {
             return socket.off(event, handler);
         },
+        removeAllListeners(event: string) {
+            socket.removeAllListeners(event);
+        },
         onconnect(handler: () => void) {
             socket.on('connect', handler);
         },
@@ -182,6 +193,6 @@ export const useServerConnection = defineStore('serverconnection', {
 socket.on('connect', () => console.info(`ServerConnection: Connected to ${serverHostname}`));
 socket.on('connect_error', () => console.error(`ServerConnection: Connection error for ${serverHostname}`));
 socket.on('connect_fail', () => console.error(`ServerConnection: Connection failed for ${serverHostname}`));
-socket.on('disconnect', (reason) => console.error(`ServerConnection: Disconnected: ${reason}`));
-socket.on('timeout', () => console.error(`ServerConnection: Timed out`));
-socket.on('error', (err) => console.error(`ServerConnection: Error: ${err}`));
+socket.on('disconnect', (reason) => { console.error(`ServerConnection: Disconnected: ${reason}`); socket.disconnect(); });
+socket.on('timeout', () => { console.error(`ServerConnection: Timed out`); socket.disconnect(); });
+socket.on('error', (err) => { console.error(`ServerConnection: Error: ${err}`); socket.disconnect(); });

@@ -21,6 +21,7 @@ export class Mailer {
      * @param params Parameters
      */
     constructor({ host, port = 587, secure = false, username, password, logger }: MailerConstructorParams) {
+        const startTime = performance.now();
         this.#logger = logger;
         // no way to async connect without making not-readonly
         this.#transporter = createTransport({
@@ -34,7 +35,10 @@ export class Mailer {
             debug: config.debugMode
         });
         this.#logger.info('SMTP server connected');
-        this.#logger.debug('Connected to: ' + host);
+        if (config.debugMode) {
+            logger.debug('SMTP server connected to: ' + host);
+            logger.debug(`SMTP server connection time: ${performance.now() - startTime}ms`);
+        }
         this.#transporter.on('error', (err) => {
             logger.fatal('SMTP error:');
             logger.fatal(err.message);

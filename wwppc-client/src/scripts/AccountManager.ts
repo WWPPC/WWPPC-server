@@ -47,11 +47,44 @@ export const useAccountManager = defineStore('accountManager', {
         unsavedChanges: () => unsaved.value
     },
     actions: {
-        async login(username: string, password: string | Array<number>): Promise<number> {
-            return await sendCredentials(username, password);
+        async login(username: string, password: string | Array<number>, token: string): Promise<AccountOpResult> {
+            return await sendCredentials(username, password, token);
         },
-        async signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<number> {
+        async signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<AccountOpResult> {
             return await sendCredentials(username, password, token, signupData);
+        },
+        async changePassword(password: string, newPassword: string, token: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve, reject) => {
+                try {
+                    serverConnection.emit('changeCredentials', {
+                        password: await serverConnection.RSAencrypt(password),
+                        newPassword: await serverConnection.RSAencrypt(newPassword),
+                        token: token
+                    });
+                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
+                } catch (err) {
+                    serverConnection.removeAllListeners('credentialRes');
+                    reject(err);
+                }
+            });
+        },
+        async deleteAccount(password: string, token: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve, reject) => {
+                try {
+                    serverConnection.emit('deleteCredentials', {
+                        password: await serverConnection.RSAencrypt(password),
+                        token: token
+                    });
+                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
+                } catch (err) {
+                    serverConnection.removeAllListeners('credentialRes');
+                    reject(err);
+                }
+            });
         },
         signOut() {
             window.localStorage.removeItem('sessionCredentials');

@@ -18,7 +18,7 @@ const props = defineProps<{
     glitchOnMount?: boolean
 }>();
 const emit = defineEmits<{
-    (e: 'click'): void
+    (e: 'click'): any
 }>();
 function click() {
     emit('click');

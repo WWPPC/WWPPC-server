@@ -5,72 +5,99 @@ import { glitchTextTransition } from './TextTransitions';
 import { UIButton, UITextBox } from './UIDefaults';
 
 const modalInput = ref('');
-const modal = reactive({
+const modal = reactive<{
+    title: string
+    content: string
+    mode: ModalMode
+    inputType: 'text' | 'password' | 'email'
+    color: string
+    open: boolean
+}>({
     title: '',
     content: '',
     mode: ModalMode.NOTIFY,
+    inputType: 'text',
+    color: 'white',
     open: false
 });
-let modalColor = 'white';
 let modalResolve = () => { };
 let modalReject = () => { };
 const modalQueue: Array<{ params: ModalParams, resolve: (v: boolean | string | null) => void }> = [];
 const showNextModal = async () => {
     const params = modalQueue.shift();
     params?.resolve(await showModal(params?.params));
-}
-const showModal = (params: ModalParams): Promise<boolean | string | null> => {
-    if (modal.open) return new Promise((resolve) => {
+};
+const showModal = async (params: ModalParams): Promise<boolean | string | null> => {
+    if (modal.open) return await new Promise((resolve) => {
         modalQueue.push({ params, resolve });
     });
-    const { title, content, mode = ModalMode.NOTIFY, color = 'white', glitchTitle = false } = params;
+    const { title, content, mode = ModalMode.NOTIFY, inputType = 'text', color = 'white', glitchTitle = false } = params;
     if (glitchTitle) glitchTextTransition(title, title, (text) => { modal.title = text; return false }, 40, 2, 10, 1, true);
     else modal.title = title;
     modal.content = content;
     modal.mode = mode;
-    modalColor = color;
     modalInput.value = '';
+    modal.inputType = inputType;
+    modal.color = color;
+    console.log(modal.color)
     modal.open = true;
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
-            modalResolve = () => {
+            modalResolve = async () => {
                 modal.open = false;
                 resolve(modalInput.value);
-                showNextModal();
+                await showNextModal();
             };
-            modalReject = () => {
+            modalReject = async () => {
                 modal.open = false;
                 resolve(null);
-                showNextModal();
+                await showNextModal();
             };
         } else {
-            modalResolve = () => {
+            modalResolve = async () => {
                 modal.open = false;
                 resolve(true);
-                showNextModal();
+                await showNextModal();
             };
-            modalReject = () => {
+            modalReject = async () => {
                 modal.open = false;
                 resolve(false);
-                showNextModal();
+                await showNextModal();
             };
         }
     });
-}
-defineExpose({ showModal });
+};
+const cancelModal = async () => {
+    await modalReject();
+};
+const cancelAllModals = async () => {
+    while (modalQueue.length) await modalReject();
+};
+defineExpose({ showModal, cancelModal, cancelAllModals });
 </script>
 <script lang="ts">
 export const enum ModalMode {
+    /**A notification - only an acknowledgement response */
     NOTIFY = 0,
+    /**A confirmation - confirm or deny */
     CONFIRM = 1,
+    /**A request for text input */
     QUERY = 2,
+    /**A request for boolean input - yes or no */
     INPUT = 3
 }
 export interface ModalParams {
+    /**Modal header */
     title: string
+    /**Modal body */
     content: string
+    /**Modal mode */
     mode?: ModalMode
+    /**Input type for `QUERY` mode */
+    inputType?: 'text' | 'password' | 'email'
+    /**Border color */
     color?: string
+    /**Cool title effect? */
     glitchTitle?: boolean
 }
 </script>
@@ -82,16 +109,16 @@ export interface ModalParams {
                 <h1 v-html=modal.title></h1>
                 <p v-html=modal.content></p>
                 <span v-if="modal.mode == ModalMode.QUERY">
-                    <UITextBox v-model=modalInput></UITextBox>
+                    <UITextBox v-model=modalInput :type=modal.inputType autocomplete="off"></UITextBox>
                     <br>
                 </span>
                 <div class="modalButtons">
-                    <span v-if="modal.mode == ModalMode.QUERY">
+                    <span v-if="modal.mode == ModalMode.INPUT">
                         <UIButton text="YES" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                         <UIButton text="NO" @click=modalReject width="5em" color="red" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                     </span>
                     <span v-else>
-                        <span v-if="modal.mode == ModalMode.INPUT || modal.mode == ModalMode.CONFIRM">
+                        <span v-if="modal.mode == ModalMode.QUERY || modal.mode == ModalMode.CONFIRM">
                             <UIButton text="CANCEL" @click=modalReject width="5em" color="red" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                         </span>
                         <UIButton text="OK" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
@@ -128,8 +155,8 @@ export interface ModalParams {
     bottom: calc(50vh + 50%);
     width: 50vw;
     padding: 4px 4px;
-    background-color: v-bind("modalColor");
-    box-shadow: 0px 0px 8px v-bind("modalColor");
+    background-color: v-bind("modal.color");
+    box-shadow: 0px 0px 8px v-bind("modal.color");
     clip-path: polygon(32px 0%, 100% 0%, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0% 100%, 0% 32px);
     transition: 400ms ease-in-out transform;
 }

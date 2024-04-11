@@ -4,7 +4,7 @@ import { Mailer } from './email';
 import { Client } from 'pg';
 import bcrypt from 'bcrypt';
 import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
-import uuid from 'uuid';
+import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
 const salt = 5;
 
 interface DatabaseConstructorParams {
@@ -43,6 +43,7 @@ export class Database {
      * @param params Parameters
      */
     constructor({ uri, key, sslCert, logger, mailer }: DatabaseConstructorParams) {
+        const startTime = performance.now();
         this.logger = logger;
         this.mailer = mailer;
         this.connectPromise = new Promise(() => undefined);
@@ -65,7 +66,10 @@ export class Database {
         ]);
         this.connectPromise.then(() => {
             logger.info('Database connected');
-            logger.debug('Connected to: ' + this.#db.host);
+            if (config.debugMode) {
+                logger.debug('Database connected to: ' + this.#db.host);
+                logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
+            }
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
@@ -153,6 +157,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR} Creation status
      */
     async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
@@ -177,6 +182,8 @@ export class Database {
             this.logger.error('Database error (createAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] createAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -187,6 +194,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Check status
      */
     async checkAccount(username: string, password: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
             const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
@@ -201,6 +209,8 @@ export class Database {
             this.logger.error('Database error (checkAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] checkAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -209,6 +219,7 @@ export class Database {
      * @returns {AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} AccountData or an error code
      */
     async getAccountData(username: string): Promise<AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
         if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
         else {
@@ -241,6 +252,8 @@ export class Database {
                 this.logger.error('Database error (getAccountData):');
                 this.logger.error('' + err);
                 return AccountOpResult.ERROR;
+            } finally {
+                if (config.debugMode) this.logger.info(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
             }
         }
     }
@@ -253,6 +266,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
     async updateAccountData(username: string, password: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             const res = await this.checkAccount(username, password);
             if (res != AccountOpResult.SUCCESS) return res;
@@ -270,6 +284,8 @@ export class Database {
             this.logger.error('Database error (updateAccountData):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] updateAccountData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -281,6 +297,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
     async changePasswordAccount(username: string, password: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             const res = await this.checkAccount(username, password);
             if (res != AccountOpResult.SUCCESS) return res;
@@ -292,6 +309,8 @@ export class Database {
             this.logger.error('Database error (changePasswordAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] changePasswordAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -303,6 +322,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
     async changePasswordTokenAccount(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rowCount != null && data.rowCount > 0) {
@@ -318,6 +338,8 @@ export class Database {
             this.logger.error('Database error (changePasswordAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] changePasswordTokenAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -328,6 +350,7 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Deletion status
      */
     async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             if (adminUsername != undefined) {
                 this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
@@ -350,6 +373,8 @@ export class Database {
             this.logger.error('Database error (deleteAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] deleteAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -359,7 +384,7 @@ export class Database {
      */
     async #rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         try {
-            const newPass = this.#RSAencryptSymmetric(uuid.v4());
+            const newPass = this.#RSAencryptSymmetric(uuidV4());
             const data = await this.#db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
             if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             return AccountOpResult.SUCCESS;
@@ -393,6 +418,7 @@ export class Database {
      * @returns {Array<Problem>} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
     async readRounds(c: ReadRoundsCriteria): Promise<Array<Round>> {
+        const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT * FROM rounds WHERE division=$1 AND number=$2', [c.division ?? '*', c.round ?? '*']);
             return data.rows.map((round) => ({
@@ -406,6 +432,8 @@ export class Database {
             this.logger.error('Database error (readRounds):');
             this.logger.error('' + err);
             return [];
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -414,6 +442,7 @@ export class Database {
      * @returns {boolean} If the write was successful
      */
     async writeRound(round: Round): Promise<boolean> {
+        const startTime = performance.now();
         try {
             const exists = await this.#db.query('SELECT FROM rounds WHERE division=$1 AND number=$2', [round.division, round.round]);
             if ((exists.rowCount ?? 0) > 0) {
@@ -426,6 +455,8 @@ export class Database {
             this.logger.error('Database error (writeRound):');
             this.logger.error('' + err);
             return false;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] writeRound in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -436,6 +467,7 @@ export class Database {
      * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
     async readProblems(c: ReadProblemsCriteria): Promise<Array<Problem>> {
+        const startTime = performance.now();
         try {
             const problemIdList: Set<string> = new Set();
             if (c.id != undefined && isUUID(c.id)) problemIdList.add(c.id);
@@ -477,6 +509,8 @@ export class Database {
             this.logger.error('Database error (readProblems):');
             this.logger.error('' + err);
             return [];
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] readProblems in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -485,6 +519,7 @@ export class Database {
      * @returns {boolean} If the write was successful
      */
     async writeProblem(problem: Problem): Promise<boolean> {
+        const startTime = performance.now();
         try {
             const exists = await this.#db.query('SELECT id FROM problems WHERE id=$1', [problem.id]);
             if ((exists.rowCount ?? 0) > 0) {
@@ -501,6 +536,8 @@ export class Database {
             this.logger.error('Database error (writeProblem):');
             this.logger.error('' + err);
             return false;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] writeProblem in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -511,6 +548,7 @@ export class Database {
      * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
     async readSubmissions(c: ReadSubmissionsCriteria): Promise<Array<Submission> | null> {
+        const startTime = performance.now();
         try {
             // reusing code from readProblems (oops)
             const problemIdList: Set<string> = new Set();
@@ -551,6 +589,8 @@ export class Database {
             this.logger.error('Database error (readSubmissions):');
             this.logger.error('' + err);
             return null;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] readSubmissions in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -559,6 +599,7 @@ export class Database {
      * @returns {boolean} If the write was successful
      */
     async writeSubmission(submission: Submission): Promise<boolean> {
+        const startTime = performance.now();
         try {
             const exists = await this.#db.query('SELECT id FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
             if ((exists.rowCount ?? 0) > 0) {
@@ -575,6 +616,8 @@ export class Database {
             this.logger.error('Database error (writeSubmission):');
             this.logger.error('' + err);
             return false;
+        } finally {
+            if (config.debugMode) this.logger.info(`[Database] writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
 }
@@ -583,15 +626,25 @@ export default Database;
 type UUID = string;
 
 function isUUID(id: string): id is UUID {
-    return uuid.validate(id);
+    return uuidValidate(id);
+}
+
+export function reverse_enum(enumerator, v): string {
+    for (const k in enumerator) if (enumerator[k] === v) return k;
+    return '';
 }
 
 /**The result of an operation that requires authentication performed by the database */
 export enum AccountOpResult {
+    /**The operation was completed successfully */
     SUCCESS = 0,
+    /**The operation failed because could not overwrite existing data */
     ALREADY_EXISTS = 1,
+    /**The operation failed because requested data did not exist */
     NOT_EXISTS = 2,
+    /**The operation failed because it is not allowed with the current authentication */
     INCORRECT_CREDENTIALS = 3,
+    /**The operation failed because of an unexpected issue */
     ERROR = 4
 }
 

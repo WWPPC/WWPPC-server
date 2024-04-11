@@ -13,7 +13,7 @@ const props = defineProps<{
     autocomplete?: 'username' | 'current-password' | 'new-password' | 'email' | 'name' | 'honorific-prefix' | 'given-name' | 'additional-name' | 'family-name' | 'honorific-suffix' | 'nickname' | 'off'
 }>();
 const emit = defineEmits<{
-    (e: 'input', value: string): void
+    (e: 'input', value: string): any
 }>();
 const text = defineModel({ default: '' });
 function input() {

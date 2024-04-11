@@ -5,7 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from '@/App.vue';
 import 'katex/dist/katex.min.css';
-import { VueReCaptcha } from 'vue-recaptcha-v3';
+import recaptcha from './scripts/recaptcha';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -16,8 +16,6 @@ const router = createRouter({
         { path: '/', redirect: '/home' },
         // not the right way to do this (but oh well)
         {
-            // uhhh this causes error because of bug
-            // path: '/:page(^(?:(?!contest).)*$)',
             path: '/:page',
             components: { App },
             children: [{
@@ -60,5 +58,6 @@ router.afterEach(() => {
     handledRoute = false;
 });
 app.use(router);
-VueReCaptcha.install(app, { siteKey: '6LfvsYgpAAAAAKi_E0IgDfIb7BCZKYfSlphYTNem', loaderOptions: {} });
 app.mount('#root');
+
+recaptcha.loaded().then(() => console.log('reCAPTCHA loaded'));

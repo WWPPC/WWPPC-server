@@ -16,7 +16,8 @@ const config: {
 } = {
     ...fileConfig,
     port: process.env.PORT ?? fileConfig.port,
-    path: process.env.CONFIG_PATH
+    serveStatic: process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? fileConfig.serveStatic,
+    path: process.env.CONFIG_PATH,
 };
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');

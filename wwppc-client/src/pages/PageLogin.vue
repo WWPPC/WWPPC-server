@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { getAccountOpMessage, useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
-import { useReCaptcha } from 'vue-recaptcha-v3';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { useAccountManager } from '@/scripts/AccountManager';
+import recaptcha from '@/scripts/recaptcha';
 
 const router = useRouter();
 const route = useRoute();
@@ -26,9 +26,6 @@ serverConnection.ondisconnect(() => {
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
 });
 
-// why would you do this to me (why have a chance of undefined)
-const { executeRecaptcha, recaptchaLoaded, instance } = useReCaptcha() ?? { executeRecaptcha() { }, recaptchaLoaded() { }, instance: ref(null) };
-
 // redirect if already logged in, also more connection modals
 // and recaptcha stuff
 watch(() => route.params.page, async () => {
@@ -38,12 +35,8 @@ watch(() => route.params.page, async () => {
         });
         if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
         if (serverConnection.handshakeComplete && !serverConnection.connected) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-        await recaptchaLoaded();
-        instance.value?.showBadge();
     } else {
         isSignupPage.value = false;
-        await recaptchaLoaded();
-        instance.value?.hideBadge();
     }
 });
 
@@ -65,7 +58,8 @@ const validateCredentials = (username: string, password: string): boolean => {
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
     showLoginWait.value = true;
-    const res = await accountManager.login(usernameInput.value ?? '', passwordInput.value ?? '');
+    const token = await recaptcha.execute('login');
+    const res = await accountManager.login(usernameInput.value ?? '', passwordInput.value ?? '', token);
     showLoginWait.value = false;
     if (res == 0) {
         router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
@@ -78,9 +72,8 @@ const toSignUp = () => {
 const attemptSignup = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((firstNameInput.value.trim() ?? '') == '') || ((lastNameInput.value.trim() ?? '') == '') || ((schoolInput.value.trim() ?? '') == '') || ((emailInput.value.trim() ?? '') == '') || gradeInput.value == '' || experienceInput.value == '') return;
     showLoginWait.value = true;
-    await recaptchaLoaded();
-    const token = await executeRecaptcha('signup');
-    const res = await accountManager.signup(usernameInput.value ?? '', passwordInput.value ?? '', token ?? '', {
+    const token = await recaptcha.execute('signup');
+    const res = await accountManager.signup(usernameInput.value ?? '', passwordInput.value ?? '', token, {
         firstName: firstNameInput.value.trim(),
         lastName: lastNameInput.value.trim(),
         email: emailInput.value.trim(),

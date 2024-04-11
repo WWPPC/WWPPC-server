@@ -13,7 +13,7 @@ const props = defineProps<{
     font?: string
 }>();
 const emit = defineEmits<{
-    (e: 'input', value: number): void
+    (e: 'input', value: number): any
 }>();
 const number = defineModel({ default: 0 });
 function input() {

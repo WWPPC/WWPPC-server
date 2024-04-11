@@ -35,7 +35,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(cors({ origin: '*' }));
-if (process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? config.serveStatic) {
+logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
+if (config.serveStatic) {
     const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
     app.use('/', express.static(process.env.CLIENT_PATH));
     app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
@@ -51,9 +52,10 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
-import Database, { AccountOpResult } from './database';
+import Database, { AccountOpResult, reverse_enum } from './database';
 import ContestManager from './contest';
 import { Mailer } from './email';
+import { validateRecaptcha } from './recaptcha';
 
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
@@ -112,11 +114,31 @@ io.on('connection', async (s) => {
         packetCount = Math.max(packetCount - 250, 0);
         if (packetCount > 0) kick('too many packets');
     }, 1000);
+    if (config.superSecretSecret) socket.emit('superSecretMessage');
     // await credentials before allowing anything (in a weird way)
     const self = {
-        username: ''
+        username: '[not signed in]'
     };
+    const logWithId = (logMethod: (s: string) => void, message: string) => {
+        logMethod.call(logger, (`${self.username} @ ${ip} | ${message}`));
+    };
+    if (config.debugMode) logWithId(logger.debug, 'Connection established, sending public key and requesting credentials');
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
+    const checkRecaptcha = async (token: string): Promise<boolean> => {
+        const recaptchaResponse = await validateRecaptcha(token, ip);
+        if (recaptchaResponse instanceof Error) {
+            logger.error('reCAPTCHA verification failed:');
+            logger.error(recaptchaResponse.message);
+            if (recaptchaResponse.stack) logger.error(recaptchaResponse.stack);
+            socket.emit('credentialRes', AccountOpResult.ERROR);
+            return false;
+        } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
+            if (config.debugMode) logWithId(logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
+            socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
+            return false;
+        } else if (config.debugMode) logWithId(logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
+        return true;
+    };
     if (await new Promise((resolve, reject) => {
         socket.on('credentials', async (creds: { username: Buffer | string, password: Buffer | string, token?: string, signupData?: { firstName: Buffer | string, lastName: Buffer | string, email: Buffer | string, school: Buffer | string, grade: number, experience: number, languages: string[] } }) => {
             if (creds == undefined) {
@@ -129,14 +151,18 @@ io.on('connection', async (s) => {
             const password = await database.RSAdecrypt(creds.password);
             if (username instanceof Buffer || password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
+                if (config.debugMode) logWithId(logger.debug, 'Credentials failed to decode');
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
-            if (typeof username != 'string' || typeof password != 'string' || !database.validate(username, password)) {
+            if (typeof username != 'string' || typeof password != 'string' || !database.validate(username, password) || typeof creds.token != 'string') {
                 kick('invalid credentials');
                 resolve(true);
                 return;
             }
             self.username = username;
+            if (config.debugMode) logWithId(logger.debug, 'Successfully recieved credentials');
+            // validate the recaptcha before anything else
+            if (!await checkRecaptcha(creds.token)) return;
             // actually create/check account
             if (creds.signupData != undefined) {
                 // spam prevention
@@ -157,50 +183,7 @@ io.on('connection', async (s) => {
                     resolve(true);
                     return;
                 }
-                // verify recaptcha with an unnecessarily long bit of HTTP request code
-                const recaptchaResponse: any = await new Promise((resolve, reject) => {
-                    if (creds.token === undefined) {
-                        reject('what');
-                        return;
-                    }
-                    const req = https.request({
-                        hostname: 'www.google.com',
-                        path: `/recaptcha/api/siteverify`,
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    }, (res) => {
-                        if (res.statusCode == 200) {
-                            res.on('error', (err) => reject(`HTTPS ${req.method} response error: ${err.message}`));
-                            let chunks: Buffer[] = [];
-                            res.on('data', (chunk) => chunks.push(chunk));
-                            res.on('end', () => {
-                                resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-                            });
-                        } else {
-                            reject(`HTTPS ${req.method} response returned status ${res.statusCode}`);
-                        }
-                    });
-                    req.on('error', (err) => {
-                        reject(`HTTPS ${req.method} request error: ${err.message}`);
-                    });
-                    req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&response=${encodeURIComponent(creds.token)}&remoteip=${encodeURIComponent(ip)}`);
-                    req.end();
-                }).catch((err) => {
-                    logger.error('ReCaptcha verification failed:');
-                    logger.error(err);
-                    return err;
-                });
-                if (recaptchaResponse instanceof Error) {
-                    socket.emit('credentialRes', AccountOpResult.ERROR);
-                    resolve(true);
-                    return;
-                } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
-                    socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
-                    resolve(true);
-                    return;
-                }
+                if (config.debugMode) logWithId(logger.info, 'Signing up');
                 const res = await database.createAccount(username, password, {
                     email: email,
                     firstName: firstName,
@@ -211,22 +194,28 @@ io.on('connection', async (s) => {
                     experience: creds.signupData.experience,
                 });
                 socket.emit('credentialRes', res);
+                if (config.debugMode) logWithId(logger.debug, 'Sign up: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
                     resolve(false);
                 }
             } else {
+                if (config.debugMode) logWithId(logger.info, 'Logging in');
                 const res = await database.checkAccount(username, password);
                 socket.emit('credentialRes', res);
+                if (config.debugMode) logWithId(logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
                     resolve(false);
                 }
             }
         });
-    })) return;
+    })) {
+        if (config.debugMode) logWithId(logger.debug, 'Authentication failed');
+        return;
+    }
+    if (config.debugMode) logWithId(logger.debug, 'Authentication successful');
     // you can only reach this point by signing in
-    if (config.superSecretSecret) socket.emit('superSecretMessage');
     socket.on('getUserData', async (data: { username: string }) => {
         if (data == undefined || typeof data.username != 'string') {
             kick('invalid getUserData parameters');
@@ -239,6 +228,7 @@ io.on('connection', async (s) => {
             kick('invalid setUserData parameters');
             return;
         }
+        if (config.debugMode) logWithId(logger.info, 'Updating user data');
         const password = await database.RSAdecrypt(data.password);
         const firstName = await database.RSAdecrypt(data.data.firstName);
         const lastName = await database.RSAdecrypt(data.data.lastName);
@@ -273,11 +263,47 @@ io.on('connection', async (s) => {
                 registrations: existingData.registrations
             });
             socket.emit('setUserDataResponse', res);
+            if (config.debugMode) logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
         } else {
             socket.emit('setUserDataResponse', existingData);
+            if (config.debugMode) logWithId(logger.debug, 'Update user data (fetch error): ' + reverse_enum(AccountOpResult, existingData));
         }
     });
-    // TODO: Add to ContestManager instance
+    socket.on('changeCredentials', async (creds: { password: Buffer | string, newPassword: Buffer | string, token: string }) => {
+        if (creds == undefined) {
+            kick('null credentials');
+            return;
+        }
+        const password = await database.RSAdecrypt(creds.password);
+        const newPassword = await database.RSAdecrypt(creds.newPassword)
+        if (typeof password != 'string' || typeof newPassword != 'string' || !database.validate(self.username, password) || !database.validate(self.username, newPassword)) {
+            kick('invalid credentials');
+            return;
+        }
+        logWithId(logger.info, 'Changing credentials');
+        if (!await checkRecaptcha(creds.token)) return;
+        const res = await database.changePasswordAccount(self.username, password, newPassword);
+        socket.emit('credentialRes', res);
+        logWithId(logger.info, 'Change credentials: ' + reverse_enum(AccountOpResult, res));
+    });
+    socket.on('deleteCredentials', async (creds: { password: Buffer | string, token: string }) => {
+        if (creds == undefined) {
+            kick('null credentials');
+            return;
+        }
+        const password = await database.RSAdecrypt(creds.password);
+        if (typeof password != 'string' || !database.validate(self.username, password)) {
+            kick('invalid credentials');
+            return;
+        }
+        logWithId(logger.info, 'Deleting credentials');
+        if (!await checkRecaptcha(creds.token)) return;
+        const res = await database.deleteAccount(self.username, password);
+        socket.emit('credentialRes', res);
+        logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
+    });
+    // hand off to ContestManager
+    contestManager.addUser(self.username, socket);
 });
 let connectionKickDecrementer = setInterval(function () {
     recentConnections.forEach((val, key) => {
@@ -307,6 +333,7 @@ let stopServer = async () => {
     io.close();
     clearInterval(connectionKickDecrementer);
     await Promise.all([mailer.disconnect(), database.disconnect()]);
+    logger.destroy();
     process.exit();
 };
 process.on('SIGTERM', stopServer);

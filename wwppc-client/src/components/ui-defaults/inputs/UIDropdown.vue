@@ -14,7 +14,7 @@ const props = defineProps<{
 }>();
 const selected = defineModel<string | string[]>({ default: '' });
 const emit = defineEmits<{
-    (e: 'input', value: string | string[]): void
+    (e: 'input', value: string | string[]): any
 }>();
 function input() {
     emit('input', selected.value);

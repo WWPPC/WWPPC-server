@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUpdate, onMounted, ref } from 'vue';
+import { nextTick, onBeforeUpdate, onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     title: string
@@ -25,6 +25,16 @@ onMounted(async () => {
     boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
 });
 
+const emit = defineEmits<{
+    (e: 'open'): any
+    (e: 'close'): any
+    (e: 'click'): any
+}>();
+watch(show, () => {
+    emit('click');
+    if (show.value) emit('open');
+    else emit('close');
+});
 defineExpose({
     show
 });

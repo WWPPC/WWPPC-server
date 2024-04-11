@@ -15,7 +15,7 @@ const props = defineProps<{
     resize?: 'vertical' | 'horizontal' | 'both' | 'none'
 }>();
 const emit = defineEmits<{
-    (e: 'input', value: string): void
+    (e: 'input', value: string): any
 }>();
 const text = defineModel({ default: '' });
 function input() {

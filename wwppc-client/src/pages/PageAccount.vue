@@ -22,6 +22,10 @@ serverConnection.ondisconnect(() => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
 });
+serverConnection.handshakePromise.then(() => {
+    if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
+    if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+});
 watch(() => route.params.page, () => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
     serverConnection.handshakePromise.then(() => {
