@@ -1,7 +1,7 @@
 import config from './config';
 import { Socket } from "socket.io";
 import { AccountData, Submission, Database, Registration, AccountOpResult } from "./database";
-import { Grader } from "./grader";
+import { Grader, DomjudgeGrader } from "./grader";
 import express from 'express';
 
 interface ContestUser {
@@ -21,10 +21,11 @@ export class ContestManager {
     readonly #users: Map<string, ContestUser> = new Map();
     // will replace with black-box judgehost API class?
     readonly #judgehosts: Set<string> = new Set();
+    readonly #grader: Grader;
+    //we're probably going to end up either using judgehosts or grader
 
     readonly #db: Database;
     readonly #app: express;
-    readonly #grader: Grader;
 
     // start/stop rounds, control which problems are visible (and where)
     // also only one contest page open per account
@@ -41,7 +42,7 @@ export class ContestManager {
     constructor(db: Database, app: express) {
         this.#db = db;
         this.#app = app;
-        this.#grader = new Grader(app);
+        this.#grader = new DomjudgeGrader(app);
     }
 
     /**
