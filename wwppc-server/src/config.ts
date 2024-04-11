@@ -8,6 +8,7 @@ const config: {
     readonly serveStatic: boolean
     readonly maxConnectPerSecond: number
     readonly maxSignupPerMinute: number
+    readonly defaultProfileImg: string
     readonly dbCacheTime: number
     readonly logEmailActivity: boolean
     readonly debugMode: boolean
@@ -17,6 +18,7 @@ const config: {
     ...fileConfig,
     port: process.env.PORT ?? fileConfig.port,
     serveStatic: process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? fileConfig.serveStatic,
+    debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode,
     path: process.env.CONFIG_PATH,
 };
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');

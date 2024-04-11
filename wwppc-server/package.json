@@ -20,7 +20,7 @@
         "install": "cd ../wwppc-client && npm install",
         "build": "npx tsc && cd ../wwppc-client && npm run build",
         "start": "node build/server.js",
-        "compilerun": "npx tsc && node build/server.js serve_static"
+        "compilerun": "npx tsc && node build/server.js serve_static debug_mode"
     },
     "name": "wwppc",
     "version": "1.0.0",

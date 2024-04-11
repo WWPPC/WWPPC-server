@@ -170,7 +170,7 @@ export class Database {
                     ...userData,
                     username: username,
                     displayName: `${userData.firstName} ${userData.lastName}`,
-                    profileImage: 'data:image/png;base64,',
+                    profileImage: config.defaultProfileImg,
                     bio: '',
                     registrations: []
                 },
@@ -270,8 +270,8 @@ export class Database {
         try {
             const res = await this.checkAccount(username, password);
             if (res != AccountOpResult.SUCCESS) return res;
-            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, school=$5, grade=$6, experience=$7, languages=$8, biography=$9, registrations=$10 WHERE username=$1', [
-                username, userData.firstName, userData.lastName, userData.displayName, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
+            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10, registrations=$11 WHERE username=$1', [
+                username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
             ]);
             this.#userCache.set(username, {
                 data: userData,

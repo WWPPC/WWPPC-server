@@ -119,8 +119,8 @@ io.on('connection', async (s) => {
     const self = {
         username: '[not signed in]'
     };
-    const logWithId = (logMethod: (s: string) => void, message: string) => {
-        logMethod.call(logger, (`${self.username} @ ${ip} | ${message}`));
+    const logWithId = (logMethod: (s: string, logOnly?: boolean) => void, message: string, logOnly?: boolean) => {
+        logMethod.call(logger, (`${self.username} @ ${ip} | ${message}`), logOnly);
     };
     if (config.debugMode) logWithId(logger.debug, 'Connection established, sending public key and requesting credentials');
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
@@ -248,7 +248,7 @@ io.on('connection', async (s) => {
         }
         const existingData = await database.getAccountData(self.username);
         if (typeof existingData == 'object') {
-            const res = await database.updateAccountData(self.username, password, {
+            const userDat = {
                 username: self.username,
                 email: existingData.username,
                 firstName,
@@ -261,9 +261,13 @@ io.on('connection', async (s) => {
                 experience: data.data.experience,
                 languages: data.data.languages,
                 registrations: existingData.registrations
-            });
+            };
+            const res = await database.updateAccountData(self.username, password, userDat);
             socket.emit('setUserDataResponse', res);
-            if (config.debugMode) logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
+            if (config.debugMode) {
+                logWithId(logger.debug, 'Update user data: ' + JSON.stringify(userDat), true);
+                logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
+            }
         } else {
             socket.emit('setUserDataResponse', existingData);
             if (config.debugMode) logWithId(logger.debug, 'Update user data (fetch error): ' + reverse_enum(AccountOpResult, existingData));

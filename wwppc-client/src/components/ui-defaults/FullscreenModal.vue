@@ -10,16 +10,17 @@ const modal = reactive<{
     content: string
     mode: ModalMode
     inputType: 'text' | 'password' | 'email'
-    color: string
+    // color: string
     open: boolean
 }>({
     title: '',
     content: '',
     mode: ModalMode.NOTIFY,
     inputType: 'text',
-    color: 'white',
+    // color: 'white',
     open: false
 });
+const modalColor = ref('white');
 let modalResolve = () => { };
 let modalReject = () => { };
 const modalQueue: Array<{ params: ModalParams, resolve: (v: boolean | string | null) => void }> = [];
@@ -38,7 +39,8 @@ const showModal = async (params: ModalParams): Promise<boolean | string | null> 
     modal.mode = mode;
     modalInput.value = '';
     modal.inputType = inputType;
-    modal.color = color;
+    // modal.color = color;
+    modalColor.value = color;
     modal.open = true;
     return await new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
@@ -154,8 +156,8 @@ export interface ModalParams {
     bottom: calc(50vh + 50%);
     width: 50vw;
     padding: 4px 4px;
-    background-color: v-bind("modal.color");
-    box-shadow: 0px 0px 8px v-bind("modal.color");
+    background-color: v-bind("modalColor");
+    box-shadow: 0px 0px 8px v-bind("modalColor");
     clip-path: polygon(32px 0%, 100% 0%, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0% 100%, 0% 32px);
     transition: 400ms ease-in-out transform;
 }

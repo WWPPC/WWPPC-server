@@ -170,6 +170,8 @@ const clearDangerButtons = () => {
     changePasswordEnabled.value = false;
 };
 onMounted(clearDangerButtons);
+
+setInterval(() => console.log(accountManager.profileImage), 10000)
 </script>
 
 <template>
