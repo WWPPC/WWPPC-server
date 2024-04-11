@@ -24,11 +24,12 @@ onMounted(() => {
 });
 
 const fileUpload = ref<HTMLInputElement>();
-const changeProfileImage = () => {
-    const file: File | undefined | null = fileUpload.value?.files?.item(0);
-    if (fileUpload.value == undefined || file == undefined) return;
+const changeProfileImage = (event: any) => {
+    // const file: File | undefined | null = fileUpload.value?.files?.item(0);
+    const file: File | undefined = event.target?.files?.item(0);
+    if (file == undefined) return;
     if (file.size > 40960) {
-        fileUpload.value.value = '';
+        if (fileUpload.value) fileUpload.value.value = '';
         modal.showModal({ title: 'Image too large', content: 'The maximum file size for profile images is 40kB<br>(this is due to a database limitation)', color: 'red' });
         return;
     }
@@ -37,6 +38,7 @@ const changeProfileImage = () => {
         if (typeof reader.result != 'string') return; // idk should never happen
         if (/^data:image\/(png|jpeg)/.test(reader.result)) {
             accountManager.profileImage = reader.result;
+            accountManager.writeUserData();
         } else {
             modal.showModal({ title: 'Unsupported file type', content: 'Only .png and .jpg/.jpeg images are allowed.', color: 'red'});
         }

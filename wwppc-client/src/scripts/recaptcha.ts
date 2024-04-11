@@ -1,6 +1,5 @@
 import { load, ReCaptchaInstance } from 'recaptcha-v3';
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref } from 'vue';
 
 let loaded = false;
 let loadError: false | string = false;
@@ -23,24 +22,12 @@ export const recaptchaLoaded = async () => {
     return await new Promise((resolve, reject) => loadPromises.add([resolve, reject]));
 };
 export const instance = ref<ReCaptchaInstance | null>(null);
-export const showRecaptcha = () => {
+export const showRecaptcha = async () => {
+    await recaptchaLoaded();
     instance.value?.showBadge();
 }
-export const hideRecaptcha = () => {
+export const hideRecaptcha = async () => {
+    await recaptchaLoaded();
     instance.value?.hideBadge();
 }
 export default { execute: executeRecaptcha, loaded: recaptchaLoaded, instance, show: showRecaptcha, hide: hideRecaptcha };
-
-// hide when not used
-document.addEventListener('load', () => {
-    const route = useRoute();
-    watch(() => route.params.page, async () => {
-        if (route.params.page == 'login' || route.params.page == 'account') {
-            await recaptchaLoaded();
-            showRecaptcha();
-        } else {
-            await recaptchaLoaded();
-            hideRecaptcha();
-        }
-    });
-});

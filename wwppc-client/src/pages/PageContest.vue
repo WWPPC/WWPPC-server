@@ -27,11 +27,11 @@ const contestManager = useContestManager();
 
 serverConnection.onconnecterror(() => {
     if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
+    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
 });
 serverConnection.ondisconnect(() => {
     if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
+    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
 });
 serverConnection.handshakePromise.then(() => {
     if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
@@ -42,10 +42,8 @@ watch(() => route.params, () => {
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
     });
-    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
-    if (serverConnection.handshakeComplete && !serverConnection.connected && route.query.ignore_server == undefined) {
-        modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/contest/home'));
-    }
+    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
+    if (serverConnection.handshakeComplete && !serverConnection.connected && route.query.ignore_server == undefined) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
 });
 </script>
 

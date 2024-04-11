@@ -183,7 +183,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] createAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] createAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -210,7 +210,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] checkAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] checkAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -253,7 +253,7 @@ export class Database {
                 this.logger.error('' + err);
                 return AccountOpResult.ERROR;
             } finally {
-                if (config.debugMode) this.logger.info(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
+                if (config.debugMode) this.logger.debug(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
             }
         }
     }
@@ -285,7 +285,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] updateAccountData in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] updateAccountData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -310,7 +310,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] changePasswordAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] changePasswordAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -339,7 +339,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] changePasswordTokenAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] changePasswordTokenAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -374,7 +374,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] deleteAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] deleteAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -433,7 +433,7 @@ export class Database {
             this.logger.error('' + err);
             return [];
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -456,7 +456,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] writeRound in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] writeRound in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -510,7 +510,7 @@ export class Database {
             this.logger.error('' + err);
             return [];
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] readProblems in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] readProblems in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -537,7 +537,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] writeProblem in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] writeProblem in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -590,7 +590,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] readSubmissions in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] readSubmissions in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -617,7 +617,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.info(`[Database] writeSubmission in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
 }

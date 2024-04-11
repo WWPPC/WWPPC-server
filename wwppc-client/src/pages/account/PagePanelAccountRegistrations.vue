@@ -3,7 +3,7 @@
 
 <template>
     <div>
-        <!-- oof route.params.contestName for new registrations -->
+        <!-- list of registrations + fullscreen form? -->
     </div>
 </template>
 

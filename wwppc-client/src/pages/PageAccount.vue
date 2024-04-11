@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
+import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView, PanelNavLargeLogo, PanelRightList } from '@/components/panels/PanelManager';
 import PagePanelAccountProfile from './account/PagePanelAccountProfile.vue';
 import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
@@ -47,15 +47,20 @@ watch(() => route.params.page, () => {
                 <PanelNavButton text="Account" for="/account/profile" is-default></PanelNavButton>
                 <PanelNavButton text="Register" for="/account/registrations"></PanelNavButton>
             </PanelNavList>
+            <PanelRightList>
+                <div v-if="!serverConnection.loggedIn && route.query.ignore_server !== undefined" style="color: yellow">
+                    You are not signed in!
+                </div>
+            </PanelRightList>
         </PanelHeader>
         <PanelMain>
             <PanelBody name="profile" title="Account" is-default>
-                <PagePanelAccountWrapper v-if="serverConnection.loggedIn">
+                <PagePanelAccountWrapper>
                     <PagePanelAccountProfile></PagePanelAccountProfile>
                 </PagePanelAccountWrapper>
             </PanelBody>
             <PanelBody name="registrations" title="Registrations">
-                <PagePanelAccountWrapper v-if="serverConnection.loggedIn">
+                <PagePanelAccountWrapper>
                 </PagePanelAccountWrapper>
             </PanelBody>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>

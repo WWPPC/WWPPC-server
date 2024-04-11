@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { FullscreenModal, globalModal } from '@/components/ui-defaults/UIDefaults';
-import PageContest from '@/pages/PageContest.vue';
-import PageTest from '@/pages/PageTest.vue';
-import PageHackathon from '@/pages/PageHackathon.vue';
 import PageHome from '@/pages/PageHome.vue';
-import PageLogin from '@/pages/PageLogin.vue';
+import PageHackathon from '@/pages/PageHackathon.vue';
+import PageContest from '@/pages/PageContest.vue';
 import PageAccount from './pages/PageAccount.vue';
+import PageUserView from '@/pages/PageUserView.vue';
+import PageLogin from '@/pages/PageLogin.vue';
+import PageTest from '@/pages/PageTest.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import { ref, watch } from 'vue';
 import '@/scripts/app';
+import { useRoute } from 'vue-router';
+import recaptcha from './scripts/recaptcha';
 
 const modalComponent = ref<InstanceType<typeof FullscreenModal>>();
 
@@ -19,7 +22,17 @@ watch(() => modalComponent.value, () => {
 });
 
 window.addEventListener('error', (err) => {
-    modal.showModal({ title: 'An Error Occured', content: `<span style="color: red;">${err.message}<br>${err.filename} ${err.lineno}:${err.colno}</span>`, color: 'red'});
+    modal.showModal({ title: 'An Error Occured', content: `<span style="color: red;">${err.message}<br>${err.filename} ${err.lineno}:${err.colno}</span>`, color: 'red' });
+});
+
+// hide recaptcha badge here
+const route = useRoute();
+watch(() => route.params.page, () => {
+    if (route.params.page == 'login' || route.params.page == 'account') {
+        recaptcha.show();
+    } else {
+        recaptcha.hide();
+    }
 });
 </script>
 
@@ -28,9 +41,10 @@ window.addEventListener('error', (err) => {
     <PageHome></PageHome>
     <PageHackathon></PageHackathon>
     <PageContest></PageContest>
-    <PageTest></PageTest>
     <PageAccount></PageAccount>
+    <PageUserView></PageUserView>
     <PageLogin></PageLogin>
+    <PageTest></PageTest>
     <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>
 </template>
