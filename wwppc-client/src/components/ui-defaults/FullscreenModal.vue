@@ -39,7 +39,6 @@ const showModal = async (params: ModalParams): Promise<boolean | string | null> 
     modalInput.value = '';
     modal.inputType = inputType;
     modal.color = color;
-    console.log(modal.color)
     modal.open = true;
     return await new Promise((resolve) => {
         if (modal.mode == ModalMode.QUERY) {
