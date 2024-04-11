@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PanelView, PanelHeader, PanelNavLargeLogo, PanelMain, PanelBody } from '@/components/panels/PanelManager';
+import { PanelView, PanelHeader, PanelNavLargeLogo, PanelMain, PanelBody, PanelRightList, PanelNavList } from '@/components/panels/PanelManager';
 import LoadingCover from '@/components/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';
 import { useRoute } from 'vue-router';
@@ -7,6 +7,7 @@ import { useAccountManager, type AccountData } from '@/scripts/AccountManager';
 import { ref, watch } from 'vue';
 import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
+import UserDisp from '@/components/UserDisp.vue';
 
 const route = useRoute();
 
@@ -60,6 +61,10 @@ watch(() => route.params.userView, async () => {
     <PanelView name="user" title="WWPPC">
         <PanelHeader>
             <PanelNavLargeLogo></PanelNavLargeLogo>
+            <PanelNavList></PanelNavList>
+            <PanelRightList>
+                <UserDisp></UserDisp>
+            </PanelRightList>
         </PanelHeader>
         <PanelMain>
             <PanelBody name="default" :title="route.params.userView?.toString()" is-default>

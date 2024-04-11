@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import im from '@/scripts/detectMobile';
 import { nextTick, onBeforeUpdate, onMounted, ref, watch } from 'vue';
+const isMobile = ref(im);
 
 const props = defineProps<{
     title: string
@@ -41,7 +43,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="headeredCollapsibleContainer">
+    <div :class="'headeredCollapsibleContainer' + (isMobile ? 'noHover' : '')">
         <label class="headeredCollapsibleContainerHeader">
             <h2 class="headeredCollapsibleContainerTitle">{{ props.title }}</h2>
             <div class="headeredCollapsibleContainerImage"></div>
@@ -121,9 +123,7 @@ defineExpose({
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
 
-@media (max-width: 100vh) {
-    .headeredCollapsibleContainer:hover {
-        transform: none !important;
-    }
+.noHover {
+    transform: none !important;
 }
 </style>

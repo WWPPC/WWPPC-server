@@ -18,7 +18,7 @@ rounds.push({
             division: 0,
             round: 0,
             number: 0,
-            name: 'Problem 0',
+            name: 'Test Problem 0',
             author: 'SP^2',
             status: ContestProblemCompletionState.GRADED_PASS
         },
@@ -27,7 +27,7 @@ rounds.push({
             division: 0,
             round: 0,
             number: 1,
-            name: 'Problem 1',
+            name: 'Test Problem 1',
             author: 'SP^2',
             status: ContestProblemCompletionState.GRADED_FAIL
         },
@@ -36,7 +36,7 @@ rounds.push({
             division: 0,
             round: 0,
             number: 2,
-            name: 'Problem 2',
+            name: 'Test Problem 2',
             author: 'SP^2',
             status: ContestProblemCompletionState.SUBMITTED
         },
@@ -45,7 +45,7 @@ rounds.push({
             division: 0,
             round: 0,
             number: 3,
-            name: 'Problem 3',
+            name: 'Test Problem 3',
             author: 'SP^2',
             status: ContestProblemCompletionState.GRADED_PARTIAL
         }
@@ -60,7 +60,7 @@ rounds.push({
             division: 0,
             round: 1,
             number: 0,
-            name: 'Problem 0',
+            name: 'Test Problem 0',
             author: 'SP^2',
             status: ContestProblemCompletionState.UPLOADED
         },
@@ -69,7 +69,7 @@ rounds.push({
             division: 0,
             round: 1,
             number: 1,
-            name: 'Problem 1',
+            name: 'Test Problem 1',
             author: 'SP^2',
             status: ContestProblemCompletionState.NOT_UPLOADED
         },
@@ -78,7 +78,7 @@ rounds.push({
             division: 0,
             round: 1,
             number: 2,
-            name: 'Problem 2',
+            name: 'Test Problem 2',
             author: 'SP^2',
             status: ContestProblemCompletionState.ERROR
         }

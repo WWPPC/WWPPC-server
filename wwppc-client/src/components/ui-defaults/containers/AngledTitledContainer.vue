@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import im from '@/scripts/detectMobile';
+import { ref } from 'vue';
+const isMobile = ref(im);
+
 defineProps<{
     title: string
     width?: string
@@ -8,11 +12,10 @@ defineProps<{
     fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
 }>();
-
 </script>
 
 <template>
-    <div class="titledAngleContainer">
+    <div :class="'titledAngleContainer' + (isMobile ? 'noHover' : '')">
         <div class="titledAngleContainerBody">
             <slot></slot>
         </div>
@@ -87,9 +90,7 @@ defineProps<{
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
 
-@media (max-width: 100vh) {
-    .titledAngleContainer:hover {
-        transform: none !important;
-    }
+.noHover {
+    transform: none !important;
 }
 </style>

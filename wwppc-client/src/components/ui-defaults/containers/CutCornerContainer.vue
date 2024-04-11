@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import im from '@/scripts/detectMobile';
+import { ref } from 'vue';
+const isMobile = ref(im);
+
 defineProps<{
     width?: string
     height?: string
@@ -10,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2' : '')">
+    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2' : '') + (isMobile ? 'noHover' : '')">
         <div :class="'cutCornerContainer ' + ($props.flipped ? 'cutCornerContainerReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerReversed2' : '')">
             <slot></slot>
         </div>
@@ -71,9 +75,7 @@ defineProps<{
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
 }
 
-@media (max-width: 100vh) {
-    .cutCornerContainerWrapper:hover {
-        transform: none !important;
-    }
+.noHover {
+    transform: none !important;
 }
 </style>
