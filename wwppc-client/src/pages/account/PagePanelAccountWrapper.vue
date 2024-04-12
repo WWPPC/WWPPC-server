@@ -126,13 +126,13 @@ const changeProfileImage = (event: any) => {
     padding: 20% 20%;
     border-radius: 50%;
     cursor: pointer;
-    background-color: #FFF3;
+    background-color: #0004;
     opacity: 0;
     transition: 100ms linear opacity;
 }
 
 .accountuserDispImgReplaceOverlay:hover {
-    opacity: 0.5;
+    opacity: 0.8;
 }
 
 .accountUserDispImgUpload {

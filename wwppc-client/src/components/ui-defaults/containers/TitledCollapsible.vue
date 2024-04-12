@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import im from '@/scripts/detectMobile';
+import { isMobileRef } from '@/scripts/userAgent';
 import { nextTick, onBeforeUpdate, onMounted, ref, watch } from 'vue';
-const isMobile = ref(im);
 
 const props = defineProps<{
     title: string
@@ -43,7 +42,7 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="'headeredCollapsibleContainer' + (isMobile ? 'noHover' : '')">
+    <div :class="'headeredCollapsibleContainer' + (isMobileRef ? 'noHover' : '')">
         <label class="headeredCollapsibleContainerHeader">
             <h2 class="headeredCollapsibleContainerTitle">{{ props.title }}</h2>
             <div class="headeredCollapsibleContainerImage"></div>
@@ -66,6 +65,7 @@ defineExpose({
     border-color: v-bind("$props.borderColor ?? ' white'");
     background-color: black;
     text-align: left;
+    will-change: transform;
     overflow: hidden;
 }
 

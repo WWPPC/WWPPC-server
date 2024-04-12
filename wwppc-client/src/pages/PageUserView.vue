@@ -32,28 +32,33 @@ watch(() => route.params.page, async () => {
 });
 
 const userData = ref<AccountData | null>(null);
-watch(() => route.params.userView, async () => {
-    if (route.params.page == 'user') {
-        userData.value = await accountManager.getUserData(route.params.userView?.toString());
-        if (userData.value == null) userData.value = {
-            username: 'test',
-            email: 'oof@test.buh',
-            firstName: 'Test',
-            lastName: 'User',
-            displayName: 'Test User',
-            profileImage: 'nope',
-            bio: 'Just a test user adsfsadf asdf sadf dsaf \nsadf\nasfd\n',
-            school: 'Rickroll Academy',
-            grade: 99999,
-            experience: 4,
-            languages: ['c', 'py'],
-            registrations: [{
-                contest: 'WWPIT',
-                division: 1,
-                name: 'Test Contest'
-            }]
-        }
+const loadUserData = async () => {
+    userData.value = await accountManager.getUserData(route.params.userView?.toString());
+    if (userData.value == null) userData.value = {
+        username: 'test',
+        email: 'oof@test.buh',
+        firstName: 'Test',
+        lastName: 'User',
+        displayName: 'Test User',
+        profileImage: 'nope',
+        bio: 'Just a test user adsfsadf asdf sadf dsaf \nsadf\nasfd\n',
+        school: 'Rickroll Academy',
+        grade: 99999,
+        experience: 4,
+        languages: ['c', 'py'],
+        registrations: [{
+            contest: 'WWPIT',
+            division: 1,
+            name: 'Test Contest'
+        }]
     }
+};
+watch(() => route.params.userView, () => {
+    if (route.params.page == 'user') loadUserData();
+});
+
+serverConnection.handshakePromise.then(() => {
+    if (route.params.page == 'user') loadUserData();
 });
 </script>
 
@@ -68,6 +73,9 @@ watch(() => route.params.userView, async () => {
         </PanelHeader>
         <PanelMain>
             <PanelBody name="default" :title="route.params.userView?.toString()" is-default>
+                <div class="vStack">
+                    <!-- scroll timeline?? -->
+                </div>
                 {{ userData }}
             </PanelBody>
             <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
@@ -75,3 +83,10 @@ watch(() => route.params.userView, async () => {
         </PanelMain>
     </PanelView>
 </template>
+
+<style scoped>
+.vStack {
+    display: flex;
+    flex-direction: column;
+}
+</style>

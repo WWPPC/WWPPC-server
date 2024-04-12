@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import im from '@/scripts/detectMobile';
-import { ref } from 'vue';
-const isMobile = ref(im);
+import { isMobileRef } from '@/scripts/userAgent';
 
 defineProps<{
     width?: string
@@ -14,7 +12,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2' : '') + (isMobile ? 'noHover' : '')">
+    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2' : '') + (isMobileRef ? 'noHover' : '')">
         <div :class="'cutCornerContainer ' + ($props.flipped ? 'cutCornerContainerReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerReversed2' : '')">
             <slot></slot>
         </div>
@@ -31,6 +29,8 @@ defineProps<{
     background-color: v-bind("$props.borderColor ?? ' white'");
     text-align: left;
     transition: 200ms ease transform;
+    /* maybe this will fix mobile issues */
+    will-change: transform;
     overflow: hidden;
 }
 

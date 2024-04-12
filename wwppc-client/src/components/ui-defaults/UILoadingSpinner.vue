@@ -18,7 +18,7 @@ defineProps<{
     max-width: 100%;
     max-height: 100%;
     aspect-ratio: 1;
-    animation: 2000ms cubic-bezier(0.8, -0.7, 0.5, 1.5) ui-loading-spinner-spin infinite;
+    animation: 2000ms cubic-bezier(0.8, -0.7, 0.5, 1.5) -1400ms ui-loading-spinner-spin infinite;
 }
 
 @keyframes ui-loading-spinner-spin {

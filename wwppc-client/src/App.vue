@@ -27,8 +27,8 @@ window.addEventListener('error', (err) => {
 
 // hide recaptcha badge here
 const route = useRoute();
-watch(() => route.params.page, () => {
-    if (route.params.page == 'login' || route.params.page == 'account') {
+watch(() => route.params, () => {
+    if (route.params.page === 'login' || route.params.page === 'account') {
         recaptcha.show();
     } else {
         recaptcha.hide();

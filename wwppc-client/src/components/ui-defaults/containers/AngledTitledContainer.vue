@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import im from '@/scripts/detectMobile';
-import { ref } from 'vue';
-const isMobile = ref(im);
+import { isMobileRef } from '@/scripts/userAgent';
 
 defineProps<{
     title: string
@@ -15,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :class="'titledAngleContainer' + (isMobile ? 'noHover' : '')">
+    <div :class="'titledAngleContainer' + (isMobileRef ? 'noHover' : '')">
         <div class="titledAngleContainerBody">
             <slot></slot>
         </div>
@@ -37,6 +35,7 @@ defineProps<{
     border-color: v-bind("$props.borderColor ?? ' white'");
     background-color: black;
     text-align: left;
+    will-change: transform;
     overflow: hidden;
 }
 
