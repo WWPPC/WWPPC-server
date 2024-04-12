@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import im from '@/scripts/detectMobile';
-import { ref } from 'vue';
-const isMobile = ref(im);
+import { isMobileRef } from '@/scripts/userAgent';
 
 defineProps<{
     width?: string
@@ -13,7 +11,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :class="'doubleCutCornerContainerWrapper ' + ($props.flipped ? 'doubleCutCornerContainerWrapperReversed' : '') + (isMobile ? 'noHover' : '')">
+    <div :class="'doubleCutCornerContainerWrapper ' + ($props.flipped ? 'doubleCutCornerContainerWrapperReversed' : '') + (isMobileRef ? 'noHover' : '')">
         <div :class="'doubleCutCornerContainer ' + ($props.flipped ? 'doubleCutCornerContainerReversed' : '')">
             <slot></slot>
         </div>
@@ -30,6 +28,7 @@ defineProps<{
     background-color: v-bind("$props.borderColor ?? ' white'");
     text-align: left;
     transition: 200ms ease transform;
+    will-change: transform;
     overflow: hidden;
 }
 

@@ -55,11 +55,10 @@ const changePassword = async () => {
     const currPassword = currentPasswordInput.value;
     clearDangerButtons();
     const newPassword = await modal.showModal({
-        title: 'Change Password (1)',
+        title: 'Change Password',
         content: 'Enter your new password:',
         mode: ModalMode.QUERY,
-        inputType: 'password',
-        glitchTitle: true
+        inputType: 'password'
     });
     // also handles "cancel" case
     if (typeof newPassword != 'string' || newPassword.trim() == '') return;
@@ -67,22 +66,20 @@ const changePassword = async () => {
         modal.showModal({
             title: 'Password Too Long!',
             content: 'Wow, that\'s a <i>REALLY</i> long password! However, please make it less than 1024 characters!',
-            color: 'red',
-            glitchTitle: true
+            color: 'red'
         });
         return;
     }
     let newPassword2 = await modal.showModal({
-        title: 'Change Password (2)',
+        title: 'Change Password',
         content: 'Enter the password again:',
         mode: ModalMode.QUERY,
-        inputType: 'password',
-        glitchTitle: true
+        inputType: 'password'
     });
     if (typeof newPassword2 != 'string' || newPassword2.trim() == '') return;
     while (newPassword2 !== newPassword) {
         newPassword2 = await modal.showModal({
-            title: 'Change Password (2)',
+            title: 'Change Password',
             content: 'Make sure you entered the same password.<br>Enter the password again:',
             mode: ModalMode.QUERY,
             inputType: 'password'
@@ -93,9 +90,8 @@ const changePassword = async () => {
     async function modalSpam() {
         while (spam) {
             await modal.showModal({
-                title: 'Change Password (3)',
+                title: 'Change Password',
                 content: 'Please wait...',
-                glitchTitle: true
             });
         }
     }
@@ -152,7 +148,6 @@ const deleteAccount = async () => {
             await modal.showModal({
                 title: 'Delete Account',
                 content: 'Please wait...',
-                glitchTitle: true
             });
         }
     }
@@ -170,8 +165,6 @@ const clearDangerButtons = () => {
     changePasswordEnabled.value = false;
 };
 onMounted(clearDangerButtons);
-
-setInterval(() => console.log(accountManager.profileImage), 10000)
 </script>
 
 <template>

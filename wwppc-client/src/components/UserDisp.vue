@@ -34,7 +34,7 @@ serverConnection.handshakePromise.then(() => {
 <template v-slot:userDisp>
     <div class="userDispContainer">
         <div class="userDispUser">
-            <UIImage :src=accountManager.profileImage width="32px" height="32px" :round="true" v-if="serverConnection.loggedIn || ignoreServer"></UIImage>
+            <UIImage :src=accountManager.profileImage width="28px" height="28px" style="border: 2px solid white;" :round="true" v-if="serverConnection.loggedIn || ignoreServer"></UIImage>
             <span class="userDispUserName">{{ name }}</span>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>

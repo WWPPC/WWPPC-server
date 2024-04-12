@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { isMobile } from '../../../scripts/detectMobile';
-
-// sacrilege
 defineProps<{
     type: AnimateInType
     width?: string
@@ -18,7 +15,7 @@ export default {
         return { createdObserver: false }
     },
     mounted() {
-        if (this.$props.showOnScreen && !isMobile) {
+        if (this.$props.showOnScreen) {
             if (this.createdObserver) return;
             this.createdObserver = true;
             if (this.$props.single) {

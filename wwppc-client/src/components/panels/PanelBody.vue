@@ -13,14 +13,14 @@ const props = defineProps<{
 const instance = getCurrentInstance();
 watch(() => route.params, async () => {
     await nextTick();
-    if (instance?.isMounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault))) setTitlePanel(props.title ?? '');
+    if (instance?.isMounted && (route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined))) setTitlePanel(props.title ?? '');
 });
-if ((route.params.panel === undefined && props.isDefault) || route.params.panel == props.name) setTitlePanel(props.title ?? '');
+if ((route.params.panel === undefined && props.isDefault && route.params.catchAll === undefined) || route.params.panel == props.name) setTitlePanel(props.title ?? '');
 </script>
 
 <template>
     <Transition>
-        <div class="panelBody" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault)">
+        <div class="panelBody" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined)">
             <div class="panelBodySlotContainer">
                 <slot></slot>
             </div>

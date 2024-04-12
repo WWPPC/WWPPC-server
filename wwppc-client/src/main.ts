@@ -43,6 +43,11 @@ const router = createRouter({
         {
             path: '/:page(user)/:userView',
             components: { App }
+        },
+        // spaghetti
+        {
+            path: '/:catchAll+',
+            components: { App }
         }
     ]
 });
