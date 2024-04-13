@@ -37,6 +37,17 @@ export class ContestManager {
         this.#db = db;
         this.#app = app;
         this.#grader = new DomjudgeGrader(app);
+
+        const interval = setInterval(() => {
+            const newSubmissions = this.#grader.getNewGradedSubmissions();
+            for (let s of newSubmissions) {
+                for (let socket of this.#users[s.username]) {
+                    socket.emit("submissionStatus", s);
+                }
+                this.#db.writeSubmission(s);
+            }
+        }, 1000);
+        //make sure this isn't accidentally left running when the object is deleted
     }
 
     /**
@@ -56,21 +67,29 @@ export class ContestManager {
             registrations: userData.registrations,
             sockets: new Set<Socket>().add(socket)
         });
+        socket.on("updateSubmission", (data) => {
+            //replace this with a kick() function
+            if (typeof data.problemId !== "string" || typeof data.file !== "string" || typeof data.lang !== "string") {
+                //also need to check valid language, valid problem id
+                socket.removeAllListeners();
+                socket.disconnect();
+                return;
+            }
+            if (data.file.length > 10240) {
+                //tell the socket that the file is too big
+                return;
+            }
+            this.#grader.queueSubmission({
+                username: username,
+                problemId: data.problemId,
+                time: Date.now(),
+                file: data.file,
+                lang: data.lang,
+                scores: [],
+            });
+        });
         return 1;
     }
-
-    // /**
-    //  * Queue a submission to be judged
-    //  * @param {Submission} submission submission data
-    //  * @returns {boolean} whether the thing was successfully pushed to the queue AND written into the database
-    //  */
-    // async queueSubmission(submission: Submission) {
-    //     const res = await this.#db.writeSubmission(submission);
-    //     if (res) {
-    //         return this.#grader.queueSubmission(submission);
-    //     }
-    //     return res;
-    // }
 }
 
 export default ContestManager;
