@@ -29,7 +29,6 @@ defineProps<{
     background-color: v-bind("$props.borderColor ?? ' white'");
     text-align: left;
     transition: 200ms ease transform;
-    /* maybe this will fix mobile issues */
     will-change: transform;
     overflow: hidden;
 }

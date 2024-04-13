@@ -29,9 +29,13 @@ export default {
 </script>
 
 <template>
-    <div>
-        <div class="invisible">
-            <slot></slot>
-        </div>
+    <div class="showOnscreenContainer invisible">
+        <slot></slot>
     </div>
 </template>
+
+<style>
+.showOnscreenContainer {
+    will-change: visibility;
+}
+</style>

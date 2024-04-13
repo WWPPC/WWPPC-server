@@ -107,6 +107,7 @@ defineExpose({
     max-height: v-bind("show ? (boxHeight + 'px') : '0px'");
     height: v-bind("boxHeight + 'px'");
     transition: v-bind("Math.round(Math.sqrt(boxHeight * 200)) + 'ms'") ease max-height;
+    will-change: max-height;
     overflow: clip;
 }
 

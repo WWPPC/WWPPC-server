@@ -2,7 +2,7 @@
 import { PanelView, PanelHeader, PanelNavLargeLogo, PanelMain, PanelBody, PanelRightList, PanelNavList } from '@/components/panels/PanelManager';
 import LoadingCover from '@/components/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAccountManager, type AccountData } from '@/scripts/AccountManager';
 import { ref, watch } from 'vue';
 import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
@@ -10,6 +10,7 @@ import { useServerConnection } from '@/scripts/ServerConnection';
 import UserDisp from '@/components/UserDisp.vue';
 
 const route = useRoute();
+const router = useRouter();
 
 const modal = globalModal();
 const serverConnection = useServerConnection();
@@ -33,7 +34,9 @@ watch(() => route.params.page, async () => {
 
 const userData = ref<AccountData | null>(null);
 const loadUserData = async () => {
+    // console.log(serverConnection.loggedIn, route.params.userView)
     userData.value = await accountManager.getUserData(route.params.userView?.toString());
+    // console.log(userData.value)
     if (userData.value == null) userData.value = {
         username: 'test',
         email: 'oof@test.buh',
@@ -53,11 +56,15 @@ const loadUserData = async () => {
         }]
     }
 };
-watch(() => route.params.userView, () => {
-    if (route.params.page == 'user') loadUserData();
+watch(() => route.params, () => {
+    if (route.params.page != 'user' || route.query.ignore_server !== undefined) return;
+    serverConnection.handshakePromise.then(() => {
+        if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath } });
+    });
+    loadUserData();
 });
 
-serverConnection.handshakePromise.then(() => {
+watch(() => serverConnection.loggedIn, () => {
     if (route.params.page == 'user') loadUserData();
 });
 </script>

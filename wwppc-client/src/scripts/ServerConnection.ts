@@ -32,18 +32,21 @@ socket.on('connect_error', () => state.connectError = true);
 socket.on('connect_fail', () => state.connectError = true);
 
 let handshakeResolve: (v: any) => void = () => { };
+let loginResolve: (v: any) => void = () => { };
 const state = reactive<{
-    loggedIn: boolean
-    connectError: boolean
     handshakeComplete: boolean
     handshakePromise: Promise<undefined>
+    connectError: boolean
+    loggedIn: boolean
+    loginPromise: Promise<undefined>
     manualLogin: boolean
     encryptedPassword: ArrayBuffer | string | null
 }>({
-    loggedIn: false,
-    connectError: false,
     handshakeComplete: false,
     handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
+    connectError: false,
+    loggedIn: false,
+    loginPromise: new Promise((resolve) => loginResolve = resolve),
     manualLogin: true,
     encryptedPassword: null
 });
@@ -138,6 +141,7 @@ export const sendCredentials = async (username: string, password: string | Array
                     state.encryptedPassword = password2;
                     window.localStorage.setItem('sessionId', RSA.sid.toString());
                     state.loggedIn = true;
+                    loginResolve(undefined);
                     accountManager.username = username;
                     accountManager.updateOwnUserData();
                 }

@@ -62,7 +62,7 @@ const attemptLogin = async () => {
     const res = await accountManager.login(usernameInput.value ?? '', passwordInput.value ?? '', token);
     showLoginWait.value = false;
     if (res == 0) {
-        router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
+        router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
     } else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toSignUp = () => {
@@ -84,7 +84,7 @@ const attemptSignup = async () => {
     });
     showLoginWait.value = false;
     if (res == 0) {
-        router.push((typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home');
+        router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
     } else modal.showModal({ title: 'Could not sign up:', content: getAccountOpMessage(res), color: 'red' });
 };
 </script>
@@ -140,47 +140,47 @@ const attemptSignup = async () => {
                                                 Grade Level:
                                             </span>
                                             <UIDropdown v-model="gradeInput" width="calc(100% - 4px)" :items="[
-                            { text: 'Pre-High School', value: '8' },
-                            { text: '9', value: '9' },
-                            { text: '10', value: '10' },
-                            { text: '11', value: '11' },
-                            { text: '12', value: '12' },
-                            { text: 'College Student', value: '13' },
-                            { text: 'Graduated', value: '14' }
-                        ]" title="Your current grade level" required></UIDropdown>
+                                                { text: 'Pre-High School', value: '8' },
+                                                { text: '9', value: '9' },
+                                                { text: '10', value: '10' },
+                                                { text: '11', value: '11' },
+                                                { text: '12', value: '12' },
+                                                { text: 'College Student', value: '13' },
+                                                { text: 'Graduated', value: '14' }
+                                            ]" title="Your current grade level" required></UIDropdown>
                                             <span>
                                                 Experience Level:
                                             </span>
                                             <UIDropdown v-model="experienceInput" width="calc(100% - 4px)" :items="[
-                            { text: 'Beginner / AP CS A', value: '0' },
-                            { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
-                            { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-                            { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
-                            { text: 'Cracked / IOI / USACO Camp', value: '4' },
-                        ]" title="Your experience level with competitive programming" required></UIDropdown>
+                                                { text: 'Beginner / AP CS A', value: '0' },
+                                                { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+                                                { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
+                                                { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
+                                                { text: 'Cracked / IOI / USACO Camp', value: '4' },
+                                            ]" title="Your experience level with competitive programming" required></UIDropdown>
                                             <span>
                                                 Known languages:<br>(use CTRL/SHIFT)
                                             </span>
                                             <UIDropdown v-model="languageInput" width="calc(100% - 4px)" :items="[
-                            { text: 'Python', value: 'python' },
-                            { text: 'C', value: 'c' },
-                            { text: 'C++', value: 'cpp' },
-                            { text: 'C#', value: 'cs' },
-                            { text: 'Java', value: 'java' },
-                            { text: 'JavaScript', value: 'js' },
-                            { text: 'SQL', value: 'sql' },
-                            { text: 'Assembly', value: 'asm' },
-                            { text: 'PHP', value: 'php' },
-                            { text: 'Swift', value: 'swift' },
-                            { text: 'Pascal', value: 'pascal' },
-                            { text: 'Ruby', value: 'python' },
-                            { text: 'Rust', value: 'rust' },
-                            { text: 'Scratch', value: 'scratch' },
-                            { text: 'LabVIEW', value: 'ev3' },
-                            { text: 'Kotlin', value: 'ktx' },
-                            { text: 'Lua', value: 'lua' },
-                            { text: 'Bash', value: 'bash' },
-                        ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
+                                                { text: 'Python', value: 'python' },
+                                                { text: 'C', value: 'c' },
+                                                { text: 'C++', value: 'cpp' },
+                                                { text: 'C#', value: 'cs' },
+                                                { text: 'Java', value: 'java' },
+                                                { text: 'JavaScript', value: 'js' },
+                                                { text: 'SQL', value: 'sql' },
+                                                { text: 'Assembly', value: 'asm' },
+                                                { text: 'PHP', value: 'php' },
+                                                { text: 'Swift', value: 'swift' },
+                                                { text: 'Pascal', value: 'pascal' },
+                                                { text: 'Ruby', value: 'python' },
+                                                { text: 'Rust', value: 'rust' },
+                                                { text: 'Scratch', value: 'scratch' },
+                                                { text: 'LabVIEW', value: 'ev3' },
+                                                { text: 'Kotlin', value: 'ktx' },
+                                                { text: 'Lua', value: 'lua' },
+                                                { text: 'Bash', value: 'bash' },
+                                            ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </PairedGridContainer>
                                         <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
                                     </form>

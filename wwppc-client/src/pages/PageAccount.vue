@@ -24,7 +24,7 @@ serverConnection.ondisconnect(() => {
 });
 serverConnection.handshakePromise.then(() => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+    if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath } });
 });
 watch(() => route.params.page, () => {
     if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
