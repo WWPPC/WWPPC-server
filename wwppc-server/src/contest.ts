@@ -14,15 +14,9 @@ interface ContestUser {
 
 //user-facing contest manager
 //actual grading is done with the Grader class
-/**
- * 
- */
 export class ContestManager {
     readonly #users: Map<string, ContestUser> = new Map();
-    // will replace with black-box judgehost API class?
-    readonly #judgehosts: Set<string> = new Set();
     readonly #grader: Grader;
-    //we're probably going to end up either using judgehosts or grader
 
     readonly #db: Database;
     readonly #app: express;
@@ -46,13 +40,10 @@ export class ContestManager {
     }
 
     /**
-     * please use punctuation in "documentation".
-     */
-    /**
      * Add a username-linked SocketIO connection to the user list.
      * @param {string} username Username to link this socket to
      * @param {Socket} socket SocketIO connection
-     * @returns {number} The number of sockets linked to that username. If 0, then adding the user was unsuccessful.
+     * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(username: string, socket: Socket): Promise<number> {
         if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
@@ -66,14 +57,6 @@ export class ContestManager {
             sockets: new Set<Socket>().add(socket)
         });
         return 1;
-    }
-
-    /**
-     * 
-     * @param {string} username Username to update information for
-     */
-    async updateUserData(username: string) {
-
     }
 
     // /**
