@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
-import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { DoubleCutCornerContainer, CutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, completionStateString, type ContestProblem } from '@/scripts/ContestManager';
 import { ref, watch, type Ref } from 'vue';
@@ -108,9 +108,9 @@ const sanitizeUpload = () => {
                     <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
                 </form>
             </DoubleCutCornerContainer>
-            <DoubleCutCornerContainer flipped>
-                put previous submissions here?
-            </DoubleCutCornerContainer>
+            <CutCornerContainer>
+                Previous submissions
+            </CutCornerContainer>
         </div>
     </div>
 </template>
