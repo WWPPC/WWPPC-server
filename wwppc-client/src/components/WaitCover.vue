@@ -12,7 +12,7 @@ const size = ref(0);
 export default {
     async beforeUpdate() {
         await nextTick();
-        if (this.$el.getBoundingClientRect == undefined) return;
+        if (this.$el?.getBoundingClientRect == undefined) return;
         const rect = this.$el.getBoundingClientRect();
         size.value = Math.min(rect.width * 0.25, rect.height * 0.25);
     }

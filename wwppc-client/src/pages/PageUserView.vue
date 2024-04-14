@@ -8,6 +8,7 @@ import { ref, watch } from 'vue';
 import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import UserDisp from '@/components/UserDisp.vue';
+import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 
 const route = useRoute();
 const router = useRouter();
@@ -34,9 +35,7 @@ watch(() => route.params.page, async () => {
 
 const userData = ref<AccountData | null>(null);
 const loadUserData = async () => {
-    // console.log(serverConnection.loggedIn, route.params.userView)
     userData.value = await accountManager.getUserData(route.params.userView?.toString());
-    // console.log(userData.value)
     if (userData.value == null) userData.value = {
         username: 'test',
         email: 'oof@test.buh',
@@ -63,10 +62,12 @@ watch(() => route.params, () => {
     });
     loadUserData();
 });
-
 watch(() => serverConnection.loggedIn, () => {
     if (route.params.page == 'user') loadUserData();
 });
+
+const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40);
+const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40);
 </script>
 
 <template>
@@ -80,20 +81,94 @@ watch(() => serverConnection.loggedIn, () => {
         </PanelHeader>
         <PanelMain>
             <PanelBody name="default" :title="route.params.userView?.toString()" is-default>
-                <div class="vStack">
-                    <!-- scroll timeline?? -->
+                <div class="userViewGrid">
+                    <div class="userViewProfileHeaderWrapper">
+                        <div class="centered">
+                            <div class="userViewProfileHeader">
+                                <img class="userViewProfileImg" :src="userData?.profileImage">
+                                <span class="userViewDisplayName">{{ displayName }}</span>
+                                <span class="userViewUsername">{{ username }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vStack">
+                        {{ userData }}
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                        <br>a
+                    </div>
                 </div>
-                {{ userData }}
             </PanelBody>
             <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
-            <LoadingCover text="Connecting..." :ignore-server="true"></LoadingCover>
+            <LoadingCover text="Signing you in..." :ignore-server="true"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>
 
 <style scoped>
+.userViewGrid {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 .vStack {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.userViewProfileHeaderWrapper {
+    min-height: 40vh;
+    max-height: 40vh;
+    background-color: black;
+    box-shadow: 0px 0px 24px white;
+    z-index: 1;
+}
+
+.userViewProfileHeader {
+    display: grid;
 }
 </style>

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { reactive, ref, watch } from "vue";
 import { sendCredentials, type CredentialsSignupData, useServerConnection, AccountOpResult } from "./ServerConnection";
+import type { Registration } from "./ContestManager";
 
 export interface AccountData {
     username: string
@@ -16,14 +17,6 @@ export interface AccountData {
     languages: string[]
     registrations: Registration[]
 }
-export type Registration = {
-    contest: 'WWPIT' | 'WWPHacks'
-    division: number
-    name: string
-}
-export const toDivName = (division: number) => {
-    return division == 1 ? 'Advanced' : (division == 0 ? 'Novice' : 'Unknown');
-};
 
 const unsaved = ref(false);
 const state = reactive<AccountData>({
@@ -95,53 +88,59 @@ export const useAccountManager = defineStore('accountManager', {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return null;
             return await new Promise((resolve) => {
-                serverConnection.emit('getUserData', { username });
-                serverConnection.once('userData', (data: AccountData | null) => resolve(data));
+                const token = Math.random();
+                serverConnection.emit('getUserData', { username, token });
+                const handle = ({data, token: token2}: { data: AccountData | null, token: number }) => {
+                    if (token2 != token) return;
+                    resolve(data);
+                    serverConnection.off('userdata', handle);
+                };
+                serverConnection.on('userData', handle);
             });
         },
-        async updateOwnUserData(): Promise<boolean> {
-            const dat = await this.getUserData(this.username);
-            if (dat != null) {
-                this.email = dat.email;
-                this.firstName = dat.firstName;
-                this.lastName = dat.lastName;
-                this.displayName = dat.displayName;
-                this.profileImage = dat.profileImage;
-                this.bio = dat.bio;
-                this.school = dat.school;
-                this.grade = dat.grade;
-                this.experience = dat.experience;
-                this.languages = dat.languages;
-                this.registrations = dat.registrations;
-                setTimeout(() => unsaved.value = false);
-                return true;
-            }
-            return false;
+        async updateOwnUserData(): Promise < boolean > {
+    const dat = await this.getUserData(this.username);
+    if(dat != null) {
+    this.email = dat.email;
+    this.firstName = dat.firstName;
+    this.lastName = dat.lastName;
+    this.displayName = dat.displayName;
+    this.profileImage = dat.profileImage;
+    this.bio = dat.bio;
+    this.school = dat.school;
+    this.grade = dat.grade;
+    this.experience = dat.experience;
+    this.languages = dat.languages;
+    this.registrations = dat.registrations;
+    setTimeout(() => unsaved.value = false);
+    return true;
+}
+return false;
 
         },
-        async writeUserData(): Promise<AccountOpResult> {
-            const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('setUserData', {
-                    password: serverConnection.encryptedPassword,
-                    data: {
-                        firstName: await serverConnection.RSAencrypt(this.firstName),
-                        lastName: await serverConnection.RSAencrypt(this.lastName),
-                        displayName: await serverConnection.RSAencrypt(this.displayName),
-                        profileImage: this.profileImage,
-                        bio: await serverConnection.RSAencrypt(this.bio),
-                        school: await serverConnection.RSAencrypt(this.school),
-                        grade: this.grade,
-                        experience: this.experience,
-                        languages: this.languages
-                    }
-                });
-                serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
-                    if (res == AccountOpResult.SUCCESS) unsaved.value = false;
-                    resolve(res);
-                });
-            });
-        }
+        async writeUserData(): Promise < AccountOpResult > {
+    const serverConnection = useServerConnection();
+    if(!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+    return await new Promise(async (resolve) => {
+        serverConnection.emit('setUserData', {
+            password: serverConnection.encryptedPassword,
+            data: {
+                firstName: await serverConnection.RSAencrypt(this.firstName),
+                lastName: await serverConnection.RSAencrypt(this.lastName),
+                displayName: await serverConnection.RSAencrypt(this.displayName),
+                profileImage: this.profileImage,
+                bio: await serverConnection.RSAencrypt(this.bio),
+                school: await serverConnection.RSAencrypt(this.school),
+                grade: this.grade,
+                experience: this.experience,
+                languages: this.languages
+            }
+        });
+        serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
+            if (res == AccountOpResult.SUCCESS) unsaved.value = false;
+            resolve(res);
+        });
+    });
+}
     }
 });

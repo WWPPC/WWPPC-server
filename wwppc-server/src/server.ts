@@ -221,7 +221,7 @@ io.on('connection', async (s) => {
             kick('invalid getUserData parameters');
             return;
         }
-        socket.emit('userData', await database.getAccountData(data.username));
+        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username });
     });
     socket.on('setUserData', async (data: { password: Buffer | string, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
         if (data == undefined || data.data == undefined) {

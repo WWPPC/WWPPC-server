@@ -29,7 +29,7 @@ defineProps<{
     display: grid;
     grid-template-rows: min-content 1fr;
     padding: 0px 0px;
-    overflow: clip;
+    overflow: hidden;
 }
 
 .titledDoubleCutCornerContainerTitle {

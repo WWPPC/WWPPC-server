@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import { glitchTextTransition, autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
-import { toDivName, useAccountManager } from '@/scripts/AccountManager';
+import { useAccountManager } from '@/scripts/AccountManager';
 import { onMounted, ref, watch } from 'vue';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
+import { toDivName } from '@/scripts/ContestManager';
 
 const modal = globalModal();
 const accountManager = useAccountManager();
 
 // random nullish coalescers fix weird bug in dev
-const dispName = ref('');
-const username = ref('');
-watch(() => accountManager.displayName, () => {
-    glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
-});
-watch(() => accountManager.username, () => {
-    glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
-});
+const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 20);
+const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 20);
 onMounted(() => {
     glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
     glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
+});
+const registrations = ref<string[]>([]);
+watch(() => accountManager.registrations, () => {
+    registrations.value = accountManager.registrations.map((reg) => `${reg.contest}&nbsp;${toDivName(reg.division)}&nbsp;Division`);
 });
 
 const fileUpload = ref<HTMLInputElement>();
@@ -40,11 +39,11 @@ const changeProfileImage = (event: any) => {
             accountManager.profileImage = reader.result;
             accountManager.writeUserData();
         } else {
-            modal.showModal({ title: 'Unsupported file type', content: 'Only .png and .jpg/.jpeg images are allowed.', color: 'red'});
+            modal.showModal({ title: 'Unsupported file type', content: 'Only .png and .jpg/.jpeg images are allowed.', color: 'red' });
         }
     };
     reader.onerror = () => {
-        modal.showModal({ title: 'Error decoding image', content: 'An error occured and your profile image could not be used. Try using a .png or .jpg/.jpeg image instead.', color: 'red'});
+        modal.showModal({ title: 'Error decoding image', content: 'An error occured and your profile image could not be used. Try using a .png or .jpg/.jpeg image instead.', color: 'red' });
     };
     reader.readAsDataURL(file);
 };
@@ -61,8 +60,8 @@ const changeProfileImage = (event: any) => {
             <span class="accountUserDisplayName">{{ dispName }}</span>
             <span class="accountUserUsername">{{ username }}</span>
             <div class="accountUserRegistrations">
-                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="reg.contest + reg.division" :delay="i * 200">
-                    {{ reg.contest }}&nbsp;{{ toDivName(reg.division) }}&nbsp;Division
+                <AnimateInContainer type="slideUp" v-for="(reg, i) in registrations" :key="i" :delay="i * 200">
+                    <span v-html="reg"></span>
                 </AnimateInContainer>
             </div>
             <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>

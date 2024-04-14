@@ -2,24 +2,50 @@
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { ContestProblemCompletionState, completionStateString, type ContestProblem } from '@/scripts/ContestManager';
-import { ref, watch, type Ref } from 'vue';
+import { ContestProblemCompletionState, completionStateString, type ContestProblem, type ContestSubmission } from '@/scripts/ContestManager';
+import { ref, watch, onMounted } from 'vue';
 import katex from 'katex';
+import { useContestManager } from '@/scripts/ContestManager';
+import { useRoute, useRouter } from 'vue-router';
+import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import WaitCover from '@/components/WaitCover.vue';
 
+const route = useRoute();
+const router = useRouter();
+const contestManager = useContestManager();
 const modal = globalModal();
 
 // load problem information from server
-const problem: Ref<ContestProblem> = ref({
-    id: 'buh',
+const problem = ref<ContestProblem>({
+    id: 'loading',
     division: 0,
     round: 0,
     number: 0,
-    name: 'Problem Name',
-    author: 'buh',
+    name: 'Loading Problem...',
+    author: 'Loading Screen',
     content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
     constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
 });
+const submission = ref<ContestSubmission>();
+onMounted(async () => {
+    if (route.params.problemId !== undefined) {
+        const { problem: p, submission: s } = await contestManager.getProblemData(route.params.problemId.toString());
+        problem.value = p;
+        submission.value = s;
+    } else if (route.query.ignore_server === undefined) {
+        modal.showModal({title: 'No problem ID', content: 'No problem ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red'}).then(() => {
+            router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
+        });
+    }
+});
+
+watch(() => problem.value.name, () => {
+    setTitlePanel(problem.value.name);
+});
+const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
+const problemSubtitle1 = autoGlitchTextTransition(() => `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`, 40, 1, 20);
+const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
 const latexify = (str: string) => {
     //math rendering errors are handled by katex itself since throwOnError=false
@@ -38,17 +64,12 @@ const latexify = (str: string) => {
             return "<span style='color: red'>Math error</span>";
         }
     });
-}
-
-watch(() => problem.value.name, () => {
-    setTitlePanel(problem.value.name);
-});
+};
 
 // uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();
 const languageDropdown = ref<InstanceType<typeof UIDropdown>>();
-// typescript kept complaining about "var" and semicolons
-const sanitizeUpload = () => {
+const handleUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
     if (file.size > 10240) {
@@ -65,7 +86,7 @@ const sanitizeUpload = () => {
             break;
         }
     }
-}
+};
 </script>
 
 <template>
@@ -74,13 +95,13 @@ const sanitizeUpload = () => {
     </div>
     <div class="problemViewPanel">
         <div class="problemViewDouble">
-            <TitledCutCornerContainer :title="problem.name" style="grid-row: span 3;" vertical-flipped>
-                <!-- add custom title with the subtitle and most recent submission status? -->
+            <TitledCutCornerContainer :title="problemName" style="grid-row: span 3;" vertical-flipped>
                 <div class="problemViewSubtitle">
-                    <span>Problem {{ problem.round }}-{{ problem.number }}; by {{ problem.author }}</span>
-                    <span>{{ problem.constraints.memory }}MB, {{ problem.constraints.time }}ms&emsp;|&emsp;{{ completionStateString(problem.status) }}</span>
+                    <span v-html="problemSubtitle1"></span>
+                    <span v-html="problemSubtitle2"></span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
+                <WaitCover text="Loading..." :show="problem.id == 'loading'"></WaitCover> 
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
@@ -93,17 +114,17 @@ const sanitizeUpload = () => {
                 <form class="problemViewSubmitForm" action="javascript:void(0)">
                     <div class="problemViewSubmitFormInner">
                         <span>Source code:</span>
-                        <UIFileUpload ref="fileUpload" @input=sanitizeUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
+                        <UIFileUpload ref="fileUpload" @input=handleUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="[
-            { text: 'Java 8', value: 'java8' },
-            { text: 'Java 17', value: 'java17' },
-            { text: 'Java 21', value: 'java21' },
-            { text: 'C', value: 'c' },
-            { text: 'C++ 11', value: 'cpp11' },
-            { text: 'C++ 17', value: 'cpp17' },
-            { text: 'Python 3.6.9', value: 'py369' }
-        ]" required></UIDropdown>
+                            { text: 'Java 8', value: 'java8' },
+                            { text: 'Java 17', value: 'java17' },
+                            { text: 'Java 21', value: 'java21' },
+                            { text: 'C', value: 'c' },
+                            { text: 'C++ 11', value: 'cpp11' },
+                            { text: 'C++ 17', value: 'cpp17' },
+                            { text: 'Python 3.6.9', value: 'py369' }
+                        ]" required></UIDropdown>
                     </div>
                     <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
                 </form>

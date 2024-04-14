@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
-import { useServerConnection } from "./ServerConnection";
+import { useServerConnection } from './ServerConnection';
 import { reactive } from "vue";
 
-export type ContestRound = {
+export interface ContestRound {
     division: number
     number: number
     time: number
     problems: ContestProblemMetaData[]
 }
-export type ContestProblemMetaData = {
+export interface ContestProblemMetaData {
     id: string
     division: number
     round: number
@@ -17,7 +17,7 @@ export type ContestProblemMetaData = {
     author: string
     status: ContestProblemCompletionState
 }
-export type ContestProblem = {
+export interface ContestProblem {
     id: string
     division: number
     round: number
@@ -37,6 +37,31 @@ export enum ContestProblemCompletionState {
     GRADED_PARTIAL = 5,
     ERROR = 6
 }
+export interface ContestSubmission {
+    time: number
+    scores: ContestScore[]
+}
+export interface ContestScore {
+    state: ContestScoreState
+    time: number
+    memory: number
+}
+export enum ContestScoreState {
+    CORRECT = 1,
+    INCORRECT = 2,
+    TIME_LIM_EXCEEDED = 3,
+    MEM_LIM_EXCEEDED = 4,
+    RUNTIME_ERROR = 5
+}
+
+export interface Registration {
+    contest: 'WWPIT' | 'WWPHacks'
+    division: number
+    name: string
+}
+export const toDivName = (division: number) => {
+    return division == 1 ? 'Advanced' : (division == 0 ? 'Novice' : 'Unknown');
+};
 
 export const completionStateAnimation = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
@@ -64,14 +89,31 @@ const state = reactive({
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
-        async getProblemList() {
+        async getProblemList(contest: string, division: number): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
-                serverConnection.emit('getAvailableProblems');
-                serverConnection.once('availableProblems', (problems: ContestProblem[]) => {
-                    resolve(problems);
-                });
+                const token = Math.random();
+                serverConnection.emit('getProblemList', { contest, division, token });
+                const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
+                    if (token2 != token) return;
+                    resolve(data);
+                    serverConnection.off('problemList', handle);
+                };
+                serverConnection.on('problemList', handle);
             })
+        },
+        async getProblemData(id: string): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
+            const serverConnection = useServerConnection();
+            return await new Promise((resolve) => {
+                const token = Math.random();
+                serverConnection.emit('getProblemData', { id, token });
+                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem, submission: ContestSubmission, token: number }) => {
+                    if (token2 != token) return;
+                    resolve({ submission, problem });
+                    serverConnection.off('problemData', handle);
+                };
+                serverConnection.on('problemData', handle);
+            });
         }
     }
 });

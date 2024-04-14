@@ -1,5 +1,7 @@
 // text transitions (from red pixel simulator)
 
+import { ref, watch, type Ref, type WatchSource } from "vue";
+
 // these support HTML tags but it's very buggy, it's best to not use them (HTML character codes are fine)
 function getTags(from: string, to: string) {
     let cleanFrom = from;
@@ -11,7 +13,7 @@ function getTags(from: string, to: string) {
     return { cleanFrom, cleanTo, fromTags, toTags };
 }
 
-export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1): AsyncTextTransition {
+export function flipTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block: number = 1): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
@@ -58,7 +60,7 @@ export function* flipTextTransitionGenerator(from: string, to: string, block: nu
         yield text;
     }
 }
-export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block = 1, glitchLength = 5, advanceMod = 1, startGlitched?: boolean, letterOverride?: string): AsyncTextTransition {
+export function glitchTextTransition(from: string, to: string, update: (text: string) => boolean | void, speed: number, block: number = 1, glitchLength: number = 5, advanceMod: number = 1, startGlitched?: boolean, letterOverride?: string): AsyncTextTransition {
     let cancelled = false;
     const ret: AsyncTextTransition = {
         promise: new Promise((resolve) => {
@@ -202,4 +204,33 @@ export interface AsyncTextTransition {
     promise: Promise<boolean>,
     finished: boolean,
     cancel: () => true
+}
+
+export function autoFlipTextTransition(source: WatchSource, speed: number, block = 1): Ref<string> {
+    const textRef = ref(typeof source == 'function' ? source() : source.value);
+    watch(source, () => {
+        flipTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, block);
+    });
+    return textRef;
+}
+export function autoGlitchTextTransition(source: WatchSource, speed: number, block: number = 1, glitchLength: number = 5, advanceMod: number = 1, startGlitched?: boolean, letterOverride?: string): Ref<string> {
+    const textRef = ref(typeof source == 'function' ? source() : source.value);
+    watch(source, () => {
+        glitchTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, block, glitchLength, advanceMod, startGlitched, letterOverride);
+    });
+    return textRef;
+}
+export function autoRandomFlipTextTransition(source: WatchSource, speed: number, gap: number = 2): Ref<string> {
+    const textRef = ref(typeof source == 'function' ? source() : source.value);
+    watch(source, () => {
+        randomFlipTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, gap);
+    });
+    return textRef;
+}
+export function autoRandomGlitchTextTransition(source: WatchSource, speed: number, gap: number = 2, startGlitched: boolean, letterOverride?: string): Ref<string> {
+    const textRef = ref(typeof source == 'function' ? source() : source.value);
+    watch(source, () => {
+        randomGlitchTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, gap, startGlitched, letterOverride);
+    });
+    return textRef;
 }

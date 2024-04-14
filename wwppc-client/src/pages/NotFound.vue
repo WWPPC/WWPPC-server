@@ -26,6 +26,6 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
     height: 100%;
     justify-content: center;
     text-align: center;
-    overflow: clip;
+    overflow: hidden;
 }
 </style>

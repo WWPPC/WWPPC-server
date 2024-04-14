@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { glitchTextTransition, type AsyncTextTransition } from '../ui-defaults/TextTransitions';
+import { glitchTextTransition, type AsyncTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { useRouter } from 'vue-router';
 const props = defineProps<{
     text: string

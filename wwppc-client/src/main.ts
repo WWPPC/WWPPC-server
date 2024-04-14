@@ -27,7 +27,7 @@ const router = createRouter({
             path: '/:page(contest)',
             components: { App },
             children: [{
-                path: ':contestName',
+                path: ':contestId',
                 children: [
                     {
                         path: ':panel',

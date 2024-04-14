@@ -2,6 +2,8 @@
 import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { completionStateAnimation, completionStateString, type ContestProblemMetaData } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 
 const props = defineProps<{
     data: ContestProblemMetaData
@@ -9,6 +11,14 @@ const props = defineProps<{
 
 const router = useRouter();
 
+const nameText = ref<string>('');
+const authorText = ref<string>('');
+onMounted(() => {
+    setTimeout(() => {
+        glitchTextTransition('', props.data.name, (t) => { nameText.value = t; }, 40);
+        glitchTextTransition('', 'Author: ' + props.data.author, (t) => { authorText.value = t; }, 40);
+    }, props.data.round * 200 + props.data.number * 100);
+});
 </script>
 
 <template>
@@ -17,10 +27,10 @@ const router = useRouter();
             {{ props.data.round }}-{{ props.data.number }}
         </span>
         <div class="contestProblemListProblemStatus" :title="completionStateString(props.data.status)"></div>
-        <span class="contestProblemListProblemName"><b>{{ props.data.name }}</b></span>
-        <span class="contestProblemListProblemAuthor"><i>Author: {{ props.data.author }}</i></span>
+        <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
+        <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
         <span class="contestProblemListProblemButton">
-            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/${$route.params.contestName}/problemView/${props.data.id}`)"></UILinkButton>
+            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/${$route.params.contestId}/problemView/${props.data.id}`)"></UILinkButton>
         </span>
     </div>
 </template>
