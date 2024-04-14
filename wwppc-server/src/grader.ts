@@ -15,14 +15,14 @@ export interface Grader {
      * Get all graded submissions that were not seen since last call to this method
      * @returns {Submission[]} submission data
      */
-    // getNewGradedSubmissions(): Submission[]
+    getNewGradedSubmissions(): Submission[]
 
     /**
      * Judge a submission and return it.
      * @param {Submission} submission submission to be judged
      * @returns {Submission} `submission`, but now with judge results. If `submission.scores` is nonempty nothing will happen and `submission` will be returned.
      */
-    judgeSubmission(submission: Submission): Promise<Submission>
+    // judgeSubmission(submission: Submission): Promise<Submission>
 
     //Maybe we should move judgeSubmission() to the Grader class, rather than it being in ContestManager?
 }
@@ -89,35 +89,38 @@ export class DomjudgeGrader implements Grader {
 
     queueSubmission(submission: Submission): boolean {
         // this.#ungradedSubmissions.push(submission);
-        submission.scores.push({state: ScoreState.CORRECT,
-                                time: 12,
-                                memory: 34});
+        submission.scores.push({
+            state: ScoreState.CORRECT,
+            time: 12,
+            memory: 34
+        });
         this.#gradedSubmissions.push(submission); //pretend it's graded for testing purposes
         return true;
     }
 
-    // getNewGradedSubmissions(): Submission[] {
-    //     const arr = this.#gradedSubmissions;
-    //     this.#gradedSubmissions.length = 0;
-    //     return arr;
-    // }
-
-    async judgeSubmission(submission: Submission): Promise<Submission> {
-        if (submission.scores.length > 0) {
-            return submission;
-        }
-        this.queueSubmission(submission);
-
-        return new Promise<Submission>((resolve, error) => {
-            //is setInterval the best way to do this? Probably better than a getNewGradedSubmissions() method
-            const interval = setInterval(() => {
-                for (let s of this.#gradedSubmissions) {
-                    if (s.time.toString()+s.username == submission.time.toString()+submission.username) {
-                        resolve(s);
-                    }
-                }
-            }, 5000);
-            //add error() callback if it takes too long?
-        });
+    getNewGradedSubmissions(): Submission[] {
+        const arr = this.#gradedSubmissions;
+        this.#gradedSubmissions.length = 0;
+        return arr;
     }
+
+    // async judgeSubmission(submission: Submission): Promise<Submission> {
+    //     if (submission.scores.length > 0) {
+    //         return submission;
+    //     }
+    //     this.queueSubmission(submission);
+
+    //     return new Promise<Submission>((resolve, error) => {
+    //         //is setInterval the best way to do this? Probably better than a getNewGradedSubmissions() method
+    //         let interval = setInterval(() => {
+    //             for (let s of this.#gradedSubmissions) {
+    //                 if (s.time.toString()+s.username == submission.time.toString()+submission.username) {
+    //                     clearInterval(interval);
+    //                     resolve(s);
+    //                 }
+    //             }
+    //         }, 5000);
+    //         //add error() callback if it takes too long?
+    //     });
+    // }
 }
