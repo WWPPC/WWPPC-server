@@ -168,84 +168,92 @@ onMounted(clearDangerButtons);
 </script>
 
 <template>
-    <TitledCutCornerContainer title="Profile">
-        <form action="javascript:void(0)" @submit=writeData>
-            <PairedGridContainer width=100%>
-                <span>Display Name:</span>
-                <UITextBox v-model=accountManager.displayName maxlength="32" width="var(--fwidth)" title="Name used in profile, contests, etc." required></UITextBox>
-                <span>Name:</span>
-                <span style="text-wrap: nowrap; word-wrap: nowrap;">
-                    <UITextBox v-model=accountManager.firstName maxlength="32" width="var(--hwidth)" title="First name" required></UITextBox>
-                    <UITextBox v-model=accountManager.lastName maxlength="32" width="var(--hwidth)" title="Last name" required></UITextBox>
-                </span>
-                <span>School:</span>
-                <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
-                <span>Grade/experience:</span>
-                <span style="text-wrap: nowrap; word-wrap: nowrap;">
-                    <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
-                        { text: 'Pre-High School', value: '8' },
-                        { text: '9', value: '9' },
-                        { text: '10', value: '10' },
-                        { text: '11', value: '11' },
-                        { text: '12', value: '12' },
-                        { text: 'College Student', value: '13' },
-                        { text: 'Post-College', value: '14' }
-                    ]" title="Current grade level" required></UIDropdown>
-                    <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="[
-                        { text: 'Beginner', value: '0' },
-                        { text: 'Intermediate - USACO Silver', value: '1' },
-                        { text: 'Advanced - USACO Gold or Above', value: '2' },
-                    ]" title="Experience level with competitive programming" required></UIDropdown>
-                </span>
-                <span>Known languages:<br>(Use CTRL/SHIFT)</span>
-                <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="[
-                    { text: 'Python', value: 'python' },
-                    { text: 'C', value: 'c' },
-                    { text: 'C++', value: 'cpp' },
-                    { text: 'C#', value: 'cs' },
-                    { text: 'Java', value: 'java' },
-                    { text: 'JavaScript', value: 'js' },
-                    { text: 'SQL', value: 'sql' },
-                    { text: 'Assembly', value: 'asm' },
-                    { text: 'PHP', value: 'php' },
-                    { text: 'Swift', value: 'swift' },
-                    { text: 'Pascal', value: 'pascal' },
-                    { text: 'Ruby', value: 'python' },
-                    { text: 'Rust', value: 'rust' },
-                    { text: 'Scratch', value: 'scratch' },
-                    { text: 'LabVIEW', value: 'ev3' },
-                    { text: 'Kotlin', value: 'ktx' },
-                    { text: 'Lua', value: 'lua' },
-                    { text: 'Bash', value: 'bash' },
-                ]" title="What programming languages do you know?" height="80px" multiple></UIDropdown>
-                <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
-                <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
-            </PairedGridContainer>
-            <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
-        </form>
-        <WaitCover text="Please wait..." :show=showWriteDataWait></WaitCover>
-    </TitledCutCornerContainer>
-    <TitledCutCornerContainer title="Team">
-        We haven't added teams yet, but you should get a team together anyways.
-    </TitledCutCornerContainer>
-    <TitledCutCornerContainer title="Account">
-        <PairedGridContainer>
-            <span>Username:</span>
-            <UITextBox v-model=usernameNotEditable width="var(--fwidth)" title="Your unique username (you cannot edit this)" disabled></UITextBox>
-            <span>Email:</span>
-            <UITextBox v-model=accountManager.email width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
-        </PairedGridContainer>
-        <br>
-        <TitledCollapsible title="Danger buttons" font-size="var(--font-medium)" border-color="red" @click="clearDangerButtons" start-collapsed>
-            <!-- useless form -->
-            <form class="profileDangerButtons" action="javascript:void(0)">
-                <div style="text-align: right; align-content: center; font-size: var(--font-18);">Enter password:</div>
-                <UITextBox type="password" v-model=currentPasswordInput placeholder="Current password"></UITextBox>
-                <UIButton text="CHANGE PASSWORD" color="red" @click="changePassword" :disabled="currentPasswordInput.length == 0"></UIButton>
-                <UIButton text="DELETE ACCOUNT" color="red" @click="deleteAccount" :disabled="currentPasswordInput.length == 0"></UIButton>
+    <AnimateInContainer type="slideUp" :delay=100>
+        <TitledCutCornerContainer title="Profile" hover-animation="lift">
+            <form action="javascript:void(0)" @submit=writeData>
+                <PairedGridContainer width=100%>
+                    <span>Display Name:</span>
+                    <UITextBox v-model=accountManager.displayName maxlength="32" width="var(--fwidth)" title="Name used in profile, contests, etc." required></UITextBox>
+                    <span>Name:</span>
+                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
+                        <UITextBox v-model=accountManager.firstName maxlength="32" width="var(--hwidth)" title="First name" required></UITextBox>
+                        <UITextBox v-model=accountManager.lastName maxlength="32" width="var(--hwidth)" title="Last name" required></UITextBox>
+                    </span>
+                    <span>School:</span>
+                    <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
+                    <span>Grade/experience:</span>
+                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
+                        <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
+                            { text: 'Pre-High School', value: '8' },
+                            { text: '9', value: '9' },
+                            { text: '10', value: '10' },
+                            { text: '11', value: '11' },
+                            { text: '12', value: '12' },
+                            { text: 'College Student', value: '13' },
+                            { text: 'Graduated', value: '14' }
+                        ]" title="Your current grade level" required></UIDropdown>
+                        <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="[
+                            { text: 'Beginner / AP CS A', value: '0' },
+                            { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+                            { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
+                            { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
+                            { text: 'Cracked / IOI / USACO Camp', value: '4' },
+                        ]" title="Your experience level with competitive programming" required></UIDropdown>
+                    </span>
+                    <span>Known languages:<br>(Use CTRL/SHIFT)</span>
+                    <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="[
+                        { text: 'Python', value: 'python' },
+                        { text: 'C', value: 'c' },
+                        { text: 'C++', value: 'cpp' },
+                        { text: 'C#', value: 'cs' },
+                        { text: 'Java', value: 'java' },
+                        { text: 'JavaScript', value: 'js' },
+                        { text: 'SQL', value: 'sql' },
+                        { text: 'Assembly', value: 'asm' },
+                        { text: 'PHP', value: 'php' },
+                        { text: 'Swift', value: 'swift' },
+                        { text: 'Pascal', value: 'pascal' },
+                        { text: 'Ruby', value: 'python' },
+                        { text: 'Rust', value: 'rust' },
+                        { text: 'Scratch', value: 'scratch' },
+                        { text: 'LabVIEW', value: 'ev3' },
+                        { text: 'Kotlin', value: 'ktx' },
+                        { text: 'Lua', value: 'lua' },
+                        { text: 'Bash', value: 'bash' },
+                    ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
+                    <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
+                    <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
+                </PairedGridContainer>
+                <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
             </form>
-        </TitledCollapsible>
-    </TitledCutCornerContainer>
+            <WaitCover text="Please wait..." :show=showWriteDataWait></WaitCover>
+        </TitledCutCornerContainer>
+    </AnimateInContainer>
+    <AnimateInContainer type="slideUp" :delay=200>
+        <TitledCutCornerContainer title="Team" hover-animation="lift">
+            We haven't added teams yet, but you should get a team together anyways.
+        </TitledCutCornerContainer>
+    </AnimateInContainer>
+    <AnimateInContainer type="slideUp" :delay=300>
+        <TitledCutCornerContainer title="Account" hover-animation="lift">
+            <PairedGridContainer>
+                <span>Username:</span>
+                <UITextBox v-model=usernameNotEditable width="var(--fwidth)" title="Your unique username (you cannot edit this)" disabled></UITextBox>
+                <span>Email:</span>
+                <UITextBox v-model=accountManager.email width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
+            </PairedGridContainer>
+            <br>
+            <TitledCollapsible title="Danger buttons" font-size="var(--font-medium)" border-color="red" @click="clearDangerButtons" start-collapsed>
+                <!-- useless form -->
+                <form class="profileDangerButtons" action="javascript:void(0)">
+                    <div style="text-align: right; align-content: center; font-size: var(--font-18);">Enter password:</div>
+                    <UITextBox type="password" v-model=currentPasswordInput placeholder="Current password"></UITextBox>
+                    <UIButton text="CHANGE PASSWORD" color="red" @click="changePassword" :disabled="currentPasswordInput.length == 0"></UIButton>
+                    <UIButton text="DELETE ACCOUNT" color="red" @click="deleteAccount" :disabled="currentPasswordInput.length == 0"></UIButton>
+                </form>
+            </TitledCollapsible>
+        </TitledCutCornerContainer>
+    </AnimateInContainer>
     <WaitCover text="Signing in..." :show=showCredWait></WaitCover>
 </template>
 
