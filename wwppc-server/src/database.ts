@@ -414,10 +414,10 @@ export class Database {
 
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
-     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
-     * @returns {Array<Problem>} Array of round data matching the filter criteria. If the query failed the returned array is empty
+     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the filter
+     * @returns {Round[]} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
-    async readRounds(c: ReadRoundsCriteria): Promise<Array<Round>> {
+    async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT * FROM rounds WHERE contest=$1 AND number=$2', [c.contest ?? '*', c.round ?? '*']);
@@ -464,9 +464,9 @@ export class Database {
     /**
      * Filter and get a list of problems from the problems database according to a criteria
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
-     * @returns {Array<Problem>} Array of problems matching the filter criteria. If the query failed the returned array is empty
+     * @returns {Problem[]} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
-    async readProblems(c: ReadProblemsCriteria): Promise<Array<Problem>> {
+    async readProblems(c: ReadProblemsCriteria): Promise<Problem[]> {
         const startTime = performance.now();
         try {
             const problemIdList: Set<string> = new Set();
@@ -545,9 +545,9 @@ export class Database {
     /**
      * Filter and get a list of submissions from the submissions database according to a criteria.
      * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the filter
-     * @returns {Array<Submission> | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
+     * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readSubmissions(c: ReadSubmissionsCriteria): Promise<Array<Submission> | null> {
+    async readSubmissions(c: ReadSubmissionsCriteria): Promise<Submission[] | null> {
         const startTime = performance.now();
         try {
             // reusing code from readProblems (oops)
