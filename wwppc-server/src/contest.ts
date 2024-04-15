@@ -72,7 +72,7 @@ export class ContestManager {
         });
         socket.on("updateSubmission", (data) => {
             //replace this with a kick() function
-            if (typeof data.problemId !== "string" || typeof data.file !== "string" || typeof data.lang !== "string") {
+            if (data == null || typeof data.problemId !== "string" || typeof data.file !== "string" || typeof data.lang !== "string") {
                 //also need to check valid language, valid problem id
                 //socket.kick();
                 return;
