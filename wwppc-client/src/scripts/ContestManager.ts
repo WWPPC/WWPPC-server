@@ -3,14 +3,14 @@ import { useServerConnection } from './ServerConnection';
 import { reactive } from "vue";
 
 export interface ContestRound {
-    division: number
+    contest: string
     number: number
     time: number
     problems: ContestProblemMetaData[]
 }
 export interface ContestProblemMetaData {
     id: string
-    division: number
+    contest: string
     round: number
     number: number
     name: string
@@ -19,7 +19,7 @@ export interface ContestProblemMetaData {
 }
 export interface ContestProblem {
     id: string
-    division: number
+    contest: string
     round: number
     number: number
     name: string
@@ -55,13 +55,9 @@ export enum ContestScoreState {
 }
 
 export interface Registration {
-    contest: 'WWPIT' | 'WWPHacks'
-    division: number
+    contest: string
     name: string
 }
-export const toDivName = (division: number) => {
-    return division == 1 ? 'Advanced' : (division == 0 ? 'Novice' : 'Unknown');
-};
 
 export const completionStateAnimation = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
@@ -89,11 +85,11 @@ const state = reactive({
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
-        async getProblemList(contest: string, division: number): Promise<ContestRound[]> {
+        async getProblemList(contest: string): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
-                serverConnection.emit('getProblemList', { contest, division, token });
+                serverConnection.emit('getProblemList', { contest, token });
                 const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
                     if (token2 != token) return;
                     resolve(data);

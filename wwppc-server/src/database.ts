@@ -5,6 +5,7 @@ import { Client } from 'pg';
 import bcrypt from 'bcrypt';
 import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+import { ResolvedModuleWithFailedLookupLocations } from 'typescript';
 const salt = 5;
 
 interface DatabaseConstructorParams {
@@ -415,7 +416,7 @@ export class Database {
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
-     * @returns {Array<Problem>} Array of round data matching the filter criteria. If the query failed the returned array is empty
+     * @returns {Array<Round>} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
     async readRounds(c: ReadRoundsCriteria): Promise<Array<Round>> {
         const startTime = performance.now();

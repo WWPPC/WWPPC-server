@@ -5,7 +5,6 @@ import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager } from '@/scripts/AccountManager';
 import { onMounted, ref, watch } from 'vue';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
-import { toDivName } from '@/scripts/ContestManager';
 
 const modal = globalModal();
 const accountManager = useAccountManager();
@@ -19,7 +18,7 @@ onMounted(() => {
 });
 const registrations = ref<string[]>([]);
 watch(() => accountManager.registrations, () => {
-    registrations.value = accountManager.registrations.map((reg) => `${reg.contest}&nbsp;${toDivName(reg.division)}&nbsp;Division`);
+    registrations.value = accountManager.registrations.map((reg) => reg.contest);
 });
 
 const fileUpload = ref<HTMLInputElement>();
