@@ -114,7 +114,17 @@ export const useContestManager = defineStore('contestManager', {
                 };
                 serverConnection.on('problemData', handle);
             });
-        }
+        },
+        async updateSubmission(id: string, lang: string, file: string): Promise<boolean> {
+            const serverConnection = useServerConnection();
+            return await new Promise((resolve) => {
+                //submit problem oof
+                //how do tokens work?
+                // const token = Math.random();
+                // serverConnection.emit('updateSubmission', {});
+                resolve(true);
+            });
+        },
     }
 });
 

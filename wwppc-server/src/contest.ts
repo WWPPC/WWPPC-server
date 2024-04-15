@@ -74,8 +74,7 @@ export class ContestManager {
             //replace this with a kick() function
             if (typeof data.problemId !== "string" || typeof data.file !== "string" || typeof data.lang !== "string") {
                 //also need to check valid language, valid problem id
-                socket.removeAllListeners();
-                socket.disconnect();
+                //socket.kick();
                 return;
             }
             if (data.file.length > 10240) {
@@ -90,6 +89,20 @@ export class ContestManager {
                 lang: data.lang,
                 scores: [],
             });
+        });
+        socket.on("getProblemList", (data) => {
+            if (typeof data.contest !== "string" || typeof data.division !== "number" || typeof data.token !== "number") {
+                //check valid contest, division, and token
+                //socket.kick();
+                return;
+            }
+        });
+        socket.on("getProblemData", (data) => {
+            if (typeof data.id !== "string" || typeof data.token !== "number") {
+                //check valid id and token
+                //socket.kick();
+                return;
+            }
         });
         return 1;
     }
