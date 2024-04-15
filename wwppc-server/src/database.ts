@@ -420,9 +420,9 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Array<Round>> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT * FROM rounds WHERE division=$1 AND number=$2', [c.division ?? '*', c.round ?? '*']);
+            const data = await this.#db.query('SELECT * FROM rounds WHERE contest=$1 AND number=$2', [c.contest ?? '*', c.round ?? '*']);
             return data.rows.map((round) => ({
-                division: round.division,
+                contest: round.contest,
                 round: round.number,
                 problems: round.problems,
                 startTime: round.startTime,
@@ -444,11 +444,11 @@ export class Database {
     async writeRound(round: Round): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const exists = await this.#db.query('SELECT FROM rounds WHERE division=$1 AND number=$2', [round.division, round.round]);
+            const exists = await this.#db.query('SELECT FROM rounds WHERE contest=$1 AND number=$2', [round.contest, round.round]);
             if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE rounds SET problems=$3, startTime=$4, endTime=$5 WHERE division=$1 AND number=$2', [round.division, round.round, round.problems, round.startTime, round.endTime]);
+                await this.#db.query('UPDATE rounds SET problems=$3, startTime=$4, endTime=$5 WHERE division=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             } else {
-                await this.#db.query('INSERT INTO rounds (division, number, problems, startTime, endTime) VALUES ($1, $2, $3, $4, $5)', [round.division, round.round, round.problems, round.startTime, round.endTime]);
+                await this.#db.query('INSERT INTO rounds (contest, number, problems, startTime, endTime) VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             }
             return true;
         } catch (err) {
@@ -699,9 +699,9 @@ export interface Registration {
 
 /**Descriptor for a single round */
 export interface Round {
-    /**Zero-indexed division number */
-    division: number
-    /**Zero-indexed round number in division */
+    /**Contest ID */
+    contest: string
+    /**Zero-indexed round number in contest */
     round: number
     /**List of problem UUIDs within the round */
     problems: UUID[]
@@ -773,16 +773,16 @@ export enum ScoreState {
 
 /**Criteria to filter by. Leaving a value undefined removes the filter */
 interface ReadRoundsCriteria {
-    /**Zero-indexed division number */
-    division?: number
-    /**Zero-indexed round within the division */
+    /**Contest ID */
+    contest?: string
+    /**Zero-indexed round within the contest */
     round?: number
 }
 /**Criteria to filter by. Leaving a value undefined removes the filter */
 interface ProblemRoundCriteria {
-    /**Zero-indexed division number */
-    division?: number
-    /**Zero-indexed round within the division */
+    /**Contest ID */
+    contest?: string
+    /**Zero-indexed round within the contest */
     round?: number
     /**Zero-indexed problem number within the round */
     number?: number
@@ -797,7 +797,9 @@ interface ReadProblemsCriteria {
     author?: string
     /**Constraints validator for problem */
     constraints?: (c: ProblemConstraints) => boolean
-    /**Round-based filter for problems */
+    /**Contest ID based filter*/
+    contest?: string
+    /**Round based filter for problems */
     round?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the filter */
