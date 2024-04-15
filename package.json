@@ -1,7 +1,7 @@
 {
     "scripts": {
         "install": "cd wwppc-server && npm install",
-        "build": "cd wwppc-server npm run build",
+        "build": "cd wwppc-server && npm run build",
         "start": "node wwppc-server/build/server.js",
         "compilerun": "cd wwppc-server && npm run compilerun",
         "deploy": "npm run build && firebase deploy --only hosting"

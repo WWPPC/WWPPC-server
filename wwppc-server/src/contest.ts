@@ -1,8 +1,9 @@
 import config from './config';
 import { Socket } from "socket.io";
-import { AccountData, Submission, Database, Registration, AccountOpResult } from "./database";
+import { Database, Registration, AccountOpResult } from "./database";
 import { Grader, DomjudgeGrader } from "./grader";
 import express from 'express';
+import Logger from './log';
 
 interface ContestUser {
     username: string
@@ -20,6 +21,7 @@ export class ContestManager {
 
     readonly #db: Database;
     readonly #app: express;
+    readonly #logger: Logger;
 
     // start/stop rounds, control which problems are visible (and where)
     // also only one contest page open per account
@@ -33,9 +35,10 @@ export class ContestManager {
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
      */
-    constructor(db: Database, app: express) {
+    constructor(db: Database, app: express, logger: Logger) {
         this.#db = db;
         this.#app = app;
+        this.#logger = logger;
         this.#grader = new DomjudgeGrader(app);
 
         const interval = setInterval(() => {

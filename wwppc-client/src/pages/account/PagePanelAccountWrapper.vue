@@ -142,11 +142,15 @@ const changeProfileImage = (event: any) => {
     margin-top: 8px;
     font-size: var(--font-24);
     font-family: 'Source Code Pro', Courier, monospace;
+    line-break: anywhere;
+    word-break: break-all;
 }
 
 .accountUserUsername {
     font-size: var(--font-18);
     font-family: 'Source Code Pro', Courier, monospace;
+    line-break: anywhere;
+    word-break: break-all;
 }
 
 .accountUserRegistrations {

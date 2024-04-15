@@ -22,7 +22,7 @@
         "start": "node build/server.js",
         "compilerun": "npx tsc && node build/server.js serve_static debug_mode"
     },
-    "name": "wwppc",
+    "name": "wwppc-server",
     "version": "1.0.0",
     "description": "WWP-Hacks and WWP-PC in one!",
     "main": "src/server.ts",
