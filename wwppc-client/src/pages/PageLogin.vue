@@ -2,13 +2,15 @@
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
-import { getAccountOpMessage, useServerConnection } from '@/scripts/ServerConnection';
+import { useServerConnection } from '@/scripts/ServerConnection';
+import { getAccountOpMessage } from '@/scripts/AccountManager';
 import { useRoute, useRouter } from 'vue-router';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { useAccountManager } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
+
 
 const router = useRouter();
 const route = useRoute();
@@ -36,13 +38,13 @@ watch(() => route.params.page, async () => {
         if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
         if (serverConnection.handshakeComplete && !serverConnection.connected) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
     } else {
-        isSignupPage.value = false;
+        page.value = 0;
     }
 });
 
 const usernameInput = ref('');
 const passwordInput = ref('');
-const isSignupPage = ref(false);
+const page = ref(0);
 const firstNameInput = ref('');
 const lastNameInput = ref('');
 const emailInput = ref('');
@@ -67,7 +69,14 @@ const attemptLogin = async () => {
 };
 const toSignUp = () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
-    isSignupPage.value = true;
+    firstNameInput.value = '';
+    lastNameInput.value = '';
+    emailInput.value = '';
+    schoolInput.value = '';
+    gradeInput.value = '';
+    experienceInput.value = '';
+    languageInput.value = [];
+    page.value = 1;
 };
 const attemptSignup = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((firstNameInput.value.trim() ?? '') == '') || ((lastNameInput.value.trim() ?? '') == '') || ((schoolInput.value.trim() ?? '') == '') || ((emailInput.value.trim() ?? '') == '') || gradeInput.value == '' || experienceInput.value == '') return;
@@ -87,6 +96,13 @@ const attemptSignup = async () => {
         router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
     } else modal.showModal({ title: 'Could not sign up:', content: getAccountOpMessage(res), color: 'red' });
 };
+const toRecovery = async () => {
+    emailInput.value = '';
+    page.value = 2;
+};
+const attemptRecovery = async () => {
+
+};
 </script>
 
 <script lang="ts">
@@ -101,7 +117,7 @@ const attemptSignup = async () => {
             <PanelBody name="login" title="Login" is-default>
                 <div class="loginNoScroll">
                     <Transition name="main">
-                        <div class="fullBlock" v-show="!isSignupPage">
+                        <div class="fullBlock" v-show="page == 0">
                             <div class="centered">
                                 <div class="loginFlow">
                                     <img src="/logo.svg" class="loginLogoFloater">
@@ -113,16 +129,17 @@ const attemptSignup = async () => {
                                             <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled=showLoginWait></UIButton>
                                             <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled=showLoginWait></UIButton>
                                         </span>
+                                        <span class="loginForgotPassword" @click="toRecovery">Forgot password?</span>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     </Transition>
-                    <Transition name="signup">
-                        <div class="fullBlock" v-show="isSignupPage">
+                    <Transition name="second">
+                        <div class="fullBlock" v-show="page == 1">
                             <div class="centered">
                                 <div class="loginFlow">
-                                    <UIButton @click="isSignupPage = false" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
+                                    <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
                                     <h1 class="loginFlowHeader2">Sign Up</h1>
                                     <form class="loginFlow" action="javascript:void(0)" @submit=attemptSignup>
                                         <span style="margin-bottom: 8px;">
@@ -188,6 +205,26 @@ const attemptSignup = async () => {
                             </div>
                         </div>
                     </Transition>
+                    <Transition name="second">
+                        <div class="fullBlock" v-show="page == 2">
+                            <div class="centered">
+                                <div class="loginFlow">
+                                    <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
+                                    <h1 class="loginFlowHeader2">Account Recovery</h1>
+                                    <p>
+                                        Enter your email to reset your password.
+                                        <br>
+                                        We will send an account recovery email shortly.
+                                    </p>
+                                    <form class="loginFlow" action="javascript:void(0)" @submit=attemptRecovery>
+                                        <UITextBox :value=usernameInput style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
+                                        <UITextBox v-model=emailInput type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </Transition>
                 </div>
                 <LoadingCover text="Connecting..."></LoadingCover>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
@@ -229,6 +266,12 @@ const attemptSignup = async () => {
     width: max(300px, 40vw);
 }
 
+.loginForgotPassword {
+    color: lime;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 @keyframes loginLogoBob {
 
     0%,
@@ -240,13 +283,11 @@ const attemptSignup = async () => {
         transform: translateY(-2vh);
     }
 }
-</style>
 
-<style scoped>
 .main-enter-active,
 .main-leave-active,
-.signup-enter-active,
-.signup-leave-active {
+.second-enter-active,
+.second-leave-active {
     transition: 500ms ease transform;
 }
 
@@ -260,13 +301,13 @@ const attemptSignup = async () => {
     transform: translateY(0%);
 }
 
-.signup-enter-to,
-.signup-leave-from {
+.second-enter-to,
+.second-leave-from {
     transform: translateY(calc(-100% - 32px));
 }
 
-.signup-enter-from,
-.signup-leave-to {
+.second-enter-from,
+.second-leave-to {
     transform: translateY(0%);
 }
 </style>

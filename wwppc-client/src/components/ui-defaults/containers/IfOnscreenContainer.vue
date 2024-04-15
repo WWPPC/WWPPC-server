@@ -1,21 +1,27 @@
 <script lang="ts">
+import { isMobile } from '@/scripts/userAgent';
+
 export default {
     props: {
         single: Boolean
     },
     data() {
-        return { show: true, createdObserver: false }
+        return { createdObserver: false }
     },
     mounted() {
         if (this.createdObserver) return;
         this.createdObserver = true;
+        if (isMobile) {
+            this.$el.classList.remove('invisible');
+            return;
+        }
         if (this.$props.single) {
             const observer = new IntersectionObserver(([entry]) => {
                 if (entry.isIntersecting) {
                     this.$el.style.width = 'unset';
                     this.$el.style.height = 'unset';
-                    this.$data.show = true;
-                    observer.unobserve(this.$el)
+                    this.$el.classList.remove('invisible');
+                    observer.unobserve(this.$el);
                 }
             }, { threshold: 0 });
             observer.observe(this.$el);
@@ -24,14 +30,15 @@ export default {
             this.$el.style.height = rect.height + 'px';
         } else {
             const observer = new IntersectionObserver(([entry]) => {
-                this.$data.show = entry.isIntersecting;
-                if (this.$data.show) {
+                if (entry.isIntersecting) {
                     this.$el.style.width = 'unset';
                     this.$el.style.height = 'unset';
+                    this.$el.classList.remove('invisible');
                 } else {
                     const rect = this.$el.getBoundingClientRect();
                     this.$el.style.width = rect.height + 'px';
                     this.$el.style.height = rect.height + 'px';
+                    this.$el.classList.add('invisible');
                 }
             }, { threshold: 0 });
             observer.observe(this.$el);
@@ -41,9 +48,7 @@ export default {
 </script>
 
 <template>
-    <div>
-        <div v-if=$data.show>
-            <slot></slot>
-        </div>
+    <div class="invisible">
+        <slot></slot>
     </div>
 </template>

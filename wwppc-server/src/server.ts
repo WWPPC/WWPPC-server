@@ -54,8 +54,9 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 import { Server as SocketIOServer } from 'socket.io';
 import Database, { AccountOpResult, reverse_enum } from './database';
 import ContestManager from './contest';
-import { Mailer } from './email';
+import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
+import attachAdminPortal from './adminPortal';
 import { addKickFunction } from './socket';
 
 const mailer = new Mailer({
@@ -72,7 +73,8 @@ const database = new Database({
     logger: logger,
     mailer: mailer
 });
-const contestManager = new ContestManager(database, app);
+const contestManager = new ContestManager(database, app, logger);
+attachAdminPortal(database, app, logger);
 
 // complete networking
 const sessionId = Math.random();
