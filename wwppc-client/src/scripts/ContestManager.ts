@@ -114,10 +114,7 @@ export const useContestManager = defineStore('contestManager', {
         async updateSubmission(id: string, lang: string, file: string): Promise<boolean> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
-                //submit problem oof
-                //how do tokens work?
-                // const token = Math.random();
-                // serverConnection.emit('updateSubmission', {});
+                serverConnection.emit('updateSubmission', { id, lang, file });
                 resolve(true);
             });
         },

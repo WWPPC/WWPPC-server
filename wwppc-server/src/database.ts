@@ -415,7 +415,7 @@ export class Database {
 
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
-     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
+     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the filter
      * @returns {Array<Round>} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
     async readRounds(c: ReadRoundsCriteria): Promise<Array<Round>> {
@@ -488,7 +488,7 @@ export class Database {
             });
             const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
             const data = await this.#db.query('SELECT * FROM problems WHERE id~\'$1\' AND name=$2 AND author=$3', [problemIdRegex, c.name ?? '*', c.author ?? '*']);
-            // also add the problems to cache
+            // adding the problems to cache
             const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
             for (const problem of filteredRows) {
                 const p = {
@@ -691,7 +691,7 @@ export interface AccountData {
 /**Descriptor for a registration */
 export interface Registration {
     /**The contest (does not specify when) */
-    contest: 'WWPIT' | 'WWPHacks'
+    contest: string
     /**Division number */
     division: number
     /**Which of the actual contests (e.g. 2024 Fall) */
