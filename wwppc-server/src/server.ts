@@ -326,10 +326,10 @@ database.connectPromise.then(() => {
     logger.info(`Server listening to port ${config.port}`);
 });
 
-let stopServer = async () => {
-    logger.info(`Stopping server...`);
+const stopServer = async () => {
+    logger.info('Stopping server...');
     let actuallyStop = () => {
-        logger.info('[!] Forced stopServer! Skipped waiting for shutdown! [!]');
+        logger.info('[!] Forced server close! Skipped waiting for shutdown! [!]');
         process.exit();
     };
     process.on('SIGTERM', actuallyStop);
@@ -346,3 +346,14 @@ process.on('SIGTERM', stopServer);
 process.on('SIGQUIT', stopServer);
 process.on('SIGINT', stopServer);
 process.on('SIGILL', stopServer);
+
+const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) => {
+    if (err instanceof Error) {
+        logger.fatal(err.message);
+        if (err.stack) logger.fatal(err.stack);
+    } else if (err != undefined) logger.fatal(err);
+    if (typeof origin == 'string') logger.fatal(origin);
+    stopServer();
+};
+process.on('uncaughtException', handleUncaughtError);
+process.on('unhandledRejection', handleUncaughtError);
