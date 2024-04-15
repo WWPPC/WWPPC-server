@@ -9,13 +9,13 @@ import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInCon
 
 const rounds: ContestRound[] = [];
 rounds.push({
-    division: 0,
+    contest: 'WWPIT Test',
     number: 0,
     time: 1800,
     problems: [
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 0,
             number: 0,
             name: 'Test Problem 0',
@@ -24,7 +24,7 @@ rounds.push({
         },
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 0,
             number: 1,
             name: 'Test Problem 1',
@@ -33,7 +33,7 @@ rounds.push({
         },
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 0,
             number: 2,
             name: 'Test Problem 2',
@@ -42,7 +42,7 @@ rounds.push({
         },
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 0,
             number: 3,
             name: 'Test Problem 3',
@@ -51,13 +51,13 @@ rounds.push({
         }
     ]
 }, {
-    division: 0,
+    contest: 'WWPIT Test',
     number: 1,
     time: 3600,
     problems: [
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 1,
             number: 0,
             name: 'Test Problem 0',
@@ -66,7 +66,7 @@ rounds.push({
         },
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 1,
             number: 1,
             name: 'Test Problem 1',
@@ -75,7 +75,7 @@ rounds.push({
         },
         {
             id: 'buh',
-            division: 0,
+            contest: 'WWPIT Test',
             round: 1,
             number: 2,
             name: 'Test Problem 2',

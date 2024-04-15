@@ -49,8 +49,7 @@ const loadUserData = async () => {
         experience: 4,
         languages: ['c', 'py'],
         registrations: [{
-            contest: 'WWPIT',
-            division: 1,
+            contest: 'WWPIT Test',
             name: 'Test Contest'
         }]
     }

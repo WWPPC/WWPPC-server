@@ -18,7 +18,7 @@ const modal = globalModal();
 // load problem information from server
 const problem = ref<ContestProblem>({
     id: 'loading',
-    division: 0,
+    contest: 'WWPIT Test',
     round: 0,
     number: 0,
     name: 'Loading Problem...',

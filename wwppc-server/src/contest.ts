@@ -1,7 +1,7 @@
 import config from './config';
-import { Socket } from "socket.io";
-import { Database, Registration, AccountOpResult } from "./database";
-import { Grader, DomjudgeGrader } from "./grader";
+import { ServerSocket } from './socket';
+import { Database, Registration, AccountOpResult } from './database';
+import { Grader, DomjudgeGrader } from './grader';
 import express from 'express';
 import Logger from './log';
 
@@ -10,7 +10,7 @@ interface ContestUser {
     email: string
     displayName: string
     registrations: Registration[]
-    sockets: Set<Socket>
+    sockets: Set<ServerSocket>
 }
 
 //user-facing contest manager
@@ -45,7 +45,7 @@ export class ContestManager {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (let s of newSubmissions) {
                 for (let socket of this.#users[s.username]) {
-                    socket.emit("submissionStatus", s);
+                    socket.emit('submissionStatus', s);
                 }
                 this.#db.writeSubmission(s);
             }
@@ -56,10 +56,10 @@ export class ContestManager {
     /**
      * Add a username-linked SocketIO connection to the user list.
      * @param {string} username Username to link this socket to
-     * @param {Socket} socket SocketIO connection
+     * @param {ServerSocket} socket SocketIO connection
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
-    async addUser(username: string, socket: Socket): Promise<number> {
+    async addUser(username: string, socket: ServerSocket): Promise<number> {
         if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
         const userData = await this.#db.getAccountData(username);
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
@@ -68,17 +68,18 @@ export class ContestManager {
             email: userData.email,
             displayName: userData.displayName,
             registrations: userData.registrations,
-            sockets: new Set<Socket>().add(socket)
+            sockets: new Set<ServerSocket>().add(socket)
         });
-        socket.on("updateSubmission", (data) => {
+        socket.on('updateSubmission', (data) => {
             //replace this with a kick() function
-            if (data == null || typeof data.problemId !== "string" || typeof data.file !== "string" || typeof data.lang !== "string") {
+            if (data == null || typeof data.problemId !== 'string' || typeof data.file !== 'string' || typeof data.lang !== 'string') {
                 //also need to check valid language, valid problem id
-                //socket.kick();
+                socket.kick('invalid updateSubmission payload');
                 return;
             }
             if (data.file.length > 10240) {
                 //tell the socket that the file is too big
+                socket.kick('updateSubmission file too large');
                 return;
             }
             this.#grader.queueSubmission({
@@ -90,19 +91,31 @@ export class ContestManager {
                 scores: [],
             });
         });
-        socket.on("getProblemList", (data) => {
-            if (typeof data.contest !== "string" || typeof data.division !== "number" || typeof data.token !== "number") {
-                //check valid contest, division, and token
-                //socket.kick();
+        socket.on('getProblemList', (data) => {
+            if (data == null || typeof data.contest !== 'string' || typeof data.division !== 'number') {
+                //check valid contest, round
+                socket.kick('invalid getProblemList payload');
                 return;
             }
+            const rounds = this.#db.readRounds({contest: data.contest});
+            //replace this with actual data
+            // socket.emit('problemList', {
+            //     division: 0,
+            //     number: 0,
+            //     time: Date.now(),
+            //     problems: [
+            //     ],
+            // });
         });
-        socket.on("getProblemData", (data) => {
-            if (typeof data.id !== "string" || typeof data.token !== "number") {
-                //check valid id and token
-                //socket.kick();
+        socket.on('getProblemData', (data) => {
+            if (data == null || typeof data.id !== 'string') {
+                //check valid id
+                socket.kick('invalid getProblemData payload');
                 return;
             }
+            socket.emit('problemData', {
+
+            });
         });
         return 1;
     }

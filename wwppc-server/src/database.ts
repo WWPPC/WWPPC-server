@@ -5,6 +5,7 @@ import { Client } from 'pg';
 import bcrypt from 'bcrypt';
 import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+import { ResolvedModuleWithFailedLookupLocations } from 'typescript';
 const salt = 5;
 
 interface DatabaseConstructorParams {
