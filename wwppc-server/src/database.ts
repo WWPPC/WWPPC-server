@@ -487,7 +487,7 @@ export class Database {
             });
             const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
             const data = await this.#db.query('SELECT * FROM problems WHERE id~\'$1\' AND name=$2 AND author=$3', [problemIdRegex, c.name ?? '*', c.author ?? '*']);
-            // also add the problems to cache
+            // adding the problems to cache
             const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
             for (const problem of filteredRows) {
                 const p = {
@@ -690,7 +690,7 @@ export interface AccountData {
 /**Descriptor for a registration */
 export interface Registration {
     /**The contest (does not specify when) */
-    contest: 'WWPIT' | 'WWPHacks'
+    contest: string
     /**Division number */
     division: number
     /**Which of the actual contests (e.g. 2024 Fall) */

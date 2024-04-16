@@ -1,7 +1,6 @@
-import { Socket } from "socket.io";
 import { AccountData, Submission, Database, Score, ScoreState } from "./database";
 import express from 'express';
-import { setConstantValue } from "typescript";
+import Logger from "./log";
 
 export interface Grader {
     /**
@@ -36,20 +35,22 @@ export class DomjudgeGrader implements Grader {
     //See the Judgehost schema, may need to create new class etc
 
     #app: express;
+    #logger: Logger;
 
     #ungradedSubmissions: Submission[] = new Array<Submission>();
     // queue of submissions, will be popped from when /api/v4/judgehosts/fetch-work is called
 
     #gradedSubmissions: Submission[] = new Array<Submission>();
 
-    constructor(app: express) {
+    constructor(app: express, logger: Logger) {
         this.#app = app;
-        this.#app.post("/api/v4/judgehosts", (req, res) => {
+        this.#logger = logger;
+        this.#app.post('/api/v4/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send("hi");
+            res.send('hi');
         });
-        this.#app.post("/api/v4/judgehosts/fetch-work", (req, res) => {
-            if (typeof req.hostname === "undefined" || typeof req.max_batchsize === "undefined") {
+        this.#app.post('/api/v4/judgehosts/fetch-work', (req, res) => {
+            if (typeof req.hostname === 'undefined' || typeof req.max_batchsize === 'undefined') {
                 //malformed
                 res.sendStatus(400);
                 res.end();
@@ -63,18 +64,21 @@ export class DomjudgeGrader implements Grader {
             }
             // code to validate judgehost possibly needed
             let arr = new Array<Object>();
-            for (let i = 0; i < Math.max(this.#ungradedSubmissions.length, req.max_batchsize); i++) {
+            for (let i = 0; i < req.max_batchsize; i++) {
                 let s = this.#ungradedSubmissions.shift();
+                if (s === undefined) {
+                    break;
+                }
                 // See schema JudgeTask to figure this out
                 arr.push({
-                    submitid: "string",
+                    submitid: s.username+s.time.toString(),
                     judgetaskid: 0,
                     type: "string",
                     priority: 0,
                     jobid: "string",
                     uuid: "string",
                     compile_script_id: "string",
-                    run_script_id: s?.file,
+                    run_script_id: s.file,
                     compare_script_id: "string",
                     testcase_id: "string",
                     testcase_hash: "string",
@@ -95,6 +99,7 @@ export class DomjudgeGrader implements Grader {
             memory: 34
         });
         this.#gradedSubmissions.push(submission); //pretend it's graded for testing purposes
+        // this.#logger.debug(submission.toString());
         return true;
     }
 

@@ -1,6 +1,5 @@
-import config from './config';
 import { ServerSocket } from './socket';
-import { Database, Registration, AccountOpResult } from './database';
+import { Database, Registration, AccountOpResult, Round } from './database';
 import { Grader, DomjudgeGrader } from './grader';
 import express from 'express';
 import Logger from './log';
@@ -25,7 +24,6 @@ export class ContestManager {
 
     // start/stop rounds, control which problems are visible (and where)
     // also only one contest page open per account
-    // remember to prevent large file submissions (over 10kb is probably unnecessarily large for these problems)
     // use socket.io rooms? put all sockets in contest in room?
     // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
 
@@ -39,7 +37,7 @@ export class ContestManager {
         this.#db = db;
         this.#app = app;
         this.#logger = logger;
-        this.#grader = new DomjudgeGrader(app);
+        this.#grader = new DomjudgeGrader(app, logger);
 
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
@@ -78,7 +76,6 @@ export class ContestManager {
                 return;
             }
             if (data.file.length > 10240) {
-                //tell the socket that the file is too big
                 socket.kick('updateSubmission file too large');
                 return;
             }
@@ -91,31 +88,40 @@ export class ContestManager {
                 scores: [],
             });
         });
-        socket.on('getProblemList', (data) => {
-            if (data == null || typeof data.contest !== 'string' || typeof data.division !== 'number') {
+        socket.on('getProblemList', async (data) => {
+            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
                 //check valid contest, round
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-            const rounds = this.#db.readRounds({contest: data.contest});
+            const rounds = await this.#db.readRounds({contest: data.contest, round: data.round});
             //replace this with actual data
             // socket.emit('problemList', {
-            //     division: 0,
             //     number: 0,
             //     time: Date.now(),
             //     problems: [
             //     ],
             // });
         });
-        socket.on('getProblemData', (data) => {
+        socket.on('getProblemData', async (data) => {
             if (data == null || typeof data.id !== 'string') {
-                //check valid id
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-            socket.emit('problemData', {
-
-            });
+            const problems = await this.#db.readProblems({id: data.id});
+            if (problems.length !== 1) {
+                socket.kick('invalid getProblemData payload');
+                return;
+            }
+            const problem = problems[0];
+            // socket.emit('problemData', {
+            //     id: problem.id,
+            //     name: problem.name,
+            //     author: problem.author,
+            //     content: problem.content,
+            //     constraints: problem.constraints,
+            //     token: data.token,
+            // });
         });
         return 1;
     }
