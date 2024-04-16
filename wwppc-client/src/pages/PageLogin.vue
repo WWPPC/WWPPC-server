@@ -11,7 +11,6 @@ import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { useAccountManager } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
 
-
 const router = useRouter();
 const route = useRoute();
 
@@ -55,7 +54,7 @@ const languageInput = ref(new Array<string>());
 const showLoginWait = ref(false);
 
 const validateCredentials = (username: string, password: string): boolean => {
-    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-zA-Z0-9\-_=+]+$/.test(username);
+    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
 };
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
@@ -126,8 +125,8 @@ const attemptRecovery = async () => {
                                         <UITextBox v-model=usernameInput placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
                                         <UITextBox v-model=passwordInput placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
-                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled=showLoginWait></UIButton>
-                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled=showLoginWait></UIButton>
+                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput.trim() == ''"></UIButton>
+                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput.trim() == ''"></UIButton>
                                         </span>
                                         <span class="loginForgotPassword" @click="toRecovery">Forgot password?</span>
                                     </form>
