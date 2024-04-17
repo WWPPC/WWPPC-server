@@ -257,17 +257,17 @@ io.on('connection', async (s) => {
                 ['content', `
                 <h3>Hallo ${data.displayName}!</h3>
                 <br>
-                You recently requested a password reset. Reset it with the button below, or click <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}">this link</a>.
+                You recently requested a password reset. Reset it with the button below, or click <a href="https://$domain$/recovery/?ps=${recoveryPassword}">this link</a>.
                 <br><br>
                 <div class="centered">
-                <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}">
+                <a href="https://$domain$/recovery/?ps=${recoveryPassword}">
                 <button style="border-radius: 12px; height: 40px; padding: 0px 16px; background-color: black; color: lime; font-weight: bold; cursor: pointer;">RESET PASSWORD</button>
                 </a>
                 <br>
                 Not you? You can ignore this email.
                 </div>
                 `]
-            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://wwppc.onrender.com/recovery/${recoveryPassword}.`);
+            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://$domain$/recovery/?ps=${recoveryPassword}.`);
             recentPasswordResetEmails.add(username);
             socket.emit('credentialRes', AccountOpResult.SUCCESS);
             // remove the listener to try and combat spam some more

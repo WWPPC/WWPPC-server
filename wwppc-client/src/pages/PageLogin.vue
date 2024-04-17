@@ -122,7 +122,7 @@ const attemptRecovery = async () => {
             <PanelNavLargeLogo target="/home/home?clearQuery"></PanelNavLargeLogo>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="login" title="Login" is-default>
+            <PanelBody name="default" title="Login" is-default>
                 <div class="loginNoScroll">
                     <Transition name="main">
                         <div class="fullBlock" v-show="page == 0">

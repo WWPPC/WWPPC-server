@@ -1,4 +1,5 @@
 {
+    "hostname": "wwppc.tech",
     "port": 8000,
     "serveStatic": false,
     "maxConnectPerSecond": 5,

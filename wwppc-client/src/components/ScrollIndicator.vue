@@ -17,7 +17,7 @@ export default {
 </script>
 
 <template>
-    <div :class="'centered ' + isMobileRef ? 'invisible' : ''">
+    <div :class="'centered ' + (isMobileRef ? 'invisible' : '')">
         <AnimateInContainer type="fade" :delay=1000 show-on-screen>
             <div class="scrollIndicator" @click=scroll></div>
         </AnimateInContainer>

@@ -123,12 +123,13 @@ export class Mailer {
         try {
             if (this.#templates.has(template)) {
                 let text = this.#templates.get(template)!;
+                params.push(['hostname', config.hostname])
                 params.forEach(([key, value]) => {
                     text = text.replaceAll(`$${key}$`, value);
                 });
-                const inlined = await inlineCss(text, { url: 'https://wwppc.tech' });
+                const inlined = await inlineCss(text, { url: 'https://' + config.hostname });
                 await this.#transporter.sendMail({
-                    from: '"WWPPC" <no-reply@wwppc.tech>',
+                    from: `"WWPPC" <no-reply@${config.hostname}>`,
                     to: recipients.join(','),
                     subject: subject,
                     text: plaintext,

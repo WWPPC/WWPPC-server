@@ -1,20 +1,20 @@
 // aggregate stuff
-import PanelBody from './PanelBody.vue';
+import PanelView from './PanelView.vue';
 import PanelHeader from './PanelHeader.vue';
-import PanelMain from './PanelMain.vue';
-import PanelNavButton from './PanelNavButton.vue';
 import PanelNavLargeLogo from './PanelNavLargeLogo.vue';
 import PanelNavList from './PanelNavList.vue';
+import PanelNavButton from './PanelNavButton.vue';
 import PanelRightList from './PanelRightList.vue';
-import PanelView from './PanelView.vue';
+import PanelMain from './PanelMain.vue';
+import PanelBody from './PanelBody.vue';
 
 export {
-    PanelBody,
-    PanelHeader,
-    PanelMain,
-    PanelNavButton,
-    PanelNavList,
-    PanelRightList,
     PanelView,
-    PanelNavLargeLogo
+    PanelHeader,
+    PanelNavLargeLogo,
+    PanelNavList,
+    PanelNavButton,
+    PanelRightList,
+    PanelMain,
+    PanelBody
 }
