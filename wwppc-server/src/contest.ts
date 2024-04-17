@@ -1,8 +1,9 @@
-import { ServerSocket } from './socket';
-import { Database, Registration, AccountOpResult, Round } from './database';
-import { Grader, DomjudgeGrader } from './grader';
 import express from 'express';
+
+import { AccountOpResult, Database, Registration, Round } from './database';
+import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
+import { ServerSocket } from './socket';
 
 interface ContestUser {
     username: string

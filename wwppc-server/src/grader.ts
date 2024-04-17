@@ -1,6 +1,7 @@
-import { AccountData, Submission, Database, Score, ScoreState } from "./database";
 import express from 'express';
-import Logger from "./log";
+
+import { AccountData, Database, Score, ScoreState, Submission } from './database';
+import Logger from './log';
 
 export interface Grader {
     /**

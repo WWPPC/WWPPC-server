@@ -1,5 +1,6 @@
+import { createTransport, Transporter } from 'nodemailer';
+
 import config from './config';
-import { createTransport, Transporter } from "nodemailer";
 import Logger from './log';
 
 interface MailerConstructorParams {
@@ -46,6 +47,17 @@ export class Mailer {
             logger.destroy();
             process.exit();
         });
+    }
+
+    async send(recipients: string[]): Promise<Error | undefined> {
+        try {
+            const info = await this.#transporter.sendMail({
+                from: '"WWPPC" <no-reply@wwppc.tech>',
+                to: recipients.join(', ')
+            });
+        } catch (err) {
+            return new Error('' + err);
+        }
     }
 
     /**

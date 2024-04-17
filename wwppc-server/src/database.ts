@@ -1,10 +1,12 @@
-import config from './config';
-import Logger from './log';
-import { Mailer } from './email';
-import { Client } from 'pg';
 import bcrypt from 'bcrypt';
-import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, subtle, webcrypto } from 'crypto';
+import { Client } from 'pg';
 import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+
+import config from './config';
+import { Mailer } from './email';
+import Logger from './log';
+
 const salt = 5;
 
 interface DatabaseConstructorParams {

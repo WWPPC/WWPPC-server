@@ -1,27 +1,8 @@
-import { defineStore } from "pinia";
-import { reactive, ref, watch } from "vue";
-import { useServerConnection, sendCredentials } from "./ServerConnection";
-import type { Registration } from "./ContestManager";
+import { defineStore } from 'pinia';
+import { reactive, ref, watch } from 'vue';
 
-export enum AccountOpResult {
-    SUCCESS = 0,
-    ALREADY_EXISTS = 1,
-    NOT_EXISTS = 2,
-    INCORRECT_CREDENTIALS = 3,
-    ERROR = 4
-}
-export const getAccountOpMessage = (res: number): string => {
-    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)';
-};
-export interface CredentialsSignupData {
-    firstName: string
-    lastName: string
-    email: string
-    school: string
-    grade: number
-    experience: number
-    languages: string[]
-}
+import { AccountOpResult, type CredentialsSignupData, sendCredentials, useServerConnection } from './ServerConnection';
+
 export interface AccountData {
     username: string
     email: string
@@ -35,6 +16,11 @@ export interface AccountData {
     experience: number
     languages: string[]
     registrations: Registration[]
+}
+
+export interface Registration {
+    contest: string,
+    completed: boolean
 }
 
 const unsaved = ref(false);

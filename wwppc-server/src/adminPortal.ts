@@ -1,4 +1,5 @@
 import express from 'express';
+
 import Database from './database';
 import Logger from './log';
 

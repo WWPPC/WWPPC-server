@@ -3,7 +3,8 @@ import WaitCover from '@/components/WaitCover.vue';
 import { AnimateInContainer, PairedGridContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
-import { useAccountManager, AccountOpResult, getAccountOpMessage } from '@/scripts/AccountManager';
+import { useAccountManager } from '@/scripts/AccountManager';
+import { AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { onMounted, ref, watch } from 'vue';
 import recaptcha from '@/scripts/recaptcha';
 

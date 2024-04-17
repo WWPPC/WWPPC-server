@@ -1,6 +1,5 @@
 // text transitions (from red pixel simulator)
-
-import { ref, watch, type Ref, type WatchSource } from "vue";
+import { ref, type Ref, watch, type WatchSource } from 'vue';
 
 // these support HTML tags but it's very buggy, it's best to not use them (HTML character codes are fine)
 function getTags(from: string, to: string) {

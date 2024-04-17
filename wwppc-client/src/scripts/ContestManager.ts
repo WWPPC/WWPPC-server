@@ -1,6 +1,7 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
+import { reactive } from 'vue';
+
 import { useServerConnection } from './ServerConnection';
-import { reactive } from "vue";
 
 export interface ContestRound {
     contest: string
@@ -52,11 +53,6 @@ export enum ContestScoreState {
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
-}
-
-export interface Registration {
-    contest: string
-    name: string
 }
 
 export const completionStateAnimation = (status: ContestProblemCompletionState) => {
@@ -111,13 +107,18 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemData', handle);
             });
         },
-        async updateSubmission(id: string, lang: string, file: string): Promise<boolean> {
+        async updateSubmission(id: string, lang: string, file: string): Promise<void> {
             const serverConnection = useServerConnection();
-            return await new Promise((resolve) => {
-                serverConnection.emit('updateSubmission', { id, lang, file });
-                resolve(true);
-            });
+            serverConnection.emit('updateSubmission', { id, lang, file });
         },
+        async onSubmissionStatus(cb: ({ id }: { id: string}) => any) {
+            const serverConnection = useServerConnection();
+            serverConnection.on('submissionStatus', cb);
+        },
+        async offSubmissionStatus(cb: ({ id }: { id: string}) => any) {
+            const serverConnection = useServerConnection();
+            serverConnection.off('submissionStatus', cb);
+        }
     }
 });
 

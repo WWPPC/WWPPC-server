@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
 import { reactive } from 'vue';
-import { AccountOpResult, useAccountManager, type CredentialsSignupData } from './AccountManager';
+
+import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
 
 // send HTTP wakeup request before trying socket.io
@@ -62,6 +63,26 @@ const RSA: {
         else return text;
     }
 };
+
+export enum AccountOpResult {
+    SUCCESS = 0,
+    ALREADY_EXISTS = 1,
+    NOT_EXISTS = 2,
+    INCORRECT_CREDENTIALS = 3,
+    ERROR = 4
+}
+export const getAccountOpMessage = (res: number): string => {
+    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)';
+};
+export interface CredentialsSignupData {
+    firstName: string
+    lastName: string
+    email: string
+    school: string
+    grade: number
+    experience: number
+    languages: string[]
+}
 
 // RSA keys + autologin
 socket.once('getCredentials', async (session) => {

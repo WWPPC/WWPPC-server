@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+
 import Logger from './log';
 
 export interface ServerSocket extends Socket {

@@ -3,7 +3,7 @@ import { glitchTextTransition, autoGlitchTextTransition } from '@/components/ui-
 import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager } from '@/scripts/AccountManager';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
 const modal = globalModal();
@@ -15,10 +15,6 @@ const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 
 onMounted(() => {
     glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
     glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
-});
-const registrations = ref<string[]>([]);
-watch(() => accountManager.registrations, () => {
-    registrations.value = accountManager.registrations.map((reg) => reg.contest);
 });
 
 const fileUpload = ref<HTMLInputElement>();
@@ -59,8 +55,8 @@ const changeProfileImage = (event: any) => {
             <span class="accountUserDisplayName">{{ dispName }}</span>
             <span class="accountUserUsername">{{ username }}</span>
             <div class="accountUserRegistrations">
-                <AnimateInContainer type="slideUp" v-for="(reg, i) in registrations" :key="i" :delay="i * 200">
-                    <span v-html="reg"></span>
+                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="i" :delay="i * 200" single>
+                    <span v-html="reg.contest"></span>
                 </AnimateInContainer>
             </div>
             <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
