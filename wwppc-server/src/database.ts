@@ -5,7 +5,6 @@ import { Client } from 'pg';
 import bcrypt from 'bcrypt';
 import { subtle, webcrypto, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
-import { ResolvedModuleWithFailedLookupLocations } from 'typescript';
 const salt = 5;
 
 interface DatabaseConstructorParams {
@@ -148,7 +147,7 @@ export class Database {
      * @returns {boolean} Validity
      */
     validate(username: string, password: string): boolean {
-        return username.trim().length <= 16 && password.trim().length <= 1024 && /^[a-zA-Z0-9-_=+]+$/.test(username);
+        return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_=+]+$/.test(username);
     }
     /**
      * Create an account. **Does not validate credentials**.
