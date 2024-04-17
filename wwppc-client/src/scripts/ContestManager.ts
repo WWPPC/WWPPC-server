@@ -29,13 +29,21 @@ export interface ContestProblem {
     constraints: { memory: number, time: number }
     status: ContestProblemCompletionState
 }
+/**Completion state of problems. */
 export enum ContestProblemCompletionState {
+    /**not attempted */
     NOT_UPLOADED = 0,
+    /**uploaded (in case we want to have submissions graded at end of round) */
     UPLOADED = 1,
+    /**submitted (but not graded yet) */
     SUBMITTED = 2,
+    /**submitted, graded, and accepted */
     GRADED_PASS = 3,
+    /**submitted, graded, and failed */
     GRADED_FAIL = 4,
+    /**submitted, graded, and partially accepted */
     GRADED_PARTIAL = 5,
+    /**error loading status */
     ERROR = 6
 }
 export interface ContestSubmission {

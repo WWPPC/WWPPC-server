@@ -5,11 +5,17 @@ import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
 
+/**User info */
 interface ContestUser {
+    /**username */
     username: string
+    /**email address */
     email: string
+    /**display name*/
     displayName: string
+    /**contests they are registered for */
     registrations: Registration[]
+    /**set of connections (since multiple users may use the same account(maybe)) */
     sockets: Set<ServerSocket>
 }
 
@@ -40,6 +46,7 @@ export class ContestManager {
         this.#logger = logger;
         this.#grader = new DomjudgeGrader(app, logger);
 
+        //interval to check for new submissions from grader
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (let s of newSubmissions) {
