@@ -257,10 +257,10 @@ io.on('connection', async (s) => {
                 ['content', `
                 <h3>Hallo ${data.displayName}!</h3>
                 <br>
-                You recently requested a password reset. Reset it with the button below, or click <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}>this link</a>.
+                You recently requested a password reset. Reset it with the button below, or click <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}">this link</a>.
                 <br><br>
                 <div class="centered">
-                <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}>
+                <a href="https://wwppc.onrender.com/recovery/${recoveryPassword}">
                 <button style="border-radius: 12px; height: 40px; padding: 0px 16px; background-color: black; color: lime; font-weight: bold; cursor: pointer;">RESET PASSWORD</button>
                 </a>
                 <br>
