@@ -448,9 +448,9 @@ export class Database {
         try {
             const exists = await this.#db.query('SELECT FROM rounds WHERE contest=$1 AND number=$2', [round.contest, round.round]);
             if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE rounds SET problems=$3, startTime=$4, endTime=$5 WHERE division=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
+                await this.#db.query('UPDATE rounds SET problems=$3, "startTime"=$4, "endTime"=$5 WHERE division=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             } else {
-                await this.#db.query('INSERT INTO rounds (contest, number, problems, startTime, endTime) VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
+                await this.#db.query('INSERT INTO rounds (contest, number, problems, "startTime", "endTime") VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             }
             return true;
         } catch (err) {
