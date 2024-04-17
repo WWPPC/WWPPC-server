@@ -76,7 +76,6 @@ export class ContestManager {
             registrations: userData.registrations,
             sockets: new Set<ServerSocket>().add(socket)
         });
-        this.#logger.debug(username);
 
         //socket.on not working in this function for some reason?
         socket.on('updateSubmission', (data) => {
