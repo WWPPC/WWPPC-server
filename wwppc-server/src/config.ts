@@ -23,6 +23,7 @@ const config: {
 };
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
+process.env.EMAIL_TEMPLATE_PATH ??= path.resolve(__dirname, '../email-templates');
 process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 
 export default config;

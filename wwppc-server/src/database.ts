@@ -388,7 +388,7 @@ export class Database {
     async getRecoveryPassword(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT recoverypass WHERE username=$1', [username]);
+            const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rowCount != null && data.rowCount > 0) {
                 this.logger.info(`[Database] Fetched recovery password for ${username}`, true);
                 return data.rows[0].recoverypass;
@@ -661,7 +661,7 @@ export type RSAEncrypted = Buffer | string;
 
 export function reverse_enum(enumerator, v): string {
     for (const k in enumerator) if (enumerator[k] === v) return k;
-    return '';
+    return v;
 }
 
 /**The result of an operation that requires authentication performed by the database */

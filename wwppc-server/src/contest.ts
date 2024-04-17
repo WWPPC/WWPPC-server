@@ -55,7 +55,7 @@ export class ContestManager {
     /**
      * Add a username-linked SocketIO connection to the user list.
      * @param {string} username Username to link this socket to
-     * @param {ServerSocket} socket SocketIO connection
+     * @param {ServerSocket} socket SocketIO connection (with modifications)
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(username: string, socket: ServerSocket): Promise<number> {
@@ -95,7 +95,7 @@ export class ContestManager {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-            const rounds = await this.#db.readRounds({contest: data.contest, round: data.round});
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
             //replace this with actual data
             // socket.emit('problemList', {
             //     number: 0,
@@ -109,7 +109,7 @@ export class ContestManager {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-            const problems = await this.#db.readProblems({id: data.id});
+            const problems = await this.#db.readProblems({ id: data.id });
             if (problems.length !== 1) {
                 socket.kick('invalid getProblemData payload');
                 return;
