@@ -41,6 +41,7 @@ export class Database {
     #publicKey: webcrypto.JsonWebKey | undefined;
     readonly logger: Logger;
     readonly mailer: Mailer;
+
     /**
      * @param params Parameters
      */
@@ -92,7 +93,7 @@ export class Database {
      * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns {string} Decrypted string
      */
-    async RSAdecrypt(buf: Buffer | string) {
+    async RSAdecrypt(buf: RSAEncrypted) {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
@@ -380,11 +381,34 @@ export class Database {
         }
     }
     /**
+     * Get the alternative rotating password for an account. **Does not validate credentials**
+     * @param {string} username Valid username
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Fetch status
+     */
+    async getRecoveryPassword(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT recoverypass WHERE username=$1', [username]);
+            if (data.rowCount != null && data.rowCount > 0) {
+                this.logger.info(`[Database] Fetched recovery password for ${username}`, true);
+                return data.rows[0].recoverypass;
+            }
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (getRecoveryPassword):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] getRecoveryPassword in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
      * Rotates the recovery password of an account to a new random string.
      * @param {string} username Username to rotate
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Rotation status
      */
     async #rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        const startTime = performance.now();
         try {
             const newPass = this.#RSAencryptSymmetric(uuidV4());
             const data = await this.#db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
@@ -394,6 +418,8 @@ export class Database {
             this.logger.error('Database error (rotateRecoveryPassword):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -422,13 +448,13 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT * FROM rounds WHERE contest=$1 AND number=$2', [c.contest ?? '*', c.round ?? '*']);
+            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : '1=1'} AND ${c.round != undefined ? 'number=$1' : '1=1'}`, [c.contest, c.round]);
             return data.rows.map((round) => ({
                 contest: round.contest,
                 round: round.number,
                 problems: round.problems,
-                startTime: round.startTime,
-                endTime: round.endTime
+                startTime: round.starttime,
+                endTime: round.endtime
             }));
         } catch (err) {
             this.logger.error('Database error (readRounds):');
@@ -630,6 +656,8 @@ type UUID = string;
 function isUUID(id: string): id is UUID {
     return uuidValidate(id);
 }
+
+export type RSAEncrypted = Buffer | string;
 
 export function reverse_enum(enumerator, v): string {
     for (const k in enumerator) if (enumerator[k] === v) return k;
