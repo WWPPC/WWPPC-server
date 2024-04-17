@@ -3,86 +3,33 @@ import { AngledTitledContainer } from '@/components/ui-defaults/UIContainers';
 import { ContestProblemCompletionState, type ContestRound } from '@/scripts/ContestManager';
 import ContestProblemListRound from './ContestProblemListRound.vue';
 import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
+import { onMounted, ref } from 'vue';
+import { useContestManager } from '@/scripts/ContestManager';
+import { useRoute, useRouter } from 'vue-router';
+import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
 // fetch problems from server on mount
 // in the meantime just put a loading spinner (i should probably make one of those)
 
-const rounds: ContestRound[] = [];
-rounds.push({
-    contest: 'WWPIT Test',
-    number: 0,
-    time: 1800,
-    problems: [
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 0,
-            number: 0,
-            name: 'Test Problem 0',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.GRADED_PASS
-        },
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 0,
-            number: 1,
-            name: 'Test Problem 1',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.GRADED_FAIL
-        },
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 0,
-            number: 2,
-            name: 'Test Problem 2',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.SUBMITTED
-        },
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 0,
-            number: 3,
-            name: 'Test Problem 3',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.GRADED_PARTIAL
+const route = useRoute();
+const router = useRouter();
+const contestManager = useContestManager();
+const modal = globalModal();
+
+const rounds = ref<ContestRound[]>([]);
+
+onMounted(async () => {
+    if (typeof route.params.contestId === 'string') {
+        const serverRounds = await contestManager.getProblemList(route.params.contestId);
+        console.log(serverRounds);
+        for (let i of serverRounds) {
+            rounds.value.push(i);
         }
-    ]
-}, {
-    contest: 'WWPIT Test',
-    number: 1,
-    time: 3600,
-    problems: [
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 1,
-            number: 0,
-            name: 'Test Problem 0',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.UPLOADED
-        },
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 1,
-            number: 1,
-            name: 'Test Problem 1',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.NOT_UPLOADED
-        },
-        {
-            id: 'buh',
-            contest: 'WWPIT Test',
-            round: 1,
-            number: 2,
-            name: 'Test Problem 2',
-            author: 'SP^2',
-            status: ContestProblemCompletionState.ERROR
-        }
-    ]
+    } else if (route.query.ignore_server === undefined) {
+        modal.showModal({title: 'No contest ID', content: 'No contest ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red'}).then(() => {
+            router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
+        });
+    }
 });
 </script>
 

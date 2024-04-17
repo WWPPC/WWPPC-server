@@ -5,11 +5,17 @@ import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
 
+/**User info */
 interface ContestUser {
+    /**username */
     username: string
+    /**email address */
     email: string
+    /**display name*/
     displayName: string
+    /**contests they are registered for */
     registrations: Registration[]
+    /**set of connections (since multiple users may use the same account(maybe)) */
     sockets: Set<ServerSocket>
 }
 
@@ -40,6 +46,7 @@ export class ContestManager {
         this.#logger = logger;
         this.#grader = new DomjudgeGrader(app, logger);
 
+        //interval to check for new submissions from grader
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (let s of newSubmissions) {
@@ -69,6 +76,7 @@ export class ContestManager {
             registrations: userData.registrations,
             sockets: new Set<ServerSocket>().add(socket)
         });
+
         socket.on('updateSubmission', (data) => {
             //replace this with a kick() function
             if (data == null || typeof data.problemId !== 'string' || typeof data.file !== 'string' || typeof data.lang !== 'string') {
@@ -88,6 +96,52 @@ export class ContestManager {
                 lang: data.lang,
                 scores: [],
             });
+        });
+        socket.on('getProblemList', async (data) => {
+            if (data == null || typeof data.contest !== 'string') {
+                //check valid contest
+                socket.kick('invalid getProblemList payload');
+                return;
+            }
+
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
+            //replace the 100 with an actual round data, this is just a temporary workaround for db bug
+
+            let packet: Array<Object> = [];
+            for (let i of rounds) {
+                packet.push({
+                    contest: i.contest,
+                    number: i.round,
+                    time: 0,
+                    problems: [
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 0,
+                            name: 'Test Problem 0',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 1,
+                            name: 'Test Problem 1',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 2,
+                            name: 'Test Problem 2',
+                            author: 'SP^2',
+                        }
+                    ]
+                });
+            }
+            socket.emit('problemList', { data: packet, token: data.token });
         });
         socket.on('getProblemList', async (data) => {
             if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
