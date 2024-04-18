@@ -123,7 +123,7 @@ export class Mailer {
         try {
             if (this.#templates.has(template)) {
                 let text = this.#templates.get(template)!;
-                params.push(['hostname', config.hostname])
+                params.push(['hostname', config.hostname]);
                 params.forEach(([key, value]) => {
                     text = text.replaceAll(`$${key}$`, value);
                 });
