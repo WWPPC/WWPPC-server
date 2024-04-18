@@ -448,7 +448,7 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : '1=1'}${(c.contest != undefined && c.round != undefined) ? ' AND ' : ''}${c.round != undefined ? 'number=$1' : '1=1'}`, [c.contest, c.round]);
+            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : ''}${(c.contest != undefined && c.round != undefined) ? ' AND ' : ''}${c.round != undefined ? 'number=$1' : ''}`, [c.contest, c.round]);
             return data.rows.map((round) => ({
                 contest: round.contest,
                 round: round.number,
