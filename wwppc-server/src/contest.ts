@@ -98,30 +98,65 @@ export class ContestManager {
             });
         });
         socket.on('getProblemList', async (data) => {
-            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
-                //check valid round
+            if (data == null || typeof data.contest !== 'string') {
+                //check valid contest
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-            const round = await this.#db.readRounds({ contest: data.contest, round: data.round });
-            //contest inclusion is to account for bug with wildcards
-            if (round.length === 0) {
-                socket.kick('invalid getProblemList round ID');
-                return;
-            }
-            const problems = await this.#db.readProblems({ round: {contest: data.contest, round: data.round} });
+
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
+            //replace the 100 with an actual round data, this is just a temporary workaround for db bug
+
             let packet: Array<Object> = [];
-            for (let i in problems) {
+            for (let i of rounds) {
                 packet.push({
-                    id: problems[i].id,
-                    contest: data.contest,
-                    round: data.round,
-                    number: i,
-                    name: problems[i].name,
-                    author: problems[i].author
+                    contest: i.contest,
+                    number: i.round,
+                    time: 0,
+                    problems: [
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 0,
+                            name: 'Test Problem 0',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 1,
+                            name: 'Test Problem 1',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 2,
+                            name: 'Test Problem 2',
+                            author: 'SP^2',
+                        }
+                    ]
                 });
             }
             socket.emit('problemList', { data: packet, token: data.token });
+        });
+        socket.on('getProblemList', async (data) => {
+            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
+                //check valid contest, round
+                socket.kick('invalid getProblemList payload');
+                return;
+            }
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
+            //replace this with actual data
+            // socket.emit('problemList', {
+            //     number: 0,
+            //     time: Date.now(),
+            //     problems: [
+            //     ],
+            // });
         });
         socket.on('getProblemData', async (data) => {
             if (data == null || typeof data.id !== 'string') {

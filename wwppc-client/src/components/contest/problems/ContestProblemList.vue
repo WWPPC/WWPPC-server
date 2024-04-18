@@ -8,20 +8,23 @@ import { useContestManager } from '@/scripts/ContestManager';
 import { useRoute, useRouter } from 'vue-router';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
-// probably should put loading spinner
+// fetch problems from server on mount
+// in the meantime just put a loading spinner (i should probably make one of those)
 
 const route = useRoute();
 const router = useRouter();
 const contestManager = useContestManager();
 const modal = globalModal();
 
-const round = ref<ContestRound>();
+const rounds = ref<ContestRound[]>([]);
 
 onMounted(async () => {
     if (typeof route.params.contestId === 'string') {
-        //probably need a parameter for contest id and round id?
-        const serverRounds = await contestManager.getProblemList("WWPIT", parseInt(route.params.contestId));
-        round.value = serverRounds[0];
+        const serverRounds = await contestManager.getProblemList(route.params.contestId);
+        console.log(serverRounds);
+        for (let i of serverRounds) {
+            rounds.value.push(i);
+        }
     } else if (route.query.ignore_server === undefined) {
         modal.showModal({title: 'No contest ID', content: 'No contest ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red'}).then(() => {
             router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
@@ -33,10 +36,11 @@ onMounted(async () => {
 <template>
     <div class="contestProblemListWrapperWrapper centered">
         <div class="contestProblemListWrapper">
-            <AngledTitledContainer :title="'Round ' + round?.number.toString()" height="100%">
+            <AngledTitledContainer title="Problems" height="100%">
                 <div class="contestProblemList">
-                    <br>
-                    <ContestProblemListRound :data=round v-if="round != null"></ContestProblemListRound>
+                    <AnimateInContainer v-for="(round, index) in rounds" :key=round.number type="slideUp" :delay="index * 200">
+                        <ContestProblemListRound :data=round></ContestProblemListRound>
+                    </AnimateInContainer>
                 </div>
             </AngledTitledContainer>
         </div>

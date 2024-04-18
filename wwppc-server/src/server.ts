@@ -258,7 +258,7 @@ io.on('connection', async (s) => {
             await mailer.sendFromTemplate('base', [email], 'Reset Password', [
                 ['title', 'Account Recovery Request'],
                 ['content', `
-                <h3>Hello ${data.displayName}!</h3>
+                <h3>Hallo ${data.displayName}!</h3>
                 <br>
                 You recently requested a password reset. Reset it with the button below, or click <a href="${recoveryUrl}">this link</a>.
                 <br><br>
@@ -270,7 +270,7 @@ io.on('connection', async (s) => {
                 Not you? You can ignore this email.
                 </div>
                 `]
-            ], `Hello ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
+            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
             recentPasswordResetEmails.add(username);
             socket.emit('credentialRes', AccountOpResult.SUCCESS);
             // remove the listener to try and combat spam some more

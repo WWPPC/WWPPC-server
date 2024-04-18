@@ -89,11 +89,11 @@ const state = reactive({
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
-        async getProblemList(contest: string, round: number): Promise<ContestRound[]> {
+        async getProblemList(contest: string): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
-                serverConnection.emit('getProblemList', { contest, round, token });
+                serverConnection.emit('getProblemList', { contest, token });
                 const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
                     if (token2 != token) return;
                     resolve(data);
