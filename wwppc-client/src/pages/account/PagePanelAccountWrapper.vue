@@ -58,7 +58,7 @@ const changeProfileImage = (event: any) => {
                     <span v-html="reg.contest"></span>
                 </AnimateInContainer>
             </div>
-            <UIButton text="Sign Out" width="100%" @click="accountManager.signOut()"></UIButton>
+            <UIButton text="Sign Out" width="100%" @click="accountManager.signout"></UIButton>
         </div>
     </div>
     <div class="accountScrollboxWrapper">

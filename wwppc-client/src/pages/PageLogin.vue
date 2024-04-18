@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
-import { useAccountManager } from '@/scripts/AccountManager';
+import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
 
 const router = useRouter();
@@ -52,19 +52,15 @@ const experienceInput = ref('');
 const languageInput = ref(new Array<string>());
 const showLoginWait = ref(false);
 const showRecoveryWait = ref(false);
-
-const validateCredentials = (username: string, password: string): boolean => {
-    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
-};
+const attemptedRecovery = ref(false);
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
     showLoginWait.value = true;
     const token = await recaptcha.execute('login');
     const res = await accountManager.login(usernameInput.value, passwordInput.value, token);
     showLoginWait.value = false;
-    if (res == 0) {
-        router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
-    } else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
+    if (res == 0) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
+    else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toSignUp = () => {
     if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
@@ -91,9 +87,8 @@ const attemptSignup = async () => {
         languages: languageInput.value
     });
     showLoginWait.value = false;
-    if (res == 0) {
-        router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
-    } else modal.showModal({ title: 'Could not sign up:', content: getAccountOpMessage(res), color: 'red' });
+    if (res == 0) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
+    else modal.showModal({ title: 'Could not sign up:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toRecovery = async () => {
     emailInput.value = '';
@@ -102,8 +97,9 @@ const toRecovery = async () => {
 const attemptRecovery = async () => {
     if (!validateCredentials(usernameInput.value, 'oof') || ((emailInput.value.trim()) == '')) return;
     showRecoveryWait.value = true;
+    attemptedRecovery.value = true;
     const token = await recaptcha.execute('recoverpassword');
-    const res = await accountManager.recoverPassword(usernameInput.value, emailInput.value, token);
+    const res = await accountManager.requestRecovery(usernameInput.value, emailInput.value, token);
     showRecoveryWait.value = false;
     if (res == 0) modal.showModal({ title: 'Recovery email sent', content: 'The recovery email was sent and should arrive in your inbox within 10 minutes.' });
     else modal.showModal({
@@ -127,15 +123,15 @@ const attemptRecovery = async () => {
                     <Transition name="main">
                         <div class="fullBlock" v-show="page == 0">
                             <div class="centered">
-                                <div class="loginFlow">
+                                <div class="loginVertical">
                                     <img src="/logo.svg" class="loginLogoFloater">
-                                    <h1 class="loginFlowHeader">Log In</h1>
-                                    <form class="loginFlow" action="javascript:void(0)">
-                                        <UITextBox v-model=usernameInput placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
-                                        <UITextBox v-model=passwordInput placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
+                                    <h1 class="loginVerticalHeader">Log In</h1>
+                                    <form class="loginVertical" action="javascript:void(0)">
+                                        <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
+                                        <UITextBox v-model="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
-                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput.trim() == ''"></UIButton>
-                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput.trim() == ''"></UIButton>
+                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput == ''"></UIButton>
+                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput == ''"></UIButton>
                                         </span>
                                         <span class="loginForgotPassword" @click="toRecovery">Forgot password?</span>
                                     </form>
@@ -146,20 +142,20 @@ const attemptRecovery = async () => {
                     <Transition name="second">
                         <div class="fullBlock" v-show="page == 1">
                             <div class="centered">
-                                <div class="loginFlow">
+                                <div class="loginVertical">
                                     <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
-                                    <h1 class="loginFlowHeader2">Sign Up</h1>
-                                    <form class="loginFlow" action="javascript:void(0)" @submit=attemptSignup>
+                                    <h1 class="loginVerticalHeader2">Sign Up</h1>
+                                    <form class="loginVertical" action="javascript:void(0)" @submit=attemptSignup>
                                         <span style="margin-bottom: 8px;">
-                                            <UITextBox :value=usernameInput width="208px" title="Username" disabled autocomplete="off"></UITextBox>
+                                            <UITextBox :value="usernameInput" width="208px" title="Username" disabled autocomplete="off"></UITextBox>
                                             <UITextBox :value="passwordInput.replace(/./g, '•')" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
                                         </span>
                                         <span style="margin-bottom: 8px;">
-                                            <UITextBox v-model=firstNameInput width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name" required></UITextBox>
-                                            <UITextBox v-model=lastNameInput width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name" required></UITextBox>
+                                            <UITextBox v-model="firstNameInput" width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name" required></UITextBox>
+                                            <UITextBox v-model="lastNameInput" width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name" required></UITextBox>
                                         </span>
-                                        <UITextBox v-model=schoolInput style="margin-bottom: 8px;" width="424px" title="Your school name" placeholder="School name" maxlength="64" required></UITextBox>
-                                        <UITextBox v-model=emailInput type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <UITextBox v-model="schoolInput" style="margin-bottom: 8px;" width="424px" title="Your school name" placeholder="School name" maxlength="64" required></UITextBox>
+                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
                                         <PairedGridContainer width="424px" style="margin-bottom: 6px;">
                                             <span>
                                                 Grade Level:
@@ -207,7 +203,7 @@ const attemptRecovery = async () => {
                                                 { text: 'Bash', value: 'bash' },
                                             ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </PairedGridContainer>
-                                        <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
+                                        <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled="showLoginWait"></UIButton>
                                     </form>
                                 </div>
                             </div>
@@ -216,18 +212,18 @@ const attemptRecovery = async () => {
                     <Transition name="second">
                         <div class="fullBlock" v-show="page == 2">
                             <div class="centered">
-                                <div class="loginFlow">
+                                <div class="loginVertical">
                                     <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
-                                    <h1 class="loginFlowHeader2">Account Recovery</h1>
+                                    <h1 class="loginVerticalHeader2">Account Recovery</h1>
                                     <p style="text-align: center; font-size: var(--font-small);">
                                         Enter your email to reset your password.
                                         <br>
                                         We will send an account recovery email shortly.
                                     </p>
-                                    <form class="loginFlow" action="javascript:void(0)" @submit=attemptRecovery>
-                                        <UITextBox :value=usernameInput style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
-                                        <UITextBox v-model=emailInput type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
-                                        <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
+                                    <form class="loginVertical" action="javascript:void(0)" @submit=attemptRecovery>
+                                        <UITextBox :value="usernameInput" style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
+                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
                                     </form>
                                 </div>
                             </div>
@@ -257,16 +253,16 @@ const attemptRecovery = async () => {
     animation: loginLogoBob 10000ms cubic-bezier(0.7, 0, 0.3, 1) infinite;
 }
 
-.loginFlowHeader {
+.loginVerticalHeader {
     margin-top: -16px;
     font-size: 7vh;
 }
 
-.loginFlowHeader2 {
+.loginVerticalHeader2 {
     font-size: 7vh;
 }
 
-.loginFlow {
+.loginVertical {
     display: flex;
     flex-direction: column;
     justify-content: center;

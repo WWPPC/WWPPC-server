@@ -124,7 +124,7 @@ io.on('connection', async (s) => {
         if (packetCount > 0) socket.kick('too many packets');
     }, 1000);
     if (config.superSecretSecret) socket.emit('superSecretMessage');
-    
+
     // await credentials before allowing anything (in a weird way)
     socket.username = '[not signed in]';
     if (config.debugMode) socket.logWithId(logger.debug, 'Connection established, sending public key and requesting credentials');
@@ -200,6 +200,7 @@ io.on('connection', async (s) => {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Sign up: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
+                    socket.removeAllListeners('requestRecovery');
                     socket.removeAllListeners('recoverCredentials');
                     resolve(false);
                 }
@@ -210,12 +211,13 @@ io.on('connection', async (s) => {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
+                    socket.removeAllListeners('requestRecovery');
                     socket.removeAllListeners('recoverCredentials');
                     resolve(false);
                 }
             }
         });
-        socket.on('recoverCredentials', async (creds: { username: RSAEncrypted, email: RSAEncrypted, token: string }) => {
+        socket.on('requestRecovery', async (creds: { username: RSAEncrypted, email: RSAEncrypted, token: string }) => {
             if (creds == undefined) {
                 socket.kick('null credentials');
                 resolve(true);
@@ -227,16 +229,16 @@ io.on('connection', async (s) => {
                 socket.kick('invalid credentials');
                 return;
             }
-            if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
+            if (config.debugMode) socket.logWithId(logger.debug, 'Received request to send recovery email');
             if (!await checkRecaptcha(creds.token)) return;
             const data = await database.getAccountData(username);
             if (typeof data != 'object') {
-                if (config.debugMode) socket.logWithId(logger.debug, 'Could not recover credentials: ' + reverse_enum(AccountOpResult, data));
+                if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
                 socket.emit('credentialRes', data);
                 return;
             }
             if (email !== data.email) {
-                if (config.debugMode) socket.logWithId(logger.debug, 'Could not recover credentials: INCORRECT_CREDENTIALS');
+                if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: INCORRECT_CREDENTIALS');
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                 return;
             }
@@ -248,28 +250,50 @@ io.on('connection', async (s) => {
             }
             const recoveryPassword = await database.getRecoveryPassword(username);
             if (typeof recoveryPassword != 'string') {
-                if (config.debugMode) socket.logWithId(logger.debug, 'Could not recover credentials: ' + reverse_enum(AccountOpResult, recoveryPassword));
+                if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, recoveryPassword));
                 socket.emit('credentialRes', recoveryPassword);
                 return;
             }
+            const recoveryUrl = `https://${config.hostname}/recovery/?user=${username}&pass=${recoveryPassword}`;
             await mailer.sendFromTemplate('base', [email], 'Reset Password', [
                 ['title', 'Account Recovery Request'],
                 ['content', `
                 <h3>Hallo ${data.displayName}!</h3>
                 <br>
-                You recently requested a password reset. Reset it with the button below, or click <a href="https://${config.hostname}/recovery/?ps=${recoveryPassword}">this link</a>.
+                You recently requested a password reset. Reset it with the button below, or click <a href="${recoveryUrl}">this link</a>.
                 <br><br>
                 <div class="centered">
-                <a href="https://${config.hostname}/recovery/?ps=${recoveryPassword}">
+                <a href="${recoveryUrl}">
                 <button style="border-radius: 12px; height: 40px; padding: 0px 16px; background-color: black; color: lime; font-weight: bold; cursor: pointer;">RESET PASSWORD</button>
                 </a>
                 <br>
                 Not you? You can ignore this email.
                 </div>
                 `]
-            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?ps=${recoveryPassword}.`);
+            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
             recentPasswordResetEmails.add(username);
             socket.emit('credentialRes', AccountOpResult.SUCCESS);
+            // remove the listener to try and combat spam some more
+            socket.removeAllListeners('recoverCredentials');
+        });
+        socket.on('recoverCredentials', async (creds: { username: RSAEncrypted, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
+            if (creds == undefined) {
+                socket.kick('null credentials');
+                resolve(true);
+                return;
+            }
+            const username = await database.RSAdecrypt(creds.username);
+            const recoveryPassword = await database.RSAdecrypt(creds.recoveryPassword);
+            const newPassword = await database.RSAdecrypt(creds.newPassword);
+            if (typeof username != 'string' || typeof recoveryPassword != 'string' || typeof newPassword != 'string' || !database.validate(username, newPassword) || typeof creds.token != 'string') {
+                socket.kick('invalid credentials');
+                return;
+            }
+            if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
+            if (!await checkRecaptcha(creds.token)) return;
+            const res = await database.changePasswordTokenAccount(username, recoveryPassword, newPassword);
+            if (config.debugMode) socket.logWithId(logger.debug, 'Recover account: ' + reverse_enum(AccountOpResult, res));
+            socket.emit('credentialRes', res);
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });

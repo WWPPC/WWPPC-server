@@ -97,7 +97,7 @@ export class Database {
         try {
             return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
-            this.logger.error('' + err);
+            this.logger.handleError('RSA decrypt error:', err);
             return buf;
         }
     }
@@ -113,7 +113,7 @@ export class Database {
             const cipher = createCipheriv('aes-256-gcm', this.#dbKey, initVector);
             return `${cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64')}:${initVector.toString('base64')}:${cipher.getAuthTag().toString('base64')}`;
         } catch (err) {
-            this.logger.error('' + err);
+            this.logger.handleError('RSA decrypt error:', err);
             return plaintext;
         }
     }
@@ -125,11 +125,11 @@ export class Database {
     #RSAdecryptSymmetric(encrypted: string): string {
         try {
             const text = encrypted.split(':');
-            const decipher = createDecipheriv('aes-256-gcm', this.#dbKey, Buffer.from(text[1]));
+            const decipher = createDecipheriv('aes-256-gcm', this.#dbKey, Buffer.from(text[1], 'base64'));
             decipher.setAuthTag(Buffer.from(text[2], 'base64'));
             return decipher.update(text[0], 'base64', 'utf8') + decipher.final('utf8');
         } catch (err) {
-            this.logger.error('' + err);
+            this.logger.handleError('RSA decrypt error:', err);
             return encrypted;
         }
     }
@@ -329,10 +329,10 @@ export class Database {
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rowCount != null && data.rowCount > 0) {
+                this.#rotateRecoveryPassword(username);
                 if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
                     await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
-                    this.#rotateRecoveryPassword(username);
                     return AccountOpResult.SUCCESS;
                 } else return AccountOpResult.INCORRECT_CREDENTIALS;
             }
@@ -391,7 +391,7 @@ export class Database {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rowCount != null && data.rowCount > 0) {
                 this.logger.info(`[Database] Fetched recovery password for ${username}`, true);
-                return data.rows[0].recoverypass;
+                return this.#RSAdecryptSymmetric(data.rows[0].recoverypass);
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {

@@ -23,6 +23,10 @@ export interface Registration {
     completed: boolean
 }
 
+export function validateCredentials(username: string, password: string): boolean {
+    return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
+}
+
 const unsaved = ref(false);
 const state = reactive<AccountData>({
     username: '',
@@ -84,12 +88,12 @@ export const useAccountManager = defineStore('accountManager', {
                 }
             });
         },
-        async recoverPassword(username: string, email: string, token: string): Promise<AccountOpResult> {
+        async requestRecovery(username: string, email: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve, reject) => {
                 try {
-                    serverConnection.emit('recoverCredentials', {
+                    serverConnection.emit('requestRecovery', {
                         username: await serverConnection.RSAencrypt(username),
                         email: await serverConnection.RSAencrypt(email),
                         token: token
@@ -101,7 +105,25 @@ export const useAccountManager = defineStore('accountManager', {
                 }
             });
         },
-        signOut() {
+        async recoverAccount(username: string, recoveryPassword: string, newPassword: string, token: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve, reject) => {
+                try {
+                    serverConnection.emit('recoverCredentials', {
+                        username: await serverConnection.RSAencrypt(username),
+                        recoveryPassword: await serverConnection.RSAencrypt(recoveryPassword),
+                        newPassword: await serverConnection.RSAencrypt(newPassword),
+                        token: token
+                    });
+                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
+                } catch (err) {
+                    serverConnection.removeAllListeners('credentialRes');
+                    reject(err);
+                }
+            });
+        },
+        signout() {
             window.localStorage.removeItem('sessionCredentials');
             window.localStorage.removeItem('sessionId');
             window.location.replace('/home');
