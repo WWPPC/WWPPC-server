@@ -29,6 +29,7 @@ const router = createRouter({
             path: '/:page(contest)',
             components: { App },
             children: [{
+                //going to use contestId as round id since there's only one contest
                 path: ':contestId',
                 children: [
                     {
