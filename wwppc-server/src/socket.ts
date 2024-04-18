@@ -2,6 +2,9 @@ import { Socket } from 'socket.io';
 
 import Logger from './log';
 
+/**
+ * just socket with kick function, ip, and username
+ */
 export interface ServerSocket extends Socket {
     kick(reason: string): void
     logWithId(logMethod: (s: string, logOnly?: boolean) => void, message: string, logOnly?: boolean): void

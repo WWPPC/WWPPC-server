@@ -416,7 +416,7 @@ export class Database {
 
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
-     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the filter
+     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Round[]} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
@@ -465,7 +465,7 @@ export class Database {
     #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Filter and get a list of problems from the problems database according to a criteria
-     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the filter
+     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Problem[]} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
     async readProblems(c: ReadProblemsCriteria): Promise<Problem[]> {
@@ -546,7 +546,7 @@ export class Database {
     #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Filter and get a list of submissions from the submissions database according to a criteria.
-     * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the filter
+     * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
     async readSubmissions(c: ReadSubmissionsCriteria): Promise<Submission[] | null> {
@@ -773,14 +773,14 @@ export enum ScoreState {
     RUNTIME_ERROR = 5
 }
 
-/**Criteria to filter by. Leaving a value undefined removes the filter */
+/**Criteria to filter by. Leaving a value undefined removes the criterion */
 interface ReadRoundsCriteria {
     /**Contest ID */
     contest?: string
     /**Zero-indexed round within the contest */
     round?: number
 }
-/**Criteria to filter by. Leaving a value undefined removes the filter */
+/**Criteria to filter by. Leaving a value undefined removes the criterion */
 interface ProblemRoundCriteria {
     /**Contest ID */
     contest?: string
@@ -789,7 +789,7 @@ interface ProblemRoundCriteria {
     /**Zero-indexed problem number within the round */
     number?: number
 }
-/**Criteria to filter by. Leaving a value undefined removes the filter */
+/**Criteria to filter by. Leaving a value undefined removes the criterion */
 interface ReadProblemsCriteria {
     /**UUID of problem */
     id?: UUID
@@ -804,7 +804,7 @@ interface ReadProblemsCriteria {
     /**Round based filter for problems */
     round?: ProblemRoundCriteria
 }
-/**Criteria to filter by. Leaving a value undefined removes the filter */
+/**Criteria to filter by. Leaving a value undefined removes the criterion */
 interface ReadSubmissionsCriteria {
     /**UUID of problem */
     id?: UUID
