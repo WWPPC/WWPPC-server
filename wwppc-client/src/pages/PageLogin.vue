@@ -2,7 +2,7 @@
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
-import { useServerConnection, getAccountOpMessage } from '@/scripts/ServerConnection';
+import { useServerConnection, AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
@@ -51,22 +51,23 @@ const gradeInput = ref('');
 const experienceInput = ref('');
 const languageInput = ref(new Array<string>());
 const showLoginWait = ref(false);
+const showRecoveryWait = ref(false);
 
 const validateCredentials = (username: string, password: string): boolean => {
     return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
 };
 const attemptLogin = async () => {
-    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
+    if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
     showLoginWait.value = true;
     const token = await recaptcha.execute('login');
-    const res = await accountManager.login(usernameInput.value ?? '', passwordInput.value ?? '', token);
+    const res = await accountManager.login(usernameInput.value, passwordInput.value, token);
     showLoginWait.value = false;
     if (res == 0) {
         router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home', query: { clearQuery: 1 } });
     } else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toSignUp = () => {
-    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '')) return;
+    if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
     firstNameInput.value = '';
     lastNameInput.value = '';
     emailInput.value = '';
@@ -77,10 +78,10 @@ const toSignUp = () => {
     page.value = 1;
 };
 const attemptSignup = async () => {
-    if (!validateCredentials(usernameInput.value ?? '', passwordInput.value ?? '') || ((firstNameInput.value.trim() ?? '') == '') || ((lastNameInput.value.trim() ?? '') == '') || ((schoolInput.value.trim() ?? '') == '') || ((emailInput.value.trim() ?? '') == '') || gradeInput.value == '' || experienceInput.value == '') return;
+    if (!validateCredentials(usernameInput.value, passwordInput.value) || ((firstNameInput.value.trim()) == '') || ((lastNameInput.value.trim()) == '') || ((schoolInput.value.trim()) == '') || ((emailInput.value.trim()) == '') || gradeInput.value == '' || experienceInput.value == '') return;
     showLoginWait.value = true;
     const token = await recaptcha.execute('signup');
-    const res = await accountManager.signup(usernameInput.value ?? '', passwordInput.value ?? '', token, {
+    const res = await accountManager.signup(usernameInput.value, passwordInput.value, token, {
         firstName: firstNameInput.value.trim(),
         lastName: lastNameInput.value.trim(),
         email: emailInput.value.trim(),
@@ -99,7 +100,16 @@ const toRecovery = async () => {
     page.value = 2;
 };
 const attemptRecovery = async () => {
-
+    if (!validateCredentials(usernameInput.value, 'oof') || ((emailInput.value.trim()) == '')) return;
+    showRecoveryWait.value = true;
+    const token = await recaptcha.execute('recoverpassword');
+    const res = await accountManager.recoverPassword(usernameInput.value, emailInput.value, token);
+    showRecoveryWait.value = false;
+    if (res == 0) modal.showModal({ title: 'Recovery email sent', content: 'The recovery email was sent and should arrive in your inbox within 10 minutes.' });
+    else modal.showModal({
+        title: 'Could not send recovery email:',
+        content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
+    });
 };
 </script>
 
@@ -112,7 +122,7 @@ const attemptRecovery = async () => {
             <PanelNavLargeLogo target="/home/home?clearQuery"></PanelNavLargeLogo>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="login" title="Login" is-default>
+            <PanelBody name="default" title="Login" is-default>
                 <div class="loginNoScroll">
                     <Transition name="main">
                         <div class="fullBlock" v-show="page == 0">
@@ -209,14 +219,14 @@ const attemptRecovery = async () => {
                                 <div class="loginFlow">
                                     <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
                                     <h1 class="loginFlowHeader2">Account Recovery</h1>
-                                    <p>
+                                    <p style="text-align: center; font-size: var(--font-small);">
                                         Enter your email to reset your password.
                                         <br>
                                         We will send an account recovery email shortly.
                                     </p>
                                     <form class="loginFlow" action="javascript:void(0)" @submit=attemptRecovery>
                                         <UITextBox :value=usernameInput style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
-                                        <UITextBox v-model=emailInput type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <UITextBox v-model=emailInput type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
                                         <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled=showLoginWait></UIButton>
                                     </form>
                                 </div>
@@ -226,6 +236,7 @@ const attemptRecovery = async () => {
                 </div>
                 <LoadingCover text="Connecting..."></LoadingCover>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
+                <WaitCover text="Sending email..." :show=showRecoveryWait></WaitCover>
             </PanelBody>
         </PanelMain>
     </PanelView>
@@ -268,6 +279,7 @@ const attemptRecovery = async () => {
     color: lime;
     text-decoration: underline;
     cursor: pointer;
+    margin-top: 8px;
 }
 
 @keyframes loginLogoBob {

@@ -13,6 +13,7 @@ import { ref, watch } from 'vue';
 import '@/scripts/app';
 import { useRoute } from 'vue-router';
 import recaptcha from './scripts/recaptcha';
+import PageRecovery from './pages/PageRecovery.vue';
 
 const modalComponent = ref<InstanceType<typeof FullscreenModal>>();
 
@@ -44,6 +45,7 @@ watch(() => route.params, () => {
     <PageAccount></PageAccount>
     <PageUserView></PageUserView>
     <PageLogin></PageLogin>
+    <PageRecovery></PageRecovery>
     <PageTest></PageTest>
     <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>

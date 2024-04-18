@@ -22,7 +22,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 
 <template>
     <Transition>
-        <div :class="'panelBody ' + isMobileRef ? 'noSnap' : ''" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined)">
+        <div :class="'panelBody ' + (isMobileRef ? 'noSnap' : '')" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined)">
             <div class="panelBodySlotContainer">
                 <slot></slot>
             </div>

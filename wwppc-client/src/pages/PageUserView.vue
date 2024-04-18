@@ -100,7 +100,9 @@ const largeHeader = ref(true);
                             <span class="userViewDisplayName">{{ displayName }}</span>
                             <span class="userViewUsername">{{ username }}</span>
                             <CutCornerContainer class="userViewProfileRegistrations">
-                                <h3 style="position: sticky; top: 0px; margin-top: -12px; margin-bottom: 12px;">Registrations</h3>
+                                <div class="userViewProfileRegistrationsHeader">
+                                    <h3>Registrations</h3>
+                                </div>
                                 <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.registrations" :key="i" :delay="i * 200" single>
                                     <span v-html="reg.contest"></span>
                                 </AnimateInContainer>
@@ -211,6 +213,17 @@ const largeHeader = ref(true);
     grid-row: 2 / 4;
     grid-column: 4;
     overscroll-behavior: contain;
+}
+
+.userViewProfileRegistrationsHeader {
+    position: sticky;
+    top: 0px;
+    background-color: black;
+    width: calc(100% + 24px);
+    margin-top: -6px;
+    transform: translate(-12px, -12px);
+    box-shadow: 0px 6px 8px black;
+    z-index: 1;
 }
 
 .vStack {

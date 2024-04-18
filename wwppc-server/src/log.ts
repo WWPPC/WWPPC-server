@@ -90,6 +90,21 @@ export default class Logger {
         this.#append('fatal', text, 35, logOnly);
     }
 
+    /**
+     * Shorthand for appending `Error` objects as error-level logs.
+     * @param {string} message Accompanying message
+     * @param error `Error` object
+     */
+    handleError(message: string, error: any) {
+        this.error(message);
+        if (error instanceof Error) {
+            this.error(error.message);
+            if (error.stack) this.error(error.stack);
+        } else {
+            this.error('' + error);
+        }
+    }
+
     #append(level: string, text: string, color: number, logOnly = false) {
         if (this.#file == undefined) return;
         if (!logOnly) {

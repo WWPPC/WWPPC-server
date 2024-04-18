@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { UIButton, UIImage } from './ui-defaults/UIDefaults';
+import { UIButton } from './ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { glitchTextTransition } from './ui-defaults/TextTransitions';
 import { useRouter, useRoute } from 'vue-router';
@@ -34,7 +34,7 @@ serverConnection.handshakePromise.then(() => {
 <template v-slot:userDisp>
     <div class="userDispContainer">
         <div class="userDispUser">
-            <UIImage :src=accountManager.profileImage width="28px" height="28px" style="border: 2px solid white;" :round="true" v-if="serverConnection.loggedIn || ignoreServer"></UIImage>
+            <img :src=accountManager.profileImage class="userDispProfileImg" v-if="serverConnection.loggedIn || ignoreServer">
             <span class="userDispUserName">{{ name }}</span>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>
@@ -57,6 +57,14 @@ serverConnection.handshakePromise.then(() => {
     display: flex;
     margin-bottom: 8px;
     align-items: center;
+}
+
+.userDispProfileImg {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border: 2px solid white;
+    border-radius: 50%;
 }
 
 .userDispUserName {

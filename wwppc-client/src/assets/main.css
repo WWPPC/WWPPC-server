@@ -4,14 +4,14 @@
     font-family: 'Source Code Pro';
     font-weight: 200, 300, 400, 500, 600, 700, 800;
     font-style: normal, italic;
-    src: url(./SourceCodePro.ttf) format('truetype');
+    src: url(/assets/SourceCodePro.ttf) format('truetype');
 }
 
 @font-face {
     font-family: 'Jura';
     font-weight: 300, 400, 500, 600, 700;
     font-style: normal;
-    src: url(./Jura.ttf);
+    src: url(/assets/Jura.ttf);
 }
 
 body {

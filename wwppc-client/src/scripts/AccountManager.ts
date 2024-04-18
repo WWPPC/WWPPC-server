@@ -84,6 +84,23 @@ export const useAccountManager = defineStore('accountManager', {
                 }
             });
         },
+        async recoverPassword(username: string, email: string, token: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve, reject) => {
+                try {
+                    serverConnection.emit('recoverCredentials', {
+                        username: await serverConnection.RSAencrypt(username),
+                        email: await serverConnection.RSAencrypt(email),
+                        token: token
+                    });
+                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
+                } catch (err) {
+                    serverConnection.removeAllListeners('credentialRes');
+                    reject(err);
+                }
+            });
+        },
         signOut() {
             window.localStorage.removeItem('sessionCredentials');
             window.localStorage.removeItem('sessionId');

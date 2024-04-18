@@ -1,0 +1,120 @@
+<style>
+    @font-face {
+        font-family: 'Source Code Pro';
+        font-weight: 200, 300, 400, 500, 600, 700, 800;
+        font-style: normal, italic;
+        src: url($domain$/assets/SourceCodePro.ttf) format('truetype');
+    }
+
+    h1 {
+        font-size: 48px;
+        font-weight: 700;
+        font-family: 'Source Code Pro', Courier, monospace;
+        line-height: 1.1em;
+        margin: 0.2em 0px;
+    }
+
+    h2 {
+        font-size:  32px;
+        font-weight: 600;
+        font-family: 'Source Code Pro', Courier, monospace;
+        line-height: 1.1em;
+        margin: 0.2em 0px;
+    }
+
+    h3 {
+        font-size: 24px;
+        font-weight: 600;
+        font-family: 'Source Code Pro', Courier, monospace;
+        line-height: 1.1em;
+        margin: 0.2em 0px;
+    }
+
+    p {
+        font-size:  24px;
+        font-family: 'Source Code Pro', Courier, monospace;
+        margin: 8px 8px;
+        text-align: justify;
+    }
+
+    b {
+        font-weight: bold;
+    }
+
+    i {
+        font-style: italic;
+    }
+
+    a {
+        color: lime;
+    }
+
+    code {
+        padding: 0px 0.3em;
+        font-family: 'Source Code Pro', Courier, monospace;
+        background-color: #FFF3;
+        border-radius: 0.2em;
+    }
+
+    .column {
+        box-sizing: border-box;
+        width: 100%;
+        flex-direction: column;
+        padding: 0px 16px;
+    }
+
+    .centered {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #body {
+        background-color: #EEE;
+    }
+
+    #header {
+        display: flex;
+        justify-content: center;
+        background-color: #333;
+        height: 20%;
+        padding: 1% 0%;
+        margin: 0px -16px;
+    }
+
+    #headerImg {
+        min-width: 0;
+        min-height: 0;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    #footer {
+        background-color: #555;
+        font-size: 16px;
+        font-family: 'Source Code Pro', Courier, monospace;
+        padding: 8px 8px;
+        margin: 0px -16px;
+        text-align: center;
+        color: #DDD;
+    }
+</style>
+<div class="column" id="body">
+    <a href="$domain$">
+        <div id="header">
+            <img src="$domain$/icon.svg" id="headerImg">
+        </div>
+    </a>
+    <h1 style="text-align: center;">$title$</h1>
+    <p>$content$</p>
+    <div id="footer">
+        This is a no-reply email.
+        <br>
+        If you have questions, email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+        <br>
+        <i>Copyright &copy; 2024 WWPPC</i>
+    </div>
+</div>

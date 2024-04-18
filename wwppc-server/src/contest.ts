@@ -62,7 +62,7 @@ export class ContestManager {
     /**
      * Add a username-linked SocketIO connection to the user list.
      * @param {string} username Username to link this socket to
-     * @param {ServerSocket} socket SocketIO connection
+     * @param {ServerSocket} socket SocketIO connection (with modifications)
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(username: string, socket: ServerSocket): Promise<number> {
@@ -77,7 +77,6 @@ export class ContestManager {
             sockets: new Set<ServerSocket>().add(socket)
         });
 
-        //socket.on not working in this function for some reason?
         socket.on('updateSubmission', (data) => {
             //replace this with a kick() function
             if (data == null || typeof data.problemId !== 'string' || typeof data.file !== 'string' || typeof data.lang !== 'string') {
@@ -98,59 +97,73 @@ export class ContestManager {
                 scores: [],
             });
         });
+        socket.on('getProblemList', async (data) => {
+            if (data == null || typeof data.contest !== 'string') {
+                //check valid contest
+                socket.kick('invalid getProblemList payload');
+                return;
+            }
 
-    socket.on('getProblemList', async (data) => {
-        if (data == null || typeof data.contest !== 'string') {
-            //check valid contest
-            socket.kick('invalid getProblemList payload');
-            return;
-        }
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
+            //replace the 100 with an actual round data, this is just a temporary workaround for db bug
 
-        const rounds = await this.#db.readRounds({contest: data.contest, round: 100});
-        //replace the 100 with an actual round data, this is just a temporary workaround for db bug
-
-        let packet: Array<Object> = [];
-        for (let i of rounds) {
-            packet.push({
-                contest: i.contest,
-                number: i.round,
-                time: 0,
-                problems: [
-                    {
-                        id: 'buh',
-                        contest: 'WWPIT Test',
-                        round: 1,
-                        number: 0,
-                        name: 'Test Problem 0',
-                        author: 'SP^2',
-                    },
-                    {
-                        id: 'buh',
-                        contest: 'WWPIT Test',
-                        round: 1,
-                        number: 1,
-                        name: 'Test Problem 1',
-                        author: 'SP^2',
-                    },
-                    {
-                        id: 'buh',
-                        contest: 'WWPIT Test',
-                        round: 1,
-                        number: 2,
-                        name: 'Test Problem 2',
-                        author: 'SP^2',
-                    }
-                ]
-            });
-        }
-        socket.emit('problemList', {data: packet, token: data.token});
-    });
+            let packet: Array<Object> = [];
+            for (let i of rounds) {
+                packet.push({
+                    contest: i.contest,
+                    number: i.round,
+                    time: 0,
+                    problems: [
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 0,
+                            name: 'Test Problem 0',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 1,
+                            name: 'Test Problem 1',
+                            author: 'SP^2',
+                        },
+                        {
+                            id: 'buh',
+                            contest: 'WWPIT Test',
+                            round: 1,
+                            number: 2,
+                            name: 'Test Problem 2',
+                            author: 'SP^2',
+                        }
+                    ]
+                });
+            }
+            socket.emit('problemList', { data: packet, token: data.token });
+        });
+        socket.on('getProblemList', async (data) => {
+            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
+                //check valid contest, round
+                socket.kick('invalid getProblemList payload');
+                return;
+            }
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
+            //replace this with actual data
+            // socket.emit('problemList', {
+            //     number: 0,
+            //     time: Date.now(),
+            //     problems: [
+            //     ],
+            // });
+        });
         socket.on('getProblemData', async (data) => {
             if (data == null || typeof data.id !== 'string') {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-            const problems = await this.#db.readProblems({id: data.id});
+            const problems = await this.#db.readProblems({ id: data.id });
             if (problems.length !== 1) {
                 socket.kick('invalid getProblemData payload');
                 return;

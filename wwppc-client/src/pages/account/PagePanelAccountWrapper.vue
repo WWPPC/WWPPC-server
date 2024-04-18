@@ -22,15 +22,14 @@ const changeProfileImage = (event: any) => {
     // const file: File | undefined | null = fileUpload.value?.files?.item(0);
     const file: File | undefined = event.target?.files?.item(0);
     if (file == undefined) return;
-    if (file.size > 40960) {
-        if (fileUpload.value) fileUpload.value.value = '';
-        modal.showModal({ title: 'Image too large', content: 'The maximum file size for profile images is 40kB<br>(this is due to a database limitation)', color: 'red' });
-        return;
-    }
     const reader = new FileReader();
     reader.onload = () => {
         if (typeof reader.result != 'string') return; // idk should never happen
         if (/^data:image\/(png|jpeg)/.test(reader.result)) {
+            if (reader.result.length > 65535) {
+                modal.showModal({ title: 'Image too large', content: 'Due to database restrictions, the maximum file size is an arbitrary small number.', color: 'red' });
+                if (fileUpload.value) fileUpload.value.value = '';
+            }
             accountManager.profileImage = reader.result;
             accountManager.writeUserData();
         } else {

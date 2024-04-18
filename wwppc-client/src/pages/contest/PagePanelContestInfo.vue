@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/ContactFooter.vue';
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
-import { AnimateInContainer, CenteredContainer, IfOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
     <div class="centered contestTitle">
-        <IfOnscreenContainer>
+        <ShowOnscreenContainer>
             <GlitchText text="WWPIT" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
-        </IfOnscreenContainer>
+        </ShowOnscreenContainer>
     </div>
     <div class="fullBlock stretchBlock">
         <!-- spacer -->
@@ -55,9 +55,9 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
     <div class="fullBlock stretchBlock">
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
-            <IfOnscreenContainer>
+            <ShowOnscreenContainer>
                 <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
+            </ShowOnscreenContainer>
         </CenteredContainer>
         <br>
         <div class="faq">

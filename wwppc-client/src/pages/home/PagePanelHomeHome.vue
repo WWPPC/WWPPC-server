@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, IfOnscreenContainer } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/ContactFooter.vue';
 </script>
 
 <template>
     <div class="centered homeTitle">
-        <IfOnscreenContainer>
+        <ShowOnscreenContainer>
             <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
-        </IfOnscreenContainer>
+        </ShowOnscreenContainer>
     </div>
     <div class="fullBlock homeBlock">
         <!-- spacer for title -->
@@ -67,9 +67,9 @@ import ContactFooter from '@/components/ContactFooter.vue';
     <div class="fullBlock homeBlock">
         <a name="pageHomeScrollTo"></a>
         <div class="centered">
-            <IfOnscreenContainer>
+            <ShowOnscreenContainer>
                 <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
+            </ShowOnscreenContainer>
         </div>
         <div style="flex-grow: 1;">
             <p>
@@ -95,9 +95,9 @@ import ContactFooter from '@/components/ContactFooter.vue';
     <div class="fullBlock homeBlock">
         <div class="centered">
             <a name="pageHomeScrollTo2"></a>
-            <IfOnscreenContainer>
+            <ShowOnscreenContainer>
                 <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
-            </IfOnscreenContainer>
+            </ShowOnscreenContainer>
         </div>
         <div style="flex-grow: 1;">
             <CenteredContainer>
