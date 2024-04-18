@@ -26,7 +26,8 @@ const buttonAction = () => {
 serverConnection.handshakePromise.then(() => {
     if (serverConnection.loggedIn) {
         glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
-        name.value = accountManager.username;
+        name.value = accountManager.displayName;
+        watch(() => accountManager.displayName, () => name.value = accountManager.displayName);
     }
 });
 </script>

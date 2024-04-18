@@ -38,7 +38,9 @@ watch(() => route.params.page, async () => {
 
 const userData = ref<AccountData | null>(null);
 const loadUserData = async () => {
+    console.log(userData.value)
     userData.value = await accountManager.getUserData(route.params.userView?.toString());
+    console.log(userData.value)
 };
 watch(() => route.params, () => {
     if (route.params.page != 'user' || route.query.ignore_server !== undefined) return;

@@ -304,12 +304,12 @@ io.on('connection', async (s) => {
 
     // only can reach this point after signing in
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
-    socket.on('getUserData', async (data: { username: string }) => {
-        if (data == undefined || typeof data.username != 'string') {
+    socket.on('getUserData', async (data: { username: string, token: number }) => {
+        if (data == undefined || typeof data.username != 'string' || typeof data.token != 'number') {
             socket.kick('invalid getUserData parameters');
             return;
         }
-        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username });
+        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username, token: data.token });
     });
     socket.on('setUserData', async (data: { password: RSAEncrypted, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
         if (data == undefined || data.data == undefined) {

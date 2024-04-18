@@ -137,7 +137,7 @@ export const useAccountManager = defineStore('accountManager', {
                 const handle = ({ data, token: token2 }: { data: AccountData | null, token: number }) => {
                     if (token2 != token) return;
                     resolve(data);
-                    serverConnection.off('userdata', handle);
+                    serverConnection.off('userData', handle);
                 };
                 serverConnection.on('userData', handle);
             });
