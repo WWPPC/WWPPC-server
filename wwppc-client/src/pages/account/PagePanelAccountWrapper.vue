@@ -137,7 +137,7 @@ const changeProfileImage = (event: any) => {
     font-size: var(--font-24);
     font-family: 'Source Code Pro', Courier, monospace;
     line-break: anywhere;
-    white-space-collapse: preserve;
+    white-space: pre;
     text-align: center;
     word-break: break-all;
 }

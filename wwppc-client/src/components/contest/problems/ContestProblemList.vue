@@ -120,7 +120,7 @@ onMounted(async () => {
                         <ContestProblemListRound :data=round></ContestProblemListRound>
                     </AnimateInContainer>
                 </div>
-                <WaitCover text="Loading..." :show="showLoading" ignore-server></WaitCover>
+                <WaitCover text="Loading..." :show="showLoading"></WaitCover>
             </AngledTitledContainer>
         </div>
     </div>

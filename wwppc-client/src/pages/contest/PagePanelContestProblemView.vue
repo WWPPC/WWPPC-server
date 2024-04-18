@@ -18,12 +18,34 @@ const modal = globalModal();
 // load problem information from server
 const problem = ref<ContestProblem>({
     id: 'loading',
-    contest: 'WWPIT Test',
+    contest: 'WWPIT Loading Contest',
     round: 0,
     number: 0,
     name: 'Loading Problem...',
     author: 'Loading Screen',
-    content: `<b>Lorem ipsum dolor sit amet</b>, <a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
+    content: `
+<b>Lorem ipsum dolor sit amet</b>,
+<br><br>
+<a href="https://wwppc.tech">c</a>onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+<br><br>
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. $\\sum_{i=0}^{\\infty}$ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+<br><br>
+<codeblock>function sum(a, b) {
+    if (b > a) {
+        let c = a;
+        a = b;
+        b = c;
+    }
+    let sum = a;
+    let i = 0;
+    do {
+        sum++;
+        i = i + 1;
+    } while (i < b);
+    return sum;
+}
+</codeblock>
+    `,
     constraints: { memory: 1, time: -1 },
     status: ContestProblemCompletionState.ERROR
 });
@@ -34,7 +56,7 @@ onMounted(async () => {
         problem.value = p;
         submission.value = s;
     } else if (route.query.ignore_server === undefined) {
-        modal.showModal({title: 'No problem ID', content: 'No problem ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red'}).then(() => {
+        modal.showModal({ title: 'No problem ID', content: 'No problem ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red' }).then(() => {
             router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
         });
     }
@@ -101,7 +123,7 @@ const handleUpload = () => {
                     <span v-html="problemSubtitle2"></span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
-                <WaitCover text="Loading..." :show="problem.id == 'loading'" ignore-server></WaitCover> 
+                <WaitCover text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
@@ -172,10 +194,11 @@ const handleUpload = () => {
     border-radius: 8px;
     background-color: #333;
     font-weight: normal;
-    font-size: 18px;
+    font-size: var(--font-small);
 }
 
 .problemViewContent {
+    font-size: var(--font-small);
     text-align: justify;
 }
 

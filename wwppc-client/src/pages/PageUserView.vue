@@ -203,6 +203,7 @@ const largeHeader = ref(true);
     grid-column: 3;
     font-size: var(--font-40);
     align-self: end;
+    white-space: pre;
 }
 
 .userViewUsername {

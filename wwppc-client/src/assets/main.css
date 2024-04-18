@@ -136,6 +136,18 @@ code {
     border-radius: 0.2em;
 }
 
+codeblock {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.6em 0.6em;
+    font-family: 'Source Code Pro', Courier, monospace;
+    background-color: #FFF3;
+    border-radius: 0.2em;
+    white-space: pre;
+    overflow-x: auto;
+}
+
 ul {
     margin: 0px 0px;
 }

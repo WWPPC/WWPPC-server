@@ -26,19 +26,19 @@ const serverConnection = useServerConnection();
 const contestManager = useContestManager();
 
 serverConnection.onconnecterror(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
 });
 serverConnection.ondisconnect(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
 });
 serverConnection.handshakePromise.then(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
     if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
 });
 watch(() => route.params, () => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer) return;
+    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath } });
     });
