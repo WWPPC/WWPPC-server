@@ -34,6 +34,7 @@ defineProps<{
 }
 
 .cutCornerContainer {
+    contain: layout;
     position: relative;
     box-sizing: border-box;
     width: 100%;

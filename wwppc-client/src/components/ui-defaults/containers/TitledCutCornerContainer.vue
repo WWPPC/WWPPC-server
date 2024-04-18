@@ -33,6 +33,7 @@ defineProps<{
 }
 
 .titledCutCornerContainerTitle {
+    contain: layout;
     grid-row: 1;
     grid-column: 1;
     box-sizing: border-box;
@@ -47,6 +48,7 @@ defineProps<{
 }
 
 .titledCutCornerContainerBody {
+    contain: layout;
     position: relative;
     grid-row: 2;
     grid-column: 1;

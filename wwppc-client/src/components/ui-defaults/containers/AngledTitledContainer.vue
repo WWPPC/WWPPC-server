@@ -48,7 +48,6 @@ defineProps<{
 }
 
 .titledAngleContainerHeader {
-    content: ' ';
     display: block;
     position: absolute;
     top: 0px;
@@ -62,6 +61,7 @@ defineProps<{
 }
 
 .titledAngleContainerBody {
+    contain: layout;
     position: relative;
     box-sizing: border-box;
     width: 100%;

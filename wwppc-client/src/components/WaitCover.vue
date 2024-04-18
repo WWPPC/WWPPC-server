@@ -10,6 +10,16 @@ defineProps<{
 <script lang="ts">
 const size = ref(0);
 export default {
+    async mounted() {
+        const resize = async () => {
+            await nextTick();
+            if (this.$el?.getBoundingClientRect == undefined) return;
+            const rect = this.$el.getBoundingClientRect();
+            size.value = Math.min(rect.width * 0.25, rect.height * 0.25);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+    },
     async beforeUpdate() {
         await nextTick();
         if (this.$el?.getBoundingClientRect == undefined) return;
@@ -37,7 +47,7 @@ export default {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    position: absolute;
+    position: fixed;
     bottom: 0px;
     left: 0px;
     width: 100%;

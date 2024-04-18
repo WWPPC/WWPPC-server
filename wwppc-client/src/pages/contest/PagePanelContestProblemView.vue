@@ -101,7 +101,7 @@ const handleUpload = () => {
                     <span v-html="problemSubtitle2"></span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
-                <WaitCover text="Loading..." :show="problem.id == 'loading'"></WaitCover> 
+                <WaitCover text="Loading..." :show="problem.id == 'loading'" ignore-server></WaitCover> 
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">

@@ -70,6 +70,7 @@ defineExpose({
 }
 
 .headeredCollapsibleContainerHeader {
+    contain: layout;
     display: flex;
     flex-direction: row;
     padding: 8px 12px;
@@ -112,6 +113,7 @@ defineExpose({
 }
 
 .headeredCollapsibleContainerBody {
+    contain: layout;
     position: absolute;
     box-sizing: border-box;
     width: 100%;
