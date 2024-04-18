@@ -8,23 +8,20 @@ import { useContestManager } from '@/scripts/ContestManager';
 import { useRoute, useRouter } from 'vue-router';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
-// fetch problems from server on mount
-// in the meantime just put a loading spinner (i should probably make one of those)
+// probably should put loading spinner
 
 const route = useRoute();
 const router = useRouter();
 const contestManager = useContestManager();
 const modal = globalModal();
 
-const rounds = ref<ContestRound[]>([]);
+const round = ref<ContestRound>();
 
 onMounted(async () => {
     if (typeof route.params.contestId === 'string') {
-        const serverRounds = await contestManager.getProblemList(route.params.contestId);
-        console.log(serverRounds);
-        for (let i of serverRounds) {
-            rounds.value.push(i);
-        }
+        //probably need a parameter for contest id and round id?
+        const serverRounds = await contestManager.getProblemList("WWPIT", parseInt(route.params.contestId));
+        round.value = serverRounds[0];
     } else if (route.query.ignore_server === undefined) {
         modal.showModal({title: 'No contest ID', content: 'No contest ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red'}).then(() => {
             router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
@@ -36,11 +33,10 @@ onMounted(async () => {
 <template>
     <div class="contestProblemListWrapperWrapper centered">
         <div class="contestProblemListWrapper">
-            <AngledTitledContainer title="Problems" height="100%">
+            <AngledTitledContainer :title="'Round ' + round?.number.toString()" height="100%">
                 <div class="contestProblemList">
-                    <AnimateInContainer v-for="(round, index) in rounds" :key=round.number type="slideUp" :delay="index * 200">
-                        <ContestProblemListRound :data=round></ContestProblemListRound>
-                    </AnimateInContainer>
+                    <br>
+                    <ContestProblemListRound :data=round v-if="round != null"></ContestProblemListRound>
                 </div>
             </AngledTitledContainer>
         </div>
