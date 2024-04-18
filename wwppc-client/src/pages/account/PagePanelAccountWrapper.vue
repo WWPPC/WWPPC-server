@@ -10,8 +10,8 @@ const modal = globalModal();
 const accountManager = useAccountManager();
 
 // random nullish coalescers fix weird bug in dev
-const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 20);
-const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 20);
+const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 10);
+const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 10);
 onMounted(() => {
     glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
     glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
@@ -55,7 +55,7 @@ const changeProfileImage = (event: any) => {
             <span class="accountUserUsername">{{ username }}</span>
             <div class="accountUserRegistrations">
                 <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="i" :delay="i * 200" single>
-                    <span v-html="reg.contest"></span>
+                    <span>{{ reg.contest }}</span>
                 </AnimateInContainer>
             </div>
             <UIButton text="Sign Out" width="100%" @click="accountManager.signout"></UIButton>
@@ -137,6 +137,8 @@ const changeProfileImage = (event: any) => {
     font-size: var(--font-24);
     font-family: 'Source Code Pro', Courier, monospace;
     line-break: anywhere;
+    white-space-collapse: preserve;
+    text-align: center;
     word-break: break-all;
 }
 

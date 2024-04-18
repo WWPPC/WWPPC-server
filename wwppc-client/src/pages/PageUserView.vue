@@ -10,7 +10,7 @@ import { useServerConnection } from '@/scripts/ServerConnection';
 import UserDisp from '@/components/UserDisp.vue';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import OnScreenHook from '@/components/ui-defaults/OnScreenHook.vue';
-import { CutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { CutCornerContainer, PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
 
 const route = useRoute();
@@ -38,9 +38,7 @@ watch(() => route.params.page, async () => {
 
 const userData = ref<AccountData | null>(null);
 const loadUserData = async () => {
-    console.log(userData.value)
     userData.value = await accountManager.getUserData(route.params.userView?.toString());
-    console.log(userData.value)
 };
 watch(() => route.params, () => {
     if (route.params.page != 'user' || route.query.ignore_server !== undefined) return;
@@ -78,8 +76,8 @@ userData.value = {
         { contest: 'WWPIT-2024', completed: false }
     ]
 };
-const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40);
-const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40);
+const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40, 1, 10);
+const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40, 1, 10);
 
 const largeHeader = ref(true);
 </script>
@@ -106,7 +104,7 @@ const largeHeader = ref(true);
                                     <h3>Registrations</h3>
                                 </div>
                                 <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.registrations" :key="i" :delay="i * 200" single>
-                                    <span v-html="reg.contest"></span>
+                                    <span>{{ reg.contest }}</span>
                                 </AnimateInContainer>
                             </CutCornerContainer>
                         </div>
@@ -115,44 +113,45 @@ const largeHeader = ref(true);
                 <div class="vStack">
                     <OnScreenHook @change="(v) => largeHeader = v" offset-top="-16px"></OnScreenHook>
                     <div style="height: 30vh;"></div>
-                    {{ userData }}
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
-                    <br>a
+                    <CutCornerContainer width="max(50%, min-content)">
+                        <PairedGridContainer>
+                            <span>Username</span>
+
+                        </PairedGridContainer>
+                    </CutCornerContainer>
+                    <span>{{ userData }}</span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
+                    <span>a<br></span>
                 </div>
             </PanelBody>
             <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
@@ -183,6 +182,7 @@ const largeHeader = ref(true);
     border-bottom: 4px solid white;
     background-color: black;
     transition: 500ms ease max-height, 500ms ease min-height;
+    z-index: 2;
 }
 
 .userViewProfileImg {
@@ -223,6 +223,8 @@ const largeHeader = ref(true);
     background-color: black;
     width: calc(100% + 24px);
     margin-top: -6px;
+    margin-left: 8px;
+    padding-top: 2px;
     transform: translate(-12px, -12px);
     box-shadow: 0px 6px 8px black;
     z-index: 1;
@@ -231,5 +233,6 @@ const largeHeader = ref(true);
 .vStack {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 </style>
