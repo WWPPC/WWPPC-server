@@ -103,42 +103,30 @@ export class ContestManager {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-
+    
             const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
-            //replace the 100 with an actual round data, this is just a temporary workaround for db bug
-
+            //100 is hardcoded until db.readRounds is fixed
+    
             let packet: Array<Object> = [];
             for (let i of rounds) {
+                const roundProblems = await this.#db.readProblems({ round: i });
+                //ok somehow readProblems is also broken
+                let problems: Array<Object> = [];
+                for (let p in roundProblems) {
+                    problems.push({
+                        id: roundProblems[p].id,
+                        contest: data.contest,
+                        round: i.round,
+                        number: p,
+                        name: roundProblems[p].name,
+                        author: roundProblems[p].author,
+                    });
+                }
                 packet.push({
                     contest: i.contest,
                     number: i.round,
                     time: 0,
-                    problems: [
-                        {
-                            id: 'buh',
-                            contest: 'WWPIT Test',
-                            round: 1,
-                            number: 0,
-                            name: 'Test Problem 0',
-                            author: 'SP^2',
-                        },
-                        {
-                            id: 'buh',
-                            contest: 'WWPIT Test',
-                            round: 1,
-                            number: 1,
-                            name: 'Test Problem 1',
-                            author: 'SP^2',
-                        },
-                        {
-                            id: 'buh',
-                            contest: 'WWPIT Test',
-                            round: 1,
-                            number: 2,
-                            name: 'Test Problem 2',
-                            author: 'SP^2',
-                        }
-                    ]
+                    problems: problems
                 });
             }
             socket.emit('problemList', { data: packet, token: data.token });
