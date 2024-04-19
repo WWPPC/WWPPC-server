@@ -448,7 +448,7 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : ''}${(c.contest != undefined && c.round != undefined) ? ' AND ' : ''}${c.round != undefined ? 'number=$2' : ''}`, [c.contest, c.round]);
+            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : '1=1'} AND ${c.round != undefined ? 'number=$2' : '1=1'}`, [c.contest, c.round]);
             return data.rows.map((round) => ({
                 contest: round.contest,
                 round: round.number,
@@ -464,7 +464,6 @@ export class Database {
             if (config.debugMode) this.logger.debug(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
         }
     }
-
     /**
      * Write a round to the rounds database
      * @param {Round} round Round to write
@@ -475,7 +474,7 @@ export class Database {
         try {
             const exists = await this.#db.query('SELECT FROM rounds WHERE contest=$1 AND number=$2', [round.contest, round.round]);
             if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE division=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
+                await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             } else {
                 await this.#db.query('INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             }

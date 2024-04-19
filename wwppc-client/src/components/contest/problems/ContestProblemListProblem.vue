@@ -30,7 +30,7 @@ onMounted(() => {
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
         <span class="contestProblemListProblemButton">
-            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/${$route.params.contestId}/problemView/${props.data.id}`)"></UILinkButton>
+            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/problemView/${props.data.round}_${props.data.number}`)"></UILinkButton>
         </span>
     </div>
 </template>
@@ -41,16 +41,22 @@ onMounted(() => {
     grid-template-columns: 60px 1fr 120px;
     grid-template-rows: 24px 8px 16px 8px;
     grid-auto-flow: column;
-    margin: 4px 0px;
+    margin: 4px 4px;
     padding: 4px 0px;
     background-color: #222;
     border-radius: 8px;
     align-items: center;
     justify-items: center;
+    transition: 50ms ease margin;
+    will-change: margin;
 }
 
 .contestProblemListProblem:nth-child(odd) {
     background-color: #333;
+}
+
+.contestProblemListProblem:hover {
+    margin: 4px 0px;
 }
 
 .contestProblemListProblemId {

@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 const props = defineProps<{
     show?: boolean
 }>();
 
 const route = useRoute();
-const showAnyways = route.query.super_secret_scanlines != undefined || Math.random() < 0.01;
+const showAnyways = ref(route.query.super_secret_scanlines !== undefined || Math.random() < 0.01);
+watch(() => route.query.super_secret_scanlines, () => {
+    showAnyways.value = route.query.super_secret_scanlines !== undefined || showAnyways.value;
+});
 </script>
 
 <template>

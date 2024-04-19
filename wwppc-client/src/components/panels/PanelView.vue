@@ -39,7 +39,7 @@ if ((route.params.page === undefined && props.isDefault && route.params.catchAll
     height: 100%;
 }
 
-@keyframes panel-wipe-vertical {
+@keyframes panel-wipe {
     0% {
         transform: none;
     }
@@ -50,20 +50,6 @@ if ((route.params.page === undefined && props.isDefault && route.params.catchAll
 
     100% {
         transform: translateY(200%);
-    }
-}
-
-@keyframes panel-wipe-horizontal {
-    0% {
-        transform: none;
-    }
-
-    50% {
-        transform: translatex(100%);
-    }
-
-    100% {
-        transform: translatex(200%);
     }
 }
 

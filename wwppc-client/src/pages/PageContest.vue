@@ -17,7 +17,7 @@ import { useContestManager } from '@/scripts/ContestManager';
 const router = useRouter();
 const route = useRoute();
 const ignoreServer = ref(route.query.ignore_server !== undefined);
-watch(() => route.query, () => {
+watch(() => route.query.ignore_server, () => {
     ignoreServer.value = route.query.ignore_server !== undefined;
 });
 

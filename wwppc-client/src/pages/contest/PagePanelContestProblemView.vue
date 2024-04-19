@@ -15,7 +15,7 @@ const router = useRouter();
 const contestManager = useContestManager();
 const modal = globalModal();
 
-// load problem information from server
+// placeholder data behind loading cover
 const problem = ref<ContestProblem>({
     id: 'loading',
     contest: 'WWPIT Loading Contest',
@@ -52,12 +52,16 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 const submission = ref<ContestSubmission>();
 onMounted(async () => {
     if (route.params.problemId !== undefined) {
-        const { problem: p, submission: s } = await contestManager.getProblemData(route.params.problemId.toString());
+        const { problem: p, submission: s } = await contestManager.getProblemDataId(route.params.problemId.toString());
+        problem.value = p;
+        submission.value = s;
+    } else if (route.query.problemRound !== undefined && route.query.problemNumber !== undefined) {
+        const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemRound.toString()));
         problem.value = p;
         submission.value = s;
     } else if (route.query.ignore_server === undefined) {
         modal.showModal({ title: 'No problem ID', content: 'No problem ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red' }).then(() => {
-            router.push(`/contest/${route.params.contestId !== undefined ? route.params.contestId.toString() + '/' : ''}problemList`);
+            router.push(`/contest/problemList`);
         });
     }
 });

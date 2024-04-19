@@ -6,7 +6,6 @@ import { useServerConnection } from './ServerConnection';
 export interface ContestRound {
     contest: string
     number: number
-    time: number
     problems: ContestProblemMetaData[]
 }
 export interface ContestProblemMetaData {
@@ -79,20 +78,22 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
 };
 
-const state = reactive({
+const state = reactive<{
+    inContest: boolean,
+    currContest: string
+}>({
     inContest: false,
-    problems: new Array<ContestProblem>()
-    // contest timer
+    currContest: ''
 });
 
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
-        async getProblemList(contest: string): Promise<ContestRound[]> {
+        async getProblemList(): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
-                serverConnection.emit('getProblemList', { contest, token });
+                serverConnection.emit('getProblemList', { contest: state.currContest, token });
                 const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
                     if (token2 != token) return;
                     resolve(data);
@@ -101,7 +102,20 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemList', handle);
             })
         },
-        async getProblemData(id: string): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
+        async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
+            const serverConnection = useServerConnection();
+            return await new Promise((resolve) => {
+                const token = Math.random();
+                serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
+                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem, submission: ContestSubmission, token: number }) => {
+                    if (token2 != token) return;
+                    resolve({ submission, problem });
+                    serverConnection.off('problemData', handle);
+                };
+                serverConnection.on('problemData', handle);
+            });
+        },
+        async getProblemDataId(id: string): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();

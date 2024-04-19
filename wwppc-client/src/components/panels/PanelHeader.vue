@@ -68,6 +68,6 @@
 
 .v-enter-active .panelHeaderTransitionWipe,
 .v-leave-active .panelHeaderTransitionWipe {
-    animation: panel-wipe-vertical 500ms ease;
+    animation: panel-wipe 500ms ease;
 }
 </style>

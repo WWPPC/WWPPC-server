@@ -28,19 +28,20 @@ const router = createRouter({
         {
             path: '/:page(contest)',
             components: { App },
-            children: [{
-                path: ':contestId',
-                children: [
-                    {
-                        path: ':panel',
-                        components: { App }
-                    },
-                    {
-                        path: ':panel(problemView)/:problemId',
-                        components: { App }
-                    }
-                ]
-            }]
+            children: [
+                {
+                    path: ':panel',
+                    components: { App }
+                },
+                {
+                    path: ':panel(problemView)/:problemId',
+                    components: { App }
+                },
+                {
+                    path: ':panel(problemView)/:problemRound_:problemNumber',
+                    components: { App }
+                }
+            ]
         },
         {
             path: '/:page(user)/:userView',

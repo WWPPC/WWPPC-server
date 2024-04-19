@@ -143,21 +143,6 @@ export class ContestManager {
             }
             socket.emit('problemList', { data: packet, token: data.token });
         });
-        socket.on('getProblemList', async (data) => {
-            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number') {
-                //check valid contest, round
-                socket.kick('invalid getProblemList payload');
-                return;
-            }
-            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
-            //replace this with actual data
-            // socket.emit('problemList', {
-            //     number: 0,
-            //     time: Date.now(),
-            //     problems: [
-            //     ],
-            // });
-        });
         socket.on('getProblemData', async (data) => {
             if (data == null || typeof data.id !== 'string') {
                 socket.kick('invalid getProblemData payload');

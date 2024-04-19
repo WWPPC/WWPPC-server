@@ -124,6 +124,6 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 
 .v-enter-active .panelBodyTransitionWipe,
 .v-leave-active .panelBodyTransitionWipe {
-    animation: panel-wipe-vertical 500ms ease;
+    animation: panel-wipe 500ms ease;
 }
 </style>
