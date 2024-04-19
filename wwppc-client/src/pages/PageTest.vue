@@ -43,20 +43,20 @@ const thing2 = ref<any>([]);
                 <div style="display: flex;">
                     <!-- <iframe src="https://discord.com/widget?id=1210952002587328522&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe> -->
                     <HeaderedTable :content="{
-                    headers: ['col 1', 'col 2', 'col 3'],
-                    data: [
-                        ['a1', 'a2', 'a3'],
-                        ['b1', 'b2', 'b3']
-                    ],
-                    generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);' })
-                }" height="200px"></HeaderedTable>
+                        headers: ['col 1', 'col 2', 'col 3'],
+                        data: [
+                            ['a1', 'a2', 'a3'],
+                            ['b1', 'b2', 'b3']
+                        ],
+                        generator: (row, col, data) => ({ text: `${row} ${col} ${data}`, backgroundColor: col == 'col 2' ? 'blue' : '', style: 'transform: rotateZ(20deg);' })
+                    }" height="200px"></HeaderedTable>
                     hi
-                    <AngledTitledContainer title="title" width="40%" height="200px">
+                    <AngledTitledContainer title="title" width="40%" height="200px" hover-animation="swell">
                         titled angle container
                         oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
                     </AngledTitledContainer>
                     hi
-                    <TitledCutCornerContainer title="title" width="40%" height="200px" border-color="yellow">
+                    <TitledCutCornerContainer title="title" width="40%" height="200px" border-color="yellow" hover-animation="lift">
                         oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>oof<br>
                     </TitledCutCornerContainer>
                 </div>
@@ -126,7 +126,7 @@ const thing2 = ref<any>([]);
             </PanelBody>
             <PanelBody name="example" title="Test Page 2">
                 test
-                <UIButton @click="() => modal.showModal({ title: 'hi', content: 'test' })" text="example button"></UIButton>
+                <UIButton @click="() => modal.showModal({ title: 'hi', content: 'test', color: 'lime' })" text="example button"></UIButton>
                 <UIButton text="disabled button" disabled></UIButton>
                 <UIToggle disabled></UIToggle>
                 <UIDropdown disabled :items="[]"></UIDropdown>
@@ -172,7 +172,11 @@ const thing2 = ref<any>([]);
                 <p>Paragraph</p>
                 <p><b>Bold</b></p>
                 <p><i>Italic</i></p>
-                <p><code>const buh: number = NaN;</code></p>
+                <code>const buh: number = NaN;</code>
+                <codeblock v-text="`function add(...nums) {
+    return nums.reduce((p, c) => p + c, 0);
+}
+`"></codeblock>
                 <p style="font-size: var(--font-16);">Size 16</p>
                 <p style="font-size: var(--font-18);">Size 18</p>
                 <p style="font-size: var(--font-20);">Size 20</p>

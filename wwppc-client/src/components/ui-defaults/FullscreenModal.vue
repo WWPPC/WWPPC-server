@@ -23,7 +23,7 @@ const modal = reactive<{
 const modalColor = ref('white');
 let modalResolve = () => { };
 let modalReject = () => { };
-const modalQueue: Array<{ params: ModalParams, resolve: (v: boolean | string | null) => void }> = [];
+const modalQueue: { params: ModalParams, resolve: (v: boolean | string | null) => void }[] = [];
 const showNextModal = async () => {
     const params = modalQueue.shift();
     params?.resolve(await showModal(params?.params));
@@ -134,12 +134,12 @@ export interface ModalParams {
 .modalContainer {
     display: grid;
     grid-template-rows: 1fr min-content 1fr;
-    grid-template-columns: 1fr min-content 1fr;
+    grid-template-columns: 1fr minmax(50% 100%) 1fr;
     position: fixed;
     top: 0px;
     left: 0px;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: 300ms linear opacity;

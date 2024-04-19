@@ -132,14 +132,14 @@ export function randomFlipTextTransition(from: string, to: string, update: (text
     return ret;
 }
 export function* randomFlipTextTransitionGenerator(from: string, to: string, gap: number): Generator<string, undefined, undefined> {
-    const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
-    const toArray = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
+    const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g), (v) => v[0]);
+    const toArray = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g), (v) => v[0]);
     if (text.length > toArray.length) {
         for (let i = toArray.length; i < text.length; i++) toArray[i] = ' ';
     } else {
         for (let i = text.length; i < toArray.length; i++) text[i] = ' ';
     }
-    const unchanged: number[] = [...Array(text.length).keys()];
+    const unchanged: number[] = [...(new Array(text.length).keys())];
     let a = 0;
     while (true) {
         if (a++ % gap == 0) {
@@ -174,15 +174,15 @@ export function randomGlitchTextTransition(from: string, to: string, update: (te
 }
 export function* randomGlitchTextTransitionGenerator(from: string, to: string, gap: number, startGlitched: boolean, letterOverride?: string): Generator<string, undefined, undefined> {
     const letters = letterOverride ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=!@#$%^&*()_+`~[]\\{}|;\':",./?';
-    const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
-    const toArray: string[] = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g)).map((v) => v[0]);
+    const text: string[] = Array.from(from.matchAll(/(&\S*?;)|(<\S*?>)|./g), (v) => v[0]);
+    const toArray: string[] = Array.from(to.matchAll(/(&\S*?;)|(<\S*?>)|./g), (v) => v[0]);
     if (text.length > toArray.length) {
         for (let i = toArray.length; i < text.length; i++) toArray[i] = ' ';
     } else {
         for (let i = text.length; i < toArray.length; i++) text[i] = ' ';
     }
-    const unchanged: number[] = startGlitched ? [] : [...Array(text.length).keys()];
-    const glitching: number[] = startGlitched ? [...Array(text.length).keys()] : [];
+    const unchanged: number[] = startGlitched ? [] : [...(new Array(text.length).keys())];
+    const glitching: number[] = startGlitched ? [...(new Array(text.length).keys())] : [];
     const minGlitching = ~~(Math.max(from.length, to.length) / 2);
     let a = 0;
     while (true) {

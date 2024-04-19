@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router';
 import LoadingCover from '@/components/LoadingCover.vue';
 import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
-import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
+import { languageMaps, experienceMaps, gradeMaps, useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
 
 const router = useRouter();
@@ -49,7 +49,7 @@ const emailInput = ref('');
 const schoolInput = ref('');
 const gradeInput = ref('');
 const experienceInput = ref('');
-const languageInput = ref(new Array<string>());
+const languageInput = ref<string[]>([]);
 const showLoginWait = ref(false);
 const showRecoveryWait = ref(false);
 const attemptedRecovery = ref(false);
@@ -160,48 +160,15 @@ const attemptRecovery = async () => {
                                             <span>
                                                 Grade Level:
                                             </span>
-                                            <UIDropdown v-model="gradeInput" width="calc(100% - 4px)" :items="[
-                                                { text: 'Pre-High School', value: '8' },
-                                                { text: '9', value: '9' },
-                                                { text: '10', value: '10' },
-                                                { text: '11', value: '11' },
-                                                { text: '12', value: '12' },
-                                                { text: 'College Student', value: '13' },
-                                                { text: 'Graduated', value: '14' }
-                                            ]" title="Your current grade level" required></UIDropdown>
+                                            <UIDropdown v-model="gradeInput" width="calc(100% - 4px)" :items="gradeMaps" title="Your current grade level" required></UIDropdown>
                                             <span>
                                                 Experience Level:
                                             </span>
-                                            <UIDropdown v-model="experienceInput" width="calc(100% - 4px)" :items="[
-                                                { text: 'Beginner / AP CS A', value: '0' },
-                                                { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
-                                                { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-                                                { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
-                                                { text: 'Cracked / IOI / USACO Camp', value: '4' },
-                                            ]" title="Your experience level with competitive programming" required></UIDropdown>
+                                            <UIDropdown v-model="experienceInput" width="calc(100% - 4px)" :items="experienceMaps" title="Your experience level with competitive programming" required></UIDropdown>
                                             <span>
                                                 Known languages:<br>(use CTRL/SHIFT)
                                             </span>
-                                            <UIDropdown v-model="languageInput" width="calc(100% - 4px)" :items="[
-                                                { text: 'Python', value: 'python' },
-                                                { text: 'C', value: 'c' },
-                                                { text: 'C++', value: 'cpp' },
-                                                { text: 'C#', value: 'cs' },
-                                                { text: 'Java', value: 'java' },
-                                                { text: 'JavaScript', value: 'js' },
-                                                { text: 'SQL', value: 'sql' },
-                                                { text: 'Assembly', value: 'asm' },
-                                                { text: 'PHP', value: 'php' },
-                                                { text: 'Swift', value: 'swift' },
-                                                { text: 'Pascal', value: 'pascal' },
-                                                { text: 'Ruby', value: 'python' },
-                                                { text: 'Rust', value: 'rust' },
-                                                { text: 'Scratch', value: 'scratch' },
-                                                { text: 'LabVIEW', value: 'ev3' },
-                                                { text: 'Kotlin', value: 'ktx' },
-                                                { text: 'Lua', value: 'lua' },
-                                                { text: 'Bash', value: 'bash' },
-                                            ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
+                                            <UIDropdown v-model="languageInput" width="calc(100% - 4px)" :items="languageMaps" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </PairedGridContainer>
                                         <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled="showLoginWait"></UIButton>
                                     </form>

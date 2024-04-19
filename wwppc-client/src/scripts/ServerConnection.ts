@@ -108,7 +108,7 @@ socket.once('getCredentials', async (session) => {
         handshakeResolve(undefined);
     }
 });
-export const sendCredentials = async (username: string, password: string | Array<number>, token: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
+export const sendCredentials = async (username: string, password: string | number[], token: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
     return await new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
             console.warn('Attempted login/signup while logged in');
@@ -137,7 +137,7 @@ export const sendCredentials = async (username: string, password: string | Array
                 if (res === AccountOpResult.SUCCESS) {
                     window.localStorage.setItem('sessionCredentials', JSON.stringify({
                         username: username,
-                        password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
+                        password: password2 instanceof ArrayBuffer ? new Array(new Uint32Array(password2)) : password2,
                     }));
                     state.encryptedPassword = password2;
                     window.localStorage.setItem('sessionId', RSA.sid.toString());

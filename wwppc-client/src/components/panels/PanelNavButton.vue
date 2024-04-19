@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue';
 import { glitchTextTransition, type AsyncTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { useRouter } from 'vue-router';
+import { isMobileRef } from '@/scripts/userAgent';
+
 const props = defineProps<{
     text: string
     title?: string
@@ -35,7 +37,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <input type="button" :class="((props.isDefault && $route.params.panel == undefined) || props.for == `/${$route.params.page}/${$route.params.panel}`) ? 'panelNavButton panelNavButtonSelected' : 'panelNavButton'" :value=buttonText @click=click @mouseover=mouseover :title=title>
+    <input type="button" :class="'panelNavButton ' + (((props.isDefault && $route.params.panel == undefined) || props.for == `/${$route.params.page}/${$route.params.panel}`) ? 'panelNavButtonSelected ' : '') + (isMobileRef ? 'panelNavButtonNoHover' : '')" :value=buttonText @click=click @mouseover=mouseover :title=title>
 </template>
 
 <style>
@@ -43,6 +45,7 @@ onMounted(() => {
     appearance: none;
     min-width: 128px;
     border: none;
+    border-radius: 0px;
     font-size: 18px;
     color: white;
     background-color: transparent;
@@ -59,5 +62,15 @@ onMounted(() => {
 .panelNavButton:hover {
     background-color: #444;
     font-weight: bold;
+}
+
+.panelNavButtonNoHover:hover {
+    background-color: transparent !important;
+    font-weight: normal !important;
+}
+
+.panelNavButtonSelected.panelNavButtonNoHover:hover {
+    background-color: #1A1A1A !important;
+    font-weight: bold !important;
 }
 </style>

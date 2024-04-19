@@ -44,7 +44,7 @@ const router = createRouter({
             ]
         },
         {
-            path: '/:page(user)/:userView',
+            path: '/:page(user)/@:userView',
             components: { App }
         },
         // spaghetti

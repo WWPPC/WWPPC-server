@@ -61,6 +61,7 @@ defineExpose({
 
 .uiTextBox:disabled {
     border-color: #888 !important;
+    opacity: 1;
     cursor: not-allowed;
 }
 </style>

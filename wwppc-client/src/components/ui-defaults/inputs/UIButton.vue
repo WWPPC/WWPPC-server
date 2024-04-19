@@ -63,8 +63,9 @@ watch(() => props.text, () => buttonText.value = props.text);
 }
 
 .uiButton:disabled {
-    border-color: gray !important;
+    border-color: #888 !important;
     transform: none !important;
+    opacity: 1;
     cursor: not-allowed;
 }
 </style>../TextTransitions

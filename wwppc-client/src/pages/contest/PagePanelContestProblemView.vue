@@ -4,11 +4,11 @@ import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { ContestProblemCompletionState, completionStateString, type ContestProblem, type ContestSubmission } from '@/scripts/ContestManager';
 import { ref, watch, onMounted } from 'vue';
-import katex from 'katex';
 import { useContestManager } from '@/scripts/ContestManager';
 import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import WaitCover from '@/components/WaitCover.vue';
+import latexify from '@/scripts/katexify';
 
 const route = useRoute();
 const router = useRouter();
@@ -73,24 +73,6 @@ const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20
 const problemSubtitle1 = autoGlitchTextTransition(() => `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
-const latexify = (str: string) => {
-    //math rendering errors are handled by katex itself since throwOnError=false
-    return str.replace(/\$\$.+\$\$/gm, (match) => {
-        try {
-            return katex.renderToString(match.substring(2, match.length - 2).trim(), { throwOnError: false });
-        } catch (e) {
-            console.error(e);
-            return "<span style='color: red'>Math error</span>";
-        }
-    }).replace(/\$.+\$/gm, (match) => {
-        try {
-            return katex.renderToString(match.substring(1, match.length - 1).trim(), { throwOnError: false });
-        } catch (e) {
-            console.error(e);
-            return "<span style='color: red'>Math error</span>";
-        }
-    });
-};
 
 // uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();

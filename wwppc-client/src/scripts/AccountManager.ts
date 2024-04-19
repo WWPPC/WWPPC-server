@@ -23,6 +23,44 @@ export interface Registration {
     completed: boolean
 }
 
+// dropdown options keep getting reused
+export const gradeMaps = [
+    { text: 'Pre-High School', value: '8' },
+    { text: '9', value: '9' },
+    { text: '10', value: '10' },
+    { text: '11', value: '11' },
+    { text: '12', value: '12' },
+    { text: 'College Student', value: '13' },
+    { text: 'Graduated', value: '14' }
+];
+export const experienceMaps = [
+    { text: 'Beginner / AP CS A', value: '0' },
+    { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+    { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
+    { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
+    { text: 'Cracked / IOI / USACO Camp', value: '4' },
+];
+export const languageMaps = [
+    { text: 'Python', value: 'python' },
+    { text: 'C', value: 'c' },
+    { text: 'C++', value: 'cpp' },
+    { text: 'C#', value: 'cs' },
+    { text: 'Java', value: 'java' },
+    { text: 'JavaScript', value: 'js' },
+    { text: 'SQL', value: 'sql' },
+    { text: 'Assembly', value: 'asm' },
+    { text: 'PHP', value: 'php' },
+    { text: 'Swift', value: 'swift' },
+    { text: 'Pascal', value: 'pascal' },
+    { text: 'Ruby', value: 'python' },
+    { text: 'Rust', value: 'rust' },
+    { text: 'Scratch', value: 'scratch' },
+    { text: 'LabVIEW', value: 'ev3' },
+    { text: 'Kotlin', value: 'ktx' },
+    { text: 'Lua', value: 'lua' },
+    { text: 'Bash', value: 'bash' },
+];
+
 export function validateCredentials(username: string, password: string): boolean {
     return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
 }
@@ -49,7 +87,7 @@ export const useAccountManager = defineStore('accountManager', {
         unsavedChanges: () => unsaved.value
     },
     actions: {
-        async login(username: string, password: string | Array<number>, token: string): Promise<AccountOpResult> {
+        async login(username: string, password: string | number[], token: string): Promise<AccountOpResult> {
             return await sendCredentials(username, password, token);
         },
         async signup(username: string, password: string, token: string, signupData: CredentialsSignupData): Promise<AccountOpResult> {

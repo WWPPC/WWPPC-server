@@ -3,7 +3,7 @@ import WaitCover from '@/components/WaitCover.vue';
 import { AnimateInContainer, PairedGridContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
-import { useAccountManager } from '@/scripts/AccountManager';
+import { useAccountManager, gradeMaps, experienceMaps, languageMaps } from '@/scripts/AccountManager';
 import { AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { onMounted, ref, watch } from 'vue';
 import recaptcha from '@/scripts/recaptcha';
@@ -183,44 +183,11 @@ onMounted(clearDangerButtons);
                     <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
                     <span>Grade/experience:</span>
                     <span style="text-wrap: nowrap; word-wrap: nowrap;">
-                        <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="[
-                            { text: 'Pre-High School', value: '8' },
-                            { text: '9', value: '9' },
-                            { text: '10', value: '10' },
-                            { text: '11', value: '11' },
-                            { text: '12', value: '12' },
-                            { text: 'College Student', value: '13' },
-                            { text: 'Graduated', value: '14' }
-                        ]" title="Your current grade level" required></UIDropdown>
-                        <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="[
-                            { text: 'Beginner / AP CS A', value: '0' },
-                            { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
-                            { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-                            { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
-                            { text: 'Cracked / IOI / USACO Camp', value: '4' },
-                        ]" title="Your experience level with competitive programming" required></UIDropdown>
+                        <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="gradeMaps" title="Your current grade level" required></UIDropdown>
+                        <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="experienceMaps" title="Your experience level with competitive programming" required></UIDropdown>
                     </span>
                     <span>Known languages:<br>(Use CTRL/SHIFT)</span>
-                    <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="[
-                        { text: 'Python', value: 'python' },
-                        { text: 'C', value: 'c' },
-                        { text: 'C++', value: 'cpp' },
-                        { text: 'C#', value: 'cs' },
-                        { text: 'Java', value: 'java' },
-                        { text: 'JavaScript', value: 'js' },
-                        { text: 'SQL', value: 'sql' },
-                        { text: 'Assembly', value: 'asm' },
-                        { text: 'PHP', value: 'php' },
-                        { text: 'Swift', value: 'swift' },
-                        { text: 'Pascal', value: 'pascal' },
-                        { text: 'Ruby', value: 'python' },
-                        { text: 'Rust', value: 'rust' },
-                        { text: 'Scratch', value: 'scratch' },
-                        { text: 'LabVIEW', value: 'ev3' },
-                        { text: 'Kotlin', value: 'ktx' },
-                        { text: 'Lua', value: 'lua' },
-                        { text: 'Bash', value: 'bash' },
-                    ]" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
+                    <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="languageMaps" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                     <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
                     <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
                 </PairedGridContainer>

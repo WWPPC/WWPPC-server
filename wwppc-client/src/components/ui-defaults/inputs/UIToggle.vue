@@ -73,12 +73,14 @@ defineExpose({
 }
 
 .uiToggleLabelDisabled {
-    border-color: gray !important;
+    border-color: #888 !important;
+    opacity: 1;
     cursor: not-allowed;
 }
 
 .uiToggleLabelDisabled .uiToggleSlider, .uiToggleLabelDisabled .uiToggleSlider::before {
-    border-color: gray !important;
+    border-color: #888 !important;
+    opacity: 1;
     filter: saturate(0.5);
 }
 </style>

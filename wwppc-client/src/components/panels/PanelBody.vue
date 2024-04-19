@@ -68,7 +68,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 }
 
 .noSnap {
-    scroll-snap-type: none;
+    scroll-snap-type: none !important;
 }
 
 .panelBodyTransitionWipeContainer {

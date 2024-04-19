@@ -94,7 +94,12 @@ defineExpose({
 }
 
 .uiDropdown:disabled {
-    border-color: gray !important;
+    border-color: #888 !important;
+    opacity: 1;
+    cursor: not-allowed;
+}
+.uiDropdown:disabled option {
+    color: white;
     cursor: not-allowed;
 }
 </style>
