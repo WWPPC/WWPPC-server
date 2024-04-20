@@ -39,12 +39,15 @@ defineProps<{
     box-sizing: border-box;
     width: 100%;
     padding: 8px 12px;
-    padding-bottom: 4px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
     background-color: #222;
     text-align: v-bind("$props.align ?? 'left'");
     font-size: v-bind("$props.fontSize ?? 'initial'");
+}
+
+.titledDoubleCutCornerContainerTitle>h2 {
+    margin: 0px 0px;
 }
 
 .titledDoubleCutCornerContainerBody {

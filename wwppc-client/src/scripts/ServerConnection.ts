@@ -84,6 +84,10 @@ export interface CredentialsSignupData {
     languages: string[]
 }
 
+Object.defineProperty(window, 'socket', {
+    value: socket
+})
+
 // RSA keys + autologin
 socket.once('getCredentials', async (session) => {
     if (window.crypto.subtle === undefined) {
@@ -118,7 +122,6 @@ export const sendCredentials = async (username: string, password: string | numbe
         try {
             const accountManager = useAccountManager();
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encrypt(password);
-            // for some reason RSA encode of ReCaptcha token throws an error
             socket.emit('credentials', {
                 username: await RSA.encrypt(username),
                 password: password2,
@@ -137,7 +140,7 @@ export const sendCredentials = async (username: string, password: string | numbe
                 if (res === AccountOpResult.SUCCESS) {
                     window.localStorage.setItem('sessionCredentials', JSON.stringify({
                         username: username,
-                        password: password2 instanceof ArrayBuffer ? new Array(new Uint32Array(password2)) : password2,
+                        password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
                     }));
                     state.encryptedPassword = password2;
                     window.localStorage.setItem('sessionId', RSA.sid.toString());

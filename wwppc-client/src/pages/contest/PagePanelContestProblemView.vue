@@ -50,20 +50,34 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
     status: ContestProblemCompletionState.ERROR
 });
 const submission = ref<ContestSubmission>();
+const loadErrorModal = (title: string, content: string) => {
+    modal.showModal({ title: title, content: content + '<br>Click <code>OK</code> to return to problem list.', color: 'red' }).then(() => {
+        router.push(`/contest/problemList`);
+    });
+};
 onMounted(async () => {
     if (route.params.problemId !== undefined) {
-        //check if it is a UUID
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
+            loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
+            return;
+        }
         const { problem: p, submission: s } = await contestManager.getProblemDataId(route.params.problemId.toString());
+        if (p === null || s === null) {
+            loadErrorModal('Problem not found', 'The requested problem does not exist!');
+            return;
+        }
         problem.value = p;
         submission.value = s;
     } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
         const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
+        if (p === null || s === null) {
+            loadErrorModal('Problem not found', 'The requested problem does not exist!');
+            return;
+        }
         problem.value = p;
         submission.value = s;
     } else if (route.query.ignore_server === undefined) {
-        modal.showModal({ title: 'No problem ID', content: 'No problem ID was supplied!<br>Click <code>OK</code> to return to problem list.', color: 'red' }).then(() => {
-            router.push(`/contest/problemList`);
-        });
+        loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
 });
 
@@ -74,7 +88,6 @@ const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20
 //change problemSubtitle1 to have UUID of problem isntead of round-number?
 const problemSubtitle1 = autoGlitchTextTransition(() => `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
-
 
 // uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();

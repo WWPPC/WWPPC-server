@@ -74,7 +74,6 @@ defineExpose({
     display: flex;
     flex-direction: row;
     padding: 8px 12px;
-    padding-bottom: 4px;
     margin-bottom: -4px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");

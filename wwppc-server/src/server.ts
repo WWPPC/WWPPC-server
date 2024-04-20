@@ -82,7 +82,11 @@ const database = new Database({
     logger: logger,
     mailer: mailer
 });
-const contestManager = new ContestManager(database, app, logger);
+const io = new SocketIOServer(server, {
+    path: '/socket.io',
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+});
+const contestManager = new ContestManager(database, app, io, logger);
 attachAdminPortal(database, app, logger);
 
 // complete networking
@@ -92,10 +96,6 @@ const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
 const recentSignups = new Map<string, number>();
 const recentPasswordResetEmails = new Set<string>();
-const io = new SocketIOServer(server, {
-    path: '/socket.io',
-    cors: { origin: '*', methods: ['GET', 'POST'] }
-});
 io.on('connection', async (s) => {
     s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
     const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();

@@ -1,4 +1,6 @@
 import express from 'express';
+import { Server as SocketIOServer } from 'socket.io';
+import { uuidValidate } from 'uuid';
 
 import { AccountOpResult, Database, Registration, Round } from './database';
 import { DomjudgeGrader, Grader } from './grader';
@@ -25,9 +27,10 @@ export class ContestManager {
     readonly #users: Map<string, ContestUser> = new Map();
     readonly #grader: Grader;
 
-    readonly #db: Database;
-    readonly #app: express;
-    readonly #logger: Logger;
+    readonly db: Database;
+    readonly app: express;
+    readonly io: SocketIOServer;
+    readonly logger: Logger;
 
     // start/stop rounds, control which problems are visible (and where)
     // also only one contest page open per account
@@ -39,23 +42,32 @@ export class ContestManager {
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
+     * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
+     * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: express, logger: Logger) {
-        this.#db = db;
-        this.#app = app;
-        this.#logger = logger;
+    constructor(db: Database, app: express, io: SocketIOServer, logger: Logger) {
+        this.db = db;
+        this.app = app;
+        this.io = io;
+        this.logger = logger;
         this.#grader = new DomjudgeGrader(app, logger);
 
+        //make sure this isn't accidentally left running when the object is deleted
+        //make sure this isn't accidentally left running when the object is deleted
+        //make sure this isn't accidentally left running when the object is deleted
+        //make sure this isn't accidentally left running when the object is deleted
         //interval to check for new submissions from grader
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
-            for (let s of newSubmissions) {
-                for (let socket of this.#users[s.username]) {
+            for (const s of newSubmissions) {
+                for (const socket of this.#users[s.username]) {
                     socket.emit('submissionStatus', s);
                 }
-                this.#db.writeSubmission(s);
+                this.db.writeSubmission(s);
             }
         }, 1000);
+        //make sure this isn't accidentally left running when the object is deleted
+        //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted
     }
 
@@ -66,54 +78,26 @@ export class ContestManager {
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(username: string, socket: ServerSocket): Promise<number> {
-        if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
-        const userData = await this.#db.getAccountData(username);
+        // make sure the user actually exists (otherwise bork)
+        const userData = await this.db.getAccountData(username);
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
-        this.#users.set(username, {
-            username: username,
-            email: userData.email,
-            displayName: userData.displayName,
-            registrations: userData.registrations,
-            sockets: new Set<ServerSocket>().add(socket)
-        });
 
-        socket.on('updateSubmission', (data) => {
-            //replace this with a kick() function
-            if (data == null || typeof data.problemId !== 'string' || typeof data.file !== 'string' || typeof data.lang !== 'string') {
-                //also need to check valid language, valid problem id
-                socket.kick('invalid updateSubmission payload');
-                return;
-            }
-            if (data.file.length > 10240) {
-                socket.kick('updateSubmission file too large');
-                return;
-            }
-            this.#grader.queueSubmission({
-                username: username,
-                problemId: data.problemId,
-                time: Date.now(),
-                file: data.file,
-                lang: data.lang,
-                scores: [],
-            });
-        });
-        socket.on('getProblemList', async (data) => {
-            if (data == null || typeof data.contest !== 'string') {
-                //check valid contest
+        socket.on('getProblemList', async (request: { contest: string, token: number }) => {
+            //check valid contest first
+            if (request == null || typeof request.contest !== 'string') {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-    
-            const rounds = await this.#db.readRounds({ contest: data.contest });
-    
-            let packet: Array<Object> = [];
+
+            const rounds = await this.db.readRounds({ contest: request.contest });
+            const packet: Array<Object> = [];
             for (let i of rounds) {
-                const roundProblems = await this.#db.readProblems({ contest: { contest: data.contest, round: i.round } });
+                const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: i.round } });
                 let problems: Array<Object> = [];
                 for (let p in roundProblems) {
                     problems.push({
                         id: roundProblems[p].id,
-                        contest: data.contest,
+                        contest: request.contest,
                         round: 100,
                         number: p,
                         name: roundProblems[p].name,
@@ -121,30 +105,31 @@ export class ContestManager {
                     });
                 }
                 packet.push({
-                    contest: data.contest,
+                    contest: request.contest,
                     number: i.round,
                     time: 0,
                     problems: problems
                 });
             }
-            socket.emit('problemList', { data: packet, token: data.token });
+            socket.emit('problemList', { request: packet, token: request.token });
         });
-        socket.on('getProblemData', async (data) => {
-            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number' || typeof data.number !== 'number') {
+        socket.on('getProblemData', async (request: { contest: string, round: number, number: number, token: number }) => {
+            if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
-            if (rounds.length !== 1) {
-                socket.kick('invalid getProblemData round or contest id');
-                return;
-            }
-            if (rounds.length < data.number) {
-                console.log(rounds.length, data.number);
-                socket.kick('invalid getProblemData problem index');
-                return;
-            }
-            const problems = await this.#db.readProblems({ id: rounds[0].problems[data.number] });
+
+            // const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
+            // if (rounds.length !== 1) {
+            //     socket.kick('invalid getProblemData round or contest id');
+            //     return;
+            // }
+            // if (rounds.length < request.number) {
+            //     console.log(rounds.length, request.number);
+            //     socket.kick('invalid getProblemData problem index');
+            //     return;
+            // }
+            const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
             if (problems.length !== 1) {
                 //idk something is wrong with db
             }
@@ -152,9 +137,9 @@ export class ContestManager {
             socket.emit('problemData', {
                 problem: {
                     id: problem.id,
-                    contest: data.contest,
-                    round: data.round,
-                    number: data.number,
+                    contest: request.contest,
+                    round: request.round,
+                    number: request.number,
                     name: problem.name,
                     author: problem.author,
                     content: problem.content,
@@ -176,31 +161,38 @@ export class ContestManager {
                         }
                     ]
                 },
-                token: data.token
+                token: request.token
             });
         });
-        socket.on('getProblemDataId', async (data) => {
-            if (data == null || typeof data.id !== 'string') {
+        socket.on('getProblemDataId', async (request: { id: string, token: number }) => {
+            if (request == null || typeof request.id !== 'string' || !uuidValidate(request.id)) {
                 socket.kick('invalid getProblemDataId payload');
                 return;
             }
-            const problems = await this.#db.readProblems({ id: data.id });
-            if (problems.length !== 1) {
-                socket.kick('invalid getProblemDataId problem id');
-                return;
+            const problems = await this.db.readProblems({ id: request.id });
+            if (problems.length == 0) {
+                // problem not found
+                socket.emit('problemData', {
+                    problem: null,
+                    submission: null,
+                    token: request.token
+                });
             }
+
             const problem = problems[0];
             socket.emit('problemData', {
                 problem: {
                     id: problem.id,
-                    contest: data.contest,
+                    contest: undefined, // see documentation
+                    round: undefined,
+                    number: undefined,
                     name: problem.name,
                     author: problem.author,
                     content: problem.content,
                     constraints: problem.constraints,
                 },
                 submission: {
-                    //dummy data
+                    //dummy request
                     time: 12345,
                     scores: [
                         {
@@ -215,8 +207,37 @@ export class ContestManager {
                         }
                     ]
                 },
-                token: data.token
+                token: request.token
             });
+        });
+        socket.on('updateSubmission', (request: { file: string, problemId: string, lang: string }) => {
+            //also need to check valid language, valid problem id
+            if (request == null || typeof request.problemId !== 'string' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
+                socket.kick('invalid updateSubmission payload');
+                return;
+            }
+            if (request.file.length > 10240) {
+                socket.kick('updateSubmission file too large');
+                return;
+            }
+            this.#grader.queueSubmission({
+                username: username,
+                problemId: request.problemId,
+                time: Date.now(),
+                file: request.file,
+                lang: request.lang,
+                scores: [],
+            });
+        });
+
+        // add to user list and return after attaching listeners
+        if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
+        this.#users.set(username, {
+            username: username,
+            email: userData.email,
+            displayName: userData.displayName,
+            registrations: userData.registrations,
+            sockets: new Set<ServerSocket>().add(socket)
         });
         return 1;
     }

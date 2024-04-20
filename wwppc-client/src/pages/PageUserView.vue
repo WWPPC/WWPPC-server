@@ -4,14 +4,13 @@ import LoadingCover from '@/components/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { experienceMaps, gradeMaps, languageMaps, useAccountManager, type AccountData } from '@/scripts/AccountManager';
-import { onBeforeMount, ref, watch } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import { globalModal, ModalMode, UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import UserDisp from '@/components/UserDisp.vue';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import OnScreenHook from '@/components/ui-defaults/OnScreenHook.vue';
-import { CutCornerContainer, PairedGridContainer } from '@/components/ui-defaults/UIContainers';
-import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
+import { AnimateInContainer, CutCornerContainer, PairedGridContainer, TitledCutCornerContainer, TitledDoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 
 const route = useRoute();
 const router = useRouter();
@@ -41,6 +40,12 @@ watch(() => route.params.page, async () => {
 
 const userData = ref<AccountData | null>(null);
 const loadUserData = async () => {
+    await nextTick();
+    await nextTick();
+    await nextTick();
+    await nextTick();
+    await nextTick();
+    await nextTick();
     userData.value = await accountManager.getUserData(route.params.userView?.toString());
 };
 watch(() => route.params, () => {
@@ -53,21 +58,13 @@ watch(() => serverConnection.loggedIn, () => {
 // spaghetti
 const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40, 1, 10, 2, true);
 const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40, 1, 10, 2, true);
-const name = ref('');
-const email = ref('');
-const school = ref('');
 const grade = ref<number[]>([]);
 const experience = ref<number[]>([]);
 const languages = ref<string[]>([]);
-const bio = ref('');
 watch(userData, () => {
-    name.value = userData.value?.firstName + ' ' + userData.value?.lastName;
-    email.value = userData.value?.email ?? '';
-    school.value = userData.value?.school ?? '';
     grade.value = [userData.value?.grade ?? 0];
     experience.value = [userData.value?.experience ?? 0];
     languages.value = userData.value?.languages ?? [];
-    bio.value = userData.value?.bio ?? '';
 });
 const putDummyData = () => {
     userData.value = {
@@ -97,7 +94,8 @@ const putDummyData = () => {
         ]
     };
 };
-onBeforeMount(putDummyData);
+onMounted(putDummyData);
+onMounted(loadUserData);
 
 const largeHeader = ref(true);
 </script>
@@ -117,25 +115,32 @@ const largeHeader = ref(true);
                     <div class="vStack">
                         <OnScreenHook @change="(v) => largeHeader = v" offset-top="-16px"></OnScreenHook>
                         <div style="height: 30vh;"></div>
-                        <CutCornerContainer style="min-width: 50%; max-width: 100%; --fwidth: calc(100% - 16px); --hwidth: calc(50% - 24px)">
-                            <PairedGridContainer style="font-size: var(--font-small);">
-                                <span>Name:</span>
-                                <UITextBox :value="name" width="var(--fwidth)" disabled></UITextBox>
-                                <span>Email:</span>
-                                <UITextBox :value="email" width="var(--fwidth)" disabled></UITextBox>
-                                <span>School:</span>
-                                <UITextBox :value="school" width="var(--fwidth)" disabled></UITextBox>
-                                <span>Grade Level:</span>
-                                <UIDropdown :value="grade" width="var(--fwidth)" :items="gradeMaps" disabled></UIDropdown>
-                                <span>Experience Level:</span>
-                                <UIDropdown :value="experience" width="var(--fwidth)" :items="experienceMaps" disabled></UIDropdown>
-                                <span>Known Languages:</span>
-                                <UIDropdown :value="languages" width="var(--fwidth)" height="6em" :items="languageMaps" multiple disabled></UIDropdown>
-                            </PairedGridContainer>
-                        </CutCornerContainer>
-                        <!-- oof -->
-                        <span>{{ userData }}</span>
-                        <span v-for="i in 30" :key=i>buh<br></span>
+                        <div class="grid">
+                            <TitledCutCornerContainer title="Profile" align="center" height="100%" style="grid-row: span 2; --fwidth: calc(100% - 16px); --hwidth: calc(50% - 24px)" flipped>
+                                <PairedGridContainer style="font-size: var(--font-small);">
+                                    <span>Name:</span>
+                                    <UITextBox :value="userData?.firstName + ' ' + userData?.lastName" width="var(--fwidth)" disabled></UITextBox>
+                                    <span>Email:</span>
+                                    <UITextBox :value="userData?.email" width="var(--fwidth)" disabled></UITextBox>
+                                    <span>School:</span>
+                                    <UITextBox :value="userData?.school" width="var(--fwidth)" disabled></UITextBox>
+                                    <span>Grade Level:</span>
+                                    <UIDropdown :value="grade" width="var(--fwidth)" :items="gradeMaps" disabled></UIDropdown>
+                                    <span>Experience Level:</span>
+                                    <UIDropdown :value="experience" width="var(--fwidth)" :items="experienceMaps" disabled></UIDropdown>
+                                    <span>Known Languages:</span>
+                                    <UIDropdown :value="languages" width="var(--fwidth)" height="6em" :items="languageMaps" multiple disabled></UIDropdown>
+                                </PairedGridContainer>
+                            </TitledCutCornerContainer>
+                            <TitledDoubleCutCornerContainer title="Biography" align="center" height="100%" flipped>
+                                <p>
+                                    {{ userData?.bio }}
+                                </p>
+                            </TitledDoubleCutCornerContainer>
+                            <TitledCutCornerContainer title="Team" align="center" height="100%" style="grid-row: span 2;">
+                                Teams don't exist yet!
+                            </TitledCutCornerContainer>
+                        </div>
                     </div>
                     <div class="userViewProfileHeaderWrapper">
                         <div class="centered">
@@ -157,7 +162,7 @@ const largeHeader = ref(true);
                 </div>
             </PanelBody>
             <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
-            <LoadingCover text="Signing you in..." :ignore-server="true"></LoadingCover>
+            <LoadingCover text="Signing you in..." ignore-server></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>
@@ -242,6 +247,15 @@ const largeHeader = ref(true);
 .vStack {
     display: flex;
     flex-direction: column;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(500px, 100%), 1fr));
+    grid-auto-flow: row dense;
+    margin: 12px 8px;
     align-items: center;
+    row-gap: 24px;
+    column-gap: 24px;
 }
 </style>

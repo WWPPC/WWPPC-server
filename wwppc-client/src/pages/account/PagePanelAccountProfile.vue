@@ -188,7 +188,7 @@ onMounted(clearDangerButtons);
                     </span>
                     <span>Known languages:<br>(Use CTRL/SHIFT)</span>
                     <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="languageMaps" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
-                    <span>Bio<br>({{ remainingBioCharacters }} chars):</span>
+                    <span>Biography<br>({{ remainingBioCharacters }} chars):</span>
                     <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
                 </PairedGridContainer>
                 <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>

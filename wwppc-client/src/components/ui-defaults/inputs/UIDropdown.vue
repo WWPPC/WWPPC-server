@@ -70,6 +70,10 @@ defineExpose({
     background-color: #151515;
 }
 
+.uiDropdown option:hover {
+    background-color: #333;
+}
+
 .uiDropdown option:checked {
     color: lime;
 }
@@ -98,8 +102,17 @@ defineExpose({
     opacity: 1;
     cursor: not-allowed;
 }
+
 .uiDropdown:disabled option {
     color: white;
     cursor: not-allowed;
+}
+
+.uiDropdown:disabled option:hover {
+    background-color: black !important;
+}
+
+.uiDropdown:disabled option:nth-child(odd):hover {
+    background-color: #151515 !important;
 }
 </style>

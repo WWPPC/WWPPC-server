@@ -102,12 +102,12 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemList', handle);
             })
         },
-        async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
+        async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
-                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem, submission: ContestSubmission, token: number }) => {
+                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
@@ -115,12 +115,12 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemData', handle);
             });
         },
-        async getProblemDataId(id: string): Promise<{ problem: ContestProblem, submission: ContestSubmission }> {
+        async getProblemDataId(id: string): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getProblemDataId', { id, token });
-                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem, submission: ContestSubmission, token: number }) => {
+                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
