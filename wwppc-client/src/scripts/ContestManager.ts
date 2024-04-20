@@ -83,7 +83,7 @@ const state = reactive<{
     currContest: string
 }>({
     inContest: false,
-    currContest: ''
+    currContest: 'WWPITTEST' //for testing, set back to ''
 });
 
 export const useContestManager = defineStore('contestManager', {
@@ -119,7 +119,7 @@ export const useContestManager = defineStore('contestManager', {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
-                serverConnection.emit('getProblemData', { id, token });
+                serverConnection.emit('getProblemDataId', { id, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem, submission: ContestSubmission, token: number }) => {
                     if (token2 != token) return;
                     resolve({ submission, problem });

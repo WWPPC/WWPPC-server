@@ -103,53 +103,120 @@ export class ContestManager {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-
-            // const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
-            //100 is hardcoded until db.readRounds is fixed
-
+    
+            const rounds = await this.#db.readRounds({ contest: data.contest });
+    
             let packet: Array<Object> = [];
-            // for (let i of rounds) {
-            const roundProblems = await this.#db.readProblems({ contest: { contest: data.contest, round: 100 } });
-            //ok somehow readProblems is also broken
-            let problems: Array<Object> = [];
-            for (let p in roundProblems) {
-                problems.push({
-                    id: roundProblems[p].id,
+            for (let i of rounds) {
+                const roundProblems = await this.#db.readProblems({ contest: { contest: data.contest, round: i.round } });
+                let problems: Array<Object> = [];
+                for (let p in roundProblems) {
+                    problems.push({
+                        id: roundProblems[p].id,
+                        contest: data.contest,
+                        round: 100,
+                        number: p,
+                        name: roundProblems[p].name,
+                        author: roundProblems[p].author,
+                    });
+                }
+                packet.push({
                     contest: data.contest,
-                    round: 100,
-                    number: p,
-                    name: roundProblems[p].name,
-                    author: roundProblems[p].author,
+                    number: i.round,
+                    time: 0,
+                    problems: problems
                 });
             }
-            packet.push({
-                contest: data.contest,
-                number: 100,
-                time: 0,
-                problems: problems
-            });
-            // }
             socket.emit('problemList', { data: packet, token: data.token });
         });
         socket.on('getProblemData', async (data) => {
-            if (data == null || typeof data.id !== 'string') {
+            if (data == null || typeof data.contest !== 'string' || typeof data.round !== 'number' || typeof data.number !== 'number') {
                 socket.kick('invalid getProblemData payload');
+                return;
+            }
+            const rounds = await this.#db.readRounds({ contest: data.contest, round: data.round });
+            if (rounds.length !== 1) {
+                socket.kick('invalid getProblemData round or contest id');
+                return;
+            }
+            if (rounds.length < data.number) {
+                console.log(rounds.length, data.number);
+                socket.kick('invalid getProblemData problem index');
+                return;
+            }
+            const problems = await this.#db.readProblems({ id: rounds[0].problems[data.number] });
+            if (problems.length !== 1) {
+                //idk something is wrong with db
+            }
+            const problem = problems[0];
+            socket.emit('problemData', {
+                problem: {
+                    id: problem.id,
+                    contest: data.contest,
+                    round: data.round,
+                    number: data.number,
+                    name: problem.name,
+                    author: problem.author,
+                    content: problem.content,
+                    constraints: problem.constraints,
+                },
+                submission: {
+                    //dummy data
+                    time: 12345,
+                    scores: [
+                        {
+                            state: 1,
+                            time: 123,
+                            memory: 54321
+                        },
+                        {
+                            state: 1,
+                            time: 123,
+                            memory: 54321
+                        }
+                    ]
+                },
+                token: data.token
+            });
+        });
+        socket.on('getProblemDataId', async (data) => {
+            if (data == null || typeof data.id !== 'string') {
+                socket.kick('invalid getProblemDataId payload');
                 return;
             }
             const problems = await this.#db.readProblems({ id: data.id });
             if (problems.length !== 1) {
-                socket.kick('invalid getProblemData payload');
+                socket.kick('invalid getProblemDataId problem id');
                 return;
             }
             const problem = problems[0];
-            // socket.emit('problemData', {
-            //     id: problem.id,
-            //     name: problem.name,
-            //     author: problem.author,
-            //     content: problem.content,
-            //     constraints: problem.constraints,
-            //     token: data.token,
-            // });
+            socket.emit('problemData', {
+                problem: {
+                    id: problem.id,
+                    contest: data.contest,
+                    name: problem.name,
+                    author: problem.author,
+                    content: problem.content,
+                    constraints: problem.constraints,
+                },
+                submission: {
+                    //dummy data
+                    time: 12345,
+                    scores: [
+                        {
+                            state: 1,
+                            time: 123,
+                            memory: 54321
+                        },
+                        {
+                            state: 1,
+                            time: 123,
+                            memory: 54321
+                        }
+                    ]
+                },
+                token: data.token
+            });
         });
         return 1;
     }

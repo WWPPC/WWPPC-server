@@ -52,11 +52,12 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 const submission = ref<ContestSubmission>();
 onMounted(async () => {
     if (route.params.problemId !== undefined) {
+        //check if it is a UUID
         const { problem: p, submission: s } = await contestManager.getProblemDataId(route.params.problemId.toString());
         problem.value = p;
         submission.value = s;
-    } else if (route.query.problemRound !== undefined && route.query.problemNumber !== undefined) {
-        const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemRound.toString()));
+    } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
+        const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
         problem.value = p;
         submission.value = s;
     } else if (route.query.ignore_server === undefined) {
@@ -70,6 +71,7 @@ watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
 const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
+//change problemSubtitle1 to have UUID of problem isntead of round-number?
 const problemSubtitle1 = autoGlitchTextTransition(() => `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
