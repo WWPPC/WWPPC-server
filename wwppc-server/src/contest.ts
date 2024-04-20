@@ -103,32 +103,32 @@ export class ContestManager {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-    
-            const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
+
+            // const rounds = await this.#db.readRounds({ contest: data.contest, round: 100 });
             //100 is hardcoded until db.readRounds is fixed
-    
+
             let packet: Array<Object> = [];
-            for (let i of rounds) {
-                const roundProblems = await this.#db.readProblems({ round: i });
-                //ok somehow readProblems is also broken
-                let problems: Array<Object> = [];
-                for (let p in roundProblems) {
-                    problems.push({
-                        id: roundProblems[p].id,
-                        contest: data.contest,
-                        round: i.round,
-                        number: p,
-                        name: roundProblems[p].name,
-                        author: roundProblems[p].author,
-                    });
-                }
-                packet.push({
-                    contest: i.contest,
-                    number: i.round,
-                    time: 0,
-                    problems: problems
+            // for (let i of rounds) {
+            const roundProblems = await this.#db.readProblems({ contest: { contest: data.contest, round: 100 } });
+            //ok somehow readProblems is also broken
+            let problems: Array<Object> = [];
+            for (let p in roundProblems) {
+                problems.push({
+                    id: roundProblems[p].id,
+                    contest: data.contest,
+                    round: 100,
+                    number: p,
+                    name: roundProblems[p].name,
+                    author: roundProblems[p].author,
                 });
             }
+            packet.push({
+                contest: data.contest,
+                number: 100,
+                time: 0,
+                problems: problems
+            });
+            // }
             socket.emit('problemList', { data: packet, token: data.token });
         });
         socket.on('getProblemData', async (data) => {

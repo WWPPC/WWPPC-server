@@ -23,7 +23,8 @@ interface DatabaseConstructorParams {
 }
 
 /**
- * PostgreSQL database connection for handling accounts, including submissions.
+ * PostgreSQL database connection for handling account operations and storage of contest data, including problems and submissions.
+ * Very inefficient.
  */
 export class Database {
     /**
@@ -140,6 +141,29 @@ export class Database {
      */
     async disconnect(): Promise<void> {
         await this.#db.end();
+    }
+
+    /**
+     * Transform a list of possible conditions into a string with SQL conditions and bindings. Allows for blank inputs to be treated as wildcards (by omitting the condition)
+     * @param {{ name: string, value: SqlValue | undefined | null }[]} columns Array of columns with conditions to check. If any value is undefined the condition is omitted
+     * @returns { queryConditions: string, bindings: SqlValue[] } String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
+     */
+    #buildColumnConditions(columns: { name: string, value: SqlValue | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
+        const conditions: string[] = [];
+        const bindings: SqlValue[] = [];
+        for (const { name, value } of columns) {
+            if (value instanceof Array) {
+                bindings.push(value);
+                conditions.push(`${name}=ANY($${bindings.length})`);
+            } else if (value != undefined) {
+                bindings.push(value);
+                conditions.push(`${name}=$${bindings.length}`);
+            }
+        }
+        return {
+            queryConditions: conditions.length > 0 ? ('WHERE ' + conditions.join(' AND ')) : '',
+            bindings: bindings
+        };
     }
 
     #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
@@ -448,7 +472,11 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query(`SELECT * FROM rounds WHERE ${c.contest != undefined ? 'contest=$1' : '1=1'} AND ${c.round != undefined ? 'number=$2' : '1=1'}`, [c.contest, c.round]);
+            const { queryConditions, bindings } = this.#buildColumnConditions([
+                { name: 'contest', value: c.contest },
+                { name: 'number', value: c.round }
+            ]);
+            const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
             return data.rows.map((round) => ({
                 contest: round.contest,
                 round: round.number,
@@ -497,24 +525,29 @@ export class Database {
     async readProblems(c: ReadProblemsCriteria): Promise<Problem[]> {
         const startTime = performance.now();
         try {
-            const problemIdList: Set<string> = new Set();
-            if (c.id != undefined && isUUID(c.id)) problemIdList.add(c.id);
-            if (c.round != undefined) {
+            const problemIdSet: Set<string> = new Set();
+            if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
+            if (c.contest != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined).forEach((v) => problemIdList.add(v));
-                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdList.add(v));
+                const rounds: Round[] = await this.readRounds(c.contest);
+                if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const problems: Problem[] = [];
-            problemIdList.forEach((id) => {
+            problemIdSet.forEach((id) => {
                 if (this.#problemCache.has(id) && this.#problemCache.get(id)!.expiration < performance.now()) this.#problemCache.delete(id);
                 if (this.#problemCache.has(id)) {
-                    problemIdList.delete(id);
+                    problemIdSet.delete(id);
                     problems.push(this.#problemCache.get(id)!.problem);
                 }
             });
-            const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
-            const data = await this.#db.query('SELECT * FROM problems WHERE id~\'$1\' AND name=$2 AND author=$3', [problemIdRegex, c.name ?? '*', c.author ?? '*']);
+            const problemIdList = Array.from(problemIdSet.values());
+            const { queryConditions, bindings } = this.#buildColumnConditions([
+                { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                { name: 'name', value: c.name },
+                { name: 'author', value: c.author }
+            ]);
+            const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
             // adding the problems to cache
             const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
             for (const problem of filteredRows) {
@@ -579,24 +612,28 @@ export class Database {
         const startTime = performance.now();
         try {
             // reusing code from readProblems (oops)
-            const problemIdList: Set<string> = new Set();
-            if (c.id != undefined && isUUID(c.id)) problemIdList.add(c.id);
-            if (c.round != undefined) {
+            const problemIdSet: Set<string> = new Set();
+            if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
+            if (c.contest != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                const rounds: Round[] = await this.readRounds(c.round);
-                if (c.round.number != undefined) rounds.map((r) => r.problems[c.round!.number!]).filter(v => v != undefined).forEach((v) => problemIdList.add(v));
-                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdList.add(v));
+                const rounds: Round[] = await this.readRounds(c.contest);
+                if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const submissions: Submission[] = [];
-            problemIdList.forEach((id) => {
+            problemIdSet.forEach((id) => {
                 if (this.#submissionCache.has(id) && this.#submissionCache.get(id)!.expiration < performance.now()) this.#submissionCache.delete(id);
                 if (this.#submissionCache.has(id)) {
-                    problemIdList.delete(id);
+                    problemIdSet.delete(id);
                     submissions.push(this.#submissionCache.get(id)!.submission);
                 }
             });
-            const problemIdRegex = Array.from(problemIdList.values()).reduce((p, c) => p + `|(${c})`, '').substring(1) || '*';
-            const data = await this.#db.query('SELECT * FROM submissions WHERE username=$1 AND id~\'$2\'', [c.username ?? '*', problemIdRegex]);
+            const problemIdList = Array.from(problemIdSet.values());
+            const { queryConditions, bindings } = this.#buildColumnConditions([
+                { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                { name: 'username', value: c.username }
+            ]);
+            const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions}`, bindings);
             for (const submission of data.rows) {
                 const s = {
                     username: submission.username,
@@ -650,6 +687,8 @@ export class Database {
     }
 }
 export default Database;
+
+type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
 type UUID = string;
 
@@ -827,10 +866,8 @@ interface ReadProblemsCriteria {
     author?: string
     /**Constraints validator for problem */
     constraints?: (c: ProblemConstraints) => boolean
-    /**Contest ID based filter*/
-    contest?: string
     /**Round based filter for problems */
-    round?: ProblemRoundCriteria
+    contest?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the criterion */
 interface ReadSubmissionsCriteria {
@@ -839,5 +876,5 @@ interface ReadSubmissionsCriteria {
     /**Username of submitter */
     username?: string
     /**Round-based filter for problems */
-    round?: ProblemRoundCriteria
+    contest?: ProblemRoundCriteria
 }

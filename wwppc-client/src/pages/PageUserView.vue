@@ -4,7 +4,7 @@ import LoadingCover from '@/components/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { experienceMaps, gradeMaps, languageMaps, useAccountManager, type AccountData } from '@/scripts/AccountManager';
-import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { globalModal, ModalMode, UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import UserDisp from '@/components/UserDisp.vue';
