@@ -81,17 +81,19 @@ export class ContestManager {
         // make sure the user actually exists (otherwise bork)
         const userData = await this.db.getAccountData(username);
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
-
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
             //check valid contest first
             if (request == null || typeof request.contest !== 'string') {
                 socket.kick('invalid getProblemList payload');
                 return;
             }
-
             const rounds = await this.db.readRounds({ contest: request.contest });
             const packet: Array<Object> = [];
             for (let i of rounds) {
+                if (i.startTime > Date.now()) {
+                    console.log("oof");
+                    continue;
+                }
                 const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: i.round } });
                 let problems: Array<Object> = [];
                 for (let p in roundProblems) {
@@ -111,7 +113,7 @@ export class ContestManager {
                     problems: problems
                 });
             }
-            socket.emit('problemList', { request: packet, token: request.token });
+            socket.emit('problemList', { data: packet, token: request.token });
         });
         socket.on('getProblemData', async (request: { contest: string, round: number, number: number, token: number }) => {
             if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') {
@@ -131,7 +133,12 @@ export class ContestManager {
             // }
             const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
             if (problems.length !== 1) {
-                //idk something is wrong with db
+                socket.emit('problemData', {
+                    problem: null,
+                    submission: null,
+                    token: request.token
+                });
+                return;
             }
             const problem = problems[0];
             socket.emit('problemData', {
@@ -177,6 +184,7 @@ export class ContestManager {
                     submission: null,
                     token: request.token
                 });
+                return;
             }
 
             const problem = problems[0];

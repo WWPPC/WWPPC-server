@@ -95,6 +95,7 @@ export const useContestManager = defineStore('contestManager', {
                 const token = Math.random();
                 serverConnection.emit('getProblemList', { contest: state.currContest, token });
                 const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
+                    console.log(data, token, token2);
                     if (token2 != token) return;
                     resolve(data);
                     serverConnection.off('problemList', handle);

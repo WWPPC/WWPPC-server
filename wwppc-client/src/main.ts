@@ -38,7 +38,7 @@ const router = createRouter({
                     components: { App }
                 },
                 {
-                    path: ':panel(problemView)/:problemRound(\\d+)_:problemId(\\d+)',
+                    path: ':panel(problemView)/:problemRound(\\d+)_:problemNumber(\\d+)',
                     components: { App }
                 }
             ]

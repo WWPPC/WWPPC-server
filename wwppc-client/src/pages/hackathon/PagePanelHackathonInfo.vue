@@ -8,7 +8,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 <template>
     <div class="centered hackathonTitle">
         <ShowOnscreenContainer>
-            <GlitchText text="WWP HACKS" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+            <GlitchText text="WWPHacks" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
         </ShowOnscreenContainer>
     </div>
     <div class="fullBlock stretchBlock">
