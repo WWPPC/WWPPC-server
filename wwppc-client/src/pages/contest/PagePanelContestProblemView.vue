@@ -62,20 +62,24 @@ onMounted(async () => {
             return;
         }
         const { problem: p, submission: s } = await contestManager.getProblemDataId(route.params.problemId.toString());
-        if (p === null || s === null) {
+        if (p === null) {
             loadErrorModal('Problem not found', 'The requested problem does not exist!');
             return;
         }
         problem.value = p;
-        submission.value = s;
+        if (s !== null) {
+            submission.value = s;
+        }
     } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
         const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
-        if (p === null || s === null) {
+        if (p === null) {
             loadErrorModal('Problem not found', 'The requested problem does not exist!');
             return;
         }
         problem.value = p;
-        submission.value = s;
+        if (s !== null) {
+            submission.value = s;
+        }
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
@@ -153,7 +157,9 @@ const handleUpload = () => {
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
-                put previous submissions here?
+                Previous submission:
+                <div>{{ submission ?? 'no submission yet!' }}</div>
+                <!--format this oof (maybe a component?)-->
             </DoubleCutCornerContainer>
         </div>
     </div>

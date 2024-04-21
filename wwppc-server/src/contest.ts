@@ -1,8 +1,8 @@
 import express from 'express';
 import { Server as SocketIOServer } from 'socket.io';
-import { uuidValidate } from 'uuid';
+import { validate as uuidValidate } from 'uuid';
 
-import { AccountOpResult, Database, Registration, Round } from './database';
+import { AccountOpResult, Database, Registration, Round, ScoreState } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
@@ -91,7 +91,6 @@ export class ContestManager {
             const packet: Array<Object> = [];
             for (let i of rounds) {
                 if (i.startTime > Date.now()) {
-                    console.log("oof");
                     continue;
                 }
                 const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: i.round } });
@@ -120,14 +119,12 @@ export class ContestManager {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-
             // const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
             // if (rounds.length !== 1) {
             //     socket.kick('invalid getProblemData round or contest id');
             //     return;
             // }
             // if (rounds.length < request.number) {
-            //     console.log(rounds.length, request.number);
             //     socket.kick('invalid getProblemData problem index');
             //     return;
             // }
@@ -141,6 +138,14 @@ export class ContestManager {
                 return;
             }
             const problem = problems[0];
+            const userSubmissions = await this.db.readSubmissions({ id: problem.id, username: 'erikji' });
+            let submission : Object | null = null;
+            if (userSubmissions !== null && userSubmissions.length === 1) {
+                submission = {
+                    time: userSubmissions[0].time,
+                    scores: userSubmissions[0].scores
+                };
+            }
             socket.emit('problemData', {
                 problem: {
                     id: problem.id,
@@ -152,22 +157,7 @@ export class ContestManager {
                     content: problem.content,
                     constraints: problem.constraints,
                 },
-                submission: {
-                    //dummy data
-                    time: 12345,
-                    scores: [
-                        {
-                            state: 1,
-                            time: 123,
-                            memory: 54321
-                        },
-                        {
-                            state: 1,
-                            time: 123,
-                            memory: 54321
-                        }
-                    ]
-                },
+                submission: submission,
                 token: request.token
             });
         });
@@ -186,7 +176,14 @@ export class ContestManager {
                 });
                 return;
             }
-
+            const userSubmissions = await this.db.readSubmissions({ id: request.id, username: username });
+            let submission : Object | null = null;
+            if (userSubmissions !== null && userSubmissions.length === 1) {
+                submission = {
+                    time: userSubmissions[0].time,
+                    scores: userSubmissions[0].scores
+                };
+            }
             const problem = problems[0];
             socket.emit('problemData', {
                 problem: {
@@ -199,22 +196,7 @@ export class ContestManager {
                     content: problem.content,
                     constraints: problem.constraints,
                 },
-                submission: {
-                    //dummy request
-                    time: 12345,
-                    scores: [
-                        {
-                            state: 1,
-                            time: 123,
-                            memory: 54321
-                        },
-                        {
-                            state: 1,
-                            time: 123,
-                            memory: 54321
-                        }
-                    ]
-                },
+                submission: submission,
                 token: request.token
             });
         });

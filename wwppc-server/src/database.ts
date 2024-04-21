@@ -584,7 +584,7 @@ export class Database {
         try {
             const exists = await this.#db.query('SELECT id FROM problems WHERE id=$1', [problem.id]);
             if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6 WHERE id=$1', [problem.id, problem.name, problem.content, problem.author, problem.cases, problem.constraints]);
+                await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6 WHERE id=$1', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
             } else {
                 await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints) VALUES ($1, $2, $3, $4, $5, $6)', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
             }
@@ -668,9 +668,9 @@ export class Database {
         try {
             const exists = await this.#db.query('SELECT id FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
             if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2', [submission.username, submission.problemId, submission.file, submission.lang, submission.scores, Date.now()]);
+                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2', [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
             } else {
-                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [submission.username, submission.problemId, submission.file, submission.lang, submission.scores, Date.now()]);
+                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
             }
             this.#submissionCache.set(submission.problemId, {
                 submission: submission,
