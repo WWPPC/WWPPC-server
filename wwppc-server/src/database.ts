@@ -586,7 +586,7 @@ export class Database {
             if ((exists.rowCount ?? 0) > 0) {
                 await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6 WHERE id=$1', [problem.id, problem.name, problem.content, problem.author, problem.cases, problem.constraints]);
             } else {
-                await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints) VALUES ($1, $2, $3, $4, $5, $6)', [problem.id, problem.name, problem.content, problem.author, problem.cases, problem.constraints]);
+                await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints) VALUES ($1, $2, $3, $4, $5, $6)', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
             }
             this.#problemCache.set(problem.id, {
                 problem: problem,
