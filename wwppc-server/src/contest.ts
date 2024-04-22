@@ -61,7 +61,12 @@ export class ContestManager {
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (const s of newSubmissions) {
-                this.io.to(s.username).emit('submissionStatus', s);
+                this.io.to(s.username).emit('submissionStatus', {
+                    status: {
+                        time: s.time,
+                        scores: s.scores
+                    }
+                });
                 this.db.writeSubmission(s);
             }
         }, 1000);
@@ -114,8 +119,8 @@ export class ContestManager {
             }
             socket.emit('problemList', { data: packet, token: request.token });
         });
-        socket.on('getProblemData', async (request: { contest: string, round: number, number: number, token: number }) => {
-            if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') {
+        socket.on('getProblemData', async (request: { contest: string, round: number, number: number, token: number, id: string }) => {
+            if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !uuidValidate(request.id)))) {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
@@ -128,7 +133,14 @@ export class ContestManager {
             //     socket.kick('invalid getProblemData problem index');
             //     return;
             // }
-            const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            let problems;
+            if (typeof request.id === 'string') {
+                //getProblemDataId
+                problems = await this.db.readProblems({ id: request.id });
+            } else {
+                //getProblemData
+                problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            }
             if (problems.length !== 1) {
                 socket.emit('problemData', {
                     problem: null,
@@ -138,7 +150,7 @@ export class ContestManager {
                 return;
             }
             const problem = problems[0];
-            const userSubmissions = await this.db.readSubmissions({ id: problem.id, username: 'erikji' });
+            const userSubmissions = await this.db.readSubmissions({ id: problem.id, username: socket.username });
             let submission : Object | null = null;
             if (userSubmissions !== null && userSubmissions.length === 1) {
                 submission = {
@@ -161,49 +173,15 @@ export class ContestManager {
                 token: request.token
             });
         });
-        socket.on('getProblemDataId', async (request: { id: string, token: number }) => {
-            if (request == null || typeof request.id !== 'string' || !uuidValidate(request.id)) {
-                socket.kick('invalid getProblemDataId payload');
-                return;
-            }
-            const problems = await this.db.readProblems({ id: request.id });
-            if (problems.length == 0) {
-                // problem not found
-                socket.emit('problemData', {
-                    problem: null,
-                    submission: null,
-                    token: request.token
-                });
-                return;
-            }
-            const userSubmissions = await this.db.readSubmissions({ id: request.id, username: socket.username });
-            let submission : Object | null = null;
-            if (userSubmissions !== null && userSubmissions.length === 1) {
-                submission = {
-                    time: userSubmissions[0].time,
-                    scores: userSubmissions[0].scores
-                };
-            }
-            const problem = problems[0];
-            socket.emit('problemData', {
-                problem: {
-                    id: problem.id,
-                    contest: undefined, // see documentation
-                    round: undefined,
-                    number: undefined,
-                    name: problem.name,
-                    author: problem.author,
-                    content: problem.content,
-                    constraints: problem.constraints,
-                },
-                submission: submission,
-                token: request.token
-            });
-        });
-        socket.on('updateSubmission', (request: { file: string, problemId: string, lang: string }) => {
+        socket.on('updateSubmission', async (request: { file: string, problemId: string, lang: string }) => {
             //also need to check valid language, valid problem id
             if (request == null || typeof request.problemId !== 'string' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
                 socket.kick('invalid updateSubmission payload');
+                return;
+            }
+            const problems = await this.db.readProblems({ id: request.problemId });
+            if (problems.length !== 1) {
+                socket.kick('invalid updateSubmission problem ID');
                 return;
             }
             if (request.file.length > 10240) {

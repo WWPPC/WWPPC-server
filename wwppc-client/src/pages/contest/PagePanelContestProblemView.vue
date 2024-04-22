@@ -79,6 +79,9 @@ onMounted(async () => {
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
+    contestManager.onSubmissionStatus(({status}) => {
+        submission.value = status;
+    });
 });
 
 watch(() => problem.value.name, () => {
@@ -92,6 +95,7 @@ const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constra
 // uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();
 const languageDropdown = ref<InstanceType<typeof UIDropdown>>();
+const submit = ref<InstanceType<typeof UIButton>>();
 const handleUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
@@ -110,6 +114,23 @@ const handleUpload = () => {
         }
     }
 };
+const submitUpload = async () => {
+    if (typeof languageDropdown.value?.value !== 'string') {
+        console.log(languageDropdown.value);
+        modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
+        return;
+    }
+    if (fileUpload.value == null || fileUpload.value.files == null) {
+        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+        return;
+    }
+    const file = fileUpload.value.files.item(0);
+    if (file == null) {
+        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+        return;
+    }
+    await contestManager.updateSubmission(problem.value.id, languageDropdown.value.value, await file.text());
+}
 </script>
 
 <template>
@@ -149,7 +170,8 @@ const handleUpload = () => {
                             { text: 'Python 3.6.9', value: 'py369' }
                         ]" required></UIDropdown>
                     </div>
-                    <UIButton text="Upload Submission" type="submit" width="min-content" @click=undefined></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload></UIButton>
+                    <!--probably disable/enable this?-->
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>

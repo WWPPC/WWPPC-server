@@ -105,7 +105,7 @@ export class DomjudgeGrader implements Grader {
     }
 
     getNewGradedSubmissions(): Submission[] {
-        const arr = this.#gradedSubmissions;
+        const arr = JSON.parse(JSON.stringify(this.#gradedSubmissions));
         this.#gradedSubmissions.length = 0;
         return arr;
     }
