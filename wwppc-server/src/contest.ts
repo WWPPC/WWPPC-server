@@ -2,6 +2,7 @@ import express from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 import { validate as uuidValidate } from 'uuid';
 
+import config from './config';
 import { AccountOpResult, Database, Registration, Round, ScoreState } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
@@ -60,9 +61,7 @@ export class ContestManager {
         const interval = setInterval(() => {
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (const s of newSubmissions) {
-                for (const socket of this.#users[s.username]) {
-                    socket.emit('submissionStatus', s);
-                }
+                this.io.to(s.username).emit('submissionStatus', s);
                 this.db.writeSubmission(s);
             }
         }, 1000);
@@ -73,14 +72,15 @@ export class ContestManager {
 
     /**
      * Add a username-linked SocketIO connection to the user list.
-     * @param {string} username Username to link this socket to
      * @param {ServerSocket} socket SocketIO connection (with modifications)
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
-    async addUser(username: string, socket: ServerSocket): Promise<number> {
+    async addUser(socket: ServerSocket): Promise<number> {
         // make sure the user actually exists (otherwise bork)
-        const userData = await this.db.getAccountData(username);
+        const userData = await this.db.getAccountData(socket.username);
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
+
+        // new event handlers
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
             //check valid contest first
             if (request == null || typeof request.contest !== 'string') {
@@ -176,7 +176,7 @@ export class ContestManager {
                 });
                 return;
             }
-            const userSubmissions = await this.db.readSubmissions({ id: request.id, username: username });
+            const userSubmissions = await this.db.readSubmissions({ id: request.id, username: socket.username });
             let submission : Object | null = null;
             if (userSubmissions !== null && userSubmissions.length === 1) {
                 submission = {
@@ -211,7 +211,7 @@ export class ContestManager {
                 return;
             }
             this.#grader.queueSubmission({
-                username: username,
+                username: socket.username,
                 problemId: request.problemId,
                 time: Date.now(),
                 file: request.file,
@@ -221,9 +221,21 @@ export class ContestManager {
         });
 
         // add to user list and return after attaching listeners
-        if (this.#users.has(username)) return this.#users.get(username)!.sockets.add(socket).size;
-        this.#users.set(username, {
-            username: username,
+        socket.join(socket.username);
+        // NOTE: ALIASES (teams) JOIN ROOM WITH TEAM CREATOR USERNAME
+        const removeSelf = () => {
+            socket.leave(socket.username);
+            if (this.#users.has(socket.username)) {
+                this.#users.get(socket.username)!.sockets.delete(socket);
+                if (this.#users.get(socket.username)!.sockets.size == 0) this.#users.delete(socket.username);
+            }
+        };
+        socket.on('disconnect', removeSelf);
+        socket.on('timeout', removeSelf);
+        socket.on('error', removeSelf);
+        if (this.#users.has(socket.username)) return this.#users.get(socket.username)!.sockets.add(socket).size;
+        this.#users.set(socket.username, {
+            username: socket.username,
             email: userData.email,
             displayName: userData.displayName,
             registrations: userData.registrations,

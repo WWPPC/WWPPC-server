@@ -395,7 +395,7 @@ io.on('connection', async (s) => {
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
     // hand off to ContestManager
-    contestManager.addUser(socket.username, socket);
+    contestManager.addUser(socket);
 });
 let c = 0;
 const connectionKickDecrementer = setInterval(() => {
