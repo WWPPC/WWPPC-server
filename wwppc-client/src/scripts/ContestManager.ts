@@ -45,7 +45,7 @@ export enum ContestProblemCompletionState {
     ERROR = 6
 }
 export interface ContestSubmission {
-    /**Submission time (UTC milliseconds) */
+    /**Submission time (UNIX milliseconds) */
     time: number
     /**Scores */
     scores: ContestScore[]
@@ -100,7 +100,6 @@ export const useContestManager = defineStore('contestManager', {
                 const token = Math.random();
                 serverConnection.emit('getProblemList', { contest: state.currContest, token });
                 const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
-                    console.log(data, token, token2);
                     if (token2 != token) return;
                     resolve(data);
                     serverConnection.off('problemList', handle);
@@ -115,7 +114,6 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
-                    console.log(problem, submission);
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
                 };
@@ -129,7 +127,6 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.emit('getProblemDataId', { id, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
-                    console.log(problem, submission);
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
                 };

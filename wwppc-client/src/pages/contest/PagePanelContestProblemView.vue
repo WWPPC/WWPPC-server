@@ -67,9 +67,7 @@ onMounted(async () => {
             return;
         }
         problem.value = p;
-        if (s !== null) {
-            submission.value = s;
-        }
+        if (s !== null) submission.value = s;
     } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
         const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
         if (p === null) {
@@ -77,9 +75,7 @@ onMounted(async () => {
             return;
         }
         problem.value = p;
-        if (s !== null) {
-            submission.value = s;
-        }
+        if (s !== null) submission.value = s;
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }

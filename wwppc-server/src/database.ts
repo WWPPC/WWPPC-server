@@ -814,7 +814,7 @@ export interface Submission {
     readonly username: string
     /**UUID of problem submitted to */
     readonly problemId: UUID
-    /**Time of submission, UTC */
+    /**Time of submission, UNIX milliseconds */
     time: number
     /**Contents of the submission file */
     file: string
