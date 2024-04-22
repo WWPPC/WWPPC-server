@@ -1,4 +1,4 @@
-import express from 'express';
+import { Express } from 'express';
 
 import { AccountData, Database, Score, ScoreState, Submission } from './database';
 import Logger from './log';
@@ -35,7 +35,7 @@ export class DomjudgeGrader implements Grader {
     //probably only going to be one judgehost but "scalability"
     //See the Judgehost schema, may need to create new class etc
 
-    #app: express;
+    #app: Express;
     #logger: Logger;
 
     #ungradedSubmissions: Submission[] = new Array<Submission>();
@@ -43,7 +43,7 @@ export class DomjudgeGrader implements Grader {
 
     #gradedSubmissions: Submission[] = new Array<Submission>();
 
-    constructor(app: express, logger: Logger) {
+    constructor(app: Express, logger: Logger) {
         this.#app = app;
         this.#logger = logger;
         this.#app.post('/api/v4/judgehosts', (req, res) => {

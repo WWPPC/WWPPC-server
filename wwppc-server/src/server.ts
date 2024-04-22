@@ -25,8 +25,9 @@ if (config.debugMode) {
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 const app = express();
 const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.createServer({
     key: fs.readFileSync(path.resolve(config.path, 'cert-key.pem')),
@@ -41,10 +42,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(cors({ origin: '*' }));
+app.use(cookieParser());
 logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
 if (config.serveStatic) {
     const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
-    app.use('/', express.static(process.env.CLIENT_PATH));
+    app.use('/', express.static(process.env.CLIENT_PATH!));
     app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
     app.get('*', (req, res) => {
         // last handler - if nothing else finds the page, just send 404

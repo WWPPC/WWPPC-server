@@ -1,4 +1,7 @@
 {
+    "name": "wwppc",
+    "version": "1.0.0",
+    "private": true,
     "scripts": {
         "install": "cd wwppc-server && npm install",
         "build": "cd wwppc-server && npm run build",
@@ -6,18 +9,5 @@
         "compilerun": "cd wwppc-server && npm run compilerun",
         "deploy": "npm run build && firebase deploy --only hosting"
     },
-    "name": "wwppc",
-    "version": "1.0.0",
-    "description": "WWP-Hacks and WWP-PC in one!",
-    "main": "wwppc-server/src/server.ts",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/spsquared/CSI-thing.git"
-    },
-    "author": "spsquared",
-    "license": "GPL-3.0",
-    "bugs": {
-        "url": "https://github.com/spsquared/CSI-thing/issues"
-    },
-    "homepage": "https://github.com/spsquared/CSI-thing"
+    "homepage": "https://github.com/WWPPC/WWPPC"
 }

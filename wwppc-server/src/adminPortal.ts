@@ -1,9 +1,15 @@
-import express from 'express';
+import { Express } from 'express';
+import path from 'path';
 
 import Database from './database';
 import Logger from './log';
 
-export function attachAdminPortal(db: Database, app: express, logger: Logger) {
+process.env.ADMIN_PATH ??= path.resolve(__dirname, '../admin-portal');
+export function attachAdminPortal(db: Database, app: Express, logger: Logger) {
+    app.use('/admin/', (req, res, next) => {
+
+    });
+    app.get('/admin', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PATH!, 'index.html')));
     // just http, no socket.io
 }
 

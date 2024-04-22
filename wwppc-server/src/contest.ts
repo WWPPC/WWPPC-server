@@ -1,4 +1,4 @@
-import express from 'express';
+import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 import { validate as uuidValidate } from 'uuid';
 
@@ -29,7 +29,7 @@ export class ContestManager {
     readonly #grader: Grader;
 
     readonly db: Database;
-    readonly app: express;
+    readonly app: Express;
     readonly io: SocketIOServer;
     readonly logger: Logger;
 
@@ -46,7 +46,7 @@ export class ContestManager {
      * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: express, io: SocketIOServer, logger: Logger) {
+    constructor(db: Database, app: Express, io: SocketIOServer, logger: Logger) {
         this.db = db;
         this.app = app;
         this.io = io;

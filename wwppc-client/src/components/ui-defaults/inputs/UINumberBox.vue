@@ -28,7 +28,7 @@ defineExpose({
 </script>
 
 <template>
-    <input type="number" class="uiNumberBox" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step>
+    <input type="number" :class="'uiNumberBox ' + (props.highlightInvalid ? 'uiNumberBoxHighlightInvalid' : '')" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step>
 </template>
 
 <style>
@@ -55,8 +55,8 @@ defineExpose({
     border-color: red !important;
 }
 
-.uiNumberBox:invalid {
-    border-color: v-bind("$props.highlightInvalid ? 'yellow' : ''");
+.uiNumberBoxHighlightInvalid.uiNumberBox:invalid {
+    border-color: yellow;
 }
 
 .uiNumberBox:disabled {

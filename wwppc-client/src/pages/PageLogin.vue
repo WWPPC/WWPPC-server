@@ -18,18 +18,18 @@ const modal = globalModal();
 const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
 serverConnection.onconnecterror(() => {
-    if (route.params.page != 'login') return;
+    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
     modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
 });
 serverConnection.ondisconnect(() => {
-    if (route.params.page != 'login') return;
+    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
     modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
 });
 
 // redirect if already logged in, also more connection modals
 // and recaptcha stuff
 watch(() => route.params.page, async () => {
-    if (route.params.page == 'login') {
+    if (route.params.page == 'login' && route.query.ignore_server === undefined) {
         serverConnection.handshakePromise.then(() => {
             if (serverConnection.loggedIn) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home?clearQuery', query: { clearQuery: 1 } });
         });
@@ -54,7 +54,10 @@ const showLoginWait = ref(false);
 const showRecoveryWait = ref(false);
 const attemptedRecovery = ref(false);
 const attemptLogin = async () => {
-    if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
+    if (!validateCredentials(usernameInput.value, passwordInput.value)) {
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        return;
+    }
     showLoginWait.value = true;
     const token = await recaptcha.execute('login');
     const res = await accountManager.login(usernameInput.value, passwordInput.value, token);
@@ -63,7 +66,10 @@ const attemptLogin = async () => {
     else modal.showModal({ title: 'Could not log in:', content: getAccountOpMessage(res), color: 'red' });
 };
 const toSignUp = () => {
-    if (!validateCredentials(usernameInput.value, passwordInput.value)) return;
+    if (!validateCredentials(usernameInput.value, passwordInput.value)) {
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        return;
+    }
     firstNameInput.value = '';
     lastNameInput.value = '';
     emailInput.value = '';
@@ -127,7 +133,7 @@ const attemptRecovery = async () => {
                                     <img src="/logo.svg" class="loginLogoFloater">
                                     <h1 class="loginVerticalHeader">Log In</h1>
                                     <form class="loginVertical" action="javascript:void(0)">
-                                        <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" required></UITextBox>
+                                        <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" pattern="[a-z0-9\-_=+]*" highlight-invalid></UITextBox>
                                         <UITextBox v-model="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
                                             <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput == ''"></UIButton>
@@ -197,7 +203,7 @@ const attemptRecovery = async () => {
                         </div>
                     </Transition>
                 </div>
-                <LoadingCover text="Connecting..."></LoadingCover>
+                <LoadingCover text="Connecting..." ignore-server></LoadingCover>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
                 <WaitCover text="Sending email..." :show=showRecoveryWait></WaitCover>
             </PanelBody>

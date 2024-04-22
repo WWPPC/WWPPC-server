@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- best to avoid allowing data: but it's already done and we don't have the time -->
+    <!-- best to avoid data: urls but profile pictures are easier this way -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self' 'unsafe-eval' 'unsafe-inline';
         script-src 'self' 'unsafe-eval' 'unsafe-inline';
@@ -15,15 +15,14 @@
         frame-src 'self' https://www.google.com 'unsafe-eval' 'unsafe-inline';
         connect-src 'self' https://localhost:* wss://localhost:* https://wwppc.onrender.com wss://wwppc.onrender.com 'unsafe-eval' 'unsafe-inline';
         ">
-    <meta name="title" content="Red Pixel Simulator">
     <meta name="title" content="WWPPC">
     <meta name="description" content="WWPPC - The programming competition run by students - WWP-IT and WWPHacks combined!">
-    <meta name="url" content="https://wwppc.web.app/">
-    <meta name="image" content="https://wwppc.web.app/icon2.png">
+    <meta name="url" content="https://wwppc.tech/">
+    <meta name="image" content="https://wwppc.tech/icon2-small.png">
     <meta property="og:title" content="WWPPC">
     <meta property="og:description" content="WWPPC - The programming competition run by students - WWP-IT and WWPHacks combined!">
-    <meta property="og:url" content="https://wwppc.web.app/">
-    <meta property="og:image" content="https://wwppc.web.app/icon2.png">
+    <meta property="og:url" content="https://wwppc.tech/">
+    <meta property="og:image" content="https://wwppc.tech/icon2-small.png">
     <meta property="og:image:width" content="256">
     <meta property="og:image:height" content="256">
     <title>WWPPC</title>
@@ -122,11 +121,6 @@
             window.onerror = (e, filename, lineno, colno, err) => {
                 document.getElementById('loadingerror').innerText += `\n${err.message} (at ${filename} ${lineno}:${colno})`;
                 canLoad = false;
-            };
-            MathJax = {
-                tex: {
-                    inlineMath: [['$', '$']]
-                }
             };
         </script>
     </div>
