@@ -43,20 +43,6 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 app.use(cookieParser());
-logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
-if (config.serveStatic) {
-    const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
-    app.use('/', express.static(process.env.CLIENT_PATH!));
-    app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => res.sendFile(indexDir));
-    app.get('*', (req, res) => {
-        // last handler - if nothing else finds the page, just send 404
-        res.status(404);
-        if (req.accepts('html')) res.render('404', { filename: indexDir });
-        else if (req.accepts('json')) res.json({ error: 'Not found' });
-        else res.send('Not found');
-        res.end();
-    });
-}
 // in case server is not running
 app.get('/wakeup', (req, res) => res.json('ok'));
 
@@ -66,7 +52,6 @@ import Database, { AccountOpResult, reverse_enum, RSAEncrypted } from './databas
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
-import attachAdminPortal from './adminPortal';
 import { addKickFunction } from './socket';
 
 const mailer = new Mailer({
@@ -89,7 +74,38 @@ const io = new SocketIOServer(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 const contestManager = new ContestManager(database, app, io, logger);
+
+// additional http version of socket.io requests
+app.get('/api/userData/:username', async (req, res) => {
+    if (!req.accepts('json')) res.sendStatus(406);
+    const data = await database.getAccountData(req.params.username);
+    if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
+    else if (data == AccountOpResult.ERROR) res.sendStatus(500);
+    else res.json(data);
+});
+app.use('/api/*', (req, res) => res.sendStatus(404));
+
+// admin portal
+import attachAdminPortal from './adminPortal';
 attachAdminPortal(database, app, logger);
+
+// static hosting optional
+logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
+if (config.serveStatic) {
+    const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
+    app.use('/', express.static(process.env.CLIENT_PATH!));
+    app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => {
+        if (!req.accepts('html')) res.sendStatus(406);
+        else res.sendFile(indexDir);
+    });
+    app.get('*', (req, res) => {
+        // last handler - if nothing else finds the page, just send 404
+        res.status(404);
+        if (req.accepts('html')) res.sendFile(indexDir);
+        else res.sendStatus(404);
+        res.end();
+    });
+}
 
 // complete networking
 if (config.debugMode) logger.info('Creating Socket.IO server');
@@ -126,6 +142,15 @@ io.on('connection', async (s) => {
         if (packetCount > 0) socket.kick('too many packets');
     }, 1000);
     if (config.superSecretSecret) socket.emit('superSecretMessage');
+
+    // add getUserData here so sign-in not required
+    socket.on('getUserData', async (data: { username: string, token: number }) => {
+        if (data == undefined || typeof data.username != 'string' || typeof data.token != 'number') {
+            socket.kick('invalid getUserData parameters');
+            return;
+        }
+        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username, token: data.token });
+    });
 
     // await credentials before allowing anything (in a weird way)
     socket.username = '[not signed in]';
@@ -306,13 +331,8 @@ io.on('connection', async (s) => {
 
     // only can reach this point after signing in
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
-    socket.on('getUserData', async (data: { username: string, token: number }) => {
-        if (data == undefined || typeof data.username != 'string' || typeof data.token != 'number') {
-            socket.kick('invalid getUserData parameters');
-            return;
-        }
-        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username, token: data.token });
-    });
+
+    // add remaining listeners
     socket.on('setUserData', async (data: { password: RSAEncrypted, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
         if (data == undefined || data.data == undefined) {
             socket.kick('invalid setUserData parameters');
@@ -409,7 +429,7 @@ const connectionKickDecrementer = setInterval(() => {
     });
     recentConnectionKicks.clear();
     c++;
-    if (c % 600) recentPasswordResetEmails.clear();
+    if (c % 600 == 0) recentPasswordResetEmails.clear();
 }, 1000);
 
 database.connectPromise.then(() => {

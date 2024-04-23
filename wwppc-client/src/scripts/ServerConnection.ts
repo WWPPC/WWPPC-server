@@ -84,10 +84,6 @@ export interface CredentialsSignupData {
     languages: string[]
 }
 
-Object.defineProperty(window, 'socket', {
-    value: socket
-})
-
 // RSA keys + autologin
 socket.once('getCredentials', async (session) => {
     if (window.crypto.subtle === undefined) {

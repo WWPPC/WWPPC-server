@@ -168,7 +168,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async getUserData(username: string): Promise<AccountData | null> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return null;
+            if (!serverConnection.handshakeComplete) return null;
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getUserData', { username, token });

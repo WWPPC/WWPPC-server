@@ -1,5 +1,4 @@
-// also sound tile copy paste
-
+// cache
 self.addEventListener('install', (e) => {
     e.waitUntil(new Promise(async (resolve) => {
         const pageCache = await caches.open('page');
@@ -9,7 +8,8 @@ self.addEventListener('install', (e) => {
             '/favicon.png',
             '/logo.svg',
             '/icon.svg',
-            '/icon2.png'
+            '/icon2.png',
+            '/icon2-small.png'
         ]);
         self.skipWaiting();
         resolve();
@@ -50,7 +50,9 @@ let updateCache = async (cache, request, preloadResponse) => {
                 cache.put(request.url, preloaded.clone());
                 return preloaded;
             }
-        } catch { /* no */ }
+        } catch { 
+            // oh well
+        }
     }
     try {
         const networked = await fetch(request);
@@ -65,7 +67,9 @@ let updateCache = async (cache, request, preloadResponse) => {
     }
 };
 self.addEventListener("fetch", (e) => {
-    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin)) {
+    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin) && !e.request.url.startsWith(self.location.origin + '/admin') && !e.request.url.startsWith(self.location.origin + '/api')) {
         e.respondWith(getCached(e.request, e.preloadResponse));
     }
 });
+
+// notification system?

@@ -1,9 +1,8 @@
 import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
-import { validate as uuidValidate } from 'uuid';
 
 import config from './config';
-import { AccountOpResult, Database, Registration, Round, ScoreState } from './database';
+import { AccountOpResult, Database, Problem, Registration, Score, UUID, isUUID } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
@@ -119,8 +118,8 @@ export class ContestManager {
             }
             socket.emit('problemList', { data: packet, token: request.token });
         });
-        socket.on('getProblemData', async (request: { contest: string, round: number, number: number, token: number, id: string }) => {
-            if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !uuidValidate(request.id)))) {
+        socket.on('getProblemData', async (request: { id: undefined, contest: string, round: number, number: number, token: number } | { id: string, contest: undefined, round: undefined, number: undefined, token: number }) => {
+            if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !isUUID(request.id)))) {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
@@ -133,7 +132,7 @@ export class ContestManager {
             //     socket.kick('invalid getProblemData problem index');
             //     return;
             // }
-            let problems;
+            let problems: Problem[];
             if (typeof request.id === 'string') {
                 //getProblemDataId
                 problems = await this.db.readProblems({ id: request.id });
@@ -151,7 +150,7 @@ export class ContestManager {
             }
             const problem = problems[0];
             const userSubmissions = await this.db.readSubmissions({ id: problem.id, username: socket.username });
-            let submission : Object | null = null;
+            let submission: { time: number, scores: Score[] } | null = null;
             if (userSubmissions !== null && userSubmissions.length === 1) {
                 submission = {
                     time: userSubmissions[0].time,

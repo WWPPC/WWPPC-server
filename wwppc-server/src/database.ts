@@ -688,11 +688,11 @@ export class Database {
 }
 export default Database;
 
-type SqlValue = number | string | boolean | number[] | string[] | boolean[];
+export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
-type UUID = string;
+export type UUID = string;
 
-function isUUID(id: string): id is UUID {
+export function isUUID(id: string): id is UUID {
     return uuidValidate(id);
 }
 

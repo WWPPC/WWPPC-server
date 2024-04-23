@@ -1,4 +1,4 @@
-import { Request, Response, Express } from 'express';
+import { Express } from 'express';
 import { AccountData, Database, Score, ScoreState, Submission } from './database';
 import Logger from './log';
 
@@ -45,11 +45,11 @@ export class DomjudgeGrader implements Grader {
     constructor(app: Express, logger: Logger) {
         this.#app = app;
         this.#logger = logger;
-        this.#app.post('/api/v4/judgehosts', (req: Request, res: Response) => {
+        this.#app.post('/api/v4/judgehosts', (req, res) => {
             //no parameters for some reason?
             res.send('hi');
         });
-        this.#app.post('/api/v4/judgehosts/fetch-work', (req: Request, res: Response) => {
+        this.#app.post('/api/v4/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
                 //malformed
                 res.sendStatus(400);
