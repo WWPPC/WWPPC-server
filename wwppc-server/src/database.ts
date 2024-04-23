@@ -247,41 +247,39 @@ export class Database {
      */
     async getAccountData(username: string): Promise<AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
-        if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
-        if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
-        else {
-            try {
-                // it probably doesn't matter that we fetch everything (though passwords are also fetched...)
-                const data = await this.#db.query('SELECT * FROM users WHERE username=$1', [username]);
-                if (data.rows.length > 0) {
-                    const userData: AccountData = {
-                        username: data.rows[0].username,
-                        email: data.rows[0].email,
-                        firstName: data.rows[0].firstname,
-                        lastName: data.rows[0].lastname,
-                        displayName: data.rows[0].displayname,
-                        profileImage: data.rows[0].profileimg,
-                        bio: data.rows[0].biography,
-                        school: data.rows[0].school,
-                        grade: data.rows[0].grade,
-                        experience: data.rows[0].experience,
-                        languages: data.rows[0].languages,
-                        registrations: data.rows[0].registrations
-                    };
-                    this.#userCache.set(username, {
-                        data: userData,
-                        expiration: performance.now() + config.dbCacheTime
-                    });
-                    return userData;
-                }
-                return AccountOpResult.NOT_EXISTS;
-            } catch (err) {
-                this.logger.error('Database error (getAccountData):');
-                this.logger.error('' + err);
-                return AccountOpResult.ERROR;
-            } finally {
-                if (config.debugMode) this.logger.debug(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
+        try {
+            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
+            if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
+            // it probably doesn't matter that we fetch everything (though passwords are also fetched...)
+            const data = await this.#db.query('SELECT * FROM users WHERE username=$1', [username]);
+            if (data.rows.length > 0) {
+                const userData: AccountData = {
+                    username: data.rows[0].username,
+                    email: data.rows[0].email,
+                    firstName: data.rows[0].firstname,
+                    lastName: data.rows[0].lastname,
+                    displayName: data.rows[0].displayname,
+                    profileImage: data.rows[0].profileimg,
+                    bio: data.rows[0].biography,
+                    school: data.rows[0].school,
+                    grade: data.rows[0].grade,
+                    experience: data.rows[0].experience,
+                    languages: data.rows[0].languages,
+                    registrations: data.rows[0].registrations
+                };
+                this.#userCache.set(username, {
+                    data: userData,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+                return userData;
             }
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (getAccountData):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -453,17 +451,28 @@ export class Database {
      * @param flag Permission flag to check against
      * @returns {boolean} If the administrator has the permission. Also false if the user is not an administrator.
      */
+    #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     async hasPerms(username: string, flag: AdminPerms): Promise<boolean> {
+        const startTime = performance.now();
         try {
+            if (this.#adminCache.has(username) && this.#adminCache.get(username)!.expiration < performance.now()) this.#adminCache.delete(username);
+            if (this.#adminCache.has(username)) return (this.#adminCache.get(username)!.permissions & flag) != 0;
             const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
-            return data.rowCount != null && data.rowCount > 0 && (data.rows[0].permissions & flag) != 0;
+            if (data.rows.length > 0) this.#adminCache.set(username, {
+                permissions: data.rows[0].permissions,
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return data.rows.length > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
             this.logger.error('Database error (hasPerms):');
             this.logger.error('' + err);
             return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] hasPerms in ${performance.now() - startTime}ms`, true);
         }
     }
 
+    #roundCache: Map<string, { rounds: Round[], expiration: number }> = new Map();
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criterion
@@ -472,18 +481,26 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
         const startTime = performance.now();
         try {
+            const cacheKey = c.contest + ' ' + c.round;
+            if (this.#roundCache.has(cacheKey) && this.#roundCache.get(cacheKey)!.expiration < performance.now()) this.#roundCache.delete(cacheKey);
+            if (this.#roundCache.has(cacheKey)) return this.#roundCache.get(cacheKey)!.rounds;
             const { queryConditions, bindings } = this.#buildColumnConditions([
                 { name: 'contest', value: c.contest },
                 { name: 'number', value: c.round }
             ]);
             const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
-            return data.rows.map((round) => ({
+            const rounds = data.rows.map((round) => ({
                 contest: round.contest,
                 round: round.number,
                 problems: round.problems,
                 startTime: round.starttime,
                 endTime: round.endtime
             }));
+            this.#roundCache.set(cacheKey, {
+                rounds: rounds,
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return rounds;
         } catch (err) {
             this.logger.error('Database error (readRounds):');
             this.logger.error('' + err);
@@ -719,13 +736,13 @@ export enum AccountOpResult {
 
 /**Admin permission level bit flags */
 export enum AdminPerms {
-    NO = 0,
-    VIEW_PROBLEMS = 1 << 0,
-    MANAGE_PROBLEMS = 1 << 1,
-    VIEW_ACCOUNTS = 1 << 2,
-    MANAGE_ACCOUNTS = 1 << 3,
-    VIEW_CONTESTS = 1 << 4,
-    MANAGE_CONTESTS = 1 << 5,
+    ADMIN = 1,
+    VIEW_PROBLEMS = 1 << 1,
+    MANAGE_PROBLEMS = 1 << 2,
+    VIEW_ACCOUNTS = 1 << 3,
+    MANAGE_ACCOUNTS = 1 << 4,
+    VIEW_CONTESTS = 1 << 5,
+    MANAGE_CONTESTS = 1 << 6,
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 

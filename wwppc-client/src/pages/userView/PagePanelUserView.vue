@@ -9,6 +9,7 @@ import { nextTick, onMounted, ref, watch } from 'vue';
 import { UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import { setTitlePanel } from '@/scripts/title';
 
 const route = useRoute();
 
@@ -35,6 +36,7 @@ watch(userData, () => {
     grade.value = [userData.value?.grade ?? 0];
     experience.value = [userData.value?.experience ?? 0];
     languages.value = userData.value?.languages ?? [];
+    if (userData.value) setTitlePanel(userData.value.displayName);
 });
 const putDummyData = () => {
     userData.value = {

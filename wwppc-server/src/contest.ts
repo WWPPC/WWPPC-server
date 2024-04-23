@@ -38,6 +38,7 @@ export class ContestManager {
     // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
 
     // make sure to also handle REGISTRATION (update the cached user data when a registration is made!) (call updateUserData)
+    // also make sure to tell database to add registration
 
     /**
      * @param {Database} db Database connection
@@ -198,6 +199,7 @@ export class ContestManager {
         });
 
         // add to user list and return after attaching listeners
+        if (config.debugMode) this.logger.debug(`[ContestManager] Adding ${socket.username} to contest list`);
         socket.join(socket.username);
         // NOTE: ALIASES (teams) JOIN ROOM WITH TEAM CREATOR USERNAME
         const removeSelf = () => {

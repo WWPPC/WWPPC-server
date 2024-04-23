@@ -4,7 +4,7 @@ import UserDisp from '@/components/UserDisp.vue';
 import { useRoute } from 'vue-router';
 import PagePanelUserView from './userView/PagePanelUserView.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
-import { globalModal } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 import { watch } from 'vue';
 
 const route = useRoute();
@@ -39,7 +39,7 @@ watch(() => route.params.page, async () => {
             </PanelRightList>
         </PanelHeader>
         <PanelMain>
-            <PanelBody name="default" :title="route.params.userView?.toString()" is-default>
+            <PanelBody name="default" is-default>
                 <PagePanelUserView></PagePanelUserView>
             </PanelBody>
         </PanelMain>
