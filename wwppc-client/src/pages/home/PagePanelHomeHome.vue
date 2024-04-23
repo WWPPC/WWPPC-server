@@ -82,7 +82,7 @@ import ContactFooter from '@/components/ContactFooter.vue';
                 We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
             </p>
             <div class="centered">
-                <a href="https://discord.gg/rv23HbH7rB" target="_blank" style="text-decoration: none;">
+                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
                     <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
