@@ -124,7 +124,7 @@ export const useContestManager = defineStore('contestManager', {
             const serverConnection = useServerConnection();
             return await new Promise((resolve) => {
                 const token = Math.random();
-                serverConnection.emit('getProblemDataId', { id, token });
+                serverConnection.emit('getProblemData', { id, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
                     resolve({ submission, problem });
@@ -133,15 +133,15 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemData', handle);
             });
         },
-        async updateSubmission(id: string, lang: string, file: string): Promise<void> {
+        async updateSubmission(problemId: string, lang: string, file: string): Promise<void> {
             const serverConnection = useServerConnection();
-            serverConnection.emit('updateSubmission', { id, lang, file });
+            serverConnection.emit('updateSubmission', { problemId, lang, file });
         },
-        async onSubmissionStatus(cb: ({ id }: { id: string}) => any) {
+        async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission}) => any) {
             const serverConnection = useServerConnection();
             serverConnection.on('submissionStatus', cb);
         },
-        async offSubmissionStatus(cb: ({ id }: { id: string}) => any) {
+        async offSubmissionStatus(cb: ({ status }: { status: ContestSubmission}) => any) {
             const serverConnection = useServerConnection();
             serverConnection.off('submissionStatus', cb);
         }
