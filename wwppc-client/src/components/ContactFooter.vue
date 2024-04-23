@@ -1,6 +1,6 @@
 <template>
     <p>
-        Questions? Want to become a sponsor?<br>Message us on the <a href="https://discord.gg/rv23HbH7rB" target="_blank">WWPPC Discord</a> or email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
+        Questions? Want to become a sponsor?<br>Message us on the <a href="https://discord.wwppc.tech" target="_blank">WWPPC Discord</a> or email us at <a href="mailto:wwppc00@gmail.com">wwppc00@gmail.com</a>!
     </p>
 </template>
 
