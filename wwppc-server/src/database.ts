@@ -189,8 +189,8 @@ export class Database {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)', [
-                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username
+            else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team, teamname, teambio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)', [
+                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, ''
             ]);
             this.#userCache.set(username, {
                 data: {
