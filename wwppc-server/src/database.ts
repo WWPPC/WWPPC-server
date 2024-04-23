@@ -199,7 +199,9 @@ export class Database {
                     displayName: `${userData.firstName} ${userData.lastName}`,
                     profileImage: config.defaultProfileImg,
                     bio: '',
-                    registrations: []
+                    registrations: [],
+                    pastRegistrations: [],
+                    team: ''
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -265,7 +267,9 @@ export class Database {
                     grade: data.rows[0].grade,
                     experience: data.rows[0].experience,
                     languages: data.rows[0].languages,
-                    registrations: data.rows[0].registrations
+                    registrations: data.rows[0].registrations,
+                    pastRegistrations: data.rows[0].pastregistrations,
+                    team: data.rows[0].team
                 };
                 this.#userCache.set(username, {
                     data: userData,
@@ -772,7 +776,26 @@ export interface AccountData {
     languages: string[]
     /**List of registrations */
     registrations: Registration[]
+    /**Past list of registrations for previous contests that have already ended */
+    pastRegistrations: Registration[]
+    /**The teamid which is the username of the team owner */
+    team: string
 }
+
+/**Descriptor for a team */
+export interface TeamData {
+    /**The name of the team */
+    name: string,
+    /**The unique team id which is the team owner/creator's username */
+    id: string,
+    /**Team's biography */
+    bio: string,
+    /**List of registrations */
+    registrations: Registration[]
+    /**Past list of registrations for previous contests that have already ended */
+    pastRegistrations: Registration[]
+}
+
 /**Descriptor for a registration */
 export interface Registration {
     /**The contest (does not specify when) */

@@ -16,6 +16,7 @@ export interface AccountData {
     experience: number
     languages: string[]
     registrations: Registration[]
+    team: string
 }
 
 export interface Registration {
@@ -35,10 +36,10 @@ export const gradeMaps = [
 ];
 export const experienceMaps = [
     { text: 'Beginner / AP CS A', value: '0' },
-    { text: 'Intermediate / USACO Silver / Codeforces 1500', value: '1' },
+    { text: 'Intermediate / USACO Silver / Codeforces 1400', value: '1' },
     { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-    { text: 'Advanced / USACO Platinum / Codeforces Grandmaster', value: '3' },
-    { text: 'Cracked / IOI / USACO Camp', value: '4' },
+    { text: 'Advanced / USACO Platinum / Codeforces 2100', value: '3' },
+    { text: 'Cracked / IOI / Codeforces 2400+ / USACO Camp', value: '4' },
 ];
 export const languageMaps = [
     { text: 'Python', value: 'python' },
@@ -78,7 +79,8 @@ const state = reactive<AccountData>({
     grade: 0,
     experience: 0,
     languages: [],
-    registrations: []
+    registrations: [],
+    team: ''
 });
 watch(state, () => unsaved.value = true);
 export const useAccountManager = defineStore('accountManager', {

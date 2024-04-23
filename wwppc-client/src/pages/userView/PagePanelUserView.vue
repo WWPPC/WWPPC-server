@@ -63,7 +63,8 @@ const putDummyData = () => {
             { contest: 'WWPIT-2024', completed: false },
             { contest: 'WWPIT-2024', completed: false },
             { contest: 'WWPIT-2024', completed: false }
-        ]
+        ],
+        team: 'test'
     };
 };
 onMounted(putDummyData);

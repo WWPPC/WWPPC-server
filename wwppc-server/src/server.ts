@@ -48,7 +48,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
-import Database, { AccountOpResult, reverse_enum, RSAEncrypted } from './database';
+import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted } from './database';
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
@@ -358,7 +358,7 @@ io.on('connection', async (s) => {
         }
         const existingData = await database.getAccountData(socket.username);
         if (typeof existingData == 'object') {
-            const userDat = {
+            const userDat: AccountData = {
                 username: socket.username,
                 email: existingData.username,
                 firstName,
@@ -370,7 +370,9 @@ io.on('connection', async (s) => {
                 grade: data.data.grade,
                 experience: data.data.experience,
                 languages: data.data.languages,
-                registrations: existingData.registrations
+                registrations: existingData.registrations,
+                pastRegistrations: existingData.pastRegistrations,
+                team: existingData.team
             };
             const res = await database.updateAccountData(socket.username, password, userDat);
             socket.emit('setUserDataResponse', res);
