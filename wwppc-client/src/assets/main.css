@@ -58,19 +58,6 @@ img {
     display: none;
 }
 
-.fullBlock {
-    width: 100%;
-    min-height: 100%;
-    margin-bottom: 32px;
-    scroll-snap-align: start;
-    scroll-margin-top: 16px;
-    scroll-margin-bottom: 16px;
-}
-
-.fullBlock:last-child {
-    margin-bottom: 0px;
-}
-
 /* more font stuff */
 
 h1 {

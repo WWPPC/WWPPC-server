@@ -35,6 +35,7 @@ defineProps<{
     border-color: v-bind("$props.borderColor ?? ' white'");
     background-color: black;
     text-align: left;
+    transition: 200ms ease transform;
     will-change: transform;
     overflow: hidden;
 }

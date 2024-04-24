@@ -22,8 +22,8 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 
 <template>
     <Transition>
-        <div :class="'panelBody ' + (isMobileRef ? 'noSnap' : '')" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined)">
-            <div class="panelBodySlotContainer">
+        <div class="panelBody" v-if="route.params.panel == props.name || (route.params.panel == undefined && props.isDefault && route.params.catchAll === undefined)">
+            <div :class="'panelBodySlotContainer ' + ((isMobileRef || !props.scrollSnap) ? 'noSnap' : '')">
                 <slot></slot>
             </div>
             <div class="panelBodyTransitionWipeContainer">
@@ -60,7 +60,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     font-family: 'Jura', sans-serif;
     font-size: 16px;
     background-color: black;
-    scroll-snap-type: y v-bind("$props.scrollSnap ? 'mandatory' : 'none'");
+    scroll-snap-type: y mandatory;
     scroll-timeline-name: --panelScrollTimeline;
     perspective: 100px;
     overflow-y: auto;
@@ -69,6 +69,20 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 
 .noSnap {
     scroll-snap-type: none !important;
+}
+
+.fullBlock {
+    width: 100%;
+    min-height: 100%;
+    margin-bottom: 32px;
+    scroll-snap-align: start;
+    scroll-margin-top: 16px;
+    scroll-margin-bottom: 16px;
+    will-change: contents;
+}
+
+.fullBlock:last-child {
+    margin-bottom: 0px;
 }
 
 .panelBodyTransitionWipeContainer {

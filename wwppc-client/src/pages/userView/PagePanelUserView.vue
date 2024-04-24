@@ -119,6 +119,10 @@ const largeHeader = ref(true);
                         <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.registrations" :key="i" :delay="i * 200" single>
                             <span>{{ reg.contest }}</span>
                         </AnimateInContainer>
+                        <span v-if="!userData?.registrations.length">
+                            <!-- very hacky, true if no registrations or undefined -->
+                            This user is not registered for any contests
+                        </span>
                     </CutCornerContainer>
                 </div>
             </div>

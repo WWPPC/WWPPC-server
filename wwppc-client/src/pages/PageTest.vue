@@ -7,6 +7,7 @@ import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { HeaderedTable, TitledCutCornerContainer, AngledTitledContainer, AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import TitledCollapsible from '@/components/ui-defaults/containers/TitledCollapsible.vue';
+import { isMobileRef, isWebkitRef } from '@/scripts/userAgent';
 
 const modal = ref(FullscreenModal);
 
@@ -70,7 +71,8 @@ const thing2 = ref<any>([]);
                         hi<br>
                     </TitledCutCornerContainer>
                     <span>
-                        second test
+                        isMobile: {{ isMobileRef }}
+                        isWebkit: {{ isWebkitRef }}
                     </span>
                 </AnimateInContainer>
                 <div class="fullBlock" style="
@@ -173,10 +175,9 @@ const thing2 = ref<any>([]);
                 <p><b>Bold</b></p>
                 <p><i>Italic</i></p>
                 <code>const buh: number = NaN;</code>
-                <codeblock v-text="`function add(...nums) {
+                <codeblock>function add(...nums) {
     return nums.reduce((p, c) => p + c, 0);
-}
-`"></codeblock>
+}</codeblock>
                 <p style="font-size: var(--font-16);">Size 16</p>
                 <p style="font-size: var(--font-18);">Size 18</p>
                 <p style="font-size: var(--font-20);">Size 20</p>
