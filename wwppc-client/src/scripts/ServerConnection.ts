@@ -175,7 +175,7 @@ export const useServerConnection = defineStore('serverconnection', {
         off(event: string, handler: (...args: any[]) => void) {
             return socket.off(event, handler);
         },
-        async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any | null> {
+        async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any> {
             try {
                 return (await fetch(serverHostname + (path.startsWith('/') ? path : ('/' + path)), {
                     method: method,
