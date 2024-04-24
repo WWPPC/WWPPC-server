@@ -61,17 +61,23 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
-                    <i>wink</i>
+                    <p style="font-size: var(--font-20)">
+                        <i>wink</i>
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
-                    TBD
+                    <p style="font-size: var(--font-20)">
+                        Possible venues include... <i>TBD (we can't say anything about it yet)</i>
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How many people can be on a team?" startCollapsed>
-                    TBD, but between 1-4.
+                    <p style="font-size: var(--font-20)">
+                        Expect to have teams of 3-4 people
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>

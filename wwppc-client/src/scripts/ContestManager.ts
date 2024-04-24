@@ -3,10 +3,18 @@ import { reactive } from 'vue';
 
 import { useServerConnection } from './ServerConnection';
 
+export interface Contest {
+    id: string
+    rounds: ContestRound[]
+    startTime: number
+    endtime: number
+}
 export interface ContestRound {
     contest: string
     number: number
     problems: ContestProblemMetaData[]
+    startTime: number
+    endTime: number
 }
 export interface ContestProblemMetaData {
     id: string
@@ -19,9 +27,9 @@ export interface ContestProblemMetaData {
 }
 export interface ContestProblem {
     id: string
-    contest: string
-    round: number
-    number: number
+    contest: string | undefined
+    round: number | undefined
+    number: number | undefined
     name: string
     author: string
     content: string
@@ -45,10 +53,9 @@ export enum ContestProblemCompletionState {
     ERROR = 6
 }
 export interface ContestSubmission {
-    /**Submission time (UNIX milliseconds) */
     time: number
-    /**Scores */
     scores: ContestScore[]
+    status: ContestProblemCompletionState
 }
 export interface ContestScore {
     /**Pass/fail status */
@@ -64,6 +71,15 @@ export enum ContestScoreState {
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
+}
+
+export interface ArchiveProblem {
+    id: string
+    name: string
+    author: string
+    content: string
+    cases: { input: string, output: string }[]
+    constraints: { memory: number, time: number }
 }
 
 export const completionStateAnimation = (status: ContestProblemCompletionState) => {
@@ -94,8 +110,12 @@ const state = reactive<{
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
+        async getContestData(): Promise<Contest> {
+            
+        },
         async getProblemList(): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return [];
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getProblemList', { contest: state.currContest, token });
@@ -109,6 +129,7 @@ export const useContestManager = defineStore('contestManager', {
         },
         async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
             const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return { problem: null, submission: null };
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
@@ -122,6 +143,7 @@ export const useContestManager = defineStore('contestManager', {
         },
         async getProblemDataId(id: string): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
             const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return { problem: null, submission: null };
             return await new Promise((resolve) => {
                 const token = Math.random();
                 serverConnection.emit('getProblemData', { id, token });
@@ -133,15 +155,28 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('problemData', handle);
             });
         },
+        async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
+            const serverConnection = useServerConnection();
+            const res = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
+            if (res === null) return null;
+            else return {
+                id: res.id,
+                name: res.name,
+                author: res.author,
+                content: res.content,
+                cases: res.cases,
+                constraints: res.constraints
+            };
+        },
         async updateSubmission(problemId: string, lang: string, file: string): Promise<void> {
             const serverConnection = useServerConnection();
             serverConnection.emit('updateSubmission', { problemId, lang, file });
         },
-        async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission}) => any) {
+        async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
             const serverConnection = useServerConnection();
             serverConnection.on('submissionStatus', cb);
         },
-        async offSubmissionStatus(cb: ({ status }: { status: ContestSubmission}) => any) {
+        async offSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
             const serverConnection = useServerConnection();
             serverConnection.off('submissionStatus', cb);
         }

@@ -175,6 +175,19 @@ export const useServerConnection = defineStore('serverconnection', {
         off(event: string, handler: (...args: any[]) => void) {
             return socket.off(event, handler);
         },
+        async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any | null> {
+            try {
+                return (await fetch(serverHostname + (path.startsWith('/') ? path : ('/' + path)), {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: body != undefined ? JSON.stringify(body) : undefined
+                })).json();
+            } catch (err) {
+                return null;
+            }
+        },
         removeAllListeners(event: string) {
             socket.removeAllListeners(event);
         },

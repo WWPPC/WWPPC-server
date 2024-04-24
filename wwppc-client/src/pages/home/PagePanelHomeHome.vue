@@ -45,7 +45,7 @@ import ContactFooter from '@/components/ContactFooter.vue';
                             <div class="homeVertical">
                                 <div style="flex-grow: 1;">
                                     <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                    <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                    <GlitchText text="06/08/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                                     <UIDivider color="#AAA"></UIDivider>
                                     <p>
                                         WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.

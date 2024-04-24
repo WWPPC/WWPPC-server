@@ -11,6 +11,7 @@ const props = defineProps<{
     color?: string
     glow?: boolean
     shadow?: boolean
+    flashing?: boolean
 }>();
 
 const dispText = ref(props.text.replace(/./g, ' '));
@@ -27,7 +28,7 @@ watch(() => props.text, runGlitch);
 </script>
 
 <template>
-    <GlowText :text=dispText :font-size=props.fontSize :color=props.color :glow=props.glow :shadow=props.shadow></GlowText>
+    <GlowText :text=dispText :font-size=props.fontSize :color=props.color :glow=props.glow :shadow=props.shadow :flashing=props.flashing></GlowText>
 </template>
 
 <style></style>

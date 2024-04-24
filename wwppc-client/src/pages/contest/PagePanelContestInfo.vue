@@ -18,8 +18,8 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <div>
                 <AnimateInContainer type="slideUp" height="100%" :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
-                        <div class="centered flashyText">
-                            <GlitchText text="06/08/2024" font-size="var(--font-huge)" color="inherit" glow random :steps=5 start-glitched></GlitchText>
+                        <div class="centered">
+                            <GlitchText text="06/08/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                         </div>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
@@ -64,31 +64,41 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
-                    TBD
+                    <p style="font-size: var(--font-20)">
+                        WWPIT 2024 is on <b>June 8</b>!
+                        <br><br>
+                        Mark your calendars!
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
-                    WWPIT will be held on this website!
-                    <br><br>
-                    You can register <a href="/account/registrations/new" target="_blank"> here</a> at any time before the contest starts.
+                    <p style="font-size: var(--font-20)">
+                        WWPIT will be held on this website!
+                        <br><br>
+                        You can register <a href="/account/registrations" target="_blank">here</a> at any time before the contest starts.
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What's the contest format?" startCollapsed>
-                    <ul>
-                        <li>There will be n separate timed rounds of roughly 45 minutes each</li>
-                        <li>Teams will be ranked by their total score, with partial credit for problems</li>
-                        <li>Submissions are only graded after the round ends</li>
-                        <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
-                    </ul>
+                    <p style="font-size: var(--font-20)">
+                        <ul>
+                            <li>There will be 6 separate timed rounds of 15-30 minutes each</li>
+                            <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
+                            <li>Submissions are only graded <i>after</i> the round ends</li>
+                            <li>Any resource is allowed as long as it was made before the beginning of the contest <i>(Open textbook!)</i></li>
+                        </ul>
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How can I prepare?" startCollapsed>
-                    For those experienced in programming, helpful resources include <a href="https://usaco.guide" target="_blank">USACO Guide</a> and <a href="https://codeforces.com" target="_blank">Codeforces</a>.
-                    <br><br>
-                    To learn C++, see <a href="https://cplusplus.com/doc/tutorial/" target="_blank">CPlusPlus.com</a>. To learn Python, a more beginner-friendly language, the <a href="https://runestone.academy/ns/books/published/thinkcspy/index.html" target="_blank">thinkcspy textbook</a> is useful.
+                    <p style="font-size: var(--font-20)">
+                        For those experienced in programming, helpful resources include <a href="https://usaco.guide" target="_blank">USACO Guide</a> and <a href="https://codeforces.com" target="_blank">Codeforces</a>.
+                        <br><br>
+                        To learn C++, see <a href="https://cplusplus.com/doc/tutorial/" target="_blank">CPlusPlus.com</a>. To learn Python, a more beginner-friendly language, the <a href="https://runestone.academy/ns/books/published/thinkcspy/index.html" target="_blank">thinkcspy textbook</a> is useful.
+                    </p>
                 </TitledCollapsible>
             </AnimateInContainer>
         </div>
@@ -134,40 +144,6 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         grid-template-rows: repeat(4, min-content);
         grid-auto-flow: column;
         min-height: min-content;
-    }
-}
-
-.flashyText {
-    animation: 500ms linear flashy-text alternate infinite;
-}
-
-.flashyText>div {
-    animation: 500ms linear flashy-text-2 alternate infinite;
-}
-
-@keyframes flashy-text {
-
-    0%,
-    49% {
-        color: #F22;
-    }
-
-    50%,
-    100% {
-        color: #D00;
-    }
-}
-
-@keyframes flashy-text-2 {
-
-    0%,
-    49% {
-        text-shadow: 0px 0px 8px #F22;
-    }
-
-    50%,
-    100% {
-        text-shadow: 0px 0px 8px #D005;
     }
 }
 

@@ -94,11 +94,12 @@ export class ContestManager {
             }
             const rounds = await this.db.readRounds({ contest: request.contest });
             const packet: Array<Object> = [];
-            for (let i of rounds) {
-                if (i.startTime > Date.now()) {
+            for (const round of rounds) {
+                if (round.startTime > Date.now()) {
                     continue;
                 }
-                const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: i.round } });
+                // hard coded right now, make sure to check submission status
+                const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: round.round } });
                 let problems: Array<Object> = [];
                 for (let p in roundProblems) {
                     problems.push({
@@ -108,13 +109,15 @@ export class ContestManager {
                         number: p,
                         name: roundProblems[p].name,
                         author: roundProblems[p].author,
+                        status: 0
                     });
                 }
                 packet.push({
                     contest: request.contest,
-                    number: i.round,
-                    time: 0,
-                    problems: problems
+                    number: round.round,
+                    problems: problems,
+                    startTime: round.startTime,
+                    endTime: round.endTime,
                 });
             }
             socket.emit('problemList', { data: packet, token: request.token });

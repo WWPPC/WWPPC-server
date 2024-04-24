@@ -36,7 +36,7 @@ let getCached = async (request, preloadResponse) => {
         }
     } catch (err) {
         console.error(err);
-        return new Response('cache error', {
+        return new Response('cache error (try reloading?)', {
             status: 502,
             headers: { "Content-Type": "text/plain" }
         });

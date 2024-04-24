@@ -781,7 +781,6 @@ export interface AccountData {
     /**The teamid which is the username of the team owner */
     team: string
 }
-
 /**Descriptor for a team */
 export interface TeamData {
     /**The name of the team */
@@ -795,7 +794,6 @@ export interface TeamData {
     /**Past list of registrations for previous contests that have already ended */
     pastRegistrations: Registration[]
 }
-
 /**Descriptor for a registration */
 export interface Registration {
     /**The contest (does not specify when) */

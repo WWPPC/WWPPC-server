@@ -78,7 +78,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     scroll-snap-align: start;
     scroll-margin-top: 16px;
     scroll-margin-bottom: 16px;
-    will-change: contents;
+    will-change: transform;
 }
 
 .fullBlock:last-child {

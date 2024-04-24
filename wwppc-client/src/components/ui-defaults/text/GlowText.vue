@@ -5,11 +5,12 @@ const props = defineProps<{
     color?: string
     glow?: boolean
     shadow?: boolean
+    flashing?: boolean
 }>();
 </script>
 
 <template>
-    <div class="glowText">
+    <div :class="'glowText ' + (props.flashing ? 'glowTextFlashing' : '')">
         {{ props.text }}
     </div>
 </template>
@@ -23,5 +24,22 @@ const props = defineProps<{
     color: v-bind("$props.color ?? 'white'");
     text-shadow: -0.05em 0.05em 0px color-mix(in srgb, currentColor v-bind("$props.shadow ? '40%' : '0%'"), transparent v-bind("$props.shadow ? '60%' : '100%'")),
         0px 0px max(2px, 0.03em) v-bind("$props.glow ? 'currentColor' : 'transparent'");
+}
+
+.glowTextFlashing {
+    animation: 500ms linear glow-text-flashing alternate infinite;
+}
+
+@keyframes glow-text-flashing {
+
+    0%,
+    49% {
+        filter: brightness(0.8);
+    }
+
+    50%,
+    100% {
+        filter: brightness(1);
+    }
 }
 </style>
