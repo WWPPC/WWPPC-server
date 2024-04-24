@@ -19,7 +19,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 <AnimateInContainer type="slideUp" height="100%" :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
                         <div class="centered">
-                            <GlitchText text="06/08/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
+                            <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                         </div>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
