@@ -110,8 +110,11 @@ const state = reactive<{
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
-        async getContestData(): Promise<Contest> {
-            
+        async getContestData(): Promise<Contest | null> {
+            const serverConnection = useServerConnection();
+            const res = await serverConnection.apiFetch('GET', '/contestData/' + state.currContest);
+            console.log(res)
+            return res as Contest;
         },
         async getProblemList(): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
@@ -158,15 +161,7 @@ export const useContestManager = defineStore('contestManager', {
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
             const serverConnection = useServerConnection();
             const res = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
-            if (res === null) return null;
-            else return {
-                id: res.id,
-                name: res.name,
-                author: res.author,
-                content: res.content,
-                cases: res.cases,
-                constraints: res.constraints
-            };
+            return res as ArchiveProblem;
         },
         async updateSubmission(problemId: string, lang: string, file: string): Promise<void> {
             const serverConnection = useServerConnection();
@@ -184,10 +179,7 @@ export const useContestManager = defineStore('contestManager', {
 });
 
 window.addEventListener('load', () => {
-    const serverConnection = useServerConnection();
-    serverConnection.handshakePromise.then(() => {
-        serverConnection.on('roundData', (rounds: ContestRound[]) => {
-            console.log(rounds)
-        });
-    });
+    const a = useContestManager();
+    console.log(a.getContestData())
+    console.log(a.getArchiveProblemData('oof'))
 });

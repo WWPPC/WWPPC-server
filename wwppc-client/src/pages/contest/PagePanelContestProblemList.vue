@@ -65,7 +65,9 @@ const loadProblems = async () => {
                         author: 'SP^2',
                         status: ContestProblemCompletionState.GRADED_PARTIAL
                     }
-                ]
+                ],
+                startTime: 0,
+                endTime: 1
             }, {
                 contest: 'WWPIT Test',
                 number: 1,
@@ -97,7 +99,9 @@ const loadProblems = async () => {
                         author: 'SP^2',
                         status: ContestProblemCompletionState.ERROR
                     }
-                ]
+                ],
+                startTime: 0,
+                endTime: 1e100
             }
         ];
         showLoading.value = false;
