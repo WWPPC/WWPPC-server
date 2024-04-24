@@ -18,8 +18,8 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <div>
                 <AnimateInContainer type="slideUp" height="100%" :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
-                        <div class="centered">
-                            <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                        <div class="centered flashyText">
+                            <GlitchText text="06/08/2024" font-size="var(--font-huge)" color="inherit" glow random :steps=5 start-glitched></GlitchText>
                         </div>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
@@ -29,8 +29,9 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                     <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
+                                <br>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" disabled></UILinkButton>
                                 </div>
                                 <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                             </span>
@@ -42,9 +43,9 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 <AnimateInContainer type="slideUp" height="100%" :delay=100>
                     <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
                         <p>
-                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to 2 compete in six rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
+                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to <b>two</b> compete in <b>six</b> rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
                             <br><br>
-                            The contest will be held online between two divisions: Beginner and Advanced.
+                            The contest will be held online (here!) between two divisions: Novice and Advanced.
                         </p>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
@@ -133,6 +134,40 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         grid-template-rows: repeat(4, min-content);
         grid-auto-flow: column;
         min-height: min-content;
+    }
+}
+
+.flashyText {
+    animation: 500ms linear flashy-text alternate infinite;
+}
+
+.flashyText>div {
+    animation: 500ms linear flashy-text-2 alternate infinite;
+}
+
+@keyframes flashy-text {
+
+    0%,
+    49% {
+        color: #F22;
+    }
+
+    50%,
+    100% {
+        color: #D00;
+    }
+}
+
+@keyframes flashy-text-2 {
+
+    0%,
+    49% {
+        text-shadow: 0px 0px 8px #F22;
+    }
+
+    50%,
+    100% {
+        text-shadow: 0px 0px 8px #D005;
     }
 }
 

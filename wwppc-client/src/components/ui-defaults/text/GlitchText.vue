@@ -16,7 +16,7 @@ const props = defineProps<{
 const dispText = ref(props.text.replace(/./g, ' '));
 const runGlitch = () => {
     if (props.random) {
-        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, props.steps), props.delay);
+        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, props.steps, true), props.delay);
     } else {
         glitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, 1, props.text.length + (props.delay ?? 0), props.steps, true);
     }
@@ -30,4 +30,4 @@ watch(() => props.text, runGlitch);
     <GlowText :text=dispText :font-size=props.fontSize :color=props.color :glow=props.glow :shadow=props.shadow></GlowText>
 </template>
 
-<style></style>../TextTransitions
+<style></style>

@@ -38,8 +38,9 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                     <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
+                                <br>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" width="max(40%, min-content)" disabled></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" disabled></UILinkButton>
                                 </div>
                                 <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                             </span>
