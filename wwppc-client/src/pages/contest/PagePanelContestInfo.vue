@@ -65,9 +65,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 is on <b>June 8</b>!
-                        <br><br>
-                        Mark your calendars!
+                        WWPIT 2024 is on <b>June 2</b>!
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
