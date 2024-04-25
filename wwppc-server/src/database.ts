@@ -578,7 +578,8 @@ export class Database {
                     author: problem.author,
                     content: problem.content,
                     cases: problem.cases,
-                    constraints: problem.constraints
+                    constraints: problem.constraints,
+                    hidden: problem.hidden
                 };
                 this.#problemCache.set(problem.id, {
                     problem: p,
@@ -607,7 +608,7 @@ export class Database {
             if ((exists.rowCount ?? 0) > 0) {
                 await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6 WHERE id=$1', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
             } else {
-                await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints) VALUES ($1, $2, $3, $4, $5, $6)', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
+                await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden) VALUES ($1, $2, $3, $4, $5, $6, $7)', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden]);
             }
             this.#problemCache.set(problem.id, {
                 problem: problem,
@@ -738,15 +739,22 @@ export enum AccountOpResult {
     ERROR = 4
 }
 
-/**Admin permission level bit flags */
+/**Admin permission level bit flags (not implemented yet) */
 export enum AdminPerms {
     ADMIN = 1,
+    /**view all problems, including hidden */
     VIEW_PROBLEMS = 1 << 1,
+    /**create, modify, and delete problems */
     MANAGE_PROBLEMS = 1 << 2,
+    /**idk */
     VIEW_ACCOUNTS = 1 << 3,
+    /**create, modify, and delete accounts */
     MANAGE_ACCOUNTS = 1 << 4,
+    /**view all contests, including hidden */
     VIEW_CONTESTS = 1 << 5,
+    /**create, modify, and delete contests */
     MANAGE_CONTESTS = 1 << 6,
+    /**manage admin permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 
@@ -831,6 +839,8 @@ export interface Problem {
     cases: TestCase[]
     /**Runtime constraints */
     constraints: { time: number, memory: number }
+    /**Whether the problem is hidden */
+    hidden: boolean
 }
 /**Descriptor for the constraints of a single problem */
 export interface ProblemConstraints {

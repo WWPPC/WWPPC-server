@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, Database, Problem, Registration, Score, UUID, isUUID } from './database';
+import { AccountOpResult, AdminPerms, Database, Problem, Registration, Score, UUID, isUUID } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
@@ -98,7 +98,7 @@ export class ContestManager {
                 if (round.startTime > Date.now()) {
                     continue;
                 }
-                // hard coded right now, make sure to check submission status
+                // make sure to check submission status for the problems
                 const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: round.round } });
                 let problems: Array<Object> = [];
                 for (let p in roundProblems) {
@@ -143,6 +143,11 @@ export class ContestManager {
             } else {
                 //getProblemData
                 problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            }
+            //note that a hidden problem will override a visible contest
+            if (!(await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS))) {
+                //remove all hidden problems
+                problems = problems.filter((p) => !p.hidden);
             }
             if (problems.length !== 1) {
                 socket.emit('problemData', {
