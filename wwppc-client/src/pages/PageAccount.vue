@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView, PanelNavLargeLogo, PanelRightList } from '@/components/panels/PanelManager';
 import PagePanelAccountProfile from './account/PagePanelAccountProfile.vue';
+import PagePanelAccountRegister from './account/PagePanelAccountRegister.vue';
+import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
 import LoadingCover from '@/components/LoadingCover.vue';
-import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
 
 const route = useRoute();
 
@@ -37,6 +38,7 @@ serverConnection.loginSensitivePagesInclude.add('/account');
             </PanelBody>
             <PanelBody name="registrations" title="Registrations">
                 <PagePanelAccountWrapper>
+                    <PagePanelAccountRegister></PagePanelAccountRegister>
                 </PagePanelAccountWrapper>
             </PanelBody>
             <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
