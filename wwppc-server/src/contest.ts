@@ -94,18 +94,23 @@ export class ContestManager {
             }
             const rounds = await this.db.readRounds({ contest: request.contest });
             const packet: Array<Object> = [];
+            //I think it's the VIEW_PROBLEMS perm?
+            const canViewAllRounds = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
             for (const round of rounds) {
-                if (round.startTime > Date.now()) {
+                if (round.startTime > Date.now() && !canViewAllRounds) {
                     continue;
                 }
                 // make sure to check submission status for the problems
                 const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: round.round } });
                 let problems: Array<Object> = [];
                 for (let p in roundProblems) {
+                    if (roundProblems[p].hidden && !canViewAllRounds) {
+                        continue;
+                    }
                     problems.push({
                         id: roundProblems[p].id,
                         contest: request.contest,
-                        round: 100,
+                        round: round.round,
                         number: p,
                         name: roundProblems[p].name,
                         author: roundProblems[p].author,
@@ -176,29 +181,41 @@ export class ContestManager {
                     author: problem.author,
                     content: problem.content,
                     constraints: problem.constraints,
+                    hidden: problem.hidden
                 },
                 submission: submission,
                 token: request.token
             });
         });
-        socket.on('updateSubmission', async (request: { file: string, problemId: string, lang: string }) => {
+        socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
             //also need to check valid language, valid problem id
-            if (request == null || typeof request.problemId !== 'string' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
+            if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
                 socket.kick('invalid updateSubmission payload');
-                return;
-            }
-            const problems = await this.db.readProblems({ id: request.problemId });
-            if (problems.length !== 1) {
-                socket.kick('invalid updateSubmission problem ID');
                 return;
             }
             if (request.file.length > 10240) {
                 socket.kick('updateSubmission file too large');
                 return;
             }
+            const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            if (problems.length !== 1) {
+                socket.kick('invalid updateSubmission contest, round, or problem ID');
+                return;
+            }
+            const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
+            if (problems[0].hidden && !canViewAllProblems) {
+                socket.kick('invalid updateSubmission contest, round, or problem ID');
+                return;
+            }
+            const rounds = await this.db.readRounds({contest: request.contest, round: request.round});
+            //note that we are guaranteed to have a valid round, since we just checked valid problem
+            if (rounds[0].startTime > Date.now() || rounds[0].endTime < Date.now()) {
+                socket.kick('updateSubmission outside of contest window');
+                return;
+            }
             this.#grader.queueSubmission({
                 username: socket.username,
-                problemId: request.problemId,
+                problemId: problems[0].id,
                 time: Date.now(),
                 file: request.file,
                 lang: request.lang,
