@@ -47,7 +47,8 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 </codeblock>
     `,
     constraints: { memory: 1, time: -1 },
-    status: ContestProblemCompletionState.ERROR
+    status: ContestProblemCompletionState.ERROR,
+    hidden: false
 });
 const submission = ref<ContestSubmission>();
 const loadErrorModal = (title: string, content: string) => {
@@ -56,7 +57,7 @@ const loadErrorModal = (title: string, content: string) => {
     });
 };
 onMounted(async () => {
-    if (route.params.problemId !== undefined) {
+    /*if (route.params.problemId !== undefined) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
             return;
@@ -78,7 +79,7 @@ onMounted(async () => {
         if (s !== null) submission.value = s;
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
-    }
+    }*/
     contestManager.onSubmissionStatus(({status}) => {
         submission.value = status;
     });
@@ -87,8 +88,8 @@ onMounted(async () => {
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
-const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
-//change problemSubtitle1 to have UUID of problem isntead of round-number?
+const problemName = autoGlitchTextTransition(() => problem.value.name + (problem.value.hidden ? ' (HIDDEN)' : ''), 40, 1, 20);
+//change problemSubtitle1 to have UUID of problem instead of round-number?
 const problemSubtitle1 = autoGlitchTextTransition(() => `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
@@ -175,8 +176,13 @@ const submitUpload = async () => {
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
-                Previous submission:
-                <div>{{ submission ?? 'no submission yet!' }}</div>
+
+
+                <div class = "contestProblemListProblem">
+                    Previous Submissions:
+                    {{ submission ?? 'no submission yet!' }}
+                </div>
+
                 <!--format this oof (maybe a component?)-->
             </DoubleCutCornerContainer>
         </div>

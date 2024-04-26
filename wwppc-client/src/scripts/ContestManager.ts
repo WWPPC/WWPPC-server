@@ -35,6 +35,7 @@ export interface ContestProblem {
     content: string
     constraints: { memory: number, time: number }
     status: ContestProblemCompletionState
+    hidden: boolean
 }
 export enum ContestProblemCompletionState {
     /**Not attempted */

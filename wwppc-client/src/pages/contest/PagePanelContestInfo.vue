@@ -19,7 +19,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                 <AnimateInContainer type="slideUp" height="100%" :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
                         <div class="centered">
-                            <GlitchText text="06/08/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
+                            <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                         </div>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
@@ -65,9 +65,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 is on <b>June 8</b>!
-                        <br><br>
-                        Mark your calendars!
+                        WWPIT 2024 is on <b>June 2</b>!
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
