@@ -277,6 +277,7 @@ const onDisconnected = (message: string) => {
     attemptConnect();
 };
 socket.on('connect', () => {
+    state.connectError = false;
     console.info(`ServerConnection: Connected to ${serverHostname}`);
 });
 socket.on('connect_error', () => onConnectError('error'));
