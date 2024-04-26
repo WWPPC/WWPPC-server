@@ -226,23 +226,24 @@ export const useServerConnection = defineStore('serverconnection', {
                 if (!checkIncluded()) return;
                 const m = modal.showModal({
                     title: 'Connect Error',
-                    content: 'Could not connect to the server. Attempting to reconnect.<br>Click CANCEL to reload.',
+                    content: 'Could not connect to the server. Attempting to reconnect.<br>Click YES to reload.',
                     mode: ModalMode.INPUT,
                     color: 'red'
                 });
                 socket.once('connect', () => m.cancel());
-                m.result.then((v) => v === false && window.location.reload());
+                m.result.then((v) => v === true && window.location.reload());
+                m.result.then((v) => console.log(v))
             };
             const showDisconnected = () => {
                 if (!checkIncluded()) return;
                 const m = modal.showModal({
                     title: 'Disconnected',
-                    content: 'You were disconnected from the server. Attempting to reconnect.<br>Click CANCEL to reload.',
+                    content: 'You were disconnected from the server. Attempting to reconnect.<br>Click YES to reload.',
                     mode: ModalMode.INPUT,
                     color: 'red'
                 });
                 socket.once('connect', () => m.cancel());
-                m.result.then((v) => v === false && window.location.reload());
+                m.result.then((v) => v === true && window.location.reload());
             };
             const checkLogin = () => {
                 if (Array.from(state.loginSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.loginSensitivePagesExclude.values()).some((p) => route.path.startsWith(p)) && !this.loggedIn) {

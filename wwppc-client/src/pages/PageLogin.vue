@@ -18,6 +18,8 @@ const modal = globalModal();
 const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
 
+serverConnection.connectionSensitivePagesInclude.add('/login');
+
 // redirect if already logged in, also more connection modals
 // and recaptcha stuff
 watch(() => route.params.page, async () => {
@@ -106,9 +108,7 @@ const attemptRecovery = async () => {
 
 //definitely not rickroll
 watch(usernameInput, () => {
-    if (usernameInput.value.replace(/ /g, '').toLowerCase().indexOf('rickastley')!==-1) {
-        location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-    }
+    if (usernameInput.value.toLowerCase() == 'rick astley') location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 });
 </script>
 
