@@ -103,6 +103,13 @@ const attemptRecovery = async () => {
         content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
     });
 };
+
+//definitely not rickroll
+watch(usernameInput, () => {
+    if (usernameInput.value.replace(/ /g, '').toLowerCase().indexOf('rickastley')!==-1) {
+        location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    }
+});
 </script>
 
 <script lang="ts">

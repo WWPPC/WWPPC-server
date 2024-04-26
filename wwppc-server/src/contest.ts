@@ -59,6 +59,7 @@ export class ContestManager {
         //make sure this isn't accidentally left running when the object is deleted
         //interval to check for new submissions from grader
         const interval = setInterval(() => {
+            //new submissions
             const newSubmissions = this.#grader.getNewGradedSubmissions();
             for (const s of newSubmissions) {
                 this.io.to(s.username).emit('submissionStatus', {
