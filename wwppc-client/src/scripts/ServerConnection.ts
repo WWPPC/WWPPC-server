@@ -241,7 +241,7 @@ export const useServerConnection = defineStore('serverconnection', {
                 m.result.then((v) => v === false && window.location.reload());
             };
             const checkLogin = () => {
-                if (Array.from(state.loginSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.loginSensitivePagesExclude.values()).some((p) => route.path.startsWith(p))) {
+                if (Array.from(state.loginSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.loginSensitivePagesExclude.values()).some((p) => route.path.startsWith(p)) && !this.loggedIn) {
                     router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
                 }
             }
@@ -252,7 +252,6 @@ export const useServerConnection = defineStore('serverconnection', {
                 if (state.handshakeComplete && socket.disconnected) showDisconnected();
                 checkLogin();
             });
-            checkLogin();
         }
     }
 });
