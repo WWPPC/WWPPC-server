@@ -786,7 +786,7 @@ export interface TeamData {
     /**The name of the team */
     name: string,
     /**The unique team id which is the team owner/creator's username */
-    id: string,
+    readonly id: string,
     /**Team's biography */
     bio: string,
     /**List of registrations */

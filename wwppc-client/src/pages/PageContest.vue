@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
-import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
 import PagePanelContestContest from './contest/PagePanelContestContest.vue';
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
@@ -14,37 +13,19 @@ import { ref, watch } from 'vue';
 import LoadingCover from '@/components/LoadingCover.vue';
 import { useContestManager } from '@/scripts/ContestManager';
 
-const router = useRouter();
 const route = useRoute();
 const ignoreServer = ref(route.query.ignore_server !== undefined);
 watch(() => route.query.ignore_server, () => {
     ignoreServer.value = route.query.ignore_server !== undefined;
 });
 
-const modal = globalModal();
 const serverConnection = useServerConnection();
 const contestManager = useContestManager();
 
-serverConnection.onconnecterror(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
-});
-serverConnection.ondisconnect(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
-});
-serverConnection.handshakePromise.then(() => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
-    if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
-});
-watch(() => route.params, () => {
-    if (route.params.page != 'contest' || route.params.panel == 'home' || route.params.panel === undefined || ignoreServer.value) return;
-    serverConnection.handshakePromise.then(() => {
-        if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath } });
-    });
-    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
-    if (serverConnection.handshakeComplete && !serverConnection.connected && route.query.ignore_server == undefined) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.reload());
-});
+serverConnection.connectionSensitivePagesInclude.add('/contest');
+serverConnection.loginSensitivePagesInclude.add('/contest');
+serverConnection.connectionSensitivePagesExclude.add('/contest/home');
+serverConnection.loginSensitivePagesExclude.add('/contest/home');
 </script>
 
 <template>

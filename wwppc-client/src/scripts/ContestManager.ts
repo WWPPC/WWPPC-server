@@ -177,9 +177,3 @@ export const useContestManager = defineStore('contestManager', {
         }
     }
 });
-
-window.addEventListener('load', () => {
-    const a = useContestManager();
-    console.log(a.getContestData())
-    console.log(a.getArchiveProblemData('oof'))
-});

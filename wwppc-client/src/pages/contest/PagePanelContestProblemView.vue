@@ -51,7 +51,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 });
 const submission = ref<ContestSubmission>();
 const loadErrorModal = (title: string, content: string) => {
-    modal.showModal({ title: title, content: content + '<br>Click <code>OK</code> to return to problem list.', color: 'red' }).then(() => {
+    modal.showModal({ title: title, content: content + '<br>Click OK to return to problem list.', color: 'red' }).result.then(() => {
         router.push(`/contest/problemList`);
     });
 };

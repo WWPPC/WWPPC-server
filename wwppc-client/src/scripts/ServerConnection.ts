@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
 
 import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
@@ -13,24 +16,17 @@ const socket = io(serverHostname, {
     autoConnect: false,
     reconnection: false
 });
-const connectErrorHandlers: (() => void)[] = [];
 let connectionAttempts = 0;
 const attemptConnect = () => {
     connectionAttempts++;
     fetch(serverHostname + '/wakeup').then(() => {
         socket.connect();
     }, () => {
-        if (connectionAttempts <= 5) attemptConnect();
-        else {
-            console.error(`ServerConnection: Wakeup call failed for ${serverHostname}`);
-            connectErrorHandlers.forEach(cb => cb());
-            state.connectError = true;
-        }
+        console.info(`HTTP wakeup failed, retrying in ${10 * connectionAttempts} seconds...`);
+        setTimeout(attemptConnect, 10000 * connectionAttempts);
     });
 };
 attemptConnect();
-socket.on('connect_error', () => state.connectError = true);
-socket.on('connect_fail', () => state.connectError = true);
 
 let handshakeResolve: (v: any) => void = () => { };
 let loginResolve: (v: any) => void = () => { };
@@ -40,8 +36,12 @@ const state = reactive<{
     connectError: boolean
     loggedIn: boolean
     loginPromise: Promise<undefined>
-    manualLogin: boolean
+    manualLogin: boolean,
     encryptedPassword: ArrayBuffer | string | null
+    connectionSensitivePagesInclude: Set<string>
+    connectionSensitivePagesExclude: Set<string>
+    loginSensitivePagesInclude: Set<string>
+    loginSensitivePagesExclude: Set<string>
 }>({
     handshakeComplete: false,
     handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
@@ -49,7 +49,11 @@ const state = reactive<{
     loggedIn: false,
     loginPromise: new Promise((resolve) => loginResolve = resolve),
     manualLogin: true,
-    encryptedPassword: null
+    encryptedPassword: null,
+    connectionSensitivePagesInclude: new Set(),
+    connectionSensitivePagesExclude: new Set(),
+    loginSensitivePagesInclude: new Set(),
+    loginSensitivePagesExclude: new Set()
 });
 const RSA: {
     publicKey: CryptoKey | null,
@@ -85,7 +89,8 @@ export interface CredentialsSignupData {
 }
 
 // RSA keys + autologin
-socket.once('getCredentials', async (session) => {
+socket.on('getCredentials', async (session) => {
+    if (state.handshakeComplete) return;
     if (window.crypto.subtle === undefined) {
         console.warn('<h1>Insecure context!</h1><br>The page has been opened in an insecure context and cannot perform encryption processes. Credentials and submissions will be sent in PLAINTEXT!');
     } else {
@@ -154,6 +159,7 @@ export const sendCredentials = async (username: string, password: string | numbe
     });
 };
 
+let initialized = false;
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
@@ -197,19 +203,80 @@ export const useServerConnection = defineStore('serverconnection', {
         onconnecterror(handler: () => void) {
             socket.on('connect_error', handler);
             socket.on('connect_fail', handler);
-            connectErrorHandlers.push(handler);
         },
         ondisconnect(handler: () => void) {
             socket.on('disconnect', handler);
             socket.on('timeout', handler);
             socket.on('error', handler);
+        },
+        init() {
+            if (initialized) return;
+            initialized = true;
+            const modal = globalModal();
+            const route = useRoute();
+            const router = useRouter();
+            const checkIncluded = () => {
+                return Array.from(state.connectionSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.connectionSensitivePagesExclude.values()).some((p) => route.path.startsWith(p));
+            };
+            const showConnectError = () => {
+                if (!checkIncluded()) return;
+                const m = modal.showModal({
+                    title: 'Connect Error',
+                    content: 'Could not connect to the server. Attempting to reconnect.<br>Click CANCEL to reload.',
+                    mode: ModalMode.INPUT,
+                    color: 'red'
+                });
+                socket.once('connect', () => m.cancel());
+                m.result.then((v) => v === false && window.location.reload());
+            };
+            const showDisconnected = () => {
+                if (!checkIncluded()) return;
+                const m = modal.showModal({
+                    title: 'Disconnected',
+                    content: 'You were disconnected from the server. Attempting to reconnect.<br>Click CANCEL to reload.',
+                    mode: ModalMode.INPUT,
+                    color: 'red'
+                });
+                socket.once('connect', () => m.cancel());
+                m.result.then((v) => v === false && window.location.reload());
+            };
+            const checkLogin = () => {
+                if (Array.from(state.loginSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.loginSensitivePagesExclude.values()).some((p) => route.path.startsWith(p))) {
+                    router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+                }
+            }
+            this.onconnecterror(showConnectError);
+            this.ondisconnect(showDisconnected);
+            watch(() => route.params, () => {
+                if (state.connectError) showConnectError();
+                if (state.handshakeComplete && socket.disconnected) showDisconnected();
+                checkLogin();
+            });
+            checkLogin();
         }
     }
 });
 
-socket.on('connect', () => console.info(`ServerConnection: Connected to ${serverHostname}`));
-socket.on('connect_error', () => console.error(`ServerConnection: Connection error for ${serverHostname}`));
-socket.on('connect_fail', () => console.error(`ServerConnection: Connection failed for ${serverHostname}`));
-socket.on('disconnect', (reason) => { console.error(`ServerConnection: Disconnected: ${reason}`); socket.disconnect(); });
-socket.on('timeout', () => { console.error(`ServerConnection: Timed out`); socket.disconnect(); });
-socket.on('error', (err) => { console.error(`ServerConnection: Error: ${err}`); socket.disconnect(); });
+const onConnectError = (message: string) => {
+    console.error(`ServerConnection: Connection ${message} for ${serverHostname}`);
+    state.connectError = true;
+};
+const onDisconnected = (message: string) => {
+    console.error(`ServerConnection: ${message}`);
+    console.info('ServerConnection: Reconnecting...');
+    state.handshakeComplete = false;
+    state.handshakePromise = new Promise((resolve) => handshakeResolve = resolve);
+    state.loginPromise = new Promise((resolve) => loginResolve = resolve);
+    state.loggedIn = false;
+    state.manualLogin = false;
+    connectionAttempts = 0;
+    attemptConnect();
+};
+socket.on('connect', () => {
+    console.info(`ServerConnection: Connected to ${serverHostname}`);
+});
+socket.on('connect_error', () => onConnectError('error'));
+socket.on('connect_fail', () => onConnectError('failed'));
+socket.on('disconnect', (reason) => onDisconnected('Disconnected: ' + reason));
+socket.on('timeout', () => onDisconnected('Timed out'));
+socket.on('error', (err) => onDisconnected('Error: ' + err));

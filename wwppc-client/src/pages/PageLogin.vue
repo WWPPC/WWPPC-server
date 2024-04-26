@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
-import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
+import { UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
 import { useServerConnection, AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
@@ -17,14 +17,6 @@ const route = useRoute();
 const modal = globalModal();
 const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
-serverConnection.onconnecterror(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
-serverConnection.ondisconnect(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
 
 // redirect if already logged in, also more connection modals
 // and recaptcha stuff
@@ -33,8 +25,6 @@ watch(() => route.params.page, async () => {
         serverConnection.handshakePromise.then(() => {
             if (serverConnection.loggedIn) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home?clearQuery', query: { clearQuery: 1 } });
         });
-        if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-        if (serverConnection.handshakeComplete && !serverConnection.connected) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
     } else {
         page.value = 0;
     }

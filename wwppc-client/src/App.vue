@@ -15,6 +15,7 @@ import { useRoute } from 'vue-router';
 import recaptcha from './scripts/recaptcha';
 import PageRecovery from './pages/PageRecovery.vue';
 import PageTools from './pages/PageTools.vue';
+import { useServerConnection } from './scripts/ServerConnection';
 
 const modalComponent = ref<InstanceType<typeof FullscreenModal>>();
 
@@ -22,6 +23,9 @@ const modal = globalModal();
 watch(() => modalComponent.value, () => {
     if (modalComponent.value != undefined) modal.setModal(modalComponent.value);
 });
+
+const serverConnection = useServerConnection();
+serverConnection.init();
 
 window.addEventListener('error', (err) => {
     modal.showModal({ title: 'An Error Occured', content: `<span style="color: red;">${err.message}<br>${err.filename} ${err.lineno}:${err.colno}</span>`, color: 'red' });
