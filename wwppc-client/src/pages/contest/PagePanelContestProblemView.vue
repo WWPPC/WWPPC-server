@@ -57,7 +57,8 @@ const loadErrorModal = (title: string, content: string) => {
     });
 };
 onMounted(async () => {
-    /*if (route.params.problemId !== undefined) {
+    if (route.query.ignore_server !== undefined) return;
+    if (route.params.problemId !== undefined) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
             return;
@@ -79,7 +80,7 @@ onMounted(async () => {
         if (s !== null) submission.value = s;
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
-    }*/
+    }
     contestManager.onSubmissionStatus(({status}) => {
         submission.value = status;
     });

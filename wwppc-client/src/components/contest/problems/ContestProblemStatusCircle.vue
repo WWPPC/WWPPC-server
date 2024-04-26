@@ -1,20 +1,30 @@
 <script setup lang="ts">
-
-import {
-    completionStateString,
-    ContestProblemCompletionState,
-    completionStateAnimation
-} from "@/scripts/ContestManager";
-
+import { ContestProblemCompletionState } from "@/scripts/ContestManager";
 const props = defineProps<{
     status: ContestProblemCompletionState
 }>();
+
+const completionStateAnimation = (status: ContestProblemCompletionState) => {
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'pstatus-uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'pstatus-submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'pstatus-graded-pass' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'pstatus-graded-fail' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'pstatus-graded-partial' : 'pstatus-error'
+};
+const completionStateString = (status: ContestProblemCompletionState) => {
+    return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
+        status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
+            status == ContestProblemCompletionState.SUBMITTED ? 'Submitted' :
+                status == ContestProblemCompletionState.GRADED_PASS ? 'Accepted' :
+                    status == ContestProblemCompletionState.GRADED_FAIL ? 'Failed' :
+                        status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
+};
 </script>
 
 <template>
-    <div class="contestProblemListProblemStatus"></div>
+    <div class="contestProblemListProblemStatus" :title="completionStateString(props.status)"></div>
 </template>
-
 
 <style>
 .contestProblemListProblemStatus {
