@@ -17,6 +17,7 @@ const socket = io(serverHostname, {
     reconnection: false
 });
 let connectionAttempts = 0;
+const connectErrorHandlers: Set<() => void> = new Set();
 const attemptConnect = () => {
     connectionAttempts++;
     fetch(serverHostname + '/wakeup').then(() => {
@@ -24,6 +25,8 @@ const attemptConnect = () => {
     }, () => {
         console.info(`HTTP wakeup failed, retrying in ${10 * connectionAttempts} seconds...`);
         setTimeout(attemptConnect, 10000 * connectionAttempts);
+        state.connectError = true;
+        connectErrorHandlers.forEach((h) => h());
     });
 };
 attemptConnect();
@@ -203,6 +206,7 @@ export const useServerConnection = defineStore('serverconnection', {
         onconnecterror(handler: () => void) {
             socket.on('connect_error', handler);
             socket.on('connect_fail', handler);
+            connectErrorHandlers.add(handler);
         },
         ondisconnect(handler: () => void) {
             socket.on('disconnect', handler);
