@@ -56,7 +56,7 @@ const loadErrorModal = (title: string, content: string) => {
     });
 };
 onMounted(async () => {
-    if (route.params.problemId !== undefined) {
+    /*if (route.params.problemId !== undefined) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
             return;
@@ -78,7 +78,7 @@ onMounted(async () => {
         if (s !== null) submission.value = s;
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
-    }
+    }*/
     contestManager.onSubmissionStatus(({status}) => {
         submission.value = status;
     });
@@ -175,8 +175,13 @@ const submitUpload = async () => {
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
-                Previous submission:
-                <div>{{ submission ?? 'no submission yet!' }}</div>
+
+
+                <div class = "contestProblemListProblem">
+                    Previous Submissions:
+                    {{ submission ?? 'no submission yet!' }}
+                </div>
+
                 <!--format this oof (maybe a component?)-->
             </DoubleCutCornerContainer>
         </div>
