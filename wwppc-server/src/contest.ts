@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, Problem, Registration, Score, UUID, isUUID } from './database';
+import { AccountOpResult, AdminPerms, Database, Problem, Score, UUID, isUUID } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
@@ -16,7 +16,7 @@ interface ContestUser {
     /**display name*/
     displayName: string
     /**contests they are registered for */
-    registrations: Registration[]
+    registrations: string[]
     /**set of connections (since multiple users may use the same account(maybe)) */
     sockets: Set<ServerSocket>
 }
@@ -87,6 +87,33 @@ export class ContestManager {
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
 
         // new event handlers
+        //toggle registration for a contest (maybe use the #users Map rather than reading from db each time)
+        socket.on('registerContest', async (request: {contest: string}) => {
+            if (request == null || typeof request.contest !== 'string') {
+                socket.kick('invalid registerContest payload');
+                return;
+            }
+            //check if it's a valid contest oof
+            if (request.contest !== 'WWPITTEST') {
+                return;
+            }
+
+            const user = await this.db.getAccountData(socket.username);
+            if (user === AccountOpResult.NOT_EXISTS || user === AccountOpResult.ERROR) {
+                socket.kick('invalid registerContest username');
+                return;
+                //this probably shouldnt happen since you signed in with the username
+                //also how to handle AccountOpResult.ERROR
+            }
+            if (user.registrations.includes(request.contest)) {
+                user.registrations.splice(user.registrations.indexOf(request.contest), 1);
+            } else {
+                user.registrations.push(request.contest);
+            }
+            const res = await this.db.updateAccountData(user.username, user);
+            socket.emit('registerContestResponse', res);
+        });
+        //get problem list for running contest
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
             //check valid contest first
             if (request == null || typeof request.contest !== 'string') {
@@ -128,6 +155,7 @@ export class ContestManager {
             }
             socket.emit('problemList', { data: packet, token: request.token });
         });
+        //get problem
         socket.on('getProblemData', async (request: { id: undefined, contest: string, round: number, number: number, token: number } | { id: string, contest: undefined, round: undefined, number: undefined, token: number }) => {
             if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !isUUID(request.id)))) {
                 socket.kick('invalid getProblemData payload');
@@ -188,6 +216,7 @@ export class ContestManager {
                 token: request.token
             });
         });
+        //submit a solution
         socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
             //also need to check valid language, valid problem id
             if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
