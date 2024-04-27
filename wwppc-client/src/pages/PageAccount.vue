@@ -5,13 +5,15 @@ import PagePanelAccountRegister from './account/PagePanelAccountRegister.vue';
 import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 
 const route = useRoute();
 
 const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 
-serverConnection.connectionSensitivePagesInclude.add('/account');
-serverConnection.loginSensitivePagesInclude.add('/account');
+connectionEnforcer.connectionInclude.add('/account');
+connectionEnforcer.loginInclude.add('/account');
 </script>
 
 <template>

@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
-import { reactive, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-
-import { globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
+import { reactive } from 'vue';
 
 import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
@@ -41,10 +38,6 @@ const state = reactive<{
     loginPromise: Promise<undefined>
     manualLogin: boolean,
     encryptedPassword: ArrayBuffer | string | null
-    connectionSensitivePagesInclude: Set<string>
-    connectionSensitivePagesExclude: Set<string>
-    loginSensitivePagesInclude: Set<string>
-    loginSensitivePagesExclude: Set<string>
 }>({
     handshakeComplete: false,
     handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
@@ -52,11 +45,7 @@ const state = reactive<{
     loggedIn: false,
     loginPromise: new Promise((resolve) => loginResolve = resolve),
     manualLogin: true,
-    encryptedPassword: null,
-    connectionSensitivePagesInclude: new Set(),
-    connectionSensitivePagesExclude: new Set(),
-    loginSensitivePagesInclude: new Set(),
-    loginSensitivePagesExclude: new Set()
+    encryptedPassword: null
 });
 const RSA: {
     publicKey: CryptoKey | null,
@@ -162,7 +151,6 @@ export const sendCredentials = async (username: string, password: string | numbe
     });
 };
 
-let initialized = false;
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
@@ -212,51 +200,6 @@ export const useServerConnection = defineStore('serverconnection', {
             socket.on('disconnect', handler);
             socket.on('timeout', handler);
             socket.on('error', handler);
-        },
-        init() {
-            if (initialized) return;
-            initialized = true;
-            const modal = globalModal();
-            const route = useRoute();
-            const router = useRouter();
-            const checkIncluded = () => {
-                return Array.from(state.connectionSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.connectionSensitivePagesExclude.values()).some((p) => route.path.startsWith(p));
-            };
-            const showConnectError = () => {
-                if (!checkIncluded()) return;
-                const m = modal.showModal({
-                    title: 'Connect Error',
-                    content: 'Could not connect to the server. Attempting to reconnect.<br>Click YES to reload.',
-                    mode: ModalMode.INPUT,
-                    color: 'red'
-                });
-                socket.once('connect', () => m.cancel());
-                m.result.then((v) => v === true && window.location.reload());
-                m.result.then((v) => console.log(v))
-            };
-            const showDisconnected = () => {
-                if (!checkIncluded()) return;
-                const m = modal.showModal({
-                    title: 'Disconnected',
-                    content: 'You were disconnected from the server. Attempting to reconnect.<br>Click YES to reload.',
-                    mode: ModalMode.INPUT,
-                    color: 'red'
-                });
-                socket.once('connect', () => m.cancel());
-                m.result.then((v) => v === true && window.location.reload());
-            };
-            const checkLogin = () => {
-                if (Array.from(state.loginSensitivePagesInclude.values()).some((p) => route.path.startsWith(p)) && !Array.from(this.loginSensitivePagesExclude.values()).some((p) => route.path.startsWith(p)) && !this.loggedIn) {
-                    router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
-                }
-            }
-            this.onconnecterror(showConnectError);
-            this.ondisconnect(showDisconnected);
-            watch(() => route.params, () => {
-                if (state.connectError) showConnectError();
-                if (state.handshakeComplete && socket.disconnected) showDisconnected();
-                checkLogin();
-            });
         }
     }
 });

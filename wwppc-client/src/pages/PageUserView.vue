@@ -2,11 +2,11 @@
 import { PanelView, PanelHeader, PanelNavLargeLogo, PanelMain, PanelBody, PanelRightList, PanelNavList } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import PagePanelUserView from './userView/PagePanelUserView.vue';
-import { useServerConnection } from '@/scripts/ServerConnection';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 
-const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 
-serverConnection.connectionSensitivePagesInclude.add('/user');
+connectionEnforcer.connectionInclude.add('/user');
 </script>
 
 <template>

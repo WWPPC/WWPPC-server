@@ -3,8 +3,8 @@ import { PanelBody, PanelHeader, PanelMain, PanelNavLargeLogo, PanelView } from 
 import { globalModal, UIButton, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import WaitCover from '@/components/WaitCover.vue';
 import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 import recaptcha from '@/scripts/recaptcha';
-import { useServerConnection } from '@/scripts/ServerConnection';
 import { getAccountOpMessage } from '@/scripts/ServerConnection';
 import { nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -13,9 +13,9 @@ const route = useRoute();
 
 const modal = globalModal();
 const accountManager = useAccountManager();
-const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 
-serverConnection.connectionSensitivePagesInclude.add('/recovery');
+connectionEnforcer.connectionInclude.add('/recovery');
 
 const usernameInput = ref('');
 const passwordInput = ref('');

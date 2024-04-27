@@ -2,7 +2,6 @@
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
 import UserDisp from '@/components/UserDisp.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
 import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
 import PagePanelContestContest from './contest/PagePanelContestContest.vue';
@@ -11,6 +10,8 @@ import PagePanelContestProblemView from './contest/PagePanelContestProblemView.v
 import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
 import { ref, watch } from 'vue';
 import { useContestManager } from '@/scripts/ContestManager';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
+import { useServerConnection } from '@/scripts/ServerConnection';
 
 const route = useRoute();
 const ignoreServer = ref(route.query.ignore_server !== undefined);
@@ -19,12 +20,15 @@ watch(() => route.query.ignore_server, () => {
 });
 
 const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 const contestManager = useContestManager();
 
-serverConnection.connectionSensitivePagesInclude.add('/contest');
-serverConnection.loginSensitivePagesInclude.add('/contest');
-serverConnection.connectionSensitivePagesExclude.add('/contest/home');
-serverConnection.loginSensitivePagesExclude.add('/contest/home');
+connectionEnforcer.connectionInclude.add('/contest');
+connectionEnforcer.loginInclude.add('/contest');
+connectionEnforcer.connectionExcludeExact.add('/contest/home');
+connectionEnforcer.loginExcludeExact.add('/contest/home');
+connectionEnforcer.connectionExcludeExact.add('/contest');
+connectionEnforcer.loginExcludeExact.add('/contest');
 </script>
 
 <template>

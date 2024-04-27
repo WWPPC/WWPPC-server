@@ -9,6 +9,7 @@ import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { languageMaps, experienceMaps, gradeMaps, useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 
 const router = useRouter();
 const route = useRoute();
@@ -16,12 +17,11 @@ const route = useRoute();
 // connection modals
 const modal = globalModal();
 const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 const accountManager = useAccountManager();
 
-serverConnection.connectionSensitivePagesInclude.add('/login');
+connectionEnforcer.connectionInclude.add('/account');
 
-// redirect if already logged in, also more connection modals
-// and recaptcha stuff
 watch(() => route.params.page, async () => {
     if (route.params.page == 'login' && route.query.ignore_server === undefined) {
         serverConnection.handshakePromise.then(() => {
