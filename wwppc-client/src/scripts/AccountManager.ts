@@ -35,11 +35,11 @@ export const gradeMaps = [
     { text: 'Graduated', value: '14' }
 ];
 export const experienceMaps = [
-    { text: 'Beginner / AP CS A', value: '0' },
-    { text: 'Intermediate / USACO Silver / Codeforces 1400', value: '1' },
-    { text: 'Good / USACO Gold / Codeforces 1900', value: '2' },
-    { text: 'Advanced / USACO Platinum / Codeforces 2100', value: '3' },
-    { text: 'Cracked / IOI / Codeforces 2400+ / USACO Camp', value: '4' },
+    { text: 'Beginner', value: '0' },
+    { text: 'Intermediate', value: '1' },
+    { text: 'Advanced', value: '2' },
+    { text: 'Legendary', value: '3' },
+    { text: '???', value: '4' },
 ];
 export const languageMaps = [
     { text: 'Python', value: 'python' },

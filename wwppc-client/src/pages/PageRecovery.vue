@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavLargeLogo, PanelView } from '@/components/panels/PanelManager';
-import { globalModal, ModalMode, UIButton, UITextBox } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, UIButton, UITextBox } from '@/components/ui-defaults/UIDefaults';
 import WaitCover from '@/components/WaitCover.vue';
 import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 import recaptcha from '@/scripts/recaptcha';
-import { useServerConnection } from '@/scripts/ServerConnection';
 import { getAccountOpMessage } from '@/scripts/ServerConnection';
 import { nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -13,15 +13,9 @@ const route = useRoute();
 
 const modal = globalModal();
 const accountManager = useAccountManager();
-const serverConnection = useServerConnection();
-serverConnection.onconnecterror(() => {
-    if (route.params.page != 'recovery') return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
-serverConnection.ondisconnect(() => {
-    if (route.params.page != 'recovery') return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
+const connectionEnforcer = useConnectionEnforcer();
+
+connectionEnforcer.connectionInclude.add('/recovery');
 
 const usernameInput = ref('');
 const passwordInput = ref('');
@@ -42,7 +36,7 @@ const attemptRecovery = async () => {
     const token = await recaptcha.execute('recoverpassword');
     const res = await accountManager.recoverAccount(usernameInput.value, recoveryPassword.value, passwordInput.value, token);
     showRecoveryWait.value = false;
-    if (res == 0) modal.showModal({ title: 'Password changed', content: 'Your password has been changed.', color: 'lime'}).then(() => window.location.reload());
+    if (res == 0) modal.showModal({ title: 'Password changed', content: 'Your password has been changed.', color: 'lime'}).result.then(() => window.location.reload());
     else modal.showModal({ title: 'Recovery failed:', content: getAccountOpMessage(res), color: 'red' });
     console.log(res)
 };

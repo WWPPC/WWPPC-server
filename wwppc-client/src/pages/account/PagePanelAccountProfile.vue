@@ -59,7 +59,7 @@ const changePassword = async () => {
         content: 'Enter your new password:',
         mode: ModalMode.QUERY,
         inputType: 'password'
-    });
+    }).result;
     // also handles "cancel" case
     if (typeof newPassword != 'string' || newPassword.trim() == '') return;
     if (newPassword.length >= 1024) {
@@ -75,7 +75,7 @@ const changePassword = async () => {
         content: 'Enter the password again:',
         mode: ModalMode.QUERY,
         inputType: 'password'
-    });
+    }).result;
     if (typeof newPassword2 != 'string' || newPassword2.trim() == '') return;
     while (newPassword2 !== newPassword) {
         newPassword2 = await modal.showModal({
@@ -83,7 +83,7 @@ const changePassword = async () => {
             content: 'Make sure you entered the same password.<br>Enter the password again:',
             mode: ModalMode.QUERY,
             inputType: 'password'
-        });
+        }).result;
         if (typeof newPassword2 != 'string' || newPassword2.trim() == '') return;
     }
     let spam = true;
@@ -92,14 +92,14 @@ const changePassword = async () => {
             await modal.showModal({
                 title: 'Change Password',
                 content: 'Please wait...',
-            });
+            }).result;
         }
     }
     modalSpam();
     const token = await recaptcha.execute('changePassword');
     const res = await accountManager.changePassword(currPassword, newPassword, token);
     spam = false;
-    await modal.cancelAllModals();
+    modal.cancelAllModals();
     if (res == 0) window.location.reload();
     else modal.showModal({ title: 'Could not change password:', content: getAccountOpMessage(res), color: 'red' });
 };
@@ -111,26 +111,26 @@ const deleteAccount = async () => {
         content: '',
         color: 'red',
         mode: ModalMode.CONFIRM
-    }) === false) return;
+    }).result === false) return;
     if (await modal.showModal({
         title: 'Delete Account',
         content: '<span style="color: red;">Are you SURE that you want to <b>DELETE</b> your account?</span>',
         color: 'red',
         mode: ModalMode.CONFIRM
-    }) === false) return;
+    }).result === false) return;
     if (await modal.showModal({
         title: 'Delete Account',
         content: '<span style="color: red;">This will <b>PERMANENTLY DELETE ALL DATA</b>, including <b>TEAMS</b>!</span>',
         color: 'red',
         mode: ModalMode.CONFIRM
-    }) === false) return;
+    }).result === false) return;
     let password2 = await modal.showModal({
         title: 'Delete Account',
         content: '<span style="color: red;">Enter your password to confirm <b>PERMANENT DELETION</b> of your account</span>',
         color: 'red',
         mode: ModalMode.QUERY,
         inputType: 'password'
-    });
+    }).result;
     if (password2 === null) return;
     while (password2 !== currPassword) {
         password2 = await modal.showModal({
@@ -139,7 +139,7 @@ const deleteAccount = async () => {
             color: 'red',
             mode: ModalMode.QUERY,
             inputType: 'password'
-        });
+        }).result;
         if (password2 === null) return;
     }
     let spam = true;

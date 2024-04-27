@@ -1,41 +1,19 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView, PanelNavLargeLogo, PanelRightList } from '@/components/panels/PanelManager';
 import PagePanelAccountProfile from './account/PagePanelAccountProfile.vue';
-import { ModalMode, globalModal } from '@/components/ui-defaults/UIDefaults';
-import { useServerConnection } from '@/scripts/ServerConnection';
-import { useRoute, useRouter } from 'vue-router';
-import LoadingCover from '@/components/LoadingCover.vue';
-import { watch } from 'vue';
+import PagePanelAccountRegister from './account/PagePanelAccountRegister.vue';
 import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
+import { useServerConnection } from '@/scripts/ServerConnection';
+import { useRoute } from 'vue-router';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 
-const router = useRouter();
 const route = useRoute();
 
-const modal = globalModal();
 const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 
-serverConnection.onconnecterror(() => {
-    if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
-});
-serverConnection.ondisconnect(() => {
-    if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
-});
-serverConnection.handshakePromise.then(() => {
-    if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    if (!serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath } });
-});
-watch(() => route.params.page, () => {
-    if (route.params.page != 'account' || route.query.ignore_server !== undefined) return;
-    serverConnection.handshakePromise.then(() => {
-        if (serverConnection.manualLogin && !serverConnection.loggedIn) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
-    });
-    if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
-    if (serverConnection.handshakeComplete && !serverConnection.connected && route.query.ignore_server == undefined) {
-        modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.NOTIFY, color: 'red' }).then(() => window.location.replace('/home'));
-    }
-});
+connectionEnforcer.connectionInclude.add('/account');
+connectionEnforcer.loginInclude.add('/account');
 </script>
 
 <template>
@@ -61,9 +39,9 @@ watch(() => route.params.page, () => {
             </PanelBody>
             <PanelBody name="registrations" title="Registrations">
                 <PagePanelAccountWrapper>
+                    <PagePanelAccountRegister></PagePanelAccountRegister>
                 </PagePanelAccountWrapper>
             </PanelBody>
-            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

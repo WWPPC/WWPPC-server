@@ -10,28 +10,46 @@ const modal = reactive<{
     content: string
     mode: ModalMode
     inputType: 'text' | 'password' | 'email'
-    // color: string
     open: boolean
 }>({
     title: '',
     content: '',
     mode: ModalMode.NOTIFY,
     inputType: 'text',
-    // color: 'white',
     open: false
 });
 const modalColor = ref('white');
+
 let modalResolve = () => { };
 let modalReject = () => { };
-const modalQueue: { params: ModalParams, resolve: (v: boolean | string | null) => void }[] = [];
+const modalQueue: { params: ModalParams, resolve: (v: boolean | string | null) => void, cancel: Promise<void> }[] = [];
 const showNextModal = async () => {
     const params = modalQueue.shift();
-    params?.resolve(await showModal(params?.params));
+    if (params === undefined) return;
+    const m = showModal(params?.params);
+    params.cancel.then(() => m.cancel());
+    params.resolve(await m.result);
 };
-const showModal = async (params: ModalParams): Promise<boolean | string | null> => {
-    if (modal.open) return await new Promise((resolve) => {
-        modalQueue.push({ params, resolve });
-    });
+const showModal = (params: ModalParams): { result: Promise<boolean | string | null>, cancel: () => void } => {
+    if (modal.open) {
+        let res: (v: boolean | string | null) => void;
+        let cancelRes: () => void;
+        const cancelPromise: Promise<void> = new Promise((resolve) => cancelRes = resolve);
+        const promise: Promise<boolean | string | null> = new Promise((resolve) => {
+            res = resolve;
+            modalQueue.push({ params, resolve, cancel: cancelPromise });
+        });
+        return {
+            result: promise,
+            cancel: () => {
+                if (params.mode == ModalMode.QUERY) res(null);
+                else res(false);
+                const i = modalQueue.findIndex((v) => v.resolve === res);
+                if (i != -1) modalQueue.splice(i, 1);
+                cancelRes();
+            }
+        };
+    }
     const { title, content, mode = ModalMode.NOTIFY, inputType = 'text', color = 'white', glitchTitle = false } = params;
     if (glitchTitle) glitchTextTransition(title, title, (text) => { modal.title = text; return false }, 40, 2, 10, 1, true);
     else modal.title = title;
@@ -39,10 +57,11 @@ const showModal = async (params: ModalParams): Promise<boolean | string | null> 
     modal.mode = mode;
     modalInput.value = '';
     modal.inputType = inputType;
-    // modal.color = color;
     modalColor.value = color;
     modal.open = true;
-    return await new Promise((resolve) => {
+    let res: (v: boolean | string | null) => void;
+    const promise = new Promise<boolean | string | null>((resolve) => {
+        res = resolve;
         if (modal.mode == ModalMode.QUERY) {
             modalResolve = async () => {
                 modal.open = false;
@@ -67,14 +86,16 @@ const showModal = async (params: ModalParams): Promise<boolean | string | null> 
             };
         }
     });
+    return {
+        result: promise,
+        cancel: () => modalReject()
+    };
 };
-const cancelModal = async () => {
-    await modalReject();
+const cancelAllModals = () => {
+    while (modalQueue.length) modalReject();
+    modalReject();
 };
-const cancelAllModals = async () => {
-    while (modalQueue.length) await modalReject();
-};
-defineExpose({ showModal, cancelModal, cancelAllModals });
+defineExpose({ showModal, cancelAllModals });
 </script>
 <script lang="ts">
 export const enum ModalMode {
@@ -115,8 +136,8 @@ export interface ModalParams {
                 </span>
                 <div class="modalButtons">
                     <span v-if="modal.mode == ModalMode.INPUT">
-                        <UIButton text="YES" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                         <UIButton text="NO" @click=modalReject width="5em" color="red" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
+                        <UIButton text="YES" @click=modalResolve width="5em" color="lime" font="bold var(--font-16) 'Source Code Pro'"></UIButton>
                     </span>
                     <span v-else>
                         <span v-if="modal.mode == ModalMode.QUERY || modal.mode == ModalMode.CONFIRM">

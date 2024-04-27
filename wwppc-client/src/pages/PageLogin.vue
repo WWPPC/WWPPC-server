@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
-import { ModalMode, UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
+import { UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
 import { useServerConnection, AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
@@ -9,6 +9,7 @@ import WaitCover from '@/components/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { languageMaps, experienceMaps, gradeMaps, useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
+import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 
 const router = useRouter();
 const route = useRoute();
@@ -16,25 +17,16 @@ const route = useRoute();
 // connection modals
 const modal = globalModal();
 const serverConnection = useServerConnection();
+const connectionEnforcer = useConnectionEnforcer();
 const accountManager = useAccountManager();
-serverConnection.onconnecterror(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
-serverConnection.ondisconnect(() => {
-    if (route.params.page != 'login' || route.query.ignore_server !== undefined) return;
-    modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-});
 
-// redirect if already logged in, also more connection modals
-// and recaptcha stuff
+connectionEnforcer.connectionInclude.add('/account');
+
 watch(() => route.params.page, async () => {
     if (route.params.page == 'login' && route.query.ignore_server === undefined) {
         serverConnection.handshakePromise.then(() => {
             if (serverConnection.loggedIn) router.push({ path: (typeof route.query.redirect == 'string' ? route.query.redirect : (route.query.redirect ?? [])[0]) ?? '/home?clearQuery', query: { clearQuery: 1 } });
         });
-        if (serverConnection.connectError) modal.showModal({ title: 'Connect Error', content: 'Could not connect to the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
-        if (serverConnection.handshakeComplete && !serverConnection.connected) modal.showModal({ title: 'Disconnected', content: 'You were disconnected from the server. Reload the page to reconnect.', mode: ModalMode.CONFIRM, color: 'red' }).then((result) => result ? window.location.reload() : window.location.replace('/home'));
     } else {
         page.value = 0;
     }
@@ -113,6 +105,11 @@ const attemptRecovery = async () => {
         content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
     });
 };
+
+//definitely not rickroll
+watch(usernameInput, () => {
+    if (usernameInput.value.toLowerCase() == 'rick astley') location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+});
 </script>
 
 <script lang="ts">

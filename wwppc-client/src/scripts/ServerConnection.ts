@@ -13,24 +13,20 @@ const socket = io(serverHostname, {
     autoConnect: false,
     reconnection: false
 });
-const connectErrorHandlers: (() => void)[] = [];
 let connectionAttempts = 0;
+const connectErrorHandlers: Set<() => void> = new Set();
 const attemptConnect = () => {
     connectionAttempts++;
     fetch(serverHostname + '/wakeup').then(() => {
         socket.connect();
     }, () => {
-        if (connectionAttempts <= 5) attemptConnect();
-        else {
-            console.error(`ServerConnection: Wakeup call failed for ${serverHostname}`);
-            connectErrorHandlers.forEach(cb => cb());
-            state.connectError = true;
-        }
+        console.info(`HTTP wakeup failed, retrying in ${10 * connectionAttempts} seconds...`);
+        setTimeout(attemptConnect, 10000 * connectionAttempts);
+        state.connectError = true;
+        connectErrorHandlers.forEach((h) => h());
     });
 };
 attemptConnect();
-socket.on('connect_error', () => state.connectError = true);
-socket.on('connect_fail', () => state.connectError = true);
 
 let handshakeResolve: (v: any) => void = () => { };
 let loginResolve: (v: any) => void = () => { };
@@ -40,7 +36,7 @@ const state = reactive<{
     connectError: boolean
     loggedIn: boolean
     loginPromise: Promise<undefined>
-    manualLogin: boolean
+    manualLogin: boolean,
     encryptedPassword: ArrayBuffer | string | null
 }>({
     handshakeComplete: false,
@@ -85,7 +81,8 @@ export interface CredentialsSignupData {
 }
 
 // RSA keys + autologin
-socket.once('getCredentials', async (session) => {
+socket.on('getCredentials', async (session) => {
+    if (state.handshakeComplete) return;
     if (window.crypto.subtle === undefined) {
         console.warn('<h1>Insecure context!</h1><br>The page has been opened in an insecure context and cannot perform encryption processes. Credentials and submissions will be sent in PLAINTEXT!');
     } else {
@@ -197,7 +194,7 @@ export const useServerConnection = defineStore('serverconnection', {
         onconnecterror(handler: () => void) {
             socket.on('connect_error', handler);
             socket.on('connect_fail', handler);
-            connectErrorHandlers.push(handler);
+            connectErrorHandlers.add(handler);
         },
         ondisconnect(handler: () => void) {
             socket.on('disconnect', handler);
@@ -207,9 +204,27 @@ export const useServerConnection = defineStore('serverconnection', {
     }
 });
 
-socket.on('connect', () => console.info(`ServerConnection: Connected to ${serverHostname}`));
-socket.on('connect_error', () => console.error(`ServerConnection: Connection error for ${serverHostname}`));
-socket.on('connect_fail', () => console.error(`ServerConnection: Connection failed for ${serverHostname}`));
-socket.on('disconnect', (reason) => { console.error(`ServerConnection: Disconnected: ${reason}`); socket.disconnect(); });
-socket.on('timeout', () => { console.error(`ServerConnection: Timed out`); socket.disconnect(); });
-socket.on('error', (err) => { console.error(`ServerConnection: Error: ${err}`); socket.disconnect(); });
+const onConnectError = (message: string) => {
+    console.error(`ServerConnection: Connection ${message} for ${serverHostname}`);
+    state.connectError = true;
+};
+const onDisconnected = (message: string) => {
+    console.error(`ServerConnection: ${message}`);
+    console.info('ServerConnection: Reconnecting...');
+    state.handshakeComplete = false;
+    state.handshakePromise = new Promise((resolve) => handshakeResolve = resolve);
+    state.loginPromise = new Promise((resolve) => loginResolve = resolve);
+    state.loggedIn = false;
+    state.manualLogin = false;
+    connectionAttempts = 0;
+    attemptConnect();
+};
+socket.on('connect', () => {
+    state.connectError = false;
+    console.info(`ServerConnection: Connected to ${serverHostname}`);
+});
+socket.on('connect_error', () => onConnectError('error'));
+socket.on('connect_fail', () => onConnectError('failed'));
+socket.on('disconnect', (reason) => onDisconnected('Disconnected: ' + reason));
+socket.on('timeout', () => onDisconnected('Timed out'));
+socket.on('error', (err) => onDisconnected('Error: ' + err));

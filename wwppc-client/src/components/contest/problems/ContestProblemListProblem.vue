@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
-import { completionStateAnimation, completionStateString, type ContestProblemMetaData } from '@/scripts/ContestManager';
+import { type ContestProblemMetaData } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
@@ -31,6 +31,7 @@ onMounted(() => {
             <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
         </span>
 <!--        <div class="contestProblemListProblemStatus" :title="completionStateString(props.data.status)"></div>-->
+        <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
         <span class="contestProblemListProblemButton">

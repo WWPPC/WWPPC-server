@@ -44,19 +44,15 @@ export const globalModal = defineStore('globalModal', {
         setModal(newModal: InstanceType<typeof FullscreenModal>) {
             modal.value = newModal;
         },
-        async showModal(params: ModalParams): Promise<string | boolean | null> {
+        showModal(params: ModalParams): { result: Promise<string | boolean | null>, cancel: () => void } {
             if (modal.value != null) {
-                return await modal.value.showModal(params);
+                return modal.value.showModal(params);
             } else {
-                return await new Promise((resolve) => resolve(null));
+                return { result: new Promise((resolve) => resolve(null)), cancel: () => { } };
             }
         },
-        async cancelModal() {
-            await modal.value?.cancelModal();
-        },
-        async cancelAllModals() {
-            await modal.value?.cancelAllModals();
-            await modal.value?.cancelModal();
+        cancelAllModals() {
+            modal.value?.cancelAllModals();
         }
     }
-})
+});
