@@ -10,7 +10,6 @@ import PagePanelContestProblemList from './contest/PagePanelContestProblemList.v
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
 import { ref, watch } from 'vue';
-import LoadingCover from '@/components/LoadingCover.vue';
 import { useContestManager } from '@/scripts/ContestManager';
 
 const route = useRoute();
@@ -54,19 +53,15 @@ serverConnection.loginSensitivePagesExclude.add('/contest/home');
             </PanelBody>
             <PanelBody name="contest" title="Contest">
                 <PagePanelContestContest v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestContest>
-                <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemList" title="Problem List">
                 <PagePanelContestProblemList v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestProblemList>
-                <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="problemView" title="Problem">
                 <PagePanelContestProblemView v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestProblemView>
-                <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
             <PanelBody name="leaderboard" title="Leaderboard">
                 <PagePanelContestLeaderboard v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestLeaderboard>
-                <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
             </PanelBody>
         </PanelMain>
     </PanelView>

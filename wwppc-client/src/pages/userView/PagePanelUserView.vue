@@ -128,8 +128,8 @@ const largeHeader = ref(true);
             </div>
         </div>
     </div>
-            <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
-            <LoadingCover text="Loading..." ignore-server></LoadingCover>
+    <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
+    <LoadingCover text="Loading..." ignore-server></LoadingCover>
 </template>
 
 <style scoped>

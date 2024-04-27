@@ -5,7 +5,6 @@ import PagePanelAccountRegister from './account/PagePanelAccountRegister.vue';
 import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
-import LoadingCover from '@/components/LoadingCover.vue';
 
 const route = useRoute();
 
@@ -41,7 +40,6 @@ serverConnection.loginSensitivePagesInclude.add('/account');
                     <PagePanelAccountRegister></PagePanelAccountRegister>
                 </PagePanelAccountWrapper>
             </PanelBody>
-            <LoadingCover text="Logging you in..." :ignore-server="true"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>
