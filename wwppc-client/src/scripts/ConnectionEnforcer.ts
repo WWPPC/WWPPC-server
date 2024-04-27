@@ -67,7 +67,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
             };
             const checkLogin = () => {
                 const trimmed = route.path.replace(/\/*$/, '');
-                return (Array.from(state.loginInclude.values()).some((p) => trimmed.startsWith(p)) || Array.from(state.loginIncludeExact.values()).some((p) => trimmed == p))
+                return (!serverConnection.loggedIn && Array.from(state.loginInclude.values()).some((p) => trimmed.startsWith(p)) || Array.from(state.loginIncludeExact.values()).some((p) => trimmed == p))
                     && !(Array.from(state.loginExclude.values()).some((p) => trimmed.startsWith(p)) || Array.from(state.loginExcludeExact.values()).some((p) => trimmed == p));
             };
             serverConnection.onconnecterror(showConnectError);
