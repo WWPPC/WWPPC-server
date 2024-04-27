@@ -18,11 +18,9 @@ const props = defineProps<{
 
 <style>
 .contestProblemListProblemStatus {
-    grid-row: 2 / 5;
-    grid-column: 1;
     width: 32px;
     height: 32px;
-    animation: 2000ms linear v-bind("completionStateAnimation(status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
+    animation: 2000ms linear v-bind("completionStateAnimation(props.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
     border-radius: 50%;
     cursor: help;
 }

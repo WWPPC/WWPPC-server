@@ -27,7 +27,9 @@ onMounted(() => {
         <span class="contestProblemListProblemId">
             {{ props.data.round }}-{{ props.data.number }}
         </span>
-        <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
+        <span class="problemListCircle">
+            <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
+        </span>
 <!--        <div class="contestProblemListProblemStatus" :title="completionStateString(props.data.status)"></div>-->
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
@@ -38,6 +40,10 @@ onMounted(() => {
 </template>
 
 <style>
+.problemListCircle {
+    grid-row: 2 / 5;
+    grid-column: 1;
+}
 .contestProblemListProblem {
     display: grid;
     grid-template-columns: 60px 1fr 120px;
@@ -65,16 +71,6 @@ onMounted(() => {
     grid-row: 1;
     grid-column: 1;
     font-size: 18px;
-}
-
-.contestProblemListProblemStatus {
-    grid-row: 2 / 5;
-    grid-column: 1;
-    width: 32px;
-    height: 32px;
-    animation: 2000ms linear v-bind("completionStateAnimation(props.data.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
-    border-radius: 50%;
-    cursor: help;
 }
 
 .contestProblemListProblemName {
