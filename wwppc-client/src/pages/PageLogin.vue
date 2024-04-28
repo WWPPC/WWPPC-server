@@ -20,7 +20,7 @@ const serverConnection = useServerConnection();
 const connectionEnforcer = useConnectionEnforcer();
 const accountManager = useAccountManager();
 
-connectionEnforcer.connectionInclude.add('/account');
+connectionEnforcer.connectionInclude.add('/login');
 
 watch(() => route.params.page, async () => {
     if (route.params.page == 'login' && route.query.ignore_server === undefined) {
@@ -200,9 +200,9 @@ watch(usernameInput, () => {
                         </div>
                     </Transition>
                 </div>
-                <LoadingCover text="Connecting..." ignore-server></LoadingCover>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
                 <WaitCover text="Sending email..." :show=showRecoveryWait></WaitCover>
+                <LoadingCover text="Connecting..." ignore-server></LoadingCover>
             </PanelBody>
         </PanelMain>
     </PanelView>
