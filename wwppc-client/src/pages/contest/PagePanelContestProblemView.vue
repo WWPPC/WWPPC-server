@@ -64,13 +64,13 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
     status: ContestProblemCompletionState.ERROR,
     hidden: false
 });
-const submission = ref<ContestSubmission>();
+const submissions = ref<ContestSubmission[]>([]);
 const loadErrorModal = (title: string, content: string) => {
     modal.showModal({
         title: title,
         content: content + '<br>Click <code>OK</code> to return to problem list.',
         color: 'red'
-    }).then(() => {
+    }).result.then(() => {
         router.push(`/contest/problemList`);
     });
 };
@@ -87,7 +87,7 @@ onMounted(async () => {
             return;
         }
         problem.value = p;
-        if (s !== null) submission.value = s;
+        if (s !== null) submissions.value = [s];
     } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
         const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
         if (p === null) {
@@ -95,12 +95,12 @@ onMounted(async () => {
             return;
         }
         problem.value = p;
-        if (s !== null) submission.value = s;
+        if (s !== null) submissions.value = [s];
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
     contestManager.onSubmissionStatus(({status}) => {
-        submission.value = status;
+        submissions.value = [status];
     });
 });
 
@@ -155,25 +155,6 @@ const submitUpload = async () => {
     }
     await contestManager.updateSubmission(problem.value.id, languageDropdown.value.value, await file.text());
 }
-
-const previousSubmissions = ref([
-    [
-        {status: ContestProblemCompletionState.GRADED_PASS},
-        {submissionData: submission} // previous submission link?
-
-    ],
-    [
-        {status: ContestProblemCompletionState.NOT_UPLOADED},
-        {submissionData: submission} // previous submission link?
-
-    ],
-    [
-        {status: ContestProblemCompletionState.GRADED_FAIL},
-        {submissionData: submission} // previous submission link?
-
-    ]
-
-])
 </script>
 
 <template>
@@ -229,23 +210,17 @@ const previousSubmissions = ref([
             <!--            </AnimateInContainer>-->
 
             <DoubleCutCornerContainer flipped>
-                Previous Submissions:
-                <AnimateInContainer type="fade" v-for="(item, index) in previousSubmissions" :key="item[index]" :delay="index * 100">
+                Previous submissions:
+                <AnimateInContainer type="fade" v-for="(item, index) in submissions" :delay="index * 100">
                     <div class="contestProblemListProblem">
                         <span class="previousProblemListName">Submission {{index}}</span>
-                        <!--                    <div class = "">Previous Submissions</div>-->
                         <span class="previousProblemStatusCircle">
-<!--                        <ContestProblemStatusCircle-->
-<!--                            :status="item[index].status"></ContestProblemStatusCircle>-->
+                       <ContestProblemStatusCircle :status="item.status"></ContestProblemStatusCircle>
                     </span>
                         <span
-                            class="problemStatus">{{ completionStateString(ContestProblemCompletionState.GRADED_PASS) }}</span>
+                            class="problemStatus">{{ completionStateString(item.status) }}</span>
                         <span class="contestProblemListProblemButton">
-                        <UILinkButton text="View" width="100px" height="36px" :border="true"
-                                      @click="router.push(`/contest/problemView/${previousSubmission}_${previousSubmissinoNumber}`)"></UILinkButton>
                     </span>
-                        <!--                    Previous Submissions:-->
-                        <!--                    {{ submission ?? 'no    submission yet!' }}-->
                     </div>
                 </AnimateInContainer>
 
