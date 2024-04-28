@@ -131,6 +131,30 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
+                    if (submission != null) {
+                        if (submission.scores == null) {
+                            submission.status = ContestProblemCompletionState.SUBMITTED;
+                        } else {
+                            submission.status = ContestProblemCompletionState.ERROR;
+                            let allWrong : boolean = true;
+                            let someWrong : boolean = false;
+                            for (const score of submission.scores) {
+                                if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
+                                    allWrong = false;
+                                } else {
+                                    someWrong = true;
+                                }
+
+                            }
+                            if (allWrong) {
+                                submission.status = ContestProblemCompletionState.GRADED_FAIL;
+                            } else if (someWrong) {
+                                submission.status = ContestProblemCompletionState.GRADED_PARTIAL;
+                            } else {
+                                submission.status = ContestProblemCompletionState.GRADED_PASS;
+                            }
+                        }
+                    }
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
                 };
@@ -145,6 +169,30 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.emit('getProblemData', { id, token });
                 const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
                     if (token2 != token) return;
+                    if (submission != null) {
+                        if (submission.scores == null) {
+                            submission.status = ContestProblemCompletionState.SUBMITTED;
+                        } else {
+                            submission.status = ContestProblemCompletionState.ERROR;
+                            let allWrong : boolean = true;
+                            let someWrong : boolean = false;
+                            for (const score of submission.scores) {
+                                if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
+                                    allWrong = false;
+                                } else {
+                                    someWrong = true;
+                                }
+
+                            }
+                            if (allWrong) {
+                                submission.status = ContestProblemCompletionState.GRADED_FAIL;
+                            } else if (someWrong) {
+                                submission.status = ContestProblemCompletionState.GRADED_PARTIAL;
+                            } else {
+                                submission.status = ContestProblemCompletionState.GRADED_PASS;
+                            }
+                        }
+                    }
                     resolve({ submission, problem });
                     serverConnection.off('problemData', handle);
                 };
