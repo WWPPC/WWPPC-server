@@ -44,7 +44,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                     && !(Array.from(state.connectionExclude.values()).some((p) => trimmed.startsWith(p)) || Array.from(state.connectionExcludeExact.values()).some((p) => trimmed == p));
             };
             const showConnectError = () => {
-                if (!checkConnection()) return;
+                if (!checkConnection() || route.query.ignore_server !== undefined) return;
                 const m = modal.showModal({
                     title: 'Connect Error',
                     content: 'Could not connect to the server. Attempting to reconnect.<br>Click YES to reload.',
@@ -55,7 +55,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                 m.result.then((v) => v === true && window.location.reload());
             };
             const showDisconnected = () => {
-                if (!checkConnection()) return;
+                if (!checkConnection() || route.query.ignore_server !== undefined) return;
                 const m = modal.showModal({
                     title: 'Disconnected',
                     content: 'You were disconnected from the server. Attempting to reconnect.<br>Click YES to reload.',
@@ -75,7 +75,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
             watch(() => route.params, () => {
                 if (serverConnection.connectError) showConnectError();
                 if (serverConnection.handshakeComplete && !serverConnection.connected) showDisconnected();
-                if (checkLogin()) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+                if (checkLogin() && route.query.ignore_server === undefined) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
             });
         }
     }

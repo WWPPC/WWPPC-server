@@ -30,8 +30,6 @@ onMounted(() => {
         <span class="problemListCircle">
             <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
         </span>
-<!--        <div class="contestProblemListProblemStatus" :title="completionStateString(props.data.status)"></div>-->
-        <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
         <span class="contestProblemListProblemButton">
