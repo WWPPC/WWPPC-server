@@ -11,7 +11,7 @@ const accountManager = useAccountManager();
 const numTimesChanged = ref(0);
 
 watch(numTimesChanged, () => {
-    if (numTimesChanged.value > 10) {
+    if (numTimesChanged.value > 100) {
         location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     }
 });

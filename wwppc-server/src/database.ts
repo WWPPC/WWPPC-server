@@ -331,18 +331,14 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account with the specified username. **Does not validate credentials**.
-     * If successful, the `recoverypass` field is rotated to a new random string.
+     * Overwrite user data for an existing account with the specified username. Does not verify correct password.
      * @param {string} username Valid username
-     * @param {string} password Valid password
      * @param {AccountData} userData New data
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
-    async updateAccountData(username: string, password: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.checkAccount(username, password);
-            if (res != AccountOpResult.SUCCESS) return res;
             await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10, registrations=$11 WHERE username=$1', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
             ]);
@@ -785,22 +781,18 @@ export enum AccountOpResult {
     ERROR = 4
 }
 
-/**Admin permission level bit flags (not implemented yet) */
+/**Admin permission level bit flags */
 export enum AdminPerms {
     ADMIN = 1,
-    /**view all problems, including hidden ones */
+    /**View all problems, rounds, and contests, including hidden ones */
     VIEW_PROBLEMS = 1 << 1,
-    /**create, modify, and delete problems */
-    MANAGE_PROBLEMS = 1 << 2,
-    /**idk */
-    VIEW_ACCOUNTS = 1 << 3,
-    /**create, modify, and delete accounts */
-    MANAGE_ACCOUNTS = 1 << 4,
-    /**view all contests, including hidden */
-    VIEW_CONTESTS = 1 << 5,
-    /**create, modify, and delete contests */
-    MANAGE_CONTESTS = 1 << 6,
-    /**manage admin permissions */
+    /**Edit all problems, including hidden ones */
+    EDIT_PROBLEMS = 1 << 2,
+    /**Create, delete, and modify accounts */
+    MANAGE_ACCOUNTS = 1 << 3,
+    /**Create, modify, start, stop contest, and override contestManager */
+    CONTROL_CONTESTS = 1 << 4,
+    /**Manage admin permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 
@@ -829,9 +821,9 @@ export interface AccountData {
     /**Known languages, in file extension form */
     languages: string[]
     /**List of registrations */
-    registrations: Registration[]
+    registrations: string[]
     /**Past list of registrations for previous contests that have already ended */
-    pastRegistrations: Registration[]
+    pastRegistrations: string[]
     /**The teamid which is the username of the team owner */
     team: string
 }
@@ -844,18 +836,9 @@ export interface TeamData {
     /**Team's biography */
     bio: string,
     /**List of registrations */
-    registrations: Registration[]
+    registrations: string[]
     /**Past list of registrations for previous contests that have already ended */
-    pastRegistrations: Registration[]
-}
-/**Descriptor for a registration */
-export interface Registration {
-    /**The contest (does not specify when) */
-    contest: string
-    /**Division number */
-    division: number
-    /**Which of the actual contests (e.g. 2024 Fall) */
-    name: string
+    pastRegistrations: string[]
 }
 
 /**Descriptor for a single round */

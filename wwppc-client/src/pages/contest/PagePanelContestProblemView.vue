@@ -1,14 +1,28 @@
 <script setup lang="ts">
-import { setTitlePanel } from '@/scripts/title';
-import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { ContestProblemCompletionState, completionStateString, type ContestProblem, type ContestSubmission } from '@/scripts/ContestManager';
-import { ref, watch, onMounted } from 'vue';
-import { useContestManager } from '@/scripts/ContestManager';
-import { useRoute, useRouter } from 'vue-router';
-import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import {setTitlePanel} from '@/scripts/title';
+import {DoubleCutCornerContainer, TitledCutCornerContainer} from '@/components/ui-defaults/UIContainers';
+import {
+    globalModal,
+    UIButton,
+    UIDropdown,
+    UIFileUpload,
+    UIIconButton,
+    UILinkButton
+} from '@/components/ui-defaults/UIDefaults';
+import {
+    completionStateString,
+    type ContestProblem,
+    ContestProblemCompletionState,
+    type ContestSubmission,
+    useContestManager
+} from '@/scripts/ContestManager';
+import {onMounted, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {autoGlitchTextTransition} from '@/components/ui-defaults/TextTransitions';
 import WaitCover from '@/components/WaitCover.vue';
 import latexify from '@/scripts/katexify';
+import ContestProblemStatusCircle from "@/components/contest/problems/ContestProblemStatusCircle.vue";
+import AnimateInContainer from "@/components/ui-defaults/containers/AnimateInContainer.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -46,13 +60,17 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 }
 </codeblock>
     `,
-    constraints: { memory: 1, time: -1 },
+    constraints: {memory: 1, time: -1},
     status: ContestProblemCompletionState.ERROR,
     hidden: false
 });
 const submission = ref<ContestSubmission>();
 const loadErrorModal = (title: string, content: string) => {
-    modal.showModal({ title: title, content: content + '<br>Click OK to return to problem list.', color: 'red' }).result.then(() => {
+    modal.showModal({
+        title: title,
+        content: content + '<br>Click <code>OK</code> to return to problem list.',
+        color: 'red'
+    }).then(() => {
         router.push(`/contest/problemList`);
     });
 };
@@ -103,7 +121,11 @@ const handleUpload = () => {
     if (fileUpload.value == undefined || file == undefined) return;
     if (file.size > 10240) {
         fileUpload.value.resetFileList();
-        modal.showModal({ title: 'File size too large', content: 'The maximum file size for submissions is 10kB', color: 'red' });
+        modal.showModal({
+            title: 'File size too large',
+            content: 'The maximum file size for submissions is 10kB',
+            color: 'red'
+        });
         return;
     }
     const ext = file.name.split(".").at(-1);
@@ -119,25 +141,45 @@ const handleUpload = () => {
 const submitUpload = async () => {
     if (typeof languageDropdown.value?.value !== 'string') {
         console.log(languageDropdown.value);
-        modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
+        modal.showModal({title: 'No language selected', content: 'No language was selected!', color: 'red'});
         return;
     }
     if (fileUpload.value == null || fileUpload.value.files == null) {
-        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+        modal.showModal({title: 'No file selected', content: 'No file was selected!', color: 'red'});
         return;
     }
     const file = fileUpload.value.files.item(0);
     if (file == null) {
-        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+        modal.showModal({title: 'No file selected', content: 'No file was selected!', color: 'red'});
         return;
     }
     await contestManager.updateSubmission(problem.value.id, languageDropdown.value.value, await file.text());
 }
+
+const previousSubmissions = ref([
+    [
+        {status: ContestProblemCompletionState.GRADED_PASS},
+        {submissionData: submission} // previous submission link?
+
+    ],
+    [
+        {status: ContestProblemCompletionState.NOT_UPLOADED},
+        {submissionData: submission} // previous submission link?
+
+    ],
+    [
+        {status: ContestProblemCompletionState.GRADED_FAIL},
+        {submissionData: submission} // previous submission link?
+
+    ]
+
+])
 </script>
 
 <template>
     <div style="margin-left: -4px;">
-        <UIIconButton text="Back to Problem List" img="/assets/arrow-left.svg" @click="$router.push('/contest/problemList')" color="lime"></UIIconButton>
+        <UIIconButton text="Back to Problem List" img="/assets/arrow-left.svg"
+                      @click="$router.push('/contest/problemList')" color="lime"></UIIconButton>
     </div>
     <div class="problemViewPanel">
         <div class="problemViewDouble">
@@ -147,13 +189,15 @@ const submitUpload = async () => {
                     <span v-html="problemSubtitle2"></span>
                 </div>
                 <div class="problemViewContent" v-html="latexify(problem.content)"></div>
-                <WaitCover text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
+                <WaitCover text="Loading..."
+                           :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
                     <h3>Submit</h3>
                     <div style="text-align: justify;">
-                        Submissions are not graded until the round is over, but you can update your submission at any time.
+                        Submissions are not graded until the round is over, but you can update your submission at any
+                        time.
                     </div>
                 </div>
                 <br>
@@ -172,19 +216,39 @@ const submitUpload = async () => {
                             { text: 'Python 3.6.9', value: 'py369' }
                         ]" required></UIDropdown>
                     </div>
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content"
+                              @click=submitUpload></UIButton>
                     <!--probably disable/enable this?-->
                 </form>
             </DoubleCutCornerContainer>
+
+            <!-- PREVIOUS SUBMISSIONS-->
+
+            <!--            <AnimateInContainer type="fade" v-for="(problem, index) in previousSubmissions" :key=problem[index].status :delay="index * 100">-->
+            <!--                asdf-->
+            <!--            </AnimateInContainer>-->
+
             <DoubleCutCornerContainer flipped>
+                Previous Submissions:
+                <AnimateInContainer type="fade" v-for="(item, index) in previousSubmissions" :key="item[index]" :delay="index * 100">
+                    <div class="contestProblemListProblem">
+                        <span class="previousProblemListName">Submission {{index}}</span>
+                        <!--                    <div class = "">Previous Submissions</div>-->
+                        <span class="previousProblemStatusCircle">
+<!--                        <ContestProblemStatusCircle-->
+<!--                            :status="item[index].status"></ContestProblemStatusCircle>-->
+                    </span>
+                        <span
+                            class="problemStatus">{{ completionStateString(ContestProblemCompletionState.GRADED_PASS) }}</span>
+                        <span class="contestProblemListProblemButton">
+                        <UILinkButton text="View" width="100px" height="36px" :border="true"
+                                      @click="router.push(`/contest/problemView/${previousSubmission}_${previousSubmissinoNumber}`)"></UILinkButton>
+                    </span>
+                        <!--                    Previous Submissions:-->
+                        <!--                    {{ submission ?? 'no    submission yet!' }}-->
+                    </div>
+                </AnimateInContainer>
 
-
-                <div class = "contestProblemListProblem">
-                    Previous Submissions:
-                    {{ submission ?? 'no submission yet!' }}
-                </div>
-
-                <!--format this oof (maybe a component?)-->
             </DoubleCutCornerContainer>
         </div>
     </div>
@@ -195,6 +259,24 @@ const submitUpload = async () => {
     display: flex;
     flex-direction: column;
     height: calc(100% - 32px);
+}
+
+.previousProblemStatusCircle {
+    grid-row: 2;
+}
+
+.problemStatus {
+    grid-column: 2;
+    grid-row: 3;
+    font-size: 20px;
+}
+
+.previousProblemListName {
+    grid-column: 2;
+    column-width: 10000px;
+    grid-row: 1;
+    margin: 10%;
+    font-size: 20px;
 }
 
 .problemViewDouble {
@@ -248,7 +330,7 @@ const submitUpload = async () => {
     margin-bottom: 4px;
 }
 
-.problemViewSubmitFormInner>*:nth-child(odd) {
+.problemViewSubmitFormInner > *:nth-child(odd) {
     justify-self: right;
 }
 </style>

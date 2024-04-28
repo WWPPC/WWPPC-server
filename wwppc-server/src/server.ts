@@ -374,7 +374,12 @@ io.on('connection', async (s) => {
                 pastRegistrations: existingData.pastRegistrations,
                 team: existingData.team
             };
-            const res = await database.updateAccountData(socket.username, password, userDat);
+            const verifyStatus = await database.checkAccount(socket.username, password);
+            if (verifyStatus !== AccountOpResult.SUCCESS) {
+                socket.emit('setUserDataResponse', verifyStatus);
+                return;
+            }
+            const res = await database.updateAccountData(socket.username, userDat);
             socket.emit('setUserDataResponse', res);
             if (config.debugMode) {
                 socket.logWithId(logger.debug, 'Update user data: ' + JSON.stringify(userDat), true);
