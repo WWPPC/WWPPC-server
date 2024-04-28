@@ -177,6 +177,50 @@ export class Database {
         return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_=+]+$/.test(username);
     }
     /**
+     * Read a list of all accounts that exist. Bypasses cache.
+     * @returns {AccountData[] | null}
+     */
+    async getAccountList(): Promise<AccountData[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECt * FROM users');
+            if (data.rows.length > 0) {
+                const ret: AccountData[] = [];
+                for (const row of data.rows) {
+                    const userData: AccountData = {
+                        username: row.username,
+                        email: row.email,
+                        firstName: row.firstname,
+                        lastName: row.lastname,
+                        displayName: row.displayname,
+                        profileImage: row.profileimg,
+                        bio: row.biography,
+                        school: row.school,
+                        grade: row.grade,
+                        experience: row.experience,
+                        languages: row.languages,
+                        registrations: row.registrations,
+                        pastRegistrations: row.pastregistrations,
+                        team: row.team
+                    };
+                    this.#userCache.set(row.username, {
+                        data: userData,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    ret.push(userData);
+                }
+                return ret;
+            }
+            return null;
+        } catch (err) {
+            this.logger.error('Database error (getAccountList):');
+            this.logger.error('' + err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] getAccountList in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
      * Create an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} password Valid password
@@ -188,7 +232,7 @@ export class Database {
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
-            if (data.rowCount != null && data.rowCount > 0) return AccountOpResult.ALREADY_EXISTS;
+            if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
             else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team, teamname, teambio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)', [
                 username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, ''
             ]);
@@ -227,7 +271,7 @@ export class Database {
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
             const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
-            if (data.rowCount != null && data.rowCount > 0) {
+            if (data.rows.length > 0) {
                 if (await bcrypt.compare(password, data.rows[0].password)) {
                     this.#rotateRecoveryPassword(username);
                     return AccountOpResult.SUCCESS;
@@ -354,7 +398,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
-            if (data.rowCount != null && data.rowCount > 0) {
+            if (data.rows.length > 0) {
                 this.#rotateRecoveryPassword(username);
                 if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
@@ -387,7 +431,7 @@ export class Database {
                 if (res != AccountOpResult.SUCCESS) return res;
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
-                if (data.rowCount == null || data.rowCount == 0) return AccountOpResult.NOT_EXISTS;
+                if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
@@ -415,7 +459,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
-            if (data.rowCount != null && data.rowCount > 0) {
+            if (data.rows.length > 0) {
                 this.logger.info(`[Database] Fetched recovery password for ${username}`, true);
                 return this.#RSAdecryptSymmetric(data.rows[0].recoverypass);
             }
@@ -522,7 +566,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const exists = await this.#db.query('SELECT FROM rounds WHERE contest=$1 AND number=$2', [round.contest, round.round]);
-            if ((exists.rowCount ?? 0) > 0) {
+            if (exists.rows.length > 0) {
                 await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             } else {
                 await this.#db.query('INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
@@ -579,7 +623,8 @@ export class Database {
                     content: problem.content,
                     cases: problem.cases,
                     constraints: problem.constraints,
-                    hidden: problem.hidden
+                    hidden: problem.hidden,
+                    archived: problem.archived
                 };
                 this.#problemCache.set(problem.id, {
                     problem: p,
@@ -604,12 +649,12 @@ export class Database {
     async writeProblem(problem: Problem): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const exists = await this.#db.query('SELECT id FROM problems WHERE id=$1', [problem.id]);
-            if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6 WHERE id=$1', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints)]);
-            } else {
-                await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden) VALUES ($1, $2, $3, $4, $5, $6, $7)', [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden]);
-            }
+            await this.#db.query(`
+                UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1;
+                IF NOT FOUND THEN
+                INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+                END IF`,
+                [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived]);
             this.#problemCache.set(problem.id, {
                 problem: problem,
                 expiration: performance.now() + config.dbCacheTime
@@ -688,12 +733,13 @@ export class Database {
     async writeSubmission(submission: Submission): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const exists = await this.#db.query('SELECT id FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
-            if ((exists.rowCount ?? 0) > 0) {
-                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2', [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
-            } else {
-                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
-            }
+            await this.#db.query(`
+                UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2;
+                IF NOT FOUND THEN
+                INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6);
+                END IT
+                `,
+                [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
             this.#submissionCache.set(submission.problemId, {
                 submission: submission,
                 expiration: performance.now() + config.dbCacheTime
@@ -742,7 +788,7 @@ export enum AccountOpResult {
 /**Admin permission level bit flags (not implemented yet) */
 export enum AdminPerms {
     ADMIN = 1,
-    /**view all problems, including hidden */
+    /**view all problems, including hidden ones */
     VIEW_PROBLEMS = 1 << 1,
     /**create, modify, and delete problems */
     MANAGE_PROBLEMS = 1 << 2,
@@ -839,8 +885,10 @@ export interface Problem {
     cases: TestCase[]
     /**Runtime constraints */
     constraints: { time: number, memory: number }
-    /**Whether the problem is hidden */
+    /**Public visibility of problem */
     hidden: boolean
+    /**Archival status - can be fetched through API? */
+    archived: boolean
 }
 /**Descriptor for the constraints of a single problem */
 export interface ProblemConstraints {

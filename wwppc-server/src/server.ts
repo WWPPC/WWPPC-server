@@ -87,7 +87,7 @@ app.use('/api/*', (req, res) => res.sendStatus(404));
 
 // admin portal
 import attachAdminPortal from './adminPortal';
-attachAdminPortal(database, app, logger);
+attachAdminPortal(database, app, contestManager, logger);
 
 // static hosting optional
 logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
