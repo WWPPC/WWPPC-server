@@ -121,7 +121,7 @@ export const useContestManager = defineStore('contestManager', {
                     serverConnection.off('problemList', handle);
                 };
                 serverConnection.on('problemList', handle);
-            })
+            });
         },
         async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
             const serverConnection = useServerConnection();
@@ -204,9 +204,18 @@ export const useContestManager = defineStore('contestManager', {
             const res = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
             return res as ArchiveProblem;
         },
-        async updateSubmission(problemId: string, lang: string, file: string): Promise<void> {
+        async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestSubmission | null> {
             const serverConnection = useServerConnection();
-            serverConnection.emit('updateSubmission', { problemId, lang, file });
+            if (!serverConnection.loggedIn) return null;
+            return await new Promise((resolve) => {
+                serverConnection.emit('updateSubmission', { id: problemId, file, lang });
+                const handle = (id: string, status: ContestSubmission) => {
+                    if (id != problemId) return;
+                    resolve(status);
+                    serverConnection.off('submissionStatus', handle);
+                };
+                serverConnection.on('submissionStatus', handle);
+            });
         },
         async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
             const serverConnection = useServerConnection();
