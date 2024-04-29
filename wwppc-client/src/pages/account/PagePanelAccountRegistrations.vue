@@ -3,7 +3,7 @@
 
 <template>
     <div>
-        <!-- list of registrations + fullscreen form? -->
+        
     </div>
 </template>
 

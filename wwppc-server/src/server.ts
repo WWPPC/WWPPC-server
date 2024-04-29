@@ -318,7 +318,7 @@ io.on('connection', async (s) => {
             }
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
             if (!await checkRecaptcha(creds.token)) return;
-            const res = await database.changePasswordTokenAccount(username, recoveryPassword, newPassword);
+            const res = await database.changeAccountPasswordToken(username, recoveryPassword, newPassword);
             if (config.debugMode) socket.logWithId(logger.debug, 'Recover account: ' + reverse_enum(AccountOpResult, res));
             socket.emit('credentialRes', res);
             // remove the listener to try and combat spam some more
@@ -403,7 +403,7 @@ io.on('connection', async (s) => {
         }
         socket.logWithId(logger.info, 'Changing credentials');
         if (!await checkRecaptcha(creds.token)) return;
-        const res = await database.changePasswordAccount(socket.username, password, newPassword);
+        const res = await database.changeAccountPassword(socket.username, password, newPassword);
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Change credentials: ' + reverse_enum(AccountOpResult, res));
     });

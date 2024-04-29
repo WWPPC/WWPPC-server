@@ -260,7 +260,7 @@ export class Database {
         }
     }
     /**
-     * Check credentials against an existing account with the specified username. **Does not validate credentials**.
+     * Check credentials against an existing account. **Does not validate credentials**.
      * If successful, the `recoverypass` field is rotated to a new random string.
      * @param {string} username Valid username
      * @param {string} password Valid password
@@ -287,7 +287,7 @@ export class Database {
         }
     }
     /**
-     * Get use data for an account. **DOES NOT VALIDATE CREDENTIALS**
+     * Get user data for an account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @returns {AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} AccountData or an error code
      */
@@ -331,12 +331,12 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account with the specified username. Does not verify correct password.
+     * Overwrite user data for an existing account. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {AccountData} userData New data
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
-    async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
             await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10, registrations=$11 WHERE username=$1', [
@@ -347,7 +347,6 @@ export class Database {
                 expiration: performance.now() + config.dbCacheTime
             });
             this.logger.info(`[Database] Updated account data for "${username}"`, true);
-            // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (updateAccountData):');
@@ -365,7 +364,7 @@ export class Database {
      * @param {string} newPassword Valid new password
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
-    async changePasswordAccount(username: string, password: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async changeAccountPassword(username: string, password: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.checkAccount(username, password);
@@ -375,11 +374,11 @@ export class Database {
             // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (changePasswordAccount):');
+            this.logger.error('Database error (changeAccountPassword):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] changePasswordAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] changeAccountPassword in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -390,7 +389,7 @@ export class Database {
      * @param {string} newPassword Valid new password
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
-    async changePasswordTokenAccount(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
@@ -404,11 +403,11 @@ export class Database {
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (changePasswordAccount):');
+            this.logger.error('Database error (changeAccountPassword):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] changePasswordTokenAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`[Database] changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -490,12 +489,65 @@ export class Database {
     }
 
     /**
+     * Get the id of a user's team (the team creator's username). **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @returns {string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Team id or an error code
+     */
+    async getAccountTeam(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+    /**
+     * Set the id of a user's team (the team creator's username). Also copies registrations for upcoming contests into the user's registrations. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @param {string} team Valid username (of team)
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
+     */
+    async setAccountTeam(username: string, team: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+    /**
+     * Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @returns {TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Team data or an error code
+     */
+    async getTeamData(username: string): Promise<TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+    /**
+     * Overwrite the team data for an existing team. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @param {TeamData} teamData New data
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
+     */
+    async updateTeamData(username: string, teamData: TeamData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+    /**
+     * Register an account for a contest, also registering all other accounts on the same team. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @param {string} contest Contest id
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR`)
+     */
+    async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+    /**
+     * Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @param {string} contest Contest id
+     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR` and unregistering from a contest not registered for will return `NOT_EXISTS`)
+     */
+    async unregisterContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+        return AccountOpResult.ERROR;
+    }
+
+    #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
+    /**
      * Check if an administrator has a certain permission.
      * @param username Valid administrator username
      * @param flag Permission flag to check against
      * @returns {boolean} If the administrator has the permission. Also false if the user is not an administrator.
      */
-    #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     async hasPerms(username: string, flag: AdminPerms): Promise<boolean> {
         const startTime = performance.now();
         try {

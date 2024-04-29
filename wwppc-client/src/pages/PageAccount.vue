@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelView, PanelNavLargeLogo, PanelRightList } from '@/components/panels/PanelManager';
 import PagePanelAccountProfile from './account/PagePanelAccountProfile.vue';
-import PagePanelAccountRegister from './account/PagePanelAccountRegister.vue';
 import PagePanelAccountWrapper from './account/PagePanelAccountWrapper.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { useRoute } from 'vue-router';
 import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
+import PagePanelAccountRegistrations from './account/PagePanelAccountRegistrations.vue';
 
 const route = useRoute();
 
@@ -39,7 +39,7 @@ connectionEnforcer.loginInclude.add('/account');
             </PanelBody>
             <PanelBody name="registrations" title="Registrations">
                 <PagePanelAccountWrapper>
-                    <PagePanelAccountRegister></PagePanelAccountRegister>
+                    <PagePanelAccountRegistrations></PagePanelAccountRegistrations>
                 </PagePanelAccountWrapper>
             </PanelBody>
         </PanelMain>
