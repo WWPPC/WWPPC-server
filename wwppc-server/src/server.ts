@@ -412,6 +412,9 @@ io.on('connection', async (s) => {
             socket.kick('null credentials');
             return;
         }
+        if (creds.password == null) {
+            socket.kick('null credentials');
+        }
         const password = await database.RSAdecrypt(creds.password);
         if (typeof password != 'string' || !database.validate(socket.username, password)) {
             socket.kick('invalid credentials');
@@ -422,6 +425,26 @@ io.on('connection', async (s) => {
         const res = await database.deleteAccount(socket.username, password);
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
+    });
+    socket.on('joinTeam', async (data: {username, newTeam}) => {
+        if (data == null || data.username == null || data.newTeam == null) {
+            socket.kick('null credentials');
+        }
+        const userData = await database.getAccountData(data.username);
+        if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
+            return;
+         }
+        userData.team = data.newTeam;
+    });
+    socket.on('leaveTeam', async (data: {username}) => {
+        if (data == null || data.username == null) {
+            socket.kick('null credentials');
+        }
+        const userData = await database.getAccountData(data.username);
+        if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
+            return;
+         }
+        userData.team = data.username;
     });
     // hand off to ContestManager
     contestManager.addUser(socket);
