@@ -21,7 +21,7 @@ import ContactFooter from '@/components/ContactFooter.vue';
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
                                 <div style="flex-grow: 1;">
-                                    <GlitchText text="WWP-Hacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                    <GlitchText text="WWPHacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                     <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                     <UIDivider color="#AAA"></UIDivider>
                                     <p>
@@ -44,7 +44,7 @@ import ContactFooter from '@/components/ContactFooter.vue';
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
                                 <div style="flex-grow: 1;">
-                                    <GlitchText text="WWP-IT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                    <GlitchText text="WWPIT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
                                     <GlitchText text="06/02/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                                     <UIDivider color="#AAA"></UIDivider>
                                     <p>
