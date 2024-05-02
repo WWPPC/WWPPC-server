@@ -1,6 +1,6 @@
-import express, { Express } from 'express';
+import express, { Express, IRouterMatcher } from 'express';
 import path from 'path';
-import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import bodyParser from 'body-parser';
 
 import Database, { AccountOpResult, AdminPerms } from './database';
@@ -48,6 +48,45 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         }
     });
 
+    const defaultResponseMapping = (res, stat: AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR) => {
+        if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);
+        else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
+        else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
+        else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
+        else  res.sendStatus(500);
+    };
+    // functions
+    app.get('/admin/api/accountList', async (req, res) => {
+        const data = await database.getAccountList();
+        if (data == null) res.sendStatus(500);
+        else res.json(data);
+    });
+    app.get('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
+        if (req.body.username == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        const data = await database.getAccountData(req.body.username);
+        if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
+        else if (data == AccountOpResult.ERROR) res.sendStatus(500);
+        else res.json(data);
+    });
+    app.post('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
+        if ([req.body.username, req.body.firstName, req.body.lastName, req.body.displayName, req.body.profileImage, req.body.school, req.body.grade, req.body.experience, req.body.languages, req.body.bio, req.body.registrations, req.body.team].some((v) => v == undefined)) {
+            res.sendStatus(400);
+            return;
+        }
+        const stat = await database.updateAccountData(req.body.username, req.body);
+        defaultResponseMapping(res, stat);
+    });
+    app.post('/admin/api/accountTeam/', bodyParser.json(), async (req, res) => {
+        if (req.body.team == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        const stat = await database.setAccountTeam(req.body.username, req.body.team);
+        defaultResponseMapping(res, stat);
+    });
 
     // prevent single-page stuff from resolving this
     app.use('/admin/*', (req, res) => res.sendStatus(404));
