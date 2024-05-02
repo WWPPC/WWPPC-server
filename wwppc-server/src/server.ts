@@ -103,7 +103,6 @@ if (config.serveStatic) {
         res.status(404);
         if (req.accepts('html')) res.sendFile(indexDir);
         else res.sendStatus(404);
-        res.end();
     });
 }
 
