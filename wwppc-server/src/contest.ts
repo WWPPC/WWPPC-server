@@ -88,7 +88,7 @@ export class ContestManager {
 
         // new event handlers
         //toggle registration for a contest (maybe use the #users Map rather than reading from db each time)
-        socket.on('registerContest', async (request: {contest: string}) => {
+        socket.on('registerContest', async (request: { contest: string }) => {
             if (request == null || typeof request.contest !== 'string') {
                 socket.kick('invalid registerContest payload');
                 return;
@@ -237,7 +237,7 @@ export class ContestManager {
                 socket.kick('invalid updateSubmission contest, round, or problem ID');
                 return;
             }
-            const rounds = await this.db.readRounds({contest: request.contest, round: request.round});
+            const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
             //note that we are guaranteed to have a valid round, since we just checked valid problem
             if (rounds[0].startTime > Date.now() || rounds[0].endTime < Date.now()) {
                 socket.kick('updateSubmission outside of contest window');

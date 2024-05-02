@@ -52,7 +52,7 @@ import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted } fr
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
-import { addKickFunction } from './socket';
+import { createServerSocket } from './socket';
 
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
@@ -117,7 +117,7 @@ const recentPasswordResetEmails = new Set<string>();
 io.on('connection', async (s) => {
     s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
     const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
-    const socket = addKickFunction(s, ip, logger);
+    const socket = createServerSocket(s, ip, logger);
     // some spam protection stuff
     socket.on('error', (e) => socket.kick(e?.toString()));
     // connection DOS detection
@@ -334,7 +334,7 @@ io.on('connection', async (s) => {
 
     // add remaining listeners
     socket.on('setUserData', async (data: { password: RSAEncrypted, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
-        if (data == undefined || data.data == undefined) {
+        if (data == null || data.data == null) {
             socket.kick('invalid setUserData parameters');
             return;
         }
@@ -411,9 +411,6 @@ io.on('connection', async (s) => {
         if (creds == null) {
             socket.kick('null credentials');
             return;
-        }
-        if (creds.password == null) {
-            socket.kick('null credentials');
         }
         const password = await database.RSAdecrypt(creds.password);
         if (typeof password != 'string' || !database.validate(socket.username, password)) {

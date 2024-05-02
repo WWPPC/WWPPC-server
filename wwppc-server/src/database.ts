@@ -154,7 +154,7 @@ export class Database {
         for (const { name, value } of columns) {
             if (value instanceof Array) {
                 bindings.push(value);
-                conditions.push(`${name}=ANY($${bindings.length})`);
+                conditions.push(`${name} IN ($${bindings.length})`);
             } else if (value != undefined) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
@@ -296,8 +296,7 @@ export class Database {
         try {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
-            // it probably doesn't matter that we fetch everything (though passwords are also fetched...)
-            const data = await this.#db.query('SELECT * FROM users WHERE username=$1', [username]);
+            const data = await this.#db.query('SELECT username, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
                 const userData: AccountData = {
                     username: data.rows[0].username,
@@ -339,14 +338,13 @@ export class Database {
     async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10, registrations=$11 WHERE username=$1', [
-                username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio, userData.registrations
+            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1', [
+                username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             this.#userCache.set(username, {
                 data: userData,
                 expiration: performance.now() + config.dbCacheTime
             });
-            this.logger.info(`[Database] Updated account data for "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (updateAccountData):');
@@ -371,6 +369,7 @@ export class Database {
             if (res != AccountOpResult.SUCCESS) return res;
             const encryptedPassword = await bcrypt.hash(newPassword, salt);
             await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+            this.logger.info(`[Database] Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -398,6 +397,7 @@ export class Database {
                 if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
                     await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+                    this.logger.info(`[Database] Reset password via token for "${username}"`, true);
                     return AccountOpResult.SUCCESS;
                 } else return AccountOpResult.INCORRECT_CREDENTIALS;
             }
@@ -494,7 +494,18 @@ export class Database {
      * @returns {string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Team id or an error code
      */
     async getAccountTeam(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const data = await this.getAccountData(username);
+            if (typeof data != 'object') return data;
+            return data.team;
+        } catch (err) {
+            this.logger.error('Database error (getAccountTeam):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] getAccountTeam in ${performance.now() - startTime}ms`, true);
+        }
     }
     /**
      * Set the id of a user's team (the team creator's username). Also copies registrations for upcoming contests into the user's registrations. **Does not validate credentials**.
@@ -503,7 +514,24 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
     async setAccountTeam(username: string, team: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const res = await this.#db.query(`
+                UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2);
+                IF FOUND THEN
+                    UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
+                END IF`,
+                [username, team]
+            );
+            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            return AccountOpResult.ERROR;
+        } catch (err) {
+            this.logger.error('Database error (setAccountTeam):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] setAccountTeam in ${performance.now() - startTime}ms`, true);
+        }
     }
     /**
      * Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
@@ -511,7 +539,22 @@ export class Database {
      * @returns {TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Team data or an error code
      */
     async getTeamData(username: string): Promise<TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT team, teamname, teambio FROM users WHERE username=(SELECT team FROM users WHERE username=$1)', [username]);
+            if (data.rows.length > 0) return {
+                id: data.rows[0].team,
+                name: data.rows[0].teamname,
+                bio: data.rows[0].teambio
+            };
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (getTeamData):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] getTeamData in ${performance.now() - startTime}ms`, true);
+        }
     }
     /**
      * Overwrite the team data for an existing team. **Does not validate credentials**.
@@ -520,7 +563,22 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
     async updateTeamData(username: string, teamData: TeamData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const res = await this.#db.query(`
+                DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
+                UPDATE users SET teamname=$2, teambio=$3 WHERE username=@team`,
+                [username, teamData.name, teamData.bio]
+            );
+            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (updateTeamData):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] updateTeamData in ${performance.now() - startTime}ms`, true);
+        }
     }
     /**
      * Register an account for a contest, also registering all other accounts on the same team. **Does not validate credentials**.
@@ -529,7 +587,24 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR`)
      */
     async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const res = await this.#db.query(`
+                IF EXISTS (SELECT contest FROM rounds WHERE countest=$2) THEN
+                    DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
+                    UPDATE users SET registrations=(registrations || $1) WHERE team=@team;
+                END IF`,
+                [username, contest]
+            );
+            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (registerContest):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] registerContest in ${performance.now() - startTime}ms`, true);
+        }
     }
     /**
      * Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
@@ -538,7 +613,22 @@ export class Database {
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR` and unregistering from a contest not registered for will return `NOT_EXISTS`)
      */
     async unregisterContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return AccountOpResult.ERROR;
+        const startTime = performance.now();
+        try {
+            const res = await this.#db.query(`
+                DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
+                UPDATE users SET registrations=ARRAY_REMOVE(registrations, $2) WHERE team=@team`,
+                [username, contest]
+            );
+            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            return AccountOpResult.NOT_EXISTS;
+        } catch (err) {
+            this.logger.error('Database error (unregisterContest):');
+            this.logger.error('' + err);
+            return AccountOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] unregisterContest in ${performance.now() - startTime}ms`, true);
+        }
     }
 
     #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
@@ -613,12 +703,13 @@ export class Database {
     async writeRound(round: Round): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const exists = await this.#db.query('SELECT FROM rounds WHERE contest=$1 AND number=$2', [round.contest, round.round]);
-            if (exists.rows.length > 0) {
-                await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
-            } else {
-                await this.#db.query('INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5)', [round.contest, round.round, round.problems, round.startTime, round.endTime]);
-            }
+            await this.#db.query(`
+                UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2;
+                IF NOT FOUND THEN
+                    INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5);
+                END IF`,
+                [round.contest, round.round, round.problems, round.startTime, round.endTime]
+            );
             return true;
         } catch (err) {
             this.logger.error('Database error (writeRound):');
@@ -700,9 +791,10 @@ export class Database {
             await this.#db.query(`
                 UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1;
                 IF NOT FOUND THEN
-                INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+                    INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
                 END IF`,
-                [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived]);
+                [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived]
+            );
             this.#problemCache.set(problem.id, {
                 problem: problem,
                 expiration: performance.now() + config.dbCacheTime
@@ -784,10 +876,11 @@ export class Database {
             await this.#db.query(`
                 UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2;
                 IF NOT FOUND THEN
-                INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6);
+                    INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6);
                 END IT
                 `,
-                [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]);
+                [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]
+            );
             this.#submissionCache.set(submission.problemId, {
                 submission: submission,
                 expiration: performance.now() + config.dbCacheTime
@@ -879,26 +972,46 @@ export interface AccountData {
     /**The teamid which is the username of the team owner */
     team: string
 }
+export interface AccountUserData {
+    /**Email */
+    email: string
+    /**First name */
+    firstName: string
+    /**Last name */
+    lastName: string
+    /**Alternate name used in front-end */
+    displayName: string
+    /**Encoded image */
+    profileImage: string
+    /**User-written short biography */
+    bio: string
+    /**School name */
+    school: string
+    /**Grade level (8 = below HS, 13 = above HS) */
+    grade: number
+    /**Experience level, 0 to 4, with 4 being the highest */
+    experience: number
+    /**Known languages, in file extension form */
+    languages: string[]
+    /**The teamid which is the username of the team owner */
+    team: string
+}
 /**Descriptor for a team */
 export interface TeamData {
-    /**The name of the team */
-    name: string,
     /**The unique team id which is the team owner/creator's username */
     readonly id: string,
+    /**The name of the team */
+    name: string,
     /**Team's biography */
-    bio: string,
-    /**List of registrations */
-    registrations: string[]
-    /**Past list of registrations for previous contests that have already ended */
-    pastRegistrations: string[]
+    bio: string
 }
 
 /**Descriptor for a single round */
 export interface Round {
     /**Contest ID */
-    contest: string
+    readonly contest: string
     /**Zero-indexed round number in contest */
-    round: number
+    readonly round: number
     /**List of problem UUIDs within the round */
     problems: UUID[]
     /**Time of round start, UTC */
@@ -909,7 +1022,7 @@ export interface Round {
 /**Descriptor for a single problem */
 export interface Problem {
     /**UUID */
-    id: UUID
+    readonly id: UUID
     /**Display name */
     name: string
     /**Author username */
