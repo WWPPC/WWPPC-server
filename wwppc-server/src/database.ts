@@ -330,9 +330,9 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account. **Does not validate credentials**.
+     * Overwrite user data for an existing account. *Only uses part of the data*. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {AccountData} userData New data
+     * @param {AccountData} userData New data (only `firstName`, `lastName`, `displayName`, `profileImage`, `school`, `grade`, `experience`, `languages`, and `bio` fields are updated)
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
     async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {

@@ -172,7 +172,7 @@ io.on('connection', async (s) => {
     };
     if (await new Promise((resolve, reject) => {
         let lockout = false;
-        socket.on('credentials', async (creds: { username: RSAEncrypted, password: RSAEncrypted, token: string, signupData?: { firstName: RSAEncrypted, lastName: RSAEncrypted, email: RSAEncrypted, school: RSAEncrypted, grade: number, experience: number, languages: string[] } }) => {
+        socket.on('credentials', async (creds: { username: string, password: RSAEncrypted, token: string, signupData?: { firstName: string, lastName: string, email: string, school: string, grade: number, experience: number, languages: string[] } }) => {
             if (creds == undefined) {
                 socket.kick('null credentials');
                 resolve(true);
@@ -185,7 +185,7 @@ io.on('connection', async (s) => {
             }
             lockout = true;
             const password = await database.RSAdecrypt(creds.password);
-            if (creds.username instanceof Buffer || password instanceof Buffer) {
+            if (password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 if (config.debugMode) socket.logWithId(logger.debug, 'Credentials failed to decode');
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
@@ -247,7 +247,7 @@ io.on('connection', async (s) => {
                 }
             }
         });
-        socket.on('requestRecovery', async (creds: { username: RSAEncrypted, email: RSAEncrypted, token: string }) => {
+        socket.on('requestRecovery', async (creds: { username: string, email: string, token: string }) => {
             if (creds == undefined) {
                 socket.kick('null credentials');
                 resolve(true);
@@ -315,7 +315,7 @@ io.on('connection', async (s) => {
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });
-        socket.on('recoverCredentials', async (creds: { username: RSAEncrypted, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
+        socket.on('recoverCredentials', async (creds: { username: string, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
             if (creds == undefined) {
                 socket.kick('null credentials');
                 resolve(true);
@@ -351,21 +351,16 @@ io.on('connection', async (s) => {
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
 
     // add remaining listeners
-    socket.on('setUserData', async (data: { password: RSAEncrypted, data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] } }) => {
-        if (data == null || data.data == null) {
-            socket.kick('invalid setUserData parameters');
+    socket.on('setUserData', async ( data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }) => {
+        if (data == null) {
+            socket.kick('invalid setUserData payload');
             return;
         }
         if (config.debugMode) socket.logWithId(logger.info, 'Updating user data');
-        const password = await database.RSAdecrypt(data.password);
-        if (typeof password != 'string' || !database.validate(socket.username, password)) {
-            socket.kick('invalid credentials');
-            return;
-        }
-        if (typeof data.data.firstName != 'string' || data.data.firstName.length > 32 || typeof data.data.lastName != 'string' || data.data.lastName.length > 32 || typeof data.data.displayName != 'string'
-            || data.data.displayName.length > 32 || typeof data.data.profileImage != 'string' || data.data.profileImage.length > 65535 || typeof data.data.bio != 'string' || data.data.bio.length > 2048
-            || typeof data.data.school != 'string' || data.data.school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'
-            || !Array.isArray(data.data.languages) || data.data.languages.length > 64 || data.data.languages.find((v) => typeof v != 'string') !== undefined) {
+        if (typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
+            || data.displayName.length > 32 || typeof data.profileImage != 'string' || data.profileImage.length > 65535 || typeof data.bio != 'string' || data.bio.length > 2048
+            || typeof data.school != 'string' || data.school.length > 64 || typeof data.grade != 'number' || typeof data.experience != 'number'
+            || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined) {
             socket.kick('invalid setUserData parameters');
             return;
         }
@@ -374,24 +369,19 @@ io.on('connection', async (s) => {
             const userDat: AccountData = {
                 username: socket.username,
                 email: existingData.username,
-                firstName: data.data.firstName,
-                lastName: data.data.lastName,
-                displayName: data.data.displayName,
-                profileImage: data.data.profileImage,
-                bio: data.data.bio,
-                school: data.data.school,
-                grade: data.data.grade,
-                experience: data.data.experience,
-                languages: data.data.languages,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                displayName: data.displayName,
+                profileImage: data.profileImage,
+                bio: data.bio,
+                school: data.school,
+                grade: data.grade,
+                experience: data.experience,
+                languages: data.languages,
                 registrations: existingData.registrations,
                 pastRegistrations: existingData.pastRegistrations,
                 team: existingData.team
             };
-            const verifyStatus = await database.checkAccount(socket.username, password);
-            if (verifyStatus !== AccountOpResult.SUCCESS) {
-                socket.emit('setUserDataResponse', verifyStatus);
-                return;
-            }
             const res = await database.updateAccountData(socket.username, userDat);
             socket.emit('setUserDataResponse', res);
             if (config.debugMode) {
@@ -436,25 +426,16 @@ io.on('connection', async (s) => {
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('joinTeam', async (data: { username, newTeam }) => {
-        if (data == null || data.username == null || data.newTeam == null) {
-            socket.kick('null credentials');
+    socket.on('joinTeam', async (joinCode: string) => {
+        if (typeof joinCode != 'string') {
+            socket.kick('invalid joinTeam payload');
         }
-        const userData = await database.getAccountData(data.username);
-        if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
-            return;
-        }
-        userData.team = data.newTeam;
+        const res = await database.setAccountTeam(socket.username, joinCode, true);
+        socket.emit('teamActionResponse', res);
     });
-    socket.on('leaveTeam', async (data: { username }) => {
-        if (data == null || data.username == null) {
-            socket.kick('null credentials');
-        }
-        const userData = await database.getAccountData(data.username);
-        if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
-            return;
-        }
-        userData.team = data.username;
+    socket.on('leaveTeam', async () => {
+        const res = await database.setAccountTeam(socket.username, socket.username);
+        socket.emit('teamActionResponse', res);
     });
     // hand off to ContestManager
     contestManager.addUser(socket);

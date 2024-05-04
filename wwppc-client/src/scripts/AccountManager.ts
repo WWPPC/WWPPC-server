@@ -196,18 +196,15 @@ export const useAccountManager = defineStore('accountManager', {
             if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('setUserData', {
-                    password: serverConnection.encryptedPassword,
-                    data: {
-                        firstName: this.firstName,
-                        lastName: this.lastName,
-                        displayName: this.displayName,
-                        profileImage: this.profileImage,
-                        bio: this.bio,
-                        school: this.school,
-                        grade: this.grade,
-                        experience: this.experience,
-                        languages: this.languages
-                    }
+                    firstName: this.firstName,
+                    lastName: this.lastName,
+                    displayName: this.displayName,
+                    profileImage: this.profileImage,
+                    bio: this.bio,
+                    school: this.school,
+                    grade: this.grade,
+                    experience: this.experience,
+                    languages: this.languages
                 });
                 serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
                     if (res == AccountOpResult.SUCCESS) unsaved.value = false;
