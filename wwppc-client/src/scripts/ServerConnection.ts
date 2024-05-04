@@ -116,14 +116,14 @@ export const sendCredentials = async (username: string, password: string | numbe
             const accountManager = useAccountManager();
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encrypt(password);
             socket.emit('credentials', {
-                username: await RSA.encrypt(username),
+                username: username,
                 password: password2,
                 token: token,
                 signupData: signupData !== undefined ? {
-                    firstName: await RSA.encrypt(signupData.firstName),
-                    lastName: await RSA.encrypt(signupData.lastName),
-                    email: await RSA.encrypt(signupData.email),
-                    school: await RSA.encrypt(signupData.school),
+                    firstName: signupData.firstName,
+                    lastName: signupData.lastName,
+                    email: signupData.email,
+                    school: signupData.school,
                     grade: signupData.grade,
                     experience: signupData.experience,
                     languages: signupData.languages,
@@ -215,7 +215,7 @@ const onDisconnected = (message: string) => {
     state.handshakePromise = new Promise((resolve) => handshakeResolve = resolve);
     state.loginPromise = new Promise((resolve) => loginResolve = resolve);
     state.loggedIn = false;
-    state.manualLogin = false;
+    state.manualLogin = true;
     connectionAttempts = 0;
     attemptConnect();
 };

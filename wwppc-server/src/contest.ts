@@ -53,6 +53,9 @@ export class ContestManager {
         this.logger = logger;
         this.#grader = new DomjudgeGrader(app, logger);
 
+        // SEE NETWORK DOCUMENTATION
+        // SEE NETWORK DOCUMENTATION
+
         //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted

@@ -17,6 +17,7 @@ import FullscreenModal, { ModalMode, type ModalParams } from './FullscreenModal.
 import UIDivider from './UIDivider.vue';
 import GlowText from './text/GlowText.vue';
 import GlitchText from './text/GlitchText.vue';
+import UICopyButton from './UICopyButton.vue';
 
 export {
     UIButton,
@@ -35,7 +36,8 @@ export {
     ModalMode,
     UIDivider,
     GlowText,
-    GlitchText
+    GlitchText,
+    UICopyButton
 }
 
 const modal = ref<InstanceType<typeof FullscreenModal>>();

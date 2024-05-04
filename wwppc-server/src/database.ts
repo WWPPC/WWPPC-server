@@ -233,8 +233,8 @@ export class Database {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team, teamname, teambio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)', [
-                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, ''
+            else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team, teamname, teambio, teamjoincode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)', [
+                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, '', Math.random().toFixed(6).substring(2)
             ]);
             this.#userCache.set(username, {
                 data: {
@@ -510,20 +510,33 @@ export class Database {
     /**
      * Set the id of a user's team (the team creator's username). Also copies registrations for upcoming contests into the user's registrations. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {string} team Valid username (of team)
+     * @param {string} team Valid username (of team) OR join code
+     * @param {boolean} useJoinCode If should search by join code instead (default false)
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
-    async setAccountTeam(username: string, team: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(`
-                UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2);
-                IF FOUND THEN
-                    UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
-                END IF`,
-                [username, team]
-            );
-            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            if (useJoinCode) {
+                const res = await this.#db.query(`
+                    DECLARE @team VARCHAR := (SELECT username FROM users WHERE joincode=$2);
+                    UPDATE users SET team=@team WHERE username=$1 AND EXISTS @team;
+                    IF FOUND THEN
+                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
+                    END IF`,
+                    [username, team]
+                );
+                if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            } else {
+                const res = await this.#db.query(`
+                    UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2);
+                    IF FOUND THEN
+                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
+                    END IF`,
+                    [username, team]
+                );
+                if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+            }
             return AccountOpResult.ERROR;
         } catch (err) {
             this.logger.error('Database error (setAccountTeam):');

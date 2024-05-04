@@ -171,25 +171,31 @@ io.on('connection', async (s) => {
         return true;
     };
     if (await new Promise((resolve, reject) => {
+        let lockout = false;
         socket.on('credentials', async (creds: { username: RSAEncrypted, password: RSAEncrypted, token: string, signupData?: { firstName: RSAEncrypted, lastName: RSAEncrypted, email: RSAEncrypted, school: RSAEncrypted, grade: number, experience: number, languages: string[] } }) => {
             if (creds == undefined) {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            const username = await database.RSAdecrypt(creds.username);
+            if (lockout) {
+                socket.kick('conflicting credential events');
+                resolve(true);
+                return;
+            }
+            lockout = true;
             const password = await database.RSAdecrypt(creds.password);
-            if (username instanceof Buffer || password instanceof Buffer) {
+            if (creds.username instanceof Buffer || password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 if (config.debugMode) socket.logWithId(logger.debug, 'Credentials failed to decode');
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
-            if (typeof username != 'string' || typeof password != 'string' || !database.validate(username, password) || typeof creds.token != 'string') {
+            if (typeof creds.username != 'string' || typeof password != 'string' || !database.validate(creds.username, password) || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 resolve(true);
                 return;
             }
-            socket.username = username;
+            socket.username = creds.username;
             if (config.debugMode) socket.logWithId(logger.debug, 'Successfully received credentials');
             if (!await checkRecaptcha(creds.token)) return;
             // actually create/check account
@@ -201,27 +207,24 @@ io.on('connection', async (s) => {
                 }
                 recentSignups.set(socket.ip, (recentSignups.get(socket.ip) ?? 0) + 60);
                 // even more validation
-                const firstName = await database.RSAdecrypt(creds.signupData.firstName);
-                const lastName = await database.RSAdecrypt(creds.signupData.lastName);
-                const email = await database.RSAdecrypt(creds.signupData.email);
-                const school = await database.RSAdecrypt(creds.signupData.school);
-                if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof email != 'string' || email.length > 32
-                    || typeof school != 'string' || school.length > 64 || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
+                if (typeof creds.signupData.firstName != 'string' || creds.signupData.firstName.length > 32 || typeof creds.signupData.lastName != 'string' || creds.signupData.lastName.length > 32 || typeof creds.signupData.email != 'string'
+                    || creds.signupData.email.length > 32 || typeof creds.signupData.school != 'string' || creds.signupData.school.length > 64 || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
                     || typeof creds.signupData.experience != 'number' || typeof creds.signupData.grade != 'number' || creds.token == undefined || typeof creds.token != 'string') {
                     socket.kick('invalid sign up data');
                     resolve(true);
                     return;
                 }
                 if (config.debugMode) socket.logWithId(logger.info, 'Signing up');
-                const res = await database.createAccount(username, password, {
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    school: school,
+                const res = await database.createAccount(creds.username, password, {
+                    email: creds.signupData.email,
+                    firstName: creds.signupData.firstName,
+                    lastName: creds.signupData.lastName,
+                    school: creds.signupData.school,
                     languages: creds.signupData.languages,
                     grade: creds.signupData.grade,
                     experience: creds.signupData.experience,
                 });
+                lockout = false;
                 socket.emit('credentialRes', res);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Sign up: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
@@ -232,7 +235,8 @@ io.on('connection', async (s) => {
                 }
             } else {
                 if (config.debugMode) socket.logWithId(logger.info, 'Logging in');
-                const res = await database.checkAccount(username, password);
+                const res = await database.checkAccount(creds.username, password);
+                lockout = false;
                 socket.emit('credentialRes', res);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
@@ -249,39 +253,47 @@ io.on('connection', async (s) => {
                 resolve(true);
                 return;
             }
-            const username = await database.RSAdecrypt(creds.username);
-            const email = await database.RSAdecrypt(creds.email);
-            if (typeof username != 'string' || typeof email != 'string' || !database.validate(username, 'dummyPass') || typeof creds.token != 'string') {
+            if (lockout) {
+                socket.kick('conflicting credential events');
+                resolve(true);
+                return;
+            }
+            lockout = true;
+            if (typeof creds.username != 'string' || typeof creds.email != 'string' || !database.validate(creds.username, 'dummyPass') || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 return;
             }
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to send recovery email');
             if (!await checkRecaptcha(creds.token)) return;
-            const data = await database.getAccountData(username);
+            const data = await database.getAccountData(creds.username);
             if (typeof data != 'object') {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
+                lockout = false;
                 socket.emit('credentialRes', data);
                 return;
             }
-            if (email !== data.email) {
+            if (creds.email !== data.email) {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: INCORRECT_CREDENTIALS');
+                lockout = false;
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                 return;
             }
             if (config.debugMode) socket.logWithId(logger.info, 'Account recovery via email password reset started');
-            if (recentPasswordResetEmails.has(username)) {
+            if (recentPasswordResetEmails.has(creds.username)) {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Account recovery email could not be sent because of rate limiting');
+                lockout = false;
                 socket.emit('credentialRes', AccountOpResult.ALREADY_EXISTS);
                 return;
             }
-            const recoveryPassword = await database.getRecoveryPassword(username);
+            const recoveryPassword = await database.getRecoveryPassword(creds.username);
             if (typeof recoveryPassword != 'string') {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, recoveryPassword));
+                lockout = false;
                 socket.emit('credentialRes', recoveryPassword);
                 return;
             }
-            const recoveryUrl = `https://${config.hostname}/recovery/?user=${username}&pass=${recoveryPassword}`;
-            await mailer.sendFromTemplate('base', [email], 'Reset Password', [
+            const recoveryUrl = `https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}`;
+            await mailer.sendFromTemplate('base', [creds.email], 'Reset Password', [
                 ['title', 'Account Recovery Request'],
                 ['content', `
                 <h3>Hallo ${data.displayName}!</h3>
@@ -297,7 +309,8 @@ io.on('connection', async (s) => {
                 </div>
                 `]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
-            recentPasswordResetEmails.add(username);
+            recentPasswordResetEmails.add(creds.username);
+            lockout = false;
             socket.emit('credentialRes', AccountOpResult.SUCCESS);
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
@@ -308,17 +321,23 @@ io.on('connection', async (s) => {
                 resolve(true);
                 return;
             }
-            const username = await database.RSAdecrypt(creds.username);
+            if (lockout) {
+                socket.kick('conflicting credential events');
+                resolve(true);
+                return;
+            }
+            lockout = true;
             const recoveryPassword = await database.RSAdecrypt(creds.recoveryPassword);
             const newPassword = await database.RSAdecrypt(creds.newPassword);
-            if (typeof username != 'string' || typeof recoveryPassword != 'string' || typeof newPassword != 'string' || !database.validate(username, newPassword) || typeof creds.token != 'string') {
+            if (typeof creds.username != 'string' || typeof recoveryPassword != 'string' || typeof newPassword != 'string' || !database.validate(creds.username, newPassword) || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 return;
             }
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
             if (!await checkRecaptcha(creds.token)) return;
-            const res = await database.changeAccountPasswordToken(username, recoveryPassword, newPassword);
+            const res = await database.changeAccountPasswordToken(creds.username, recoveryPassword, newPassword);
             if (config.debugMode) socket.logWithId(logger.debug, 'Recover account: ' + reverse_enum(AccountOpResult, res));
+            lockout = false;
             socket.emit('credentialRes', res);
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
@@ -343,14 +362,9 @@ io.on('connection', async (s) => {
             socket.kick('invalid credentials');
             return;
         }
-        const firstName = await database.RSAdecrypt(data.data.firstName);
-        const lastName = await database.RSAdecrypt(data.data.lastName);
-        const displayName = await database.RSAdecrypt(data.data.displayName);
-        const bio = await database.RSAdecrypt(data.data.bio);
-        const school = await database.RSAdecrypt(data.data.school);
-        if (typeof firstName != 'string' || firstName.length > 32 || typeof lastName != 'string' || lastName.length > 32 || typeof displayName != 'string'
-            || displayName.length > 32 || typeof data.data.profileImage != 'string' || data.data.profileImage.length > 65535 || typeof bio != 'string' || bio.length > 2048
-            || typeof school != 'string' || school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'
+        if (typeof data.data.firstName != 'string' || data.data.firstName.length > 32 || typeof data.data.lastName != 'string' || data.data.lastName.length > 32 || typeof data.data.displayName != 'string'
+            || data.data.displayName.length > 32 || typeof data.data.profileImage != 'string' || data.data.profileImage.length > 65535 || typeof data.data.bio != 'string' || data.data.bio.length > 2048
+            || typeof data.data.school != 'string' || data.data.school.length > 64 || typeof data.data.grade != 'number' || typeof data.data.experience != 'number'
             || !Array.isArray(data.data.languages) || data.data.languages.length > 64 || data.data.languages.find((v) => typeof v != 'string') !== undefined) {
             socket.kick('invalid setUserData parameters');
             return;
@@ -360,12 +374,12 @@ io.on('connection', async (s) => {
             const userDat: AccountData = {
                 username: socket.username,
                 email: existingData.username,
-                firstName,
-                lastName,
-                displayName,
+                firstName: data.data.firstName,
+                lastName: data.data.lastName,
+                displayName: data.data.displayName,
                 profileImage: data.data.profileImage,
-                bio,
-                school,
+                bio: data.data.bio,
+                school: data.data.school,
                 grade: data.data.grade,
                 experience: data.data.experience,
                 languages: data.data.languages,
@@ -422,24 +436,24 @@ io.on('connection', async (s) => {
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('joinTeam', async (data: {username, newTeam}) => {
+    socket.on('joinTeam', async (data: { username, newTeam }) => {
         if (data == null || data.username == null || data.newTeam == null) {
             socket.kick('null credentials');
         }
         const userData = await database.getAccountData(data.username);
         if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
             return;
-         }
+        }
         userData.team = data.newTeam;
     });
-    socket.on('leaveTeam', async (data: {username}) => {
+    socket.on('leaveTeam', async (data: { username }) => {
         if (data == null || data.username == null) {
             socket.kick('null credentials');
         }
         const userData = await database.getAccountData(data.username);
         if (userData === AccountOpResult.NOT_EXISTS || userData === AccountOpResult.ERROR) {
             return;
-         }
+        }
         userData.team = data.username;
     });
     // hand off to ContestManager

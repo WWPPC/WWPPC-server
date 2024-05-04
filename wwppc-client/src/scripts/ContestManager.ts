@@ -92,22 +92,27 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
 };
 
+// TESTING DATA - SET currContest BACK TO EMPTY
 const state = reactive<{
     inContest: boolean,
     currContest: string
 }>({
     inContest: false,
-    currContest: 'WWPITTEST' //for testing, set back to ''
+    currContest: 'WWPITTEST'
 });
 
 export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
+        async getContestList(): Promise<string[] | null> {
+            const serverConnection = useServerConnection();
+            const res: string[] | null = await serverConnection.apiFetch('GET', '/contestList/');
+            return res;
+        },
         async getContestData(): Promise<Contest | null> {
             const serverConnection = useServerConnection();
-            const res = await serverConnection.apiFetch('GET', '/contestData/' + state.currContest);
-            console.log(res)
-            return res as Contest;
+            const res: Contest | null = await serverConnection.apiFetch('GET', '/contestData/' + state.currContest);
+            return res;
         },
         async getProblemList(): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
@@ -201,8 +206,8 @@ export const useContestManager = defineStore('contestManager', {
         },
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
             const serverConnection = useServerConnection();
-            const res = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
-            return res as ArchiveProblem;
+            const res: ArchiveProblem | null = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
+            return res;
         },
         async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestSubmission | null> {
             const serverConnection = useServerConnection();

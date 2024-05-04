@@ -15,14 +15,19 @@ export interface AccountData {
     grade: number
     experience: number
     languages: string[]
-    registrations: Registration[]
+    registrations: string[]
+    pastRegistrations: string[]
     team: string
 }
 
-export interface Registration {
-    contest: string,
-    completed: boolean
+export interface TeamData {
+    teamName: string
+    teamMembers: string[]
+    teamBio: string
+    joinCode?: string
 }
+
+type ExtendedAccountData = AccountData & TeamData;
 
 // dropdown options keep getting reused
 export const gradeMaps = [
@@ -67,7 +72,8 @@ export function validateCredentials(username: string, password: string): boolean
 }
 
 const unsaved = ref(false);
-const state = reactive<AccountData>({
+const unsaved2 = ref(false);
+const state = reactive<ExtendedAccountData>({
     username: '',
     email: '',
     firstName: '',
@@ -80,13 +86,20 @@ const state = reactive<AccountData>({
     experience: 0,
     languages: [],
     registrations: [],
-    team: ''
+    pastRegistrations: [],
+    team: '',
+    teamName: '',
+    teamMembers: [],
+    teamBio: '',
+    joinCode: undefined
 });
-watch(state, () => unsaved.value = true);
+watch(() => ([state.firstName, state.lastName, state.displayName, state.bio, state.school, state.grade, state.experience, state.languages]), () => unsaved.value = true);
+watch(() => [state.teamName, state.teamBio], () => unsaved2.value = true);
 export const useAccountManager = defineStore('accountManager', {
     state: () => state,
     getters: {
-        unsavedChanges: () => unsaved.value
+        unsavedChanges: () => unsaved.value,
+        unsavedTeamChanges: () => unsaved2.value
     },
     actions: {
         async login(username: string, password: string | number[], token: string): Promise<AccountOpResult> {
@@ -134,8 +147,8 @@ export const useAccountManager = defineStore('accountManager', {
             return await new Promise(async (resolve, reject) => {
                 try {
                     serverConnection.emit('requestRecovery', {
-                        username: await serverConnection.RSAencrypt(username),
-                        email: await serverConnection.RSAencrypt(email),
+                        username: username,
+                        email: email,
                         token: token
                     });
                     serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
@@ -151,7 +164,7 @@ export const useAccountManager = defineStore('accountManager', {
             return await new Promise(async (resolve, reject) => {
                 try {
                     serverConnection.emit('recoverCredentials', {
-                        username: await serverConnection.RSAencrypt(username),
+                        username: username,
                         recoveryPassword: await serverConnection.RSAencrypt(recoveryPassword),
                         newPassword: await serverConnection.RSAencrypt(newPassword),
                         token: token
@@ -170,21 +183,59 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async getUserData(username: string): Promise<AccountData | null> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.handshakeComplete) return null;
-            return await new Promise((resolve) => {
-                const token = Math.random();
-                serverConnection.emit('getUserData', { username, token });
-                const handle = ({ data, token: token2 }: { data: AccountData | null, token: number }) => {
-                    if (token2 != token) return;
-                    resolve(data);
-                    serverConnection.off('userData', handle);
-                };
-                serverConnection.on('userData', handle);
+            const res: AccountData | null = await serverConnection.apiFetch('GET', '/userData/' + username);
+            return res;
+        },
+        async getTeamData(username: string): Promise<TeamData | null> {
+            const serverConnection = useServerConnection();
+            const res: TeamData | null = await serverConnection.apiFetch('GET', '/teamData/' + username);
+            return res;
+        },
+        async writeUserData(): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            return await new Promise(async (resolve) => {
+                serverConnection.emit('setUserData', {
+                    password: serverConnection.encryptedPassword,
+                    data: {
+                        firstName: this.firstName,
+                        lastName: this.lastName,
+                        displayName: this.displayName,
+                        profileImage: this.profileImage,
+                        bio: this.bio,
+                        school: this.school,
+                        grade: this.grade,
+                        experience: this.experience,
+                        languages: this.languages
+                    }
+                });
+                serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
+                    if (res == AccountOpResult.SUCCESS) unsaved.value = false;
+                    resolve(res);
+                });
+            });
+        },
+        async writeTeamData(): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            return await new Promise(async (resolve) => {
+                serverConnection.emit('setTeamData', {
+                    password: serverConnection.encryptedPassword,
+                    data: {
+                        teamName: this.teamName,
+                        teamBio: this.teamBio
+                    }
+                });
+                serverConnection.once('teamActionResponse', (res: AccountOpResult) => {
+                    if (res == AccountOpResult.SUCCESS) unsaved2.value = false;
+                    resolve(res);
+                });
             });
         },
         async updateOwnUserData(): Promise<boolean> {
             const dat = await this.getUserData(this.username);
-            if (dat != null) {
+            const dat2 = await this.getTeamData(this.username);
+            if (dat != null && dat2 != null) {
                 this.email = dat.email;
                 this.firstName = dat.firstName;
                 this.lastName = dat.lastName;
@@ -196,34 +247,30 @@ export const useAccountManager = defineStore('accountManager', {
                 this.experience = dat.experience;
                 this.languages = dat.languages;
                 this.registrations = dat.registrations;
+                this.pastRegistrations = dat.pastRegistrations;
+                this.teamName = dat2.teamName;
+                this.teamMembers = dat2.teamMembers;
+                this.teamBio = dat2.teamBio;
                 setTimeout(() => unsaved.value = false);
                 return true;
             }
             return false;
 
         },
-        async writeUserData(): Promise<AccountOpResult> {
+        async joinTeam(joinCode: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
             return await new Promise(async (resolve) => {
-                serverConnection.emit('setUserData', {
-                    password: serverConnection.encryptedPassword,
-                    data: {
-                        firstName: await serverConnection.RSAencrypt(this.firstName),
-                        lastName: await serverConnection.RSAencrypt(this.lastName),
-                        displayName: await serverConnection.RSAencrypt(this.displayName),
-                        profileImage: this.profileImage,
-                        bio: await serverConnection.RSAencrypt(this.bio),
-                        school: await serverConnection.RSAencrypt(this.school),
-                        grade: this.grade,
-                        experience: this.experience,
-                        languages: this.languages
-                    }
-                });
-                serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
-                    if (res == AccountOpResult.SUCCESS) unsaved.value = false;
-                    resolve(res);
-                });
+                serverConnection.emit('joinTeam', joinCode);
+                serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
+            });
+        },
+        async leaveTeam(): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            return await new Promise(async (resolve) => {
+                serverConnection.emit('leaveTeam');
+                serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
             });
         }
     }

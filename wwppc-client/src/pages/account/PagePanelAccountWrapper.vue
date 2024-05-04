@@ -55,7 +55,16 @@ const changeProfileImage = (event: any) => {
             <span class="accountUserUsername">{{ username }}</span>
             <div class="accountUserRegistrations">
                 <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="i" :delay="i * 200" single>
-                    <span>{{ reg.contest }}</span>
+                    <span class="accountUserRegistrationLine">
+                        <div class="registrationStatusDotUpcoming"></div>
+                        {{ reg }}
+                    </span>
+                </AnimateInContainer>
+                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.pastRegistrations" :key="i" :delay="i * 200" single>
+                    <span class="accountUserRegistrationLine">
+                        <div class="registrationStatusDotCompleted"></div>
+                        {{ reg }}
+                    </span>
                 </AnimateInContainer>
             </div>
             <UIButton text="Sign Out" width="100%" @click="accountManager.signout"></UIButton>
@@ -154,6 +163,30 @@ const changeProfileImage = (event: any) => {
     text-align: center;
 }
 
+.accountUserRegistrationLine {
+    display: flex;
+    flex-direction: row;
+    column-gap: 4px;
+    line-height: 1em;
+    text-wrap: nowrap;
+    word-wrap: nowrap;
+}
+
+.registrationStatusDotUpcoming,
+.registrationStatusDotCompleted {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+}
+
+.registrationStatusDotUpcoming {
+    background-color: cyan;
+}
+
+.registrationStatusDotCompleted {
+    background-color: lime;
+}
+
 .accountScrollboxWrapper {
     position: absolute;
     top: 0px;
@@ -170,6 +203,7 @@ const changeProfileImage = (event: any) => {
     row-gap: 16px;
     column-gap: 16px;
 }
+
 
 @media (max-width: 700px) {
     .accountUserDispWrapper {
