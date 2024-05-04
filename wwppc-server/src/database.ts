@@ -338,9 +338,10 @@ export class Database {
     async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1', [
+            const res = await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
+            if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             this.#userCache.set(username, {
                 data: userData,
                 expiration: performance.now() + config.dbCacheTime
@@ -519,10 +520,9 @@ export class Database {
         try {
             if (useJoinCode) {
                 const res = await this.#db.query(`
-                    DECLARE @team VARCHAR := (SELECT username FROM users WHERE joincode=$2);
-                    UPDATE users SET team=@team WHERE username=$1 AND EXISTS @team;
+                    UPDATE users SET team=(SELECT username FROM users WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE joincode=$2);
                     IF FOUND THEN
-                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
+                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=(SELECT username FROM users WHERE joincode=$2)) WHERE username=$1;
                     END IF`,
                     [username, team]
                 );
@@ -554,12 +554,19 @@ export class Database {
     async getTeamData(username: string): Promise<TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT team, teamname, teambio FROM users WHERE username=(SELECT team FROM users WHERE username=$1)', [username]);
-            if (data.rows.length > 0) return {
-                id: data.rows[0].team,
-                name: data.rows[0].teamname,
-                bio: data.rows[0].teambio
-            };
+            const data = await this.#db.query('SELECT username, team, teamname, teambio, teamjoincode FROM users WHERE team=(SELECT team FROM users WHERE username=$1)', [username]);
+            if (data.rows.length > 0) {
+                const id = data.rows.find((u) => u.username === u.team).username;
+                const teamDat: TeamData = {
+                    id: id,
+                    name: data.rows[0].teamname,
+                    bio: data.rows[0].teambio,
+                    members: [],
+                    joinCode: data.rows[0].teamjoincode
+                };
+                for (const user of data.rows) teamDat.members.push(user.username);
+                return teamDat;
+            }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
             this.logger.error('Database error (getTeamData):');
@@ -579,8 +586,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const res = await this.#db.query(`
-                DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
-                UPDATE users SET teamname=$2, teambio=$3 WHERE username=@team`,
+                UPDATE users SET teamname=$2, teambio=$3 WHERE username=(SELECT team FROM users WHERE username=$1) RETURNING username`,
                 [username, teamData.name, teamData.bio]
             );
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
@@ -604,8 +610,7 @@ export class Database {
         try {
             const res = await this.#db.query(`
                 IF EXISTS (SELECT contest FROM rounds WHERE countest=$2) THEN
-                    DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
-                    UPDATE users SET registrations=(registrations || $1) WHERE team=@team;
+                    UPDATE users SET registrations=(registrations || $1) WHERE team=(SELECT team FROM users WHERE username=$1);
                 END IF`,
                 [username, contest]
             );
@@ -628,9 +633,7 @@ export class Database {
     async unregisterContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(`
-                DECLARE @team VARCHAR := (SELECT team FROM users WHERE username=$1);
-                UPDATE users SET registrations=ARRAY_REMOVE(registrations, $2) WHERE team=@team`,
+            const res = await this.#db.query('UPDATE users SET registrations=ARRAY_REMOVE(registrations, $2) WHERE team=(SELECT team FROM users WHERE username=$1)',
                 [username, contest]
             );
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
@@ -1012,11 +1015,15 @@ export interface AccountUserData {
 /**Descriptor for a team */
 export interface TeamData {
     /**The unique team id which is the team owner/creator's username */
-    readonly id: string,
+    readonly id: string
     /**The name of the team */
-    name: string,
+    name: string
     /**Team's biography */
     bio: string
+    /**List of usernames of team members */
+    members: string[]
+    /**Numerical join code */
+    joinCode: string
 }
 
 /**Descriptor for a single round */

@@ -22,9 +22,9 @@ export interface AccountData {
 
 export interface TeamData {
     teamName: string
-    teamMembers: string[]
     teamBio: string
-    joinCode?: string
+    teamMembers: string[]
+    joinCode: string
 }
 
 type ExtendedAccountData = AccountData & TeamData;
@@ -91,7 +91,7 @@ const state = reactive<ExtendedAccountData>({
     teamName: '',
     teamMembers: [],
     teamBio: '',
-    joinCode: undefined
+    joinCode: ''
 });
 watch(() => ([state.firstName, state.lastName, state.displayName, state.bio, state.school, state.grade, state.experience, state.languages]), () => unsaved.value = true);
 watch(() => [state.teamName, state.teamBio], () => unsaved2.value = true);
@@ -188,8 +188,8 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async getTeamData(username: string): Promise<TeamData | null> {
             const serverConnection = useServerConnection();
-            const res: TeamData | null = await serverConnection.apiFetch('GET', '/teamData/' + username);
-            return res;
+            const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | null = await serverConnection.apiFetch('GET', '/teamData/' + username);
+            return res == null ? null : { teamName: res.name, teamBio: res.bio, teamMembers: res.members, joinCode: res.joinCode };
         },
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
@@ -217,11 +217,8 @@ export const useAccountManager = defineStore('accountManager', {
             if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('setTeamData', {
-                    password: serverConnection.encryptedPassword,
-                    data: {
-                        teamName: this.teamName,
-                        teamBio: this.teamBio
-                    }
+                    teamName: this.teamName,
+                    teamBio: this.teamBio
                 });
                 serverConnection.once('teamActionResponse', (res: AccountOpResult) => {
                     if (res == AccountOpResult.SUCCESS) unsaved2.value = false;
@@ -248,7 +245,10 @@ export const useAccountManager = defineStore('accountManager', {
                 this.teamName = dat2.teamName;
                 this.teamMembers = dat2.teamMembers;
                 this.teamBio = dat2.teamBio;
-                setTimeout(() => unsaved.value = false);
+                setTimeout(() => {
+                    unsaved.value = false;
+                    unsaved2.value = false;
+                });
                 return true;
             }
             return false;

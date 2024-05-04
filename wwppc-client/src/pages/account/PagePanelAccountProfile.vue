@@ -34,7 +34,9 @@ watch(() => accountManager.experience, () => experienceInput.value = accountMana
 watch(() => accountManager.languages, () => languagesInput.value = accountManager.languages);
 
 const remainingBioCharacters = ref(2048);
+const remainingBioCharacters2 = ref(1024);
 watch(() => accountManager.bio, () => remainingBioCharacters.value = 2048 - accountManager.bio?.length);
+watch(() => accountManager.teamBio, () => remainingBioCharacters2.value = 1024 - accountManager.teamBio?.length);
 
 const showWriteDataWait = ref(false);
 const writeData = async () => {
@@ -53,7 +55,7 @@ const writeTeamData = async () => {
     showWriteTeamDataWait.value = true;
     // artificial wait
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const res = await accountManager.writeUserData();
+    const res = await accountManager.writeTeamData();
     if (res != AccountOpResult.SUCCESS) modal.showModal({ title: 'Write data failed', content: getAccountOpMessage(res), color: 'red' });
     showWriteTeamDataWait.value = false;
 };
@@ -210,6 +212,9 @@ onMounted(clearDangerButtons);
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
         <TitledCutCornerContainer title="Team" hover-animation="lift">
+            {{ accountManager.team }}
+            {{ accountManager.teamName }}
+            {{ accountManager.teamBio }}
             <div v-if="accountManager.team === accountManager.username && accountManager.teamMembers.length <= 1">
                 <h3>Join a team!</h3>
                 <span class="nowrap">
@@ -223,16 +228,16 @@ onMounted(clearDangerButtons);
                     <PairedGridContainer width="100%">
                         <span>Team Name</span>
                         <UITextBox v-model=accountManager.teamName maxlength="32" width="var(--fwidth)" title="Collective team name" placeholder="Team Name"></UITextBox>
+                    <span>Biography<br>({{ remainingBioCharacters2 }} chars):</span>
+                    <UITextArea v-model=accountManager.teamBio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" placeholder="Describe your team in a few short sentences!" resize="vertical"></UITextArea>
                     </PairedGridContainer>
                     <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedTeamChanges text="Save" color="yellow" glitch-on-mount></UIButton>
                 </form>
                 <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
             </div>
-            <span v-if="accountManager.joinCode !== undefined" style="font-size: var(--font-18); margin-top: 8px;">
-                <span>Join Code:</span>
-                <UITextBox :value="accountManager.joinCode ?? ''" disabled></UITextBox>
-                <UICopyButton :value="accountManager.joinCode ?? ''"></UICopyButton>
-            </span>
+            <span>Join Code:</span>
+            <UITextBox :value="accountManager.joinCode ?? ''" disabled></UITextBox>
+            <UICopyButton :value="accountManager.joinCode ?? ''"></UICopyButton>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>

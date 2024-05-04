@@ -151,6 +151,7 @@ export const sendCredentials = async (username: string, password: string | numbe
     });
 };
 
+const apiPath = serverHostname + '/api';
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
@@ -174,7 +175,7 @@ export const useServerConnection = defineStore('serverconnection', {
         },
         async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any> {
             try {
-                return (await fetch(serverHostname + (path.startsWith('/') ? path : ('/' + path)), {
+                return await (await fetch(apiPath + (path.startsWith('/') ? path : ('/' + path)), {
                     method: method,
                     headers: {
                         "Content-Type": "application/json"
@@ -217,7 +218,7 @@ const onDisconnected = (message: string) => {
     state.loggedIn = false;
     state.manualLogin = true;
     connectionAttempts = 0;
-    attemptConnect();
+    setTimeout(attemptConnect, 5000);
 };
 socket.on('connect', () => {
     state.connectError = false;

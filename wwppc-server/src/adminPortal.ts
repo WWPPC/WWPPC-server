@@ -68,7 +68,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
         else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
         else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
-        else  res.sendStatus(500);
+        else res.sendStatus(500);
     };
     // functions
     app.get('/admin/api/accountList', async (req, res) => {

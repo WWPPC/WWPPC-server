@@ -48,7 +48,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
-import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted } from './database';
+import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted, TeamData } from './database';
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
@@ -79,6 +79,13 @@ const contestManager = new ContestManager(database, app, io, logger);
 app.get('/api/userData/:username', async (req, res) => {
     if (!req.accepts('json')) res.sendStatus(406);
     const data = await database.getAccountData(req.params.username);
+    if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
+    else if (data == AccountOpResult.ERROR) res.sendStatus(500);
+    else res.json(data);
+});
+app.get('/api/teamData/:username', async (req, res) => {
+    if (!req.accepts('json')) res.sendStatus(406);
+    const data = await database.getTeamData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else res.json(data);
@@ -141,15 +148,6 @@ io.on('connection', async (s) => {
         if (packetCount > 0) socket.kick('too many packets');
     }, 1000);
     if (config.superSecretSecret) socket.emit('superSecretMessage');
-
-    // add getUserData here so sign-in not required
-    socket.on('getUserData', async (data: { username: string, token: number }) => {
-        if (data == undefined || typeof data.username != 'string' || typeof data.token != 'number') {
-            socket.kick('invalid getUserData parameters');
-            return;
-        }
-        socket.emit('userData', { data: await database.getAccountData(data.username), username: data.username, token: data.token });
-    });
 
     // await credentials before allowing anything (in a weird way)
     socket.username = '[not signed in]';
@@ -351,46 +349,37 @@ io.on('connection', async (s) => {
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
 
     // add remaining listeners
-    socket.on('setUserData', async ( data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }) => {
-        if (data == null) {
-            socket.kick('invalid setUserData payload');
-            return;
-        }
+    socket.on('setUserData', async (data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating user data');
-        if (typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
+        if (data == null || typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
             || data.displayName.length > 32 || typeof data.profileImage != 'string' || data.profileImage.length > 65535 || typeof data.bio != 'string' || data.bio.length > 2048
             || typeof data.school != 'string' || data.school.length > 64 || typeof data.grade != 'number' || typeof data.experience != 'number'
             || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined) {
-            socket.kick('invalid setUserData parameters');
+            socket.kick('invalid setUserData payload');
             return;
         }
-        const existingData = await database.getAccountData(socket.username);
-        if (typeof existingData == 'object') {
-            const userDat: AccountData = {
-                username: socket.username,
-                email: existingData.username,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                displayName: data.displayName,
-                profileImage: data.profileImage,
-                bio: data.bio,
-                school: data.school,
-                grade: data.grade,
-                experience: data.experience,
-                languages: data.languages,
-                registrations: existingData.registrations,
-                pastRegistrations: existingData.pastRegistrations,
-                team: existingData.team
-            };
-            const res = await database.updateAccountData(socket.username, userDat);
-            socket.emit('setUserDataResponse', res);
-            if (config.debugMode) {
-                socket.logWithId(logger.debug, 'Update user data: ' + JSON.stringify(userDat), true);
-                socket.logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
-            }
-        } else {
-            socket.emit('setUserDataResponse', existingData);
-            if (config.debugMode) socket.logWithId(logger.debug, 'Update user data (fetch error): ' + reverse_enum(AccountOpResult, existingData));
+        // some fields aren't used, so it doesn't matter
+        const userDat: AccountData = {
+            username: socket.username,
+            email: '',
+            firstName: data.firstName,
+            lastName: data.lastName,
+            displayName: data.displayName,
+            profileImage: data.profileImage,
+            bio: data.bio,
+            school: data.school,
+            grade: data.grade,
+            experience: data.experience,
+            languages: data.languages,
+            registrations: [],
+            pastRegistrations: [],
+            team: ''
+        };
+        const res = await database.updateAccountData(socket.username, userDat);
+        socket.emit('setUserDataResponse', res);
+        if (config.debugMode) {
+            socket.logWithId(logger.debug, 'Update user data: ' + JSON.stringify(userDat), true);
+            socket.logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
         }
     });
     socket.on('changeCredentials', async (creds: { password: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
@@ -430,12 +419,36 @@ io.on('connection', async (s) => {
         if (typeof joinCode != 'string') {
             socket.kick('invalid joinTeam payload');
         }
+        if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + joinCode);
         const res = await database.setAccountTeam(socket.username, joinCode, true);
         socket.emit('teamActionResponse', res);
     });
     socket.on('leaveTeam', async () => {
+        if (config.debugMode) socket.logWithId(logger.info, 'Leaving team');
         const res = await database.setAccountTeam(socket.username, socket.username);
         socket.emit('teamActionResponse', res);
+    });
+    socket.on('setTeamData', async (data: { teamName: string, teamBio: string }) => {
+        if (config.debugMode) socket.logWithId(logger.info, 'Updating team data');
+        if (data == null || typeof data.teamName != 'string' || data.teamName.length > 32 || typeof data.teamBio != 'string' || data.teamBio.length > 1024) {
+            socket.kick('invalid setTeamData payload');
+            return;
+        }
+        // some fields aren't used, so it doesn't matter
+        const teamDat: TeamData = {
+            id: '',
+            name: data.teamName,
+            bio: data.teamBio,
+            members: [],
+            joinCode: ''
+        };
+        const res = await database.updateTeamData(socket.username, teamDat);
+        socket.emit('teamActionResponse', res);
+        if (config.debugMode) {
+            socket.logWithId(logger.debug, 'Update team data: ' + JSON.stringify(teamDat), true);
+            socket.logWithId(logger.debug, 'Update team data: ' + reverse_enum(AccountOpResult, res));
+        }
+
     });
     // hand off to ContestManager
     contestManager.addUser(socket);
