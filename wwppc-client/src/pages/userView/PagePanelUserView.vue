@@ -52,17 +52,21 @@ const putDummyData = () => {
         experience: 4,
         languages: ['c', 'py'],
         registrations: [
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false },
-            { contest: 'WWPIT-2024', completed: false }
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024',
+            'WWPIT-2024'
+        ],
+        pastRegistrations: [
+            'WWPIT-TEST',
+            'WWPIT-TEST',
+            'WWPIT-TEST',
+            'WWPIT-TEST',
+            'WWPIT-TEST'
         ],
         team: 'test'
     };
@@ -117,7 +121,16 @@ const largeHeader = ref(true);
                             <h3>Registrations</h3>
                         </div>
                         <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.registrations" :key="i" :delay="i * 200" single>
-                            <span>{{ reg.contest }}</span>
+                            <span class="registrationLine">
+                                <div class="registrationStatusDotUpcoming"></div>
+                                {{ reg }}
+                            </span>
+                        </AnimateInContainer>
+                        <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.pastRegistrations" :key="i" :delay="i * 200" single>
+                            <span class="registrationLine">
+                                <div class="registrationStatusDotCompleted"></div>
+                                {{ reg }}
+                            </span>
                         </AnimateInContainer>
                         <span v-if="!userData?.registrations.length">
                             <!-- very hacky, true if no registrations or undefined -->
@@ -207,6 +220,30 @@ const largeHeader = ref(true);
     transform: translate(-12px, -12px);
     box-shadow: 0px 6px 8px black;
     z-index: 1;
+}
+
+.registrationLine {
+    display: flex;
+    flex-direction: row;
+    column-gap: 4px;
+    line-height: 1em;
+    text-wrap: nowrap;
+    word-wrap: nowrap;
+}
+
+.registrationStatusDotUpcoming,
+.registrationStatusDotCompleted {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+}
+
+.registrationStatusDotUpcoming {
+    background-color: cyan;
+}
+
+.registrationStatusDotCompleted {
+    background-color: lime;
 }
 
 .vStack {
