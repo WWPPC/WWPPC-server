@@ -64,6 +64,14 @@ const joinTeam = async () => {
     if (joinTeamCode.value.length != 6) return;
     const res = await accountManager.joinTeam(joinTeamCode.value);
     if (res == AccountOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
+    else if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
+    showWriteTeamDataWait.value = false;
+    accountManager.updateOwnUserData();
+};
+const leaveTeam = async () => {
+    showWriteTeamDataWait.value = true;
+    if (accountManager.username == accountManager.team) return;
+    const res = await accountManager.leaveTeam();
     if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
     showWriteTeamDataWait.value = false;
     accountManager.updateOwnUserData();
@@ -226,12 +234,12 @@ onMounted(clearDangerButtons);
                     <h3>Join a team!</h3>
                     <span class="nowrap">
                         <UITextBox v-model=joinTeamCode title="Ask team creator for join code!" placeholder="Join code" maxlength="6"></UITextBox>
-                        <UIButton text="Join" :disabled="joinTeamCode.length != 6" @click=joinTeam()></UIButton>
+                        <UIButton text="Join" :disabled="joinTeamCode.length != 6" @click=joinTeam></UIButton>
                     </span>
                 </div>
                 <p>OR</p>
             </div>
-            <div v-else>
+            <div class="profileTeamSection">
                 <form action="javascript:void(0)" @submit=writeTeamData>
                     <PairedGridContainer width="100%">
                         <span>Team Name</span>
@@ -241,16 +249,18 @@ onMounted(clearDangerButtons);
                     </PairedGridContainer>
                     <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedTeamChanges text="Save" color="yellow" glitch-on-mount></UIButton>
                 </form>
-                <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
             </div>
             <div class="profileTeamSection">
-                <h3>Your Team</h3>
                 <span class="nowrap">
                     <span>Join Code:</span>
                     <UITextBox v-model="accountManager.joinCode" disabled></UITextBox>
                     <UICopyButton :value="accountManager.joinCode ?? ''"></UICopyButton>
                 </span>
             </div>
+            <div class="profileTeamSection" v-if="accountManager.team != accountManager.username">
+                <UIButton text="Leave Team" color="red" @click=leaveTeam></UIButton>
+            </div>
+            <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>

@@ -74,6 +74,8 @@ export class Database {
                 logger.debug('Database connected to: ' + this.#db.host);
                 logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
             }
+            // define all the functions so you don't need to do it manually during setup
+            // maybe define the tables?
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
@@ -183,7 +185,7 @@ export class Database {
     async getAccountList(): Promise<AccountData[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECt * FROM users');
+            const data = await this.#db.query('SELECT * FROM users');
             if (data.rows.length > 0) {
                 const ret: AccountData[] = [];
                 for (const row of data.rows) {
@@ -287,7 +289,7 @@ export class Database {
         }
     }
     /**
-     * Get user data for an account. **Does not validate credentials**.
+     * Get user data for an account. Registrations are fetched through team alias. **Does not validate credentials**.
      * @param {string} username Valid username
      * @returns {AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} AccountData or an error code
      */
@@ -296,7 +298,8 @@ export class Database {
         try {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
-            const data = await this.#db.query('SELECT username, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team FROM users WHERE username=$1', [username]);
+            // update query to alias future registrations.
+            const data = await this.#db.query('GETACCOUNTDATA($1)', [username]);
             if (data.rows.length > 0) {
                 const userData: AccountData = {
                     username: data.rows[0].username,
@@ -519,22 +522,14 @@ export class Database {
         const startTime = performance.now();
         try {
             if (useJoinCode) {
-                const res = await this.#db.query(`
-                    UPDATE users SET team=(SELECT username FROM users WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE joincode=$2);
-                    IF FOUND THEN
-                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=(SELECT username FROM users WHERE joincode=$2)) WHERE username=$1;
-                    END IF`,
-                    [username, team]
-                );
+                const res = await this.#db.query('UPDATE users SET team=(SELECT username FROM users WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE joincode=$2) RETURNING username;', [
+                    username, team
+                ]);
                 if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             } else {
-                const res = await this.#db.query(`
-                    UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2);
-                    IF FOUND THEN
-                        UPDATE users SET registrations=(SELECT DISTINCT registrations FROM users WHERE username=$1 OR username=$2) WHERE username=$1;
-                    END IF`,
-                    [username, team]
-                );
+                const res = await this.#db.query('UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username;', [
+                    username, team
+                ]);
                 if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             }
             return AccountOpResult.ERROR;
@@ -585,10 +580,9 @@ export class Database {
     async updateTeamData(username: string, teamData: TeamData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(`
-                UPDATE users SET teamname=$2, teambio=$3 WHERE username=(SELECT team FROM users WHERE username=$1) RETURNING username`,
-                [username, teamData.name, teamData.bio]
-            );
+            const res = await this.#db.query('UPDATE users SET teamname=$2, teambio=$3 WHERE username=(SELECT team FROM users WHERE username=$1) RETURNING username', [
+                username, teamData.name, teamData.bio
+            ]);
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -608,6 +602,7 @@ export class Database {
     async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
+            // alias to team and check contest
             const res = await this.#db.query(`
                 IF EXISTS (SELECT contest FROM rounds WHERE countest=$2) THEN
                     UPDATE users SET registrations=(registrations || $1) WHERE team=(SELECT team FROM users WHERE username=$1);
@@ -719,13 +714,7 @@ export class Database {
     async writeRound(round: Round): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query(`
-                UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2;
-                IF NOT FOUND THEN
-                    INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5);
-                END IF`,
-                [round.contest, round.round, round.problems, round.startTime, round.endTime]
-            );
+            await this.#db.query(`WRITEROUND($1, $2, $3, $4, $5)`, [round.contest, round.round, round.problems, round.startTime, round.endTime]);
             return true;
         } catch (err) {
             this.logger.error('Database error (writeRound):');
