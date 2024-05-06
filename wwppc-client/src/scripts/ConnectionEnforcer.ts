@@ -64,6 +64,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                 });
                 serverConnection.once('connect', () => m.cancel());
                 m.result.then((v) => v === true && window.location.reload());
+                if (checkLogin()) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
             };
             const checkLogin = () => {
                 const trimmed = route.path.replace(/\/*$/, '');

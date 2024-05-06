@@ -1,11 +1,12 @@
+import bodyParser from 'body-parser';
 import express, { Express, IRouterMatcher } from 'express';
 import path from 'path';
 import { v4 as uuidV4 } from 'uuid';
-import bodyParser from 'body-parser';
 
+import config from './config';
+import ContestManager from './contest';
 import Database, { AccountOpResult, AdminPerms } from './database';
 import Logger from './log';
-import ContestManager from './contest';
 
 process.env.ADMIN_PANEL_PATH ??= path.resolve(__dirname, '../admin-portal');
 export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {
@@ -44,16 +45,30 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             res.redirect('/admin');
             log.info('[ADMIN] Admin login by ' + req.body.username);
         } else {
-            res.sendStatus(403);
+            res.redirect(403, '/admin/login');
         }
     });
+    if (!config.serveStatic) {
+        // make sure fonts and borrowed assets load
+        app.use('/assets/*', express.static(path.resolve(process.env.CLIENT_PATH!, 'assets/')));
+        const favicon = path.resolve(process.env.CLIENT_PATH!, 'favicon.png');
+        const logo = path.resolve(process.env.CLIENT_PATH!, 'logo.svg');
+        const icon = path.resolve(process.env.CLIENT_PATH!, 'icon.svg');
+        const icon2 = path.resolve(process.env.CLIENT_PATH!, 'icon2.png');
+        const icon2Small = path.resolve(process.env.CLIENT_PATH!, 'icon2-small.png');
+        app.get('/favicon.png', (req, res) => res.sendFile(favicon));
+        app.get('/logo.svg', (req, res) => res.sendFile(logo));
+        app.get('/icon.svg', (req, res) => res.sendFile(icon));
+        app.get('/icon2.png', (req, res) => res.sendFile(icon2));
+        app.get('/icon2-small.png', (req, res) => res.sendFile(icon2Small));
+    }
 
     const defaultResponseMapping = (res, stat: AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR) => {
         if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);
         else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
         else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
         else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
-        else  res.sendStatus(500);
+        else res.sendStatus(500);
     };
     // functions
     app.get('/admin/api/accountList', async (req, res) => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WaitCover from '@/components/WaitCover.vue';
 import { AnimateInContainer, PairedGridContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode } from '@/components/ui-defaults/UIDefaults';
+import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode, UICopyButton } from '@/components/ui-defaults/UIDefaults';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager, gradeMaps, experienceMaps, languageMaps } from '@/scripts/AccountManager';
 import { AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
@@ -34,7 +34,9 @@ watch(() => accountManager.experience, () => experienceInput.value = accountMana
 watch(() => accountManager.languages, () => languagesInput.value = accountManager.languages);
 
 const remainingBioCharacters = ref(2048);
+const remainingBioCharacters2 = ref(1024);
 watch(() => accountManager.bio, () => remainingBioCharacters.value = 2048 - accountManager.bio?.length);
+watch(() => accountManager.teamBio, () => remainingBioCharacters2.value = 1024 - accountManager.teamBio?.length);
 
 const showWriteDataWait = ref(false);
 const writeData = async () => {
@@ -44,6 +46,27 @@ const writeData = async () => {
     const res = await accountManager.writeUserData();
     if (res != AccountOpResult.SUCCESS) modal.showModal({ title: 'Write data failed', content: getAccountOpMessage(res), color: 'red' });
     showWriteDataWait.value = false;
+};
+
+// teams
+const joinTeamCode = ref('');
+const showWriteTeamDataWait = ref(false);
+const writeTeamData = async () => {
+    showWriteTeamDataWait.value = true;
+    // artificial wait
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const res = await accountManager.writeTeamData();
+    if (res != AccountOpResult.SUCCESS) modal.showModal({ title: 'Write data failed', content: getAccountOpMessage(res), color: 'red' });
+    showWriteTeamDataWait.value = false;
+};
+const joinTeam = async () => {
+    showWriteTeamDataWait.value = true;
+    if (joinTeamCode.value.length != 6) return;
+    const res = await accountManager.joinTeam(joinTeamCode.value);
+    if (res == AccountOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
+    if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
+    showWriteTeamDataWait.value = false;
+    accountManager.updateOwnUserData();
 };
 
 // danger buttons
@@ -175,18 +198,18 @@ onMounted(clearDangerButtons);
                     <span>Display Name:</span>
                     <UITextBox v-model=accountManager.displayName maxlength="32" width="var(--fwidth)" title="Name used in profile, contests, etc." required></UITextBox>
                     <span>Name:</span>
-                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
+                    <span class="nowrap">
                         <UITextBox v-model=accountManager.firstName maxlength="32" width="var(--hwidth)" title="First name" required></UITextBox>
                         <UITextBox v-model=accountManager.lastName maxlength="32" width="var(--hwidth)" title="Last name" required></UITextBox>
                     </span>
                     <span>School:</span>
                     <UITextBox v-model=accountManager.school maxlength="64" width="var(--fwidth)" title="Your school name" required></UITextBox>
-                    <span>Grade/experience:</span>
-                    <span style="text-wrap: nowrap; word-wrap: nowrap;">
+                    <span>Grade/Experience:</span>
+                    <span class="nowrap">
                         <UIDropdown v-model=gradeInput width="var(--hwidth)" :items="gradeMaps" title="Your current grade level" required></UIDropdown>
                         <UIDropdown v-model=experienceInput width="var(--hwidth)" :items="experienceMaps" title="Your experience level with competitive programming" required></UIDropdown>
                     </span>
-                    <span>Known languages:<br>(Use CTRL/SHIFT)</span>
+                    <span>Known Languages:<br>(Use CTRL/SHIFT)</span>
                     <UIDropdown v-model=languagesInput width="var(--fwidth)" :items="languageMaps" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                     <span>Biography<br>({{ remainingBioCharacters }} chars):</span>
                     <UITextArea v-model=accountManager.bio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="2048" placeholder="Describe yourself in a few short sentences!" resize="vertical"></UITextArea>
@@ -198,7 +221,36 @@ onMounted(clearDangerButtons);
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
         <TitledCutCornerContainer title="Team" hover-animation="lift">
-            We haven't added teams yet, but you should get a team together anyways.
+            <div v-if="accountManager.team === accountManager.username && accountManager.teamMembers.length == 1">
+                <div class="profileTeamSection">
+                    <h3>Join a team!</h3>
+                    <span class="nowrap">
+                        <UITextBox v-model=joinTeamCode title="Ask team creator for join code!" placeholder="Join code" maxlength="6"></UITextBox>
+                        <UIButton text="Join" :disabled="joinTeamCode.length != 6" @click=joinTeam()></UIButton>
+                    </span>
+                </div>
+                <p>OR</p>
+            </div>
+            <div v-else>
+                <form action="javascript:void(0)" @submit=writeTeamData>
+                    <PairedGridContainer width="100%">
+                        <span>Team Name</span>
+                        <UITextBox v-model=accountManager.teamName maxlength="32" width="var(--fwidth)" title="Collective team name" placeholder="Team Name"></UITextBox>
+                        <span>Biography<br>({{ remainingBioCharacters2 }} chars):</span>
+                        <UITextArea v-model=accountManager.teamBio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" placeholder="Describe your team in a few short sentences!" resize="vertical"></UITextArea>
+                    </PairedGridContainer>
+                    <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedTeamChanges text="Save" color="yellow" glitch-on-mount></UIButton>
+                </form>
+                <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
+            </div>
+            <div class="profileTeamSection">
+                <h3>Your Team</h3>
+                <span class="nowrap">
+                    <span>Join Code:</span>
+                    <UITextBox v-model="accountManager.joinCode" disabled></UITextBox>
+                    <UICopyButton :value="accountManager.joinCode ?? ''"></UICopyButton>
+                </span>
+            </div>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>
@@ -228,6 +280,19 @@ onMounted(clearDangerButtons);
 * {
     --fwidth: min(calc(100% - 4px), 400px);
     --hwidth: min(calc(50% - 6px), 196px);
+}
+
+.nowrap {
+    width: 100%;
+    text-wrap: nowrap;
+    word-wrap: nowrap;
+}
+
+.profileTeamSection {
+    background-color: #222;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 8px;
 }
 
 .profileSaveButton {
