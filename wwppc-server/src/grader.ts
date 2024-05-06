@@ -38,18 +38,18 @@ export class DomjudgeGrader implements Grader {
     #logger: Logger;
 
     #ungradedSubmissions: Submission[] = new Array<Submission>();
-    // queue of submissions, will be popped from when /api/v4/judgehosts/fetch-work is called
+    // queue of submissions, will be popped from when /api/judgehosts/fetch-work is called
 
     #gradedSubmissions: Submission[] = new Array<Submission>();
 
     constructor(app: Express, logger: Logger) {
         this.#app = app;
         this.#logger = logger;
-        this.#app.post('/domjudge/api/judgehosts', (req, res) => {
+        this.#app.post('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
             res.send('HELLO LITTLE BUH');
         });
-        this.#app.post('/domjudge/api/judgehosts/fetch-work', (req, res) => {
+        this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
                 //malformed
                 res.sendStatus(400);
