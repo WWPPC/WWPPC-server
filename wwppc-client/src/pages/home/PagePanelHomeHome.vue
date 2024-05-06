@@ -100,10 +100,11 @@ import ContactFooter from '@/components/ContactFooter.vue';
             </ShowOnscreenContainer>
         </div>
         <div style="flex-grow: 1;">
-            <CenteredContainer>
-                <!-- if sayam gets us a sponsor then put them here -->
-                <!-- buh that will never happen-->
-            </CenteredContainer>
+            <div class="centered">
+                <a href="https://gen.xyz" target="_blank" style="text-decoration: none;">
+                    <UIIconButton text=".XYZ" img="/assets/xyz-logo-white.svg" color="lime" font-size="var(--font-large)" img-hover-color="#C13EDD"></UIIconButton>
+                </a>
+            </div>
         </div>
         <ContactFooter></ContactFooter>
     </div>
