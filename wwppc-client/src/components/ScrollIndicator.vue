@@ -24,7 +24,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 .scrollIndicator {
     position: relative;
     width: 32px;

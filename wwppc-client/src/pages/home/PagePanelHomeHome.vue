@@ -3,6 +3,7 @@ import ScrollIndicator from "@/components/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/ContactFooter.vue';
+import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
 </script>
 
 <template>
@@ -83,10 +84,10 @@ import ContactFooter from '@/components/ContactFooter.vue';
             </p>
             <div class="centered">
                 <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/assets/discord.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                    <UIIconButton text="Join us on Discord!" img="/img/discord.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="GitHub" img="/assets/github.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
+                    <UIIconButton text="GitHub" img="/img/github.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
                 </a>
             </div>
         </div>
@@ -99,13 +100,10 @@ import ContactFooter from '@/components/ContactFooter.vue';
                 <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
             </ShowOnscreenContainer>
         </div>
-        <div style="flex-grow: 1;">
-            <div class="centered">
-                <a href="https://gen.xyz" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text=".XYZ" img="/assets/xyz-logo-white.svg" color="lime" font-size="var(--font-large)" img-hover-color="#C13EDD"></UIIconButton>
-                </a>
-            </div>
+        <div class="sponsorGrid">
+            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 2;"></HomeHomeSponsorLogo>
         </div>
+        <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
     </div>
 </template>
@@ -155,5 +153,15 @@ import ContactFooter from '@/components/ContactFooter.vue';
 
 p {
     text-align: center;
+}
+
+.sponsorGrid {
+    display: grid;
+    grid-auto-flow: column dense;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
+    row-gap: 50px;
+    column-gap: 50px;
+    padding: 2% 10%;
 }
 </style>

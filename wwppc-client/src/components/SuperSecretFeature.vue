@@ -13,17 +13,17 @@ watch(() => route.query.super_secret_scanlines, () => {
 </script>
 
 <template>
-    <div id="superSecretDiv" v-if="props.show || showAnyways">
-        <div id="superSecretNoise"></div>
-        <div id="superSecretScanlines"></div>
-        <div id="superSecretFlicker"></div>
-        <div id="superSecretRadialElectronBeamBending"></div>
-        <div id="superSecretStroboscopicScanlineEffect"></div>
+    <div class="superSecretDiv" v-if="props.show || showAnyways">
+        <div class="superSecretNoise"></div>
+        <div class="superSecretScanlines"></div>
+        <div class="superSecretFlicker"></div>
+        <div class="superSecretRadialElectronBeamBending"></div>
+        <div class="superSecretStroboscopicScanlineEffect"></div>
     </div>
 </template>
 
 <style>
-#superSecretDiv {
+.superSecretDiv {
     position: fixed;
     top: 0px;
     left: 0px;
@@ -34,11 +34,11 @@ watch(() => route.query.super_secret_scanlines, () => {
     z-index: 999999;
 }
 
-#superSecretRadialElectronBeamBending,
-#superSecretFlicker,
-#superSecretScanlines,
-#superSecretStroboscopicScanlineEffect,
-#superSecretNoise {
+.superSecretRadialElectronBeamBending,
+.superSecretFlicker,
+.superSecretScanlines,
+.superSecretStroboscopicScanlineEffect,
+.superSecretNoise {
     position: fixed;
     top: 0px;
     left: 0px;
@@ -46,28 +46,28 @@ watch(() => route.query.super_secret_scanlines, () => {
     height: 100vh;
 }
 
-#superSecretRadialElectronBeamBending {
+.superSecretRadialElectronBeamBending {
     background-image: radial-gradient(rgba(255, 200, 160, 0.03) 0%, rgba(0, 0, 0, 0.3) 100%);
 }
 
-#superSecretFlicker {
+.superSecretFlicker {
     background-color: rgba(11, 8, 8, 0.1);
     animation: super-secret-flicker 50ms infinite linear;
 }
 
-#superSecretScanlines {
+.superSecretScanlines {
     background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.06));
     background-size: 100% 2px, 3px 100%;
 }
 
-#superSecretStroboscopicScanlineEffect {
+.superSecretStroboscopicScanlineEffect {
     background-image: linear-gradient(rgba(0, 0, 0, 0.2) 0%, transparent 100%);
     background-size: 100% 200px;
     background-repeat: no-repeat;
     animation: super-secret-scanline 5s infinite linear;
 }
 
-#superSecretNoise {
+.superSecretNoise {
     top: -150%;
     left: -50%;
     width: 300%;

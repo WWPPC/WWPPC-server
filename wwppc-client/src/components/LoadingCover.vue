@@ -25,7 +25,7 @@ const route = useRoute();
     </Transition>
 </template>
 
-<style>
+<style scoped>
 .loadingCoverContainer {
     display: flex;
     flex-direction: column;

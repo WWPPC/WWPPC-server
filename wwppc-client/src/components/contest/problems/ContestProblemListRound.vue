@@ -26,4 +26,4 @@ onMounted(() => {
     </CutCornerContainer>
 </template>
 
-<style></style>
+<style scoped></style>

@@ -18,7 +18,7 @@ const completionStateAnimation = (status: ContestProblemCompletionState) => {
     <div class="contestProblemListProblemStatus" :title="completionStateString(props.status)"></div>
 </template>
 
-<style>
+<style scoped>
 .contestProblemListProblemStatus {
     width: 32px;
     height: 32px;

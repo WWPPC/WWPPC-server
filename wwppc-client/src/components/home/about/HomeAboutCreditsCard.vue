@@ -16,23 +16,23 @@ defineProps<{
 <template>
     <AnimateInContainer type="slideUp" show-on-screen single>
         <DoubleCutCornerContainer hover-animation="lift" height="100%">
-            <div class="homeAboutCreditsCardContent">
-                <img :src=$props.img class="homeAboutCreditsCardImage">
-                <div class="homeAboutCreditsCardName">{{ $props.name }}</div>
-                <div class="homeAboutCreditsCardRoles" v-html=$props.roles></div>
-                <div class="homeAboutCreditsCardIcons">
-                    <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/assets/codeforces.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/assets/github.svg" color="#F05032"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/assets/discord.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://youtube.com/" :user=$props.youtube icon="/assets/youtube.svg" color="#FF0000"></HomeAboutCreditsCardIcon>
+            <div class="cardContent">
+                <img :src=$props.img class="cardImage">
+                <div class="cardName">{{ $props.name }}</div>
+                <div class="cardRoles" v-html=$props.roles></div>
+                <div class="cardIcons">
+                    <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/img/codeforces.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/img/github.svg" color="#F05032"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/img/discord.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://youtube.com/" :user=$props.youtube icon="/img/youtube.svg" color="#FF0000"></HomeAboutCreditsCardIcon>
                 </div>
             </div>
         </DoubleCutCornerContainer>
     </AnimateInContainer>
 </template>
 
-<style>
-.homeAboutCreditsCardContent {
+<style scoped>
+.cardContent {
     display: grid;
     grid-template-rows: 220px 40px 90px 30px;
     justify-items: center;
@@ -40,13 +40,13 @@ defineProps<{
     height: 380px;
 }
 
-.homeAboutCreditsCardImage {
+.cardImage {
     width: 212px;
     height: 212px;
     border: 4px solid white;
 }
 
-.homeAboutCreditsCardName {
+.cardName {
     margin-top: 8px;
     width: 100%;
     text-align: center;
@@ -56,14 +56,14 @@ defineProps<{
     color: lime;
 }
 
-.homeAboutCreditsCardRoles {
+.cardRoles {
     text-align: center;
     margin-top: 8px;
     font-size: var(--font-18);
     color: lime;
 }
 
-.homeAboutCreditsCardIcons {
+.cardIcons {
     display: flex;
     width: 100%;
     justify-content: space-evenly;

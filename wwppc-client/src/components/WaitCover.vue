@@ -42,7 +42,7 @@ export default {
     </Transition>
 </template>
 
-<style>
+<style scoped>
 .waitCoverContainer {
     display: flex;
     flex-direction: column;

@@ -12,7 +12,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 .contestTimerContainer {
     display: grid;
     grid-template-columns: 34px 1fr;

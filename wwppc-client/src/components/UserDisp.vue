@@ -42,7 +42,7 @@ serverConnection.handshakePromise.then(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .userDispContainer {
     display: flex;
     flex-direction: column;

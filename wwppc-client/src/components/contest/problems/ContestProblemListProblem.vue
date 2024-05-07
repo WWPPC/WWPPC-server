@@ -28,7 +28,7 @@ onMounted(() => {
             {{ props.data.round }}-{{ props.data.number }}
         </span>
         <span class="problemListCircle">
-            <ContestProblemStatusCircle :status="props.data.status" ></ContestProblemStatusCircle>
+            <ContestProblemStatusCircle :status="props.data.status"></ContestProblemStatusCircle>
         </span>
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
@@ -38,11 +38,12 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .problemListCircle {
     grid-row: 2 / 5;
     grid-column: 1;
 }
+
 .contestProblemListProblem {
     display: grid;
     grid-template-columns: 60px 1fr 120px;

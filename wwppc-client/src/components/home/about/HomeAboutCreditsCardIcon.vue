@@ -8,17 +8,17 @@ defineProps<{
 </script>
 
 <template>
-    <a class="homeAboutCreditsCardIconLink" :href="$props.profileUrl + $props.user" target="_blank" v-if="$props.user != undefined">
-        <div class="homeAboutCreditsCardIconImage"></div>
+    <a class="cardIconLink" :href="$props.profileUrl + $props.user" target="_blank" v-if="$props.user != undefined">
+        <div class="cardIconImage"></div>
     </a>
 </template>
 
 <style scoped>
-.homeAboutCreditsCardIconLink {
+.cardIconLink {
     text-decoration: none;
 }
 
-.homeAboutCreditsCardIconImage {
+.cardIconImage {
     width: 30px;
     height: 30px;
     padding: 0px 8px;
@@ -30,7 +30,7 @@ defineProps<{
     transition: 50ms linear background-color;
 }
 
-.homeAboutCreditsCardIconImage:hover {
+.cardIconImage:hover {
     background-color: v-bind("$props.color");
 }
 </style>
