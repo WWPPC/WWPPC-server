@@ -101,8 +101,9 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             </ShowOnscreenContainer>
         </div>
         <div class="sponsorGrid">
-            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 2;"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 3;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 5;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" style="grid-column: span 5;"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
@@ -159,10 +160,10 @@ p {
 .sponsorGrid {
     display: grid;
     grid-auto-flow: column dense;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
+    /* grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-rows: repeat(auto-fill, minmax(100px, 1fr)); */
     row-gap: 50px;
-    column-gap: 50px;
+    column-gap: 25px;
     padding: 2% 10%;
 }
 </style>
