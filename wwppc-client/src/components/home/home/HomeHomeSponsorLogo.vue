@@ -16,7 +16,7 @@ defineProps<{
     width: 100%;
     height: 100%;
     filter: grayscale(1) brightness(1000) contrast(1000);
-    transition: 150ms cubic-bezier(0.5, 0.5, 0.5, 1) transform, 50ms linear filter;
+    transition: 150ms cubic-bezier(0.5, 0.5, 0.5, 2) transform, 50ms linear filter;
     transform: none;
     object-fit: contain;
     object-position: center;
