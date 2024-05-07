@@ -59,7 +59,71 @@ export class Database {
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
         this.connectPromise = Promise.all([
-            this.#db.connect().catch((err) => {
+            this.#db.connect().then(async () => {
+                logger.info('Database connected');
+                if (config.debugMode) {
+                    logger.debug('Database connected to: ' + this.#db.host);
+                    logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
+                }
+                // brick of code so we don't lose the functions
+                await this.#db.query(`
+                    CREATE TYPE ACCOUNTDATA AS (
+                        username VARCHAR(16),
+                        email VARCHAR(32),
+                        firstname VARCHAR(32),
+                        lastname VARCHAR(32),
+                        displayname VARCHAR(64),
+                        profileimg TEXT,
+                        biography TEXT,
+                        school VARCHAR(64),
+                        grade SMALLINT,
+                        experience SMALLINT,
+                        languages VARCHAR[],
+                        team VARCHAR(16),
+                        pastregistrations VARCHAR[]
+                    );
+
+                    CREATE OR REPLACE FUNCTION CREATEACCOUNT(
+                        Username VARCHAR,
+                        Password VARCHAR,
+                        RecoveryPass VARCHAR,
+                        Email VARCHAR,
+                        FirstName VARCHAR,
+                        LastName VARCHAR,
+                        ProfileImage VARCHAR,
+                        School VARCHAR,
+                        Grade SMALLINT,
+                        Experience SMALLINT,
+                        Languages VARCHAR[],
+                        JoinCode VARCHAR
+                    )
+                    RETURNS VARCHAR AS
+                    $$
+                    BEGIN
+                        IF EXISTS (SELECT users.username FROM users WHERE users.username=iUsername) THEN
+                            RETURN SELECT iUsername;
+                        END;
+                        INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
+                        VALUES (iUsername, iPassword, iRecoveryPass, iEmail, iFirstName, iLastName, (SELECT iFirstName || '' || iLastName), iProfileImage, '', iSchool, iGrade, iExperience, iLanguages, {}, iUsername);
+                        INSERT INTO teams (username, registrations, name, biography, joincode)
+                        VALUES (iUsername, {}, iUsername, '', iJoinCode);
+                    END;
+                    $$ LANGUAGE plpgsql
+
+                    CREATE OR REPLACE FUNCTION GETACCOUNTDATA(Username VARCHAR)
+                    RETURNS ACCOUNTDATA AS
+                    $$
+                    BEGIN
+                        RETURN SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
+                        FROM users
+                        WHERE users.username=iUsername
+                        INNER JOIN teams ON users.username=teams.username;
+                    END;
+                    $$ LANGUAGE plpgsql
+
+                    CREATE OR REPLACE FUNCTION WRITEROUND
+                `);
+            }, (err) => {
                 logger.fatal('Could not connect to database:');
                 logger.fatal(err);
                 logger.fatal('Host: ' + this.#db.host);
@@ -69,13 +133,7 @@ export class Database {
             setPublicKey()
         ]);
         this.connectPromise.then(() => {
-            logger.info('Database connected');
-            if (config.debugMode) {
-                logger.debug('Database connected to: ' + this.#db.host);
-                logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
-            }
-            // define all the functions so you don't need to do it manually during setup
-            // maybe define the tables?
+            logger.info('Database setup complete');
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
@@ -235,8 +293,8 @@ export class Database {
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, registrations, pastregistrations, team, teamname, teambio, teamjoincode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)', [
-                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, '', Math.random().toFixed(6).substring(2)
+            else await this.#db.query('', [
+                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, '', Math.random().toFixed(6).substring(2)
             ]);
             this.#userCache.set(username, {
                 data: {
@@ -299,7 +357,7 @@ export class Database {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
             // update query to alias future registrations.
-            const data = await this.#db.query('GETACCOUNTDATA($1)', [username]);
+            const data = await this.#db.query('SELECT GetAccountData($1)', [username]);
             if (data.rows.length > 0) {
                 const userData: AccountData = {
                     username: data.rows[0].username,

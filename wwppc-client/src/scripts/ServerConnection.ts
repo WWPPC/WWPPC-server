@@ -14,9 +14,11 @@ const socket = io(serverHostname, {
     reconnection: false
 });
 let connectionAttempts = 0;
-const connectErrorHandlers: Set<() => void> = new Set();
+const connectAttemptHandlers: Set<() => any> = new Set();
+const connectErrorHandlers: Set<() => any> = new Set();
 const attemptConnect = () => {
     connectionAttempts++;
+    connectAttemptHandlers.forEach((h) => h());
     fetch(serverHostname + '/wakeup').then(() => {
         socket.connect();
     }, () => {
@@ -164,13 +166,13 @@ export const useServerConnection = defineStore('serverconnection', {
         emit(event: string, ...data: any[]) {
             return socket.emit(event, ...data);
         },
-        on(event: string, handler: (...args: any[]) => void) {
+        on(event: string, handler: (...args: any[]) => any) {
             return socket.on(event, handler);
         },
-        once(event: string, handler: (...args: any[]) => void) {
+        once(event: string, handler: (...args: any[]) => any) {
             return socket.once(event, handler);
         },
-        off(event: string, handler: (...args: any[]) => void) {
+        off(event: string, handler: (...args: any[]) => any) {
             return socket.off(event, handler);
         },
         async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any> {
@@ -189,18 +191,41 @@ export const useServerConnection = defineStore('serverconnection', {
         removeAllListeners(event: string) {
             socket.removeAllListeners(event);
         },
-        onconnect(handler: () => void) {
-            socket.on('connect', handler);
+        onattemptconnect(handler: () => boolean | void) {
+            const h = () => {
+                if (handler()) connectAttemptHandlers.delete(h);
+            };
+            connectAttemptHandlers.add(h);
         },
-        onconnecterror(handler: () => void) {
-            socket.on('connect_error', handler);
-            socket.on('connect_fail', handler);
-            connectErrorHandlers.add(handler);
+        onconnect(handler: () => boolean | void) {
+            const h = () => {
+                if (handler()) socket.off('connect', h);
+            };
+            socket.on('connect', h);
         },
-        ondisconnect(handler: () => void) {
-            socket.on('disconnect', handler);
-            socket.on('timeout', handler);
-            socket.on('error', handler);
+        onconnecterror(handler: () => boolean | void) {
+            const h = () => {
+                if (handler()) {
+                    socket.off('connect_error', h);
+                    socket.off('connect_fail', h);
+                    connectErrorHandlers.delete(h);
+                } 
+            };
+            socket.on('connect_error', h);
+            socket.on('connect_fail', h);
+            connectErrorHandlers.add(h);
+        },
+        ondisconnect(handler: () => boolean | void) {
+            const h = () => {
+                if (handler()) {
+                    socket.off('disconnect', h);
+                    socket.off('timeout', h);
+                    socket.off('error', h);
+                } 
+            };
+            socket.on('disconnect', h);
+            socket.on('timeout', h);
+            socket.on('error', h);
         }
     }
 });

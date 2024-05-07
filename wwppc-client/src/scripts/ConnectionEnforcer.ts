@@ -51,6 +51,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                     mode: ModalMode.INPUT,
                     color: 'red'
                 });
+                serverConnection.onconnecterror(() => { m.cancel(); return true; });
                 serverConnection.once('connect', () => m.cancel());
                 m.result.then((v) => v === true && window.location.reload());
             };
@@ -62,6 +63,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                     mode: ModalMode.INPUT,
                     color: 'red'
                 });
+                serverConnection.onconnecterror(() => { m.cancel(); return true; });
                 serverConnection.once('connect', () => m.cancel());
                 m.result.then((v) => v === true && window.location.reload());
                 if (checkLogin()) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });

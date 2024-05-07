@@ -101,6 +101,8 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             </ShowOnscreenContainer>
         </div>
         <div class="sponsorGrid">
+            <!-- spacer div to make it look better -->
+            <div></div>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 3;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 5;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" style="grid-column: span 5;"></HomeHomeSponsorLogo>
