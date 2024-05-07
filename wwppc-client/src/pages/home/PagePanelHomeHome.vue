@@ -102,6 +102,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
         </div>
         <div class="sponsorGrid">
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 2;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
