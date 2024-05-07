@@ -266,6 +266,7 @@ io.on('connection', async (s) => {
             const data = await database.getAccountData(creds.username);
             if (typeof data != 'object') {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
+                else if (data == AccountOpResult.ERROR) socket.logWithId(logger.error, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
                 lockout = false;
                 socket.emit('credentialRes', data);
                 return;

@@ -3,6 +3,9 @@ import ContactFooter from '@/components/ContactFooter.vue';
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 </script>
 
 <template>
@@ -31,7 +34,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
                             <span style="font-size: var(--font-20);">
                                 <br>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" disabled></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/register')"></UILinkButton>
                                 </div>
                                 <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                             </span>
