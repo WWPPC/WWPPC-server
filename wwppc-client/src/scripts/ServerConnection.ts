@@ -153,7 +153,7 @@ export const sendCredentials = async (username: string, password: string | numbe
     });
 };
 
-const apiPath = serverHostname + '/api';
+const apiPath = serverHostname + '/web/api';
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
