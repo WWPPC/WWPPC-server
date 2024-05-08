@@ -34,7 +34,7 @@ const router = useRouter();
                             <span style="font-size: var(--font-20);">
                                 <br>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/register')"></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')" disabled></UILinkButton>
                                 </div>
                                 <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                             </span>
