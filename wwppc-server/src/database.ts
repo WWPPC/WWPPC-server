@@ -65,6 +65,7 @@ export class Database {
                     logger.debug('Database connected to: ' + this.#db.host);
                     logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
                 }
+                return;
                 // brick of code so we don't lose the functions
                 await this.#db.query(`
                     CREATE TYPE ACCOUNTDATA AS (
