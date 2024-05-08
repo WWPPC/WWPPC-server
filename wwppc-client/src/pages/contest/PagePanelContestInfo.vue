@@ -46,9 +46,9 @@ const router = useRouter();
                 <AnimateInContainer type="slideUp" height="100%" :delay=100>
                     <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
                         <p>
-                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to <b>two</b> compete in <b>six</b> rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
+                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
                             <br><br>
-                            The contest will be held online (here!) between two divisions: Novice and Advanced.
+                            The contest will be held online, on this website, between two divisions: Novice and Advanced.
                         </p>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
@@ -68,7 +68,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 is on <b>June 2</b>!
+                        WWPIT 2024 will be on June 2, starting at 10:24 AM EST.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
@@ -85,10 +85,10 @@ const router = useRouter();
                 <TitledCollapsible title="What's the contest format?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                         <ul>
-                            <li>There will be 6 separate timed rounds of 15-30 minutes each</li>
+                            <li>There will be 4 separate timed rounds of 64 minutes each, 3 for each division</li>
                             <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
-                            <li>Submissions are only graded <i>after</i> the round ends</li>
-                            <li>Any resource is allowed as long as it was made before the beginning of the contest <i>(Open textbook!)</i></li>
+                            <li>Submissions are only graded after the round ends</li>
+                            <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                         </ul>
                     </p>
                 </TitledCollapsible>
