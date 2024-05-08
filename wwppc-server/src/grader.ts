@@ -47,25 +47,109 @@ export class DomjudgeGrader implements Grader {
         this.#logger = logger;
         this.#app.get('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send('Backend API TESTTTTTT');
+            res.json([
+                {
+                  "id": "string",
+                  "hostname": "FvZDS9zQBfg3y..LscGIT1pzpuChISCxBwp9uSDP2rP8kScWvVnJkw5UkpERFZXMHfSmGpxetmMIjfLSLi104ww7gv",
+                  "enabled": true,
+                  "polltime": "string",
+                  "hidden": true
+                }
+            ]);
         });
         this.#app.post('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send('hello little BUH oof @suvanth fix backend');
+            res.json([]);
+        });
+        this.#app.get('/api/config', (req, res) => {
+            res.json({
+                diskspace_error: 1024, //see line 710 of judgedaemon.main.php, in kB
+            });
+        });
+        this.#app.get('/api/languages', (req, res) => {
+            res.json([
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "cpp",
+                    "name": "cpp",
+                    "extensions": [
+                        "cpp",
+                        "cc"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 1,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "java",
+                    "name": "java",
+                    "extensions": [
+                        "java"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 2,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "py",
+                    "name": "py",
+                    "extensions": [
+                        "py"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 4,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+            ]);
+        });
+        this.#app.get('/api/judgehosts/get_files/testcase/*', (req, res) => {
+
         });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
-            if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
-                //malformed
-                res.sendStatus(400);
-                res.end();
-                return;
-            }
-            if (!this.#judgehosts.has(req.body.hostname)) {
-                //invalid judgehost
-                res.sendStatus(403);
-                res.end();
-                return;
-            }
+            // if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
+            //     //malformed
+            //     res.sendStatus(400);
+            //     res.end();
+            //     return;
+            // }
+            // if (!this.#judgehosts.has(req.body.hostname)) {
+            //     //invalid judgehost
+            //     res.sendStatus(403);
+            //     res.end();
+            //     return;
+            // }
             // code to validate judgehost possibly needed
             let arr = new Array<Object>();
             for (let i = 0; i < req.body.max_batchsize; i++) {
@@ -77,18 +161,25 @@ export class DomjudgeGrader implements Grader {
                 arr.push({
                     submitid: s.username+s.time.toString(),
                     judgetaskid: 0,
-                    type: "string",
+                    type: "string", //'prefetch' or 'debug_info' (or neither?)
                     priority: 0,
                     jobid: "string",
                     uuid: "string",
                     compile_script_id: "string",
                     run_script_id: s.file,
                     compare_script_id: "string",
-                    testcase_id: "string",
+                    testcase_id: "string", //put the testcase ID here. /api/judgehosts/get_files/testcase/$testcase_id will be called later
                     testcase_hash: "string",
-                    compile_config: "string",
-                    run_config: "string",
-                    compare_config: "string",
+                    compile_config: {
+                        hash: "string",
+                    },
+                    run_config: {
+                        combined_run_compare: false, //or true?
+                        hash: "string",
+                    },
+                    compare_config: {
+                        hash: "string",
+                    },
                 });
             }
             res.json(arr);

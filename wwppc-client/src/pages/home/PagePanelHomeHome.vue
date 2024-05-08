@@ -105,6 +105,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" style="grid-column: span 2;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" style="grid-column: span 2;"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>

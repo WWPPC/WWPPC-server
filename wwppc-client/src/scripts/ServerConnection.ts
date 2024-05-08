@@ -9,7 +9,7 @@ import recaptcha from './recaptcha';
 export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
 const socket = io(serverHostname, {
     // auth.token doesn't exist what are you talking about
-    path: '/socket.io',
+    path: '/web/socket.io',
     autoConnect: false,
     reconnection: false
 });
