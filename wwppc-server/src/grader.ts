@@ -63,7 +63,7 @@ export class DomjudgeGrader implements Grader {
         });
         this.#app.get('/api/config', (req, res) => {
             res.json({
-                diskspace_error: 1024, //see line 710 of judgedaemon.main.php
+                diskspace_error: 1024, //see line 710 of judgedaemon.main.php, in kB
             });
         });
         this.#app.get('/api/languages', (req, res) => {
@@ -134,6 +134,9 @@ export class DomjudgeGrader implements Grader {
                 },
             ]);
         });
+        this.#app.get('/api/judgehosts/get_files/testcase/*', (req, res) => {
+
+        });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             // if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
             //     //malformed
@@ -147,33 +150,39 @@ export class DomjudgeGrader implements Grader {
             //     res.end();
             //     return;
             // }
-            res.json(null); return;
             // code to validate judgehost possibly needed
-            // let arr = new Array<Object>();
-            // for (let i = 0; i < req.body.max_batchsize; i++) {
-            //     let s = this.#ungradedSubmissions.shift();
-            //     if (s === undefined) {
-            //         break;
-            //     }
-            //     // See schema JudgeTask to figure this out
-            //     arr.push({
-            //         submitid: s.username+s.time.toString(),
-            //         judgetaskid: 0,
-            //         type: "string",
-            //         priority: 0,
-            //         jobid: "string",
-            //         uuid: "string",
-            //         compile_script_id: "string",
-            //         run_script_id: s.file,
-            //         compare_script_id: "string",
-            //         testcase_id: "string",
-            //         testcase_hash: "string",
-            //         compile_config: "string",
-            //         run_config: "string",
-            //         compare_config: "string",
-            //     });
-            // }
-            // res.json(arr);
+            let arr = new Array<Object>();
+            for (let i = 0; i < req.body.max_batchsize; i++) {
+                let s = this.#ungradedSubmissions.shift();
+                if (s === undefined) {
+                    break;
+                }
+                // See schema JudgeTask to figure this out
+                arr.push({
+                    submitid: s.username+s.time.toString(),
+                    judgetaskid: 0,
+                    type: "string", //'prefetch' or 'debug_info' (or neither?)
+                    priority: 0,
+                    jobid: "string",
+                    uuid: "string",
+                    compile_script_id: "string",
+                    run_script_id: s.file,
+                    compare_script_id: "string",
+                    testcase_id: "string", //put the testcase ID here. /api/judgehosts/get_files/testcase/$testcase_id will be called later
+                    testcase_hash: "string",
+                    compile_config: {
+                        hash: "string",
+                    },
+                    run_config: {
+                        combined_run_compare: false, //or true?
+                        hash: "string",
+                    },
+                    compare_config: {
+                        hash: "string",
+                    },
+                });
+            }
+            res.json(arr);
         });
         this.#app.use('/api/*', (req, res) => res.sendStatus(404));
     }
