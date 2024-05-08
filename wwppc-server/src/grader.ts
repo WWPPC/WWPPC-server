@@ -135,18 +135,18 @@ export class DomjudgeGrader implements Grader {
             ]);
         });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
-            if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
-                //malformed
-                res.sendStatus(400);
-                res.end();
-                return;
-            }
-            if (!this.#judgehosts.has(req.body.hostname)) {
-                //invalid judgehost
-                res.sendStatus(403);
-                res.end();
-                return;
-            }
+            // if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
+            //     //malformed
+            //     res.sendStatus(400);
+            //     res.end();
+            //     return;
+            // }
+            // if (!this.#judgehosts.has(req.body.hostname)) {
+            //     //invalid judgehost
+            //     res.sendStatus(403);
+            //     res.end();
+            //     return;
+            // }
             res.json(null); return;
             // code to validate judgehost possibly needed
             // let arr = new Array<Object>();
