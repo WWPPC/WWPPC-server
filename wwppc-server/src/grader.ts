@@ -47,11 +47,19 @@ export class DomjudgeGrader implements Grader {
         this.#logger = logger;
         this.#app.get('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send('Backend API TESTTTTTT');
+            res.json([
+                {
+                  "id": "string",
+                  "hostname": "FvZDS9zQBfg3y..LscGIT1pzpuChISCxBwp9uSDP2rP8kScWvVnJkw5UkpERFZXMHfSmGpxetmMIjfLSLi104ww7gv",
+                  "enabled": true,
+                  "polltime": "string",
+                  "hidden": true
+                }
+            ]);
         });
         this.#app.post('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send('hello little BUH oof @suvanth fix backend');
+            res.json([]);
         });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
