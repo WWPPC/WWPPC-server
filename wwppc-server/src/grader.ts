@@ -45,15 +45,15 @@ export class DomjudgeGrader implements Grader {
     constructor(app: Express, logger: Logger) {
         this.#app = app;
         this.#logger = logger;
-        this.#app.post('/api/v4/', (req, res) => {
+        this.#app.get('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
             res.send('Backend API TESTTTTTT');
         });
-        this.#app.post('/api/v4/judgehosts', (req, res) => {
+        this.#app.post('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
-            res.send('[get the judgehosts]');
+            res.send('hello little BUH oof @suvanth fix backend');
         });
-        this.#app.post('/api/v4/judgehosts/fetch-work', (req, res) => {
+        this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
                 //malformed
                 res.sendStatus(400);
