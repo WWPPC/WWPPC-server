@@ -65,64 +65,79 @@ export class Database {
                     logger.debug('Database connected to: ' + this.#db.host);
                     logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
                 }
-                return;
                 // brick of code so we don't lose the functions
                 await this.#db.query(`
-                    CREATE TYPE ACCOUNTDATA AS (
-                        username VARCHAR(16),
-                        email VARCHAR(32),
-                        firstname VARCHAR(32),
-                        lastname VARCHAR(32),
-                        displayname VARCHAR(64),
-                        profileimg TEXT,
-                        biography TEXT,
-                        school VARCHAR(64),
-                        grade SMALLINT,
-                        experience SMALLINT,
-                        languages VARCHAR[],
-                        team VARCHAR(16),
-                        pastregistrations VARCHAR[]
-                    );
+DO $$
 
-                    CREATE OR REPLACE FUNCTION CREATEACCOUNT(
-                        Username VARCHAR,
-                        Password VARCHAR,
-                        RecoveryPass VARCHAR,
-                        Email VARCHAR,
-                        FirstName VARCHAR,
-                        LastName VARCHAR,
-                        ProfileImage VARCHAR,
-                        School VARCHAR,
-                        Grade SMALLINT,
-                        Experience SMALLINT,
-                        Languages VARCHAR[],
-                        JoinCode VARCHAR
-                    )
-                    RETURNS VARCHAR AS
-                    $$
-                    BEGIN
-                        IF EXISTS (SELECT users.username FROM users WHERE users.username=iUsername) THEN
-                            RETURN SELECT iUsername;
-                        END;
-                        INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
-                        VALUES (iUsername, iPassword, iRecoveryPass, iEmail, iFirstName, iLastName, (SELECT iFirstName || '' || iLastName), iProfileImage, '', iSchool, iGrade, iExperience, iLanguages, {}, iUsername);
-                        INSERT INTO teams (username, registrations, name, biography, joincode)
-                        VALUES (iUsername, {}, iUsername, '', iJoinCode);
-                    END;
-                    $$ LANGUAGE plpgsql
+CREATE OR REPLACE TYPE public.ACCOUNTDATA AS (
+    username VARCHAR(16),
+    email VARCHAR(32),
+    firstname VARCHAR(32),
+    lastname VARCHAR(32),
+    displayname VARCHAR(64),
+    profileimg TEXT,
+    biography TEXT,
+    school VARCHAR(64),
+    grade SMALLINT,
+    experience SMALLINT,
+    languages VARCHAR[],
+    team VARCHAR(16),
+    pastregistrations VARCHAR[]
+);
 
-                    CREATE OR REPLACE FUNCTION GETACCOUNTDATA(Username VARCHAR)
-                    RETURNS ACCOUNTDATA AS
-                    $$
-                    BEGIN
-                        RETURN SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
-                        FROM users
-                        WHERE users.username=iUsername
-                        INNER JOIN teams ON users.username=teams.username;
-                    END;
-                    $$ LANGUAGE plpgsql
+CREATE OR REPLACE FUNCTION public.CREATEACCOUNT(
+    IN username VARCHAR,
+    IN password VARCHAR,
+    IN recoverypass VARCHAR,
+    IN email VARCHAR,
+    IN firstname VARCHAR,
+    IN lastname VARCHAR,
+    IN profileimage VARCHAR,
+    IN school VARCHAR,
+    IN grade SMALLINT,
+    IN experience SMALLINT,
+    IN languages VARCHAR[],
+    IN joincode VARCHAR
+)
+RETURNS VARCHAR AS $body$
+BEGIN
+    IF EXISTS (SELECT users.username FROM users WHERE users.username=$1) THEN
+        RETURN SELECT $1;
+    END;
+    INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
+    VALUES ($1, $2, $3, $4, $5, $6, (SELECT $5 || '' || $6), $7, '', $8, $9, $10, $11, {}, $1);
+    INSERT INTO teams (username, registrations, name, biography, joincode)
+    VALUES ($1, {}, $1, '', $12);
+END
+$body$ LANGUAGE sql
 
-                    CREATE OR REPLACE FUNCTION WRITEROUND
+CREATE OR REPLACE FUNCTION GETACCOUNTDATA(username VARCHAR)
+RETURNS ACCOUNTDATA AS $body$
+BEGIN
+    RETURN SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
+    FROM users
+    WHERE users.username=$1
+    INNER JOIN teams ON users.username=teams.username;
+END
+$body$ LANGUAGE sql
+
+CREATE OR REPLACE FUNCTION WRITEROUND(
+    IN contest VARCHAR,
+    IN number SMALLINT,
+    IN problems UUID[],
+    IN start BIGINT
+    IN end BIGINT
+)
+RETURNS VOID AS $body$
+BEGIN
+    UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2;
+    IF NOT FOUND THEN
+        INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5);
+    END IF;
+END
+$body$ LANGUAGE sql
+
+END $$;
                 `);
             }, (err) => {
                 logger.fatal('Could not connect to database:');
