@@ -101,6 +101,7 @@ export class DomjudgeGrader implements Grader {
             }
             res.json(arr);
         });
+        this.#app.use('/api/*', (req, res) => res.sendStatus(404));
     }
 
     queueSubmission(submission: Submission): boolean {

@@ -70,27 +70,27 @@ const database = new Database({
     mailer: mailer
 });
 const io = new SocketIOServer(server, {
-    path: '/socket.io',
+    path: '/web/socket.io',
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 const contestManager = new ContestManager(database, app, io, logger);
 
 // additional http version of socket.io requests
-app.get('/api/userData/:username', async (req, res) => {
+app.get('/web/api/userData/:username', async (req, res) => {
     if (!req.accepts('json')) res.sendStatus(406);
     const data = await database.getAccountData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else res.json(data);
 });
-app.get('/api/teamData/:username', async (req, res) => {
+app.get('/web/api/teamData/:username', async (req, res) => {
     if (!req.accepts('json')) res.sendStatus(406);
     const data = await database.getTeamData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else res.json(data);
 });
-app.use('/api/*', (req, res) => res.sendStatus(404));
+app.use('/web/api/*', (req, res) => res.sendStatus(404));
 
 // admin portal
 import attachAdminPortal from './adminPortal';
