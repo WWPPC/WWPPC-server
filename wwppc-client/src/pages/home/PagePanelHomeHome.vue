@@ -104,6 +104,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 2;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" style="grid-column: span 2;"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
@@ -160,8 +161,8 @@ p {
 .sponsorGrid {
     display: grid;
     grid-auto-flow: dense;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    grid-template-rows: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-template-rows: repeat(auto-fit, minmax(50px, 1fr));
     row-gap: 25px;
     column-gap: 50px;
     padding: 2% 10%;
