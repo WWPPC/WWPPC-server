@@ -62,8 +62,77 @@ export class DomjudgeGrader implements Grader {
             res.json([]);
         });
         this.#app.get('/api/config', (req, res) => {
-            //idk it just returns empty object
-            res.json({});
+            res.json({
+                diskspace_error: 1024, //see line 710 of judgedaemon.main.php
+            });
+        });
+        this.#app.get('/api/languages', (req, res) => {
+            res.json([
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "cpp",
+                    "name": "cpp",
+                    "extensions": [
+                        "cpp",
+                        "cc"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 1,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "java",
+                    "name": "java",
+                    "extensions": [
+                        "java"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 2,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+                {
+                    "compile_executable_hash": "string",
+                    "compiler": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "runner": {
+                        "version": "string",
+                        "version_command": "string"
+                    },
+                    "id": "py",
+                    "name": "py",
+                    "extensions": [
+                        "py"
+                    ],
+                    "filter_compiler_files": true,
+                    "allow_judge": true,
+                    "time_factor": 4,
+                    "entry_point_required": true,
+                    "entry_point_name": "string"
+                },
+            ]);
         });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
@@ -78,32 +147,33 @@ export class DomjudgeGrader implements Grader {
                 res.end();
                 return;
             }
+            res.json(null); return;
             // code to validate judgehost possibly needed
-            let arr = new Array<Object>();
-            for (let i = 0; i < req.body.max_batchsize; i++) {
-                let s = this.#ungradedSubmissions.shift();
-                if (s === undefined) {
-                    break;
-                }
-                // See schema JudgeTask to figure this out
-                arr.push({
-                    submitid: s.username+s.time.toString(),
-                    judgetaskid: 0,
-                    type: "string",
-                    priority: 0,
-                    jobid: "string",
-                    uuid: "string",
-                    compile_script_id: "string",
-                    run_script_id: s.file,
-                    compare_script_id: "string",
-                    testcase_id: "string",
-                    testcase_hash: "string",
-                    compile_config: "string",
-                    run_config: "string",
-                    compare_config: "string",
-                });
-            }
-            res.json(arr);
+            // let arr = new Array<Object>();
+            // for (let i = 0; i < req.body.max_batchsize; i++) {
+            //     let s = this.#ungradedSubmissions.shift();
+            //     if (s === undefined) {
+            //         break;
+            //     }
+            //     // See schema JudgeTask to figure this out
+            //     arr.push({
+            //         submitid: s.username+s.time.toString(),
+            //         judgetaskid: 0,
+            //         type: "string",
+            //         priority: 0,
+            //         jobid: "string",
+            //         uuid: "string",
+            //         compile_script_id: "string",
+            //         run_script_id: s.file,
+            //         compare_script_id: "string",
+            //         testcase_id: "string",
+            //         testcase_hash: "string",
+            //         compile_config: "string",
+            //         run_config: "string",
+            //         compare_config: "string",
+            //     });
+            // }
+            // res.json(arr);
         });
         this.#app.use('/api/*', (req, res) => res.sendStatus(404));
     }
