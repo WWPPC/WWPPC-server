@@ -129,7 +129,7 @@ export class Database {
                 logger.fatal(err);
                 logger.fatal('Host: ' + this.#db.host);
                 logger.destroy();
-                process.exit();
+                process.exit(-1);
             }),
             setPublicKey()
         ]);
@@ -141,7 +141,7 @@ export class Database {
             logger.fatal(err.message);
             if (err.stack) logger.fatal(err.stack);
             logger.destroy();
-            process.exit();
+            process.exit(-1);
         });
     }
 
