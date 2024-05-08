@@ -61,6 +61,10 @@ export class DomjudgeGrader implements Grader {
             //no parameters for some reason?
             res.json([]);
         });
+        this.#app.get('/api/config', (req, res) => {
+            //idk it just returns empty object
+            res.json({});
+        });
         this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
             if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
                 //malformed
