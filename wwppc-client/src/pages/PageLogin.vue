@@ -47,7 +47,7 @@ const showRecoveryWait = ref(false);
 const attemptedRecovery = ref(false);
 const attemptLogin = async () => {
     if (!validateCredentials(usernameInput.value, passwordInput.value)) {
-        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
         return;
     }
     showLoginWait.value = true;
@@ -59,7 +59,7 @@ const attemptLogin = async () => {
 };
 const toSignUp = () => {
     if (!validateCredentials(usernameInput.value, passwordInput.value)) {
-        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
         return;
     }
     firstNameInput.value = '';
