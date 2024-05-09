@@ -59,87 +59,7 @@ export class Database {
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
         this.connectPromise = Promise.all([
-            this.#db.connect().then(async () => {
-                logger.info('Database connected');
-                if (config.debugMode) {
-                    logger.debug('Database connected to: ' + this.#db.host);
-                    logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
-                }
-                // brick of code so we don't lose the functions
-                await this.#db.query(`
-DO $$
-
-CREATE OR REPLACE TYPE public.ACCOUNTDATA AS (
-    username VARCHAR(16),
-    email VARCHAR(32),
-    firstname VARCHAR(32),
-    lastname VARCHAR(32),
-    displayname VARCHAR(64),
-    profileimg TEXT,
-    biography TEXT,
-    school VARCHAR(64),
-    grade SMALLINT,
-    experience SMALLINT,
-    languages VARCHAR[],
-    team VARCHAR(16),
-    pastregistrations VARCHAR[]
-);
-
-CREATE OR REPLACE FUNCTION public.CREATEACCOUNT(
-    IN username VARCHAR,
-    IN password VARCHAR,
-    IN recoverypass VARCHAR,
-    IN email VARCHAR,
-    IN firstname VARCHAR,
-    IN lastname VARCHAR,
-    IN profileimage VARCHAR,
-    IN school VARCHAR,
-    IN grade SMALLINT,
-    IN experience SMALLINT,
-    IN languages VARCHAR[],
-    IN joincode VARCHAR
-)
-RETURNS VARCHAR AS $body$
-BEGIN
-    IF EXISTS (SELECT users.username FROM users WHERE users.username=$1) THEN
-        RETURN SELECT $1;
-    END;
-    INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
-    VALUES ($1, $2, $3, $4, $5, $6, (SELECT $5 || '' || $6), $7, '', $8, $9, $10, $11, {}, $1);
-    INSERT INTO teams (username, registrations, name, biography, joincode)
-    VALUES ($1, {}, $1, '', $12);
-END
-$body$ LANGUAGE sql
-
-CREATE OR REPLACE FUNCTION GETACCOUNTDATA(username VARCHAR)
-RETURNS ACCOUNTDATA AS $body$
-BEGIN
-    RETURN SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
-    FROM users
-    WHERE users.username=$1
-    INNER JOIN teams ON users.username=teams.username;
-END
-$body$ LANGUAGE sql
-
-CREATE OR REPLACE FUNCTION WRITEROUND(
-    IN contest VARCHAR,
-    IN number SMALLINT,
-    IN problems UUID[],
-    IN start BIGINT
-    IN end BIGINT
-)
-RETURNS VOID AS $body$
-BEGIN
-    UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2;
-    IF NOT FOUND THEN
-        INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5);
-    END IF;
-END
-$body$ LANGUAGE sql
-
-END $$;
-                `);
-            }, (err) => {
+            this.#db.connect().catch((err) => {
                 logger.fatal('Could not connect to database:');
                 logger.fatal(err);
                 logger.fatal('Host: ' + this.#db.host);
@@ -149,7 +69,11 @@ END $$;
             setPublicKey()
         ]);
         this.connectPromise.then(() => {
-            logger.info('Database setup complete');
+            logger.info('Database connected');
+            if (config.debugMode) {
+                logger.debug('Database connected to: ' + this.#db.host);
+                logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
+            }
         });
         this.#db.on('error', (err) => {
             logger.fatal('Database error:');
@@ -309,9 +233,20 @@ END $$;
             const encryptedPassword = await bcrypt.hash(password, salt);
             const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
-            else await this.#db.query('', [
-                username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], [], username, username, '', Math.random().toFixed(6).substring(2)
-            ]);
+            else {
+                await this.#db.query(`
+                    INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                    `, [
+                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                ]);
+                await this.#db.query(`
+                    INSERT INTO teams (username, registrations, name, biography, joincode)
+                    VALUES ($1, $2, $3, $4, $5)
+                    `, [
+                    username, [], username, '', Math.random().toFixed(6).substring(2)
+                ]);
+            }
             this.#userCache.set(username, {
                 data: {
                     ...userData,
@@ -373,7 +308,14 @@ END $$;
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
             // update query to alias future registrations.
-            const data = await this.#db.query('SELECT GetAccountData($1)', [username]);
+            const data = await this.#db.query(`
+                SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
+                FROM users
+                WHERE users.username=$1
+                INNER JOIN teams ON users.username=teams.username;
+                `, [
+                username
+            ]);
             if (data.rows.length > 0) {
                 const userData: AccountData = {
                     username: data.rows[0].username,
@@ -415,7 +357,8 @@ END $$;
     async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query('UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
+            const res = await this.#db.query(
+                'UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
@@ -505,13 +448,13 @@ END $$;
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM users WHERE username=$1; DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = await this.checkAccount(username, password);
                 if (res != AccountOpResult.SUCCESS) return res;
-                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM users WHERE username=$1; DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;
             }
@@ -596,12 +539,14 @@ END $$;
         const startTime = performance.now();
         try {
             if (useJoinCode) {
-                const res = await this.#db.query('UPDATE users SET team=(SELECT username FROM users WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE joincode=$2) RETURNING username;', [
+                const res = await this.#db.query(
+                    'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username;', [
                     username, team
                 ]);
                 if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             } else {
-                const res = await this.#db.query('UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username;', [
+                const res = await this.#db.query(
+                    'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username;', [
                     username, team
                 ]);
                 if (res.rows.length > 0) return AccountOpResult.SUCCESS;
@@ -623,15 +568,21 @@ END $$;
     async getTeamData(username: string): Promise<TeamData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT username, team, teamname, teambio, teamjoincode FROM users WHERE team=(SELECT team FROM users WHERE username=$1)', [username]);
+            const data = await this.#db.query(
+                'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
+                username
+            ]);
+            const data2 = await this.#db.query(
+                'SELECT users.username FROM users WHERE users.team=(SELECT users.team FROM users WHERE users.username=$1)', [
+                username
+            ]);
             if (data.rows.length > 0) {
-                const id = data.rows.find((u) => u.username === u.team).username;
                 const teamDat: TeamData = {
-                    id: id,
-                    name: data.rows[0].teamname,
-                    bio: data.rows[0].teambio,
-                    members: [],
-                    joinCode: data.rows[0].teamjoincode
+                    id: data.rows[0].username,
+                    name: data.rows[0].name,
+                    bio: data.rows[0].biography,
+                    members: data2.rows.map(row => row.username),
+                    joinCode: data.rows[0].joincode
                 };
                 for (const user of data.rows) teamDat.members.push(user.username);
                 return teamDat;
@@ -654,7 +605,8 @@ END $$;
     async updateTeamData(username: string, teamData: TeamData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query('UPDATE users SET teamname=$2, teambio=$3 WHERE username=(SELECT team FROM users WHERE username=$1) RETURNING username', [
+            const res = await this.#db.query(
+                'UPDATE teams SET teams.name=$2, teams.biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
@@ -676,13 +628,10 @@ END $$;
     async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            // alias to team and check contest
             const res = await this.#db.query(`
-                IF EXISTS (SELECT contest FROM rounds WHERE countest=$2) THEN
-                    UPDATE users SET registrations=(registrations || $1) WHERE team=(SELECT team FROM users WHERE username=$1);
-                END IF`,
-                [username, contest]
-            );
+            `, [
+                username, contest
+            ]);
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -702,9 +651,10 @@ END $$;
     async unregisterContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query('UPDATE users SET registrations=ARRAY_REMOVE(registrations, $2) WHERE team=(SELECT team FROM users WHERE username=$1)',
-                [username, contest]
-            );
+            const res = await this.#db.query(`
+            `, [
+                username, contest
+            ]);
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -788,7 +738,13 @@ END $$;
     async writeRound(round: Round): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query(`WRITEROUND($1, $2, $3, $4, $5)`, [round.contest, round.round, round.problems, round.startTime, round.endTime]);
+            const data = [round.contest, round.round, round.problems, round.startTime, round.endTime];
+            const update = await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2 RETURNING contest', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5)', data);
+            this.#roundCache.set(round.contest + ' ' + round.round, {
+                rounds: [round],
+                expiration: performance.now() + config.dbCacheTime
+            });
             return true;
         } catch (err) {
             this.logger.error('Database error (writeRound):');
@@ -867,13 +823,9 @@ END $$;
     async writeProblem(problem: Problem): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query(`
-                UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1;
-                IF NOT FOUND THEN
-                    INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-                END IF`,
-                [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived]
-            );
+            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived];
+            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
             this.#problemCache.set(problem.id, {
                 problem: problem,
                 expiration: performance.now() + config.dbCacheTime
@@ -929,7 +881,7 @@ END $$;
                     lang: submission.language,
                     scores: submission.scores
                 };
-                this.#submissionCache.set(submission.id, {
+                this.#submissionCache.set(submission.id +  ' ' + submission.username, {
                     submission: s,
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -952,15 +904,10 @@ END $$;
     async writeSubmission(submission: Submission): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query(`
-                UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2;
-                IF NOT FOUND THEN
-                    INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6);
-                END IT
-                `,
-                [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()]
-            );
-            this.#submissionCache.set(submission.problemId, {
+            const data = [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()];
+            const update = await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', data);
+            this.#submissionCache.set(submission.problemId +  ' ' + submission.username, {
                 submission: submission,
                 expiration: performance.now() + config.dbCacheTime
             });
