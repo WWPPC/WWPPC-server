@@ -74,7 +74,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
         </div>
         <div style="flex-grow: 1;">
             <p>
-                WWPPC is the combined hosts of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club.
+                WWPPC is the combined host of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club in New Jersey.
             </p>
             <p>
                 WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
