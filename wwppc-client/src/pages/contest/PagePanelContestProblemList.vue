@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AngledTitledContainer } from '@/components/ui-defaults/UIContainers';
 import { ContestProblemCompletionState, type ContestRound } from '@/scripts/ContestManager';
-import ContestProblemListRound from '@/components/contest/problems/ContestProblemListRound.vue';
+import ContestProblemListRound from '@/components/contest/problemList/ContestProblemListRound.vue';
 import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
 import { onMounted, ref } from 'vue';
 import { useContestManager } from '@/scripts/ContestManager';

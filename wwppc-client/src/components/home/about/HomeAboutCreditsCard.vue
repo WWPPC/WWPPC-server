@@ -15,16 +15,16 @@ defineProps<{
 
 <template>
     <AnimateInContainer type="slideUp" show-on-screen single>
-        <DoubleCutCornerContainer hover-animation="lift" height="100%">
+        <DoubleCutCornerContainer hover-animation="lift">
             <div class="cardContent">
                 <img :src=$props.img class="cardImage">
                 <div class="cardName">{{ $props.name }}</div>
                 <div class="cardRoles" v-html=$props.roles></div>
                 <div class="cardIcons">
-                    <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/img/codeforces.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/img/github.svg" color="#F05032"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/img/discord.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
-                    <HomeAboutCreditsCardIcon profileUrl="https://youtube.com/" :user=$props.youtube icon="/img/youtube.svg" color="#FF0000"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://codeforces.com/profile/" :user=$props.codeforces icon="/img/codeforces-logo.svg" color="#1F8ACB"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://github.com/" :user=$props.github icon="/img/github-logo.svg" color="#F05032"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://discord.com/users/" :user=$props.discord icon="/img/discord-logo.svg" color="#5865F2"></HomeAboutCreditsCardIcon>
+                    <HomeAboutCreditsCardIcon profileUrl="https://youtube.com/" :user=$props.youtube icon="/img/youtube-logo.svg" color="#FF0000"></HomeAboutCreditsCardIcon>
                 </div>
             </div>
         </DoubleCutCornerContainer>

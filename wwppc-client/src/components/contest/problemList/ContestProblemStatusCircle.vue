@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { globalModal } from "@/components/ui-defaults/UIDefaults";
 import { ContestProblemCompletionState, completionStateString } from "@/scripts/ContestManager";
 const props = defineProps<{
     status: ContestProblemCompletionState
 }>();
+
+const modal = globalModal();
 
 const completionStateAnimation = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'pstatus-not-uploaded' :
@@ -12,10 +15,14 @@ const completionStateAnimation = (status: ContestProblemCompletionState) => {
                     status == ContestProblemCompletionState.GRADED_FAIL ? 'pstatus-graded-fail' :
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'pstatus-graded-partial' : 'pstatus-error'
 };
+
+const showModal = () => {
+    modal.showModal({ title: 'Problem Status', content: `This problem is marked as "${completionStateString(props.status)}" for your team.` });
+};
 </script>
 
 <template>
-    <div class="contestProblemListProblemStatus" :title="completionStateString(props.status)"></div>
+    <div class="contestProblemListProblemStatus" :title="completionStateString(props.status)" @dblclick="showModal"></div>
 </template>
 
 <style scoped>

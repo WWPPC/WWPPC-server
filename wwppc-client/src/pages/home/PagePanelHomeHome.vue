@@ -73,21 +73,21 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             </ShowOnscreenContainer>
         </div>
         <div style="flex-grow: 1;">
-            <p>
+            <p style="text-wrap: balance;">
                 WWPPC is the combined host of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club in New Jersey.
             </p>
-            <p>
+            <p style="text-wrap: balance;">
                 WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
             </p>
-            <p>
+            <p style="text-wrap: balance;">
                 We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
             </p>
             <div class="centered">
                 <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/img/discord.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                    <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
                 </a>
                 <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="GitHub" img="/img/github.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
+                    <UIIconButton text="GitHub" img="/img/github-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
                 </a>
             </div>
         </div>
@@ -100,12 +100,12 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                 <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
             </ShowOnscreenContainer>
         </div>
-        <div class="sponsorGrid">
-            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" style="grid-column: span 2;"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" style="grid-column: span 3;"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" style="grid-column: span 2;"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" style="grid-column: span 2;"></HomeHomeSponsorLogo>
+        <div class="sponsors">
+            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="8vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="8vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
@@ -159,11 +159,11 @@ p {
     text-align: center;
 }
 
-.sponsorGrid {
-    display: grid;
-    grid-auto-flow: dense;
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-    grid-template-rows: repeat(auto-fit, minmax(50px, 1fr));
+.sponsors {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     row-gap: 25px;
     column-gap: 50px;
     padding: 2% 10%;

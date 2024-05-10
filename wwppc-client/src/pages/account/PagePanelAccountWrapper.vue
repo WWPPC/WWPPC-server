@@ -145,10 +145,12 @@ const changeProfileImage = (event: any) => {
     margin-top: 8px;
     font-size: var(--font-24);
     font-family: 'Source Code Pro', Courier, monospace;
-    line-break: anywhere;
     white-space: pre;
-    text-align: center;
+    word-wrap: break-word;
+    text-wrap: balance;
+    line-break: anywhere;
     word-break: break-all;
+    text-overflow: ellipsis;
 }
 
 .accountUserUsername {

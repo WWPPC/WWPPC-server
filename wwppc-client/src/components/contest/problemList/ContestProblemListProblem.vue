@@ -4,7 +4,7 @@ import { type ContestProblemMetaData } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
-import ContestProblemStatusCircle from "@/components/contest/problems/ContestProblemStatusCircle.vue";
+import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
 
 const props = defineProps<{
     data: ContestProblemMetaData

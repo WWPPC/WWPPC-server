@@ -584,7 +584,6 @@ export class Database {
                     members: data2.rows.map(row => row.username),
                     joinCode: data.rows[0].joincode
                 };
-                for (const user of data.rows) teamDat.members.push(user.username);
                 return teamDat;
             }
             return AccountOpResult.NOT_EXISTS;
@@ -606,7 +605,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const res = await this.#db.query(
-                'UPDATE teams SET teams.name=$2, teams.biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
+                'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
             if (res.rows.length > 0) return AccountOpResult.SUCCESS;
@@ -881,7 +880,7 @@ export class Database {
                     lang: submission.language,
                     scores: submission.scores
                 };
-                this.#submissionCache.set(submission.id +  ' ' + submission.username, {
+                this.#submissionCache.set(submission.id + ' ' + submission.username, {
                     submission: s,
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -907,7 +906,7 @@ export class Database {
             const data = [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()];
             const update = await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', data);
-            this.#submissionCache.set(submission.problemId +  ' ' + submission.username, {
+            this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
                 submission: submission,
                 expiration: performance.now() + config.dbCacheTime
             });

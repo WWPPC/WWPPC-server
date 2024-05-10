@@ -7,6 +7,7 @@ import { useAccountManager, gradeMaps, experienceMaps, languageMaps } from '@/sc
 import { AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { onMounted, ref, watch } from 'vue';
 import recaptcha from '@/scripts/recaptcha';
+import AccountProfileTeamUser from '@/components/account/profile/AccountProfileTeamUser.vue';
 
 const modal = globalModal();
 const accountManager = useAccountManager();
@@ -240,15 +241,21 @@ onMounted(clearDangerButtons);
                 <p>OR</p>
             </div>
             <div class="profileTeamSection">
-                <form action="javascript:void(0)" @submit=writeTeamData>
-                    <PairedGridContainer width="100%">
-                        <span>Team Name</span>
-                        <UITextBox v-model=accountManager.teamName maxlength="32" width="var(--fwidth)" title="Collective team name" placeholder="Team Name"></UITextBox>
-                        <span>Biography<br>({{ remainingBioCharacters2 }} chars):</span>
-                        <UITextArea v-model=accountManager.teamBio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" placeholder="Describe your team in a few short sentences!" resize="vertical"></UITextArea>
-                    </PairedGridContainer>
-                    <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedTeamChanges text="Save" color="yellow" glitch-on-mount></UIButton>
-                </form>
+                <h3>Your Team</h3>
+                <div class="profileTeamGrid">
+                    <div class="profileTeamList">
+                        <AccountProfileTeamUser v-for="user in accountManager.teamMembers" :key="user" :user="user"></AccountProfileTeamUser>
+                    </div>
+                    <form action="javascript:void(0)" @submit=writeTeamData>
+                        <PairedGridContainer width="100%">
+                            <span>Team Name</span>
+                            <UITextBox v-model=accountManager.teamName maxlength="32" width="var(--fwidth)" title="Collective team name" placeholder="Team Name"></UITextBox>
+                            <span>Biography<br>({{ remainingBioCharacters2 }} chars):</span>
+                            <UITextArea v-model=accountManager.teamBio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" placeholder="Describe your team in a few short sentences!" resize="vertical"></UITextArea>
+                        </PairedGridContainer>
+                        <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedTeamChanges text="Save" color="yellow" glitch-on-mount></UIButton>
+                    </form>
+                </div>
             </div>
             <div class="profileTeamSection">
                 <span class="nowrap">
@@ -303,6 +310,20 @@ onMounted(clearDangerButtons);
     margin-bottom: 8px;
     padding: 4px 8px;
     border-radius: 8px;
+}
+
+.profileTeamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    row-gap: 16px;
+    column-gap: 16px;
+}
+
+.profileTeamList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    row-gap: 8px;
+    column-gap: 8px;
 }
 
 .profileSaveButton {
