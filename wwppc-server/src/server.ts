@@ -77,17 +77,20 @@ const contestManager = new ContestManager(database, app, io, logger);
 
 // additional http version of socket.io requests
 app.get('/web/api/userData/:username', async (req, res) => {
-    if (!req.accepts('json')) res.sendStatus(406);
     const data = await database.getAccountData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else res.json(data);
 });
 app.get('/web/api/teamData/:username', async (req, res) => {
-    if (!req.accepts('json')) res.sendStatus(406);
     const data = await database.getTeamData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
+    else res.json(data);
+});
+app.get('/web/api/contestList', async (req, res) => {
+    const data = await contestManager.getContestList();
+    if (data === null) res.sendStatus(500);
     else res.json(data);
 });
 app.use('/web/api/*', (req, res) => res.sendStatus(404));
@@ -153,20 +156,18 @@ io.on('connection', async (s) => {
     socket.username = '[not signed in]';
     if (config.debugMode) socket.logWithId(logger.debug, 'Connection established, sending public key and requesting credentials');
     socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
-    const checkRecaptcha = async (token: string): Promise<boolean> => {
+    const checkRecaptcha = async (token: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> => {
         const recaptchaResponse = await validateRecaptcha(token, socket.ip);
         if (recaptchaResponse instanceof Error) {
             logger.error('reCAPTCHA verification failed:');
             logger.error(recaptchaResponse.message);
             if (recaptchaResponse.stack) logger.error(recaptchaResponse.stack);
-            socket.emit('credentialRes', AccountOpResult.ERROR);
-            return false;
+            return AccountOpResult.ERROR;
         } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
             if (config.debugMode) socket.logWithId(logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
-            socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
-            return false;
+            return AccountOpResult.INCORRECT_CREDENTIALS;
         } else if (config.debugMode) socket.logWithId(logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
-        return true;
+        return AccountOpResult.SUCCESS;
     };
     if (await new Promise((resolve, reject) => {
         let lockout = false;
@@ -195,7 +196,11 @@ io.on('connection', async (s) => {
             }
             socket.username = creds.username;
             if (config.debugMode) socket.logWithId(logger.debug, 'Successfully received credentials');
-            if (!await checkRecaptcha(creds.token)) return;
+            const recaptchaRes = await checkRecaptcha(creds.token);
+            if (recaptchaRes != AccountOpResult.SUCCESS) {
+                socket.emit('credentialRes', recaptchaRes);
+                return;
+            }
             // actually create/check account
             if (creds.signupData != undefined) {
                 // spam prevention
@@ -262,7 +267,11 @@ io.on('connection', async (s) => {
                 return;
             }
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to send recovery email');
-            if (!await checkRecaptcha(creds.token)) return;
+            const recaptchaRes = await checkRecaptcha(creds.token);
+            if (recaptchaRes != AccountOpResult.SUCCESS) {
+                socket.emit('credentialRes', recaptchaRes);
+                return;
+            }
             const data = await database.getAccountData(creds.username);
             if (typeof data != 'object') {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
@@ -333,7 +342,11 @@ io.on('connection', async (s) => {
                 return;
             }
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
-            if (!await checkRecaptcha(creds.token)) return;
+            const recaptchaRes = await checkRecaptcha(creds.token);
+            if (recaptchaRes != AccountOpResult.SUCCESS) {
+                socket.emit('credentialRes', recaptchaRes);
+                return;
+            }
             const res = await database.changeAccountPasswordToken(creds.username, recoveryPassword, newPassword);
             if (config.debugMode) socket.logWithId(logger.debug, 'Recover account: ' + reverse_enum(AccountOpResult, res));
             lockout = false;
@@ -395,7 +408,11 @@ io.on('connection', async (s) => {
             return;
         }
         socket.logWithId(logger.info, 'Changing credentials');
-        if (!await checkRecaptcha(creds.token)) return;
+        const recaptchaRes = await checkRecaptcha(creds.token);
+        if (recaptchaRes != AccountOpResult.SUCCESS) {
+            socket.emit('credentialRes', recaptchaRes);
+            return;
+        }
         const res = await database.changeAccountPassword(socket.username, password, newPassword);
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Change credentials: ' + reverse_enum(AccountOpResult, res));
@@ -411,17 +428,26 @@ io.on('connection', async (s) => {
             return;
         }
         socket.logWithId(logger.info, 'Deleting credentials');
-        if (!await checkRecaptcha(creds.token)) return;
+        const recaptchaRes = await checkRecaptcha(creds.token);
+        if (recaptchaRes != AccountOpResult.SUCCESS) {
+            socket.emit('credentialRes', recaptchaRes);
+            return;
+        }
         const res = await database.deleteAccount(socket.username, password);
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('joinTeam', async (joinCode: string) => {
-        if (typeof joinCode != 'string') {
+    socket.on('joinTeam', async (data: { joinCode: string, token: string }) => {
+        if (data == null || typeof data.joinCode != 'string') {
             socket.kick('invalid joinTeam payload');
         }
-        if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + joinCode);
-        const res = await database.setAccountTeam(socket.username, joinCode, true);
+        if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.joinCode);
+        const recaptchaRes = await checkRecaptcha(data.token);
+        if (recaptchaRes != AccountOpResult.SUCCESS) {
+            socket.emit('teamActionResponse', recaptchaRes);
+            return;
+        }
+        const res = await database.setAccountTeam(socket.username, data.joinCode, true);
         socket.emit('teamActionResponse', res);
     });
     socket.on('leaveTeam', async () => {

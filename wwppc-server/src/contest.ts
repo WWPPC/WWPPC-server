@@ -6,6 +6,7 @@ import { AccountOpResult, AdminPerms, Database, Problem, Round, Score, UUID, isU
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
+import { validateRecaptcha } from './recaptcha';
 
 /**User info */
 interface ContestUser {
@@ -78,8 +79,17 @@ export class ContestManager {
 
     }
 
-    async getContestList() {
-
+    /**
+     * Fetch a list of upcoming contest IDs.
+     * @returns {string[] | null} List of unique contest IDs or null if an error occured
+     */
+    async getContestList(): Promise<string[] | null> {
+        const rounds = await this.db.readRounds({});
+        if (rounds === null) return null;
+        const contests = new Set<string>();
+        const filtered = rounds.filter(r => r.startTime > Date.now());
+        for (const r of filtered) contests.add(r.contest);
+        return Array.from(contests.values());
     }
     async getContestData(participantView: boolean) {
 
@@ -92,37 +102,24 @@ export class ContestManager {
      * @param {ServerSocket} socket SocketIO connection (with modifications)
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
-    async addUser(socket: ServerSocket): Promise<number> {
+    async addUser(s: ServerSocket): Promise<number> {
+        const socket = s;
+
         // make sure the user actually exists (otherwise bork)
         const userData = await this.db.getAccountData(socket.username);
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
 
         // new event handlers
         //toggle registration for a contest (maybe use the #users Map rather than reading from db each time)
-        socket.on('registerContest', async (request: { contest: string }) => {
+        socket.on('registerContest', async (request: { contest: string, token: string }) => {
             if (request == null || typeof request.contest !== 'string') {
                 socket.kick('invalid registerContest payload');
                 return;
             }
-            //check if it's a valid contest oof
-            if (request.contest !== 'WWPITTEST') {
-                return;
-            }
-
-            const user = await this.db.getAccountData(socket.username);
-            if (user === AccountOpResult.NOT_EXISTS || user === AccountOpResult.ERROR) {
-                socket.kick('invalid registerContest username');
-                return;
-                //this probably shouldnt happen since you signed in with the username
-                //also how to handle AccountOpResult.ERROR
-            }
-            if (user.registrations.includes(request.contest)) {
-                user.registrations.splice(user.registrations.indexOf(request.contest), 1);
-            } else {
-                user.registrations.push(request.contest);
-            }
-            const res = await this.db.updateAccountData(user.username, user);
-            socket.emit('registerContestResponse', res);
+            if (config.debugMode) socket.logWithId(this.logger.info, 'Registering contest: ' + request.contest);
+            const recaptchaRes = await validateRecaptcha(request.token, socket.ip);
+            const res = await this.db.registerContest(socket.username, request.contest);
+            socket.emit('')
         });
         //get problem list for running contest
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
@@ -132,8 +129,11 @@ export class ContestManager {
                 return;
             }
             const rounds = await this.db.readRounds({ contest: request.contest });
+            if (rounds == null) {
+                socket.emit('contestList', { data: [], token: request.token });
+                return;
+            }
             const packet: Array<Object> = [];
-            //I think it's the VIEW_PROBLEMS perm?
             const canViewAllRounds = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
             for (const round of rounds) {
                 if (round.startTime > Date.now() && !canViewAllRounds) {
@@ -141,7 +141,7 @@ export class ContestManager {
                 }
                 // make sure to check submission status for the problems
                 const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: round.round } });
-                let problems: Array<Object> = [];
+                const problems: Array<Object> = [];
                 for (let p in roundProblems) {
                     if (roundProblems[p].hidden && !canViewAllRounds) {
                         continue;
@@ -166,35 +166,30 @@ export class ContestManager {
             }
             socket.emit('problemList', { data: packet, token: request.token });
         });
-        //get problem
         socket.on('getProblemData', async (request: { id: undefined, contest: string, round: number, number: number, token: number } | { id: string, contest: undefined, round: undefined, number: undefined, token: number }) => {
             if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !isUUID(request.id)))) {
                 socket.kick('invalid getProblemData payload');
                 return;
             }
-            // const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
-            // if (rounds.length !== 1) {
-            //     socket.kick('invalid getProblemData round or contest id');
-            //     return;
-            // }
-            // if (rounds.length < request.number) {
-            //     socket.kick('invalid getProblemData problem index');
-            //     return;
-            // }
-            let problems: Problem[];
-            if (typeof request.id === 'string') {
-                //getProblemDataId
-                problems = await this.db.readProblems({ id: request.id });
-            } else {
-                //getProblemData
-                problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            let problems: Problem[] | null;
+            if (typeof request.id === 'string') problems = await this.db.readProblems({ id: request.id });
+            else problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            // oopsies, database error
+            if (problems === null) {
+                socket.emit('problemData', {
+                    problem: null,
+                    submission: null,
+                    token: request.token
+                });
+                return;
             }
-            //note that a hidden problem will override a visible contest
+            // note that a hidden problem will override a visible contest
             if (!(await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS))) {
                 //remove all hidden problems
                 problems = problems.filter((p) => !p.hidden);
             }
             if (problems.length !== 1) {
+                // problem does not exist or some sort of error and multiple problems matched
                 socket.emit('problemData', {
                     problem: null,
                     submission: null,
@@ -229,7 +224,9 @@ export class ContestManager {
         });
         //submit a solution
         socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
-            //also need to check valid language, valid problem id
+            // needs response event
+
+            // also need to check valid language, valid problem id
             if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
                 socket.kick('invalid updateSubmission payload');
                 return;
@@ -239,6 +236,7 @@ export class ContestManager {
                 return;
             }
             const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
+            if (problems === null) return;
             if (problems.length !== 1) {
                 socket.kick('invalid updateSubmission contest, round, or problem ID');
                 return;
@@ -249,6 +247,7 @@ export class ContestManager {
                 return;
             }
             const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
+            if (rounds === null) return;
             //note that we are guaranteed to have a valid round, since we just checked valid problem
             if (rounds[0].startTime > Date.now() || rounds[0].endTime < Date.now()) {
                 socket.kick('updateSubmission outside of contest window');

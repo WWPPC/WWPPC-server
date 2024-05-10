@@ -698,7 +698,7 @@ export class Database {
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Round[]} Array of round data matching the filter criteria. If the query failed the returned array is empty
      */
-    async readRounds(c: ReadRoundsCriteria): Promise<Round[]> {
+    async readRounds(c: ReadRoundsCriteria): Promise<Round[] | null> {
         const startTime = performance.now();
         try {
             const cacheKey = c.contest + ' ' + c.round;
@@ -724,7 +724,7 @@ export class Database {
         } catch (err) {
             this.logger.error('Database error (readRounds):');
             this.logger.error('' + err);
-            return [];
+            return null;
         } finally {
             if (config.debugMode) this.logger.debug(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
         }
@@ -760,14 +760,15 @@ export class Database {
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Problem[]} Array of problems matching the filter criteria. If the query failed the returned array is empty
      */
-    async readProblems(c: ReadProblemsCriteria): Promise<Problem[]> {
+    async readProblems(c: ReadProblemsCriteria): Promise<Problem[] | null> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
             if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
             if (c.contest != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                const rounds: Round[] = await this.readRounds(c.contest);
+                const rounds = await this.readRounds(c.contest);
+                if (rounds === null) return null;
                 if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
@@ -809,7 +810,7 @@ export class Database {
         } catch (err) {
             this.logger.error('Database error (readProblems):');
             this.logger.error('' + err);
-            return [];
+            return null;
         } finally {
             if (config.debugMode) this.logger.debug(`[Database] readProblems in ${performance.now() - startTime}ms`, true);
         }
@@ -853,7 +854,8 @@ export class Database {
             if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
             if (c.contest != undefined) {
                 // filter by grabbing ids from round lists (code unreadable??)
-                const rounds: Round[] = await this.readRounds(c.contest);
+                const rounds = await this.readRounds(c.contest);
+                if (rounds === null) return null;
                 if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
