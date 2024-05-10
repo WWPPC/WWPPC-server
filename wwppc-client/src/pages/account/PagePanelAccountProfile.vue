@@ -63,7 +63,8 @@ const writeTeamData = async () => {
 const joinTeam = async () => {
     showWriteTeamDataWait.value = true;
     if (joinTeamCode.value.length != 6) return;
-    const res = await accountManager.joinTeam(joinTeamCode.value);
+    const token = await recaptcha.execute('join_team');
+    const res = await accountManager.joinTeam(joinTeamCode.value, token);
     if (res == AccountOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
     else if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
     showWriteTeamDataWait.value = false;

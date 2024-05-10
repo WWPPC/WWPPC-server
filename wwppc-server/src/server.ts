@@ -83,10 +83,13 @@ app.get('/web/api/userData/:username', async (req, res) => {
     else res.json(data);
 });
 app.get('/web/api/teamData/:username', async (req, res) => {
-    const data = await database.getTeamData(req.params.username);
+    const data: any = await database.getTeamData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
-    else res.json(data);
+    else {
+        data.joinCode = null;
+        res.json(data);
+    }
 });
 app.get('/web/api/contestList', async (req, res) => {
     const data = await contestManager.getContestList();
@@ -437,23 +440,27 @@ io.on('connection', async (s) => {
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('joinTeam', async (data: { joinCode: string, token: string }) => {
-        if (data == null || typeof data.joinCode != 'string') {
+    socket.on('joinTeam', async (data: { code: string, token: string }) => {
+        if (data == null || typeof data.code != 'string' || typeof data.token != 'string') {
             socket.kick('invalid joinTeam payload');
         }
-        if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.joinCode);
+        if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.code);
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
             socket.emit('teamActionResponse', recaptchaRes);
             return;
         }
-        const res = await database.setAccountTeam(socket.username, data.joinCode, true);
+        const res = await database.setAccountTeam(socket.username, data.code, true);
         socket.emit('teamActionResponse', res);
+        const teamData = await database.getTeamData(socket.username);
+        if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
     socket.on('leaveTeam', async () => {
         if (config.debugMode) socket.logWithId(logger.info, 'Leaving team');
         const res = await database.setAccountTeam(socket.username, socket.username);
         socket.emit('teamActionResponse', res);
+        const teamData = await database.getTeamData(socket.username);
+        if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
     socket.on('setTeamData', async (data: { teamName: string, teamBio: string }) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating team data');
@@ -476,6 +483,9 @@ io.on('connection', async (s) => {
             socket.logWithId(logger.debug, 'Update team data: ' + reverse_enum(AccountOpResult, res));
         }
 
+    });
+    database.getTeamData(socket.username).then((data) => {
+        if (typeof data == 'object') socket.emit('teamJoinCode', data.joinCode);
     });
     // hand off to ContestManager
     contestManager.addUser(socket);

@@ -52,5 +52,6 @@ onMounted(async () => {
     line-break: anywhere;
     word-break: break-all;
     text-overflow: ellipsis;
+    align-content: center;
 }
 </style>

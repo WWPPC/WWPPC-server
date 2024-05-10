@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 
-import { useServerConnection } from './ServerConnection';
+import { socket, useServerConnection } from './ServerConnection';
 
 export interface Contest {
     id: string
@@ -114,6 +114,9 @@ export const useContestManager = defineStore('contestManager', {
             const res: Contest | null = await serverConnection.apiFetch('GET', '/contestData/' + state.currContest);
             return res;
         },
+        // replace getProblemList and getProblemData/getProblemDataId with live updating
+        // server sends updates to client instead of client fetching
+        // will mean contest manager has to store the data
         async getProblemList(): Promise<ContestRound[]> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return [];
@@ -141,8 +144,8 @@ export const useContestManager = defineStore('contestManager', {
                             submission.status = ContestProblemCompletionState.SUBMITTED;
                         } else {
                             submission.status = ContestProblemCompletionState.ERROR;
-                            let allWrong : boolean = true;
-                            let someWrong : boolean = false;
+                            let allWrong: boolean = true;
+                            let someWrong: boolean = false;
                             for (const score of submission.scores) {
                                 if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
                                     allWrong = false;
@@ -179,8 +182,8 @@ export const useContestManager = defineStore('contestManager', {
                             submission.status = ContestProblemCompletionState.SUBMITTED;
                         } else {
                             submission.status = ContestProblemCompletionState.ERROR;
-                            let allWrong : boolean = true;
-                            let someWrong : boolean = false;
+                            let allWrong: boolean = true;
+                            let someWrong: boolean = false;
                             for (const score of submission.scores) {
                                 if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
                                     allWrong = false;
@@ -222,6 +225,7 @@ export const useContestManager = defineStore('contestManager', {
                 serverConnection.on('submissionStatus', handle);
             });
         },
+        // replace these with refs/reactive objects that can be watched for updates
         async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
             const serverConnection = useServerConnection();
             serverConnection.on('submissionStatus', cb);
@@ -231,4 +235,11 @@ export const useContestManager = defineStore('contestManager', {
             serverConnection.off('submissionStatus', cb);
         }
     }
+});
+
+// prevent circular dependency nuke
+window.addEventListener('DOMContentLoaded', () => {
+    socket.on('example', () => {
+        // this exists to stop warning oof
+    });
 });

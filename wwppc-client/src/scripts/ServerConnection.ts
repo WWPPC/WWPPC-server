@@ -7,7 +7,7 @@ import recaptcha from './recaptcha';
 
 // send HTTP wakeup request before trying socket.io
 export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
-const socket = io(serverHostname, {
+export const socket = io(serverHostname, {
     // auth.token doesn't exist what are you talking about
     path: '/web/socket.io',
     autoConnect: false,
@@ -157,8 +157,8 @@ const apiPath = serverHostname + '/web/api';
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
-        socket() { return socket; },
-        connected() { return socket.connected; }
+        socket: () => socket,
+        connected: () => socket.connected
     },
     actions: {
         RSAencrypt: RSA.encrypt,
@@ -209,7 +209,7 @@ export const useServerConnection = defineStore('serverconnection', {
                     socket.off('connect_error', h);
                     socket.off('connect_fail', h);
                     connectErrorHandlers.delete(h);
-                } 
+                }
             };
             socket.on('connect_error', h);
             socket.on('connect_fail', h);
@@ -221,7 +221,7 @@ export const useServerConnection = defineStore('serverconnection', {
                     socket.off('disconnect', h);
                     socket.off('timeout', h);
                     socket.off('error', h);
-                } 
+                }
             };
             socket.on('disconnect', h);
             socket.on('timeout', h);

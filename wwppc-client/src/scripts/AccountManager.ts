@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
 
-import { AccountOpResult, type CredentialsSignupData, sendCredentials, useServerConnection } from './ServerConnection';
+import { AccountOpResult, type CredentialsSignupData, sendCredentials, socket, useServerConnection } from './ServerConnection';
 
 export interface AccountData {
     username: string
@@ -24,7 +24,7 @@ export interface TeamData {
     teamName: string
     teamBio: string
     teamMembers: string[]
-    joinCode: string
+    joinCode: string | null
 }
 
 type ExtendedAccountData = AccountData & TeamData;
@@ -70,6 +70,7 @@ export const languageMaps = [
 export function validateCredentials(username: string, password: string): boolean {
     return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
 }
+
 
 const unsaved = ref(false);
 const unsaved2 = ref(false);
@@ -246,7 +247,6 @@ export const useAccountManager = defineStore('accountManager', {
                 this.teamName = dat2.teamName;
                 this.teamMembers = dat2.teamMembers;
                 this.teamBio = dat2.teamBio;
-                this.joinCode = dat2.joinCode;
                 setTimeout(() => {
                     unsaved.value = false;
                     unsaved2.value = false;
@@ -256,11 +256,11 @@ export const useAccountManager = defineStore('accountManager', {
             return false;
 
         },
-        async joinTeam(joinCode: string): Promise<AccountOpResult> {
+        async joinTeam(joinCode: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
             return await new Promise(async (resolve) => {
-                serverConnection.emit('joinTeam', joinCode);
+                serverConnection.emit('joinTeam', { code: joinCode, token: token });
                 serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
             });
         },
@@ -273,4 +273,11 @@ export const useAccountManager = defineStore('accountManager', {
             });
         }
     }
+});
+
+// prevent circular dependency nuke
+window.addEventListener('DOMContentLoaded', () => {
+    socket.on('teamJoinCode', (code: string) => {
+        state.joinCode = code;
+    });
 });

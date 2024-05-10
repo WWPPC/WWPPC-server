@@ -238,7 +238,7 @@ export class Database {
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     `, [
-                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`, 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
                 await this.#db.query(`
                     INSERT INTO teams (username, registrations, name, biography, joincode)
@@ -543,15 +543,17 @@ export class Database {
                     'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username;', [
                     username, team
                 ]);
-                if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+                if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             } else {
                 const res = await this.#db.query(
                     'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username;', [
                     username, team
                 ]);
-                if (res.rows.length > 0) return AccountOpResult.SUCCESS;
+                if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             }
-            return AccountOpResult.ERROR;
+            // reset the cache so we don't have to make requests to update it
+            this.#userCache.delete(username);
+            return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (setAccountTeam):');
             this.logger.error('' + err);
