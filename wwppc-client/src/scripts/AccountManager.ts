@@ -24,7 +24,7 @@ export interface TeamData {
     teamName: string
     teamBio: string
     teamMembers: string[]
-    joinCode: string | null
+    teamJoinCode: string | null
 }
 
 type ExtendedAccountData = AccountData & TeamData;
@@ -92,7 +92,7 @@ const state = reactive<ExtendedAccountData>({
     teamName: '',
     teamMembers: [],
     teamBio: '',
-    joinCode: ''
+    teamJoinCode: ''
 });
 watch(() => ([state.firstName, state.lastName, state.displayName, state.bio, state.school, state.grade, state.experience, state.languages]), () => unsaved.value = true);
 watch(() => [state.teamName, state.teamBio], () => unsaved2.value = true);
@@ -190,7 +190,7 @@ export const useAccountManager = defineStore('accountManager', {
         async getTeamData(username: string): Promise<TeamData | null> {
             const serverConnection = useServerConnection();
             const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | null = await serverConnection.apiFetch('GET', '/teamData/' + username);
-            return res == null ? null : { teamName: res.name, teamBio: res.bio, teamMembers: res.members, joinCode: res.joinCode };
+            return res == null ? null : { teamName: res.name, teamBio: res.bio, teamMembers: res.members, teamJoinCode: res.joinCode };
         },
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
@@ -278,6 +278,6 @@ export const useAccountManager = defineStore('accountManager', {
 // prevent circular dependency nuke
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('teamJoinCode', (code: string) => {
-        state.joinCode = code;
+        state.teamJoinCode = code;
     });
 });

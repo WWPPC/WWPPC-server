@@ -4,12 +4,13 @@ import NotFound from '@/pages/NotFound.vue';
 import OnScreenHook from '@/components/ui-defaults/OnScreenHook.vue';
 import { AnimateInContainer, CutCornerContainer, PairedGridContainer, TitledCutCornerContainer, TitledDoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { useRoute } from 'vue-router';
-import { experienceMaps, gradeMaps, languageMaps, useAccountManager, type AccountData } from '@/scripts/AccountManager';
+import { experienceMaps, gradeMaps, languageMaps, type TeamData, useAccountManager, type AccountData } from '@/scripts/AccountManager';
 import { nextTick, onMounted, ref, watch } from 'vue';
-import { UIDropdown, UITextBox } from '@/components/ui-defaults/UIDefaults';
+import { UIDropdown, UITextBox, UITextArea } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { setTitlePanel } from '@/scripts/title';
+import AccountProfileTeamUser from '@/components/account/profile/AccountProfileTeamUser.vue';
 
 const route = useRoute();
 
@@ -17,10 +18,14 @@ const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
 
 const userData = ref<AccountData | null>(null);
+const teamData = ref<TeamData | null>(null);
 const loadUserData = async () => {
     await serverConnection.handshakePromise;
     await nextTick();
-    userData.value = await accountManager.getUserData(route.params.userView?.toString());
+    if (route.params.userView != null) {
+        userData.value = await accountManager.getUserData(route.params.userView.toString());
+        teamData.value = await accountManager.getTeamData(route.params.userView.toString());
+    }
 };
 watch(() => route.params, () => {
     if (route.params.page != 'user' || route.query.ignore_server !== undefined) return;
@@ -70,6 +75,12 @@ const putDummyData = () => {
         ],
         team: 'test'
     };
+    teamData.value = {
+        teamName: 'Test Team',
+        teamBio: 'eeee',
+        teamMembers: ['test'],
+        teamJoinCode: null
+    };
 };
 onMounted(putDummyData);
 onMounted(loadUserData);
@@ -78,13 +89,12 @@ const largeHeader = ref(true);
 </script>
 
 <template>
-
     <div class="reverse">
         <div class="vStack">
             <OnScreenHook @change="(v) => largeHeader = v" offset-top="-16px"></OnScreenHook>
             <div style="height: 30vh;"></div>
             <div class="grid">
-                <TitledCutCornerContainer title="Profile" align="center" height="100%" style="grid-row: span 2; --fwidth: calc(100% - 16px); --hwidth: calc(50% - 24px)" flipped>
+                <TitledCutCornerContainer title="Profile" align="center" height="100%" style="grid-row: span 2;" flipped>
                     <PairedGridContainer style="font-size: var(--font-small);">
                         <span>Name:</span>
                         <UITextBox :value="userData?.firstName + ' ' + userData?.lastName" width="var(--fwidth)" disabled></UITextBox>
@@ -106,7 +116,19 @@ const largeHeader = ref(true);
                     </p>
                 </TitledDoubleCutCornerContainer>
                 <TitledCutCornerContainer title="Team" align="center" height="100%" style="grid-row: span 2;">
-                    Teams don't exist yet!
+                    <div class="userViewTeamGrid">
+                        <div class="userViewTeamList">
+                            <AccountProfileTeamUser v-for="user in teamData?.teamMembers" :key="user" :user="user"></AccountProfileTeamUser>
+                        </div>
+                        <div>
+                            <PairedGridContainer width="100%">
+                                <span>Team Name:</span>
+                                <UITextBox :value="teamData?.teamName" width="var(--fwidth)" disabled></UITextBox>
+                                <span>Biography:</span>
+                                <UITextArea :value="teamData?.teamBio" width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" resize="vertical" disabled></UITextArea>
+                            </PairedGridContainer>
+                        </div>
+                    </div>
                 </TitledCutCornerContainer>
             </div>
         </div>
@@ -146,6 +168,11 @@ const largeHeader = ref(true);
 </template>
 
 <style scoped>
+* {
+    --fwidth: calc(100% - 16px);
+    --hwidth: calc(50% - 24px)
+}
+
 .reverse {
     display: flex;
     flex-direction: column-reverse;
@@ -259,5 +286,19 @@ const largeHeader = ref(true);
     align-items: center;
     row-gap: 24px;
     column-gap: 24px;
+}
+
+.userViewTeamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    row-gap: 16px;
+    column-gap: 16px;
+}
+
+.userViewTeamList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    row-gap: 8px;
+    column-gap: 8px;
 }
 </style>

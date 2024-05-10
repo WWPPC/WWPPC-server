@@ -251,7 +251,7 @@ onMounted(clearDangerButtons);
                     </div>
                     <form action="javascript:void(0)" @submit=writeTeamData>
                         <PairedGridContainer width="100%">
-                            <span>Team Name</span>
+                            <span>Team Name:</span>
                             <UITextBox v-model=accountManager.teamName maxlength="32" width="var(--fwidth)" title="Collective team name" placeholder="Team Name"></UITextBox>
                             <span>Biography<br>({{ remainingBioCharacters2 }} chars):</span>
                             <UITextArea v-model=accountManager.teamBio width="var(--fwidth)" min-height="2em" height="4em" max-height="20em" maxlength="1024" placeholder="Describe your team in a few short sentences!" resize="vertical"></UITextArea>
@@ -263,8 +263,8 @@ onMounted(clearDangerButtons);
             <div class="profileTeamSection">
                 <span class="nowrap">
                     <span>Join Code:</span>
-                    <UITextBox v-model="accountManager.joinCode" disabled></UITextBox>
-                    <UICopyButton :value="accountManager.joinCode ?? ''"></UICopyButton>
+                    <UITextBox v-model="accountManager.teamJoinCode" disabled></UITextBox>
+                    <UICopyButton :value="accountManager.teamJoinCode ?? ''"></UICopyButton>
                 </span>
             </div>
             <div class="profileTeamSection" v-if="accountManager.team != accountManager.username">
