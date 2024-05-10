@@ -230,13 +230,15 @@ onMounted(clearDangerButtons);
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
         <TitledCutCornerContainer title="Team" hover-animation="lift">
-            <div v-if="accountManager.team === accountManager.username && accountManager.teamMembers.length == 1">
+            <div v-if="accountManager.team === accountManager.username && accountManager.teamMembers.length <= 1">
                 <div class="profileTeamSection">
                     <h3>Join a team!</h3>
                     <span class="nowrap">
                         <UITextBox v-model=joinTeamCode title="Ask team creator for join code!" placeholder="Join code" maxlength="6"></UITextBox>
                         <UIButton text="Join" :disabled="joinTeamCode.length != 6" @click=joinTeam></UIButton>
                     </span>
+                    <br>
+                    <i>Joining will sync your registrations to the team</i>
                 </div>
                 <p>OR</p>
             </div>

@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, Problem, Score, UUID, isUUID } from './database';
+import { AccountOpResult, AdminPerms, Database, Problem, Round, Score, UUID, isUUID } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { ServerSocket } from './socket';
@@ -27,18 +27,12 @@ export class ContestManager {
     readonly #users: Map<string, ContestUser> = new Map();
     readonly #grader: Grader;
 
+    readonly #contests: Map<string, RunningContest> = new Map();
+
     readonly db: Database;
     readonly app: Express;
     readonly io: SocketIOServer;
     readonly logger: Logger;
-
-    // start/stop rounds, control which problems are visible (and where)
-    // also only one contest page open per account
-    // use socket.io rooms? put all sockets in contest in room?
-    // the user must be signed in and registered for the contest and division of the round/problem AND THE ROUND HAS TO BE ACTIVE
-
-    // make sure to also handle REGISTRATION (update the cached user data when a registration is made!) (call updateUserData)
-    // also make sure to tell database to add registration
 
     /**
      * @param {Database} db Database connection
@@ -53,8 +47,12 @@ export class ContestManager {
         this.logger = logger;
         this.#grader = new DomjudgeGrader(app, logger);
 
+        // split individual contests to running contest class
+
         // SEE NETWORK DOCUMENTATION
         // SEE NETWORK DOCUMENTATION
+
+        // cache the contests too
 
         //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted
@@ -77,7 +75,17 @@ export class ContestManager {
         //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted
         //make sure this isn't accidentally left running when the object is deleted
+
     }
+
+    async getContestList() {
+
+    }
+    async getContestData(participantView: boolean) {
+
+    }
+    // stuff to modify contest stuff too
+    // setting round start/end
 
     /**
      * Add a username-linked SocketIO connection to the user list.
@@ -279,6 +287,27 @@ export class ContestManager {
             sockets: new Set<ServerSocket>().add(socket)
         });
         return 1;
+    }
+}
+
+class RunningContest {
+    readonly id;
+    readonly rounds: Round[];
+    #index = 0;
+
+    readonly #users: Map<string, ContestUser> = new Map();
+
+    constructor(id: string, roundsRaw: Round[]) {
+        this.id = id;
+        this.rounds = roundsRaw.filter(r => r.contest === this.id);
+        // timer to step through rounds
+    }
+
+    addUser(user: ContestUser): void {
+        this.#users.set(user.username, user);
+    }
+    removeUser(user: ContestUser): boolean {
+        return this.#users.delete(user.username);
     }
 }
 
