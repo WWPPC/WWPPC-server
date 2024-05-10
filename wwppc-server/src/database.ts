@@ -231,7 +231,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
-            const data = await this.#db.query('SELECT username FROM users WHERE username=$1;', [username]);
+            const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
             else {
                 await this.#db.query(`
@@ -312,7 +312,7 @@ export class Database {
                 SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
                 FROM users
                 INNER JOIN teams ON users.username=teams.username
-                WHERE users.username=$1;
+                WHERE users.username=$1
                 `, [
                 username
             ]);
@@ -540,13 +540,13 @@ export class Database {
         try {
             if (useJoinCode) {
                 const res = await this.#db.query(
-                    'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username;', [
+                    'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             } else {
                 const res = await this.#db.query(
-                    'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username;', [
+                    'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
