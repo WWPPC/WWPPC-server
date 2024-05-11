@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AnimateInContainer, DoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import { type AccountData, useAccountManager } from '@/scripts/AccountManager';
 import { onMounted, ref, watch } from 'vue';
 
@@ -21,12 +21,10 @@ onMounted(async () => {
 
 <template>
     <AnimateInContainer type="slideUp" single>
-        <DoubleCutCornerContainer hover-animation="swell">
-            <div class="cardContent">
-                <img :src="data?.profileImage" class="cardProfileImg">
-                <span class="cardName">{{ data?.displayName }}</span>
-            </div>
-        </DoubleCutCornerContainer>
+        <div class="cardContent">
+            <img :src="data?.profileImage" class="cardProfileImg">
+            <span class="cardName">{{ data?.displayName }}</span>
+        </div>
     </AnimateInContainer>
 </template>
 
@@ -34,8 +32,17 @@ onMounted(async () => {
 .cardContent {
     display: grid;
     grid-template-rows: 80px 40px;
+    padding: 8px 4px;
+    border: 4px solid white;
+    background-color: black;
     justify-items: center;
     overflow: hidden;
+    transition: 200ms ease transform;
+    will-change: transform;
+}
+
+.cardContent:hover {
+    transform: scale(102%);
 }
 
 .cardProfileImg {

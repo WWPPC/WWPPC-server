@@ -270,8 +270,8 @@ onMounted(clearDangerButtons);
                     <UICopyButton :value="joinCodeNotEditable ?? ''"></UICopyButton>
                 </span>
             </div>
-            <div class="profileTeamSection" v-if="accountManager.team != accountManager.username">
-                <UIButton text="Leave Team" color="red" @click=leaveTeam></UIButton>
+            <div class="profileTeamSection" v-if="accountManager.team !== accountManager.username">
+                <UIButton text="Leave Team" color="red" glitch-on-mount @click=leaveTeam></UIButton>
             </div>
             <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
         </TitledCutCornerContainer>

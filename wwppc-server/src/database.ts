@@ -238,7 +238,7 @@ export class Database {
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     `, [
-                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), 'data:image/png;base64,', '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
                 await this.#db.query(`
                     INSERT INTO teams (username, registrations, name, biography, joincode)
@@ -251,12 +251,12 @@ export class Database {
                 data: {
                     ...userData,
                     username: username,
-                    displayName: `${userData.firstName} ${userData.lastName}`,
+                    displayName: `${userData.firstName} ${userData.lastName}`.substring(0, 64),
                     profileImage: config.defaultProfileImg,
                     bio: '',
                     registrations: [],
                     pastRegistrations: [],
-                    team: ''
+                    team: username
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -539,6 +539,11 @@ export class Database {
         const startTime = performance.now();
         try {
             if (useJoinCode) {
+                const exists = await this.#db.query(
+                    'SELECT users.username FROM users WHERE users.team=(SELECT teams.username FROM teams WHERE teams.joincode=$1)', [
+                    team
+                ]);
+                if (exists.rows.length == 0) return AccountOpResult.NOT_EXISTS;
                 const res = await this.#db.query(
                     'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
                     username, team
