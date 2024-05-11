@@ -37,6 +37,15 @@ const attemptRegister = async () => {
     updateAvailableContestList();
     accountManager.updateOwnUserData();
 };
+const attemptUnregister = async (registration: string) => {
+    const res = await accountManager.unregisterContest(registration);
+    if (res != AccountOpResult.SUCCESS) modal.showModal({
+        title: 'Could not unregister',
+        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ALREADY_EXISTS ? 'Already registered' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)')))
+    });
+    updateAvailableContestList();
+    accountManager.updateOwnUserData();
+}
 </script>
 
 <template>
@@ -48,7 +57,7 @@ const attemptRegister = async () => {
                     <div class="registrationBlock">
                         <div class="registrationStatusDotUpcoming"></div>
                         {{ reg }}
-                        <!-- unregister button -->
+                        <UIButton text="Unregister" @click="attemptUnregister(reg)"></UIButton>
                     </div>
                 </AnimateInContainer>
             </div>

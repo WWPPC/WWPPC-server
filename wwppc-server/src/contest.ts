@@ -86,10 +86,12 @@ export class ContestManager {
     async getContestList(): Promise<string[] | null> {
         const rounds = await this.db.readRounds({});
         if (rounds === null) return null;
-        const contests = new Set<string>();
-        const filtered = rounds.filter(r => r.startTime > Date.now());
-        for (const r of filtered) contests.add(r.contest);
-        return Array.from(contests.values());
+        const contests = new Map<string, number>();
+        for (const r of rounds) contests.set(r.contest, Math.min(contests.get(r.contest) ?? Infinity, r.startTime));
+        contests.forEach((value, key) => {
+            if (value < Date.now()) contests.delete(key);
+        });
+        return Array.from(contests.keys());
     }
     async getContestData(participantView: boolean) {
 
@@ -139,8 +141,8 @@ export class ContestManager {
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Unregistering contest: ' + request.contest);
             const res = await this.db.unregisterContest(socket.username, request.contest);
-            socket.emit('registerContestResponse', res);
-            if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
+            socket.emit('unregisterContestResponse', res);
+            if (config.debugMode) socket.logWithId(this.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
         // REPLACE THESE WITH SERVER-INITIATED BROADCAST (instead of using socket.io as bad fetch)
