@@ -36,15 +36,17 @@ export class DomjudgeGrader implements Grader {
 
     #app: Express;
     #logger: Logger;
+    #db: Database;
 
     #ungradedSubmissions: Submission[] = new Array<Submission>();
     // queue of submissions, will be popped from when /api/judgehosts/fetch-work is called
 
     #gradedSubmissions: Submission[] = new Array<Submission>();
 
-    constructor(app: Express, logger: Logger) {
+    constructor(app: Express, logger: Logger, db: Database) {
         this.#app = app;
         this.#logger = logger;
+        this.#db = db;
         this.#app.get('/api/judgehosts', (req, res) => {
             //no parameters for some reason?
             res.json([
@@ -63,10 +65,16 @@ export class DomjudgeGrader implements Grader {
         });
         this.#app.get('/api/config', (req, res) => {
             res.json({
-                diskspace_error: 1024, //see line 710 of judgedaemon.main.php, in kB
+                diskspace_error: 1024, //in kB
+                output_storage_limit: 256, //i think MB?
+                script_timelimit: 5000, //units in ms probably?
+                script_memory_limit: 1024, //units in MB probably?
+                script_filesize_limit: 10, //units in KB probably?
+                timelimit_overshoot: 100, //probably amount of time the script is allowed to keep running past TL
             });
         });
         this.#app.get('/api/languages', (req, res) => {
+            //i'm pretty sure only 'id' and 'extensions' fields are actually used
             res.json([
                 {
                     "compile_executable_hash": "string",
@@ -137,7 +145,7 @@ export class DomjudgeGrader implements Grader {
         this.#app.get('/api/judgehosts/get_files/testcase/*', (req, res) => {
 
         });
-        this.#app.post('/api/judgehosts/fetch-work', (req, res) => {
+        this.#app.post('/api/judgehosts/fetch-work', async (req, res) => {
             // if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
             //     //malformed
             //     res.sendStatus(400);
@@ -153,31 +161,45 @@ export class DomjudgeGrader implements Grader {
             // code to validate judgehost possibly needed
             let arr = new Array<Object>();
             for (let i = 0; i < req.body.max_batchsize; i++) {
-                let s = this.#ungradedSubmissions.shift();
+                const s = this.#ungradedSubmissions.shift();
                 if (s === undefined) {
                     break;
                 }
-                // See schema JudgeTask to figure this out
+                const problems = await db.readProblems({ id: s.problemId });
+                if (problems === null || problems.length !== 1) {
+                    //oops db error
+                    res.sendStatus(500);
+                    return;
+                }
+                const p = problems[0];
+
                 arr.push({
                     submitid: s.username+s.time.toString(),
-                    judgetaskid: 0,
+                    judgetaskid: 0, //
                     type: "string", //'prefetch' or 'debug_info' (or neither?)
                     priority: 0,
-                    jobid: "string",
+                    jobid: "string", //
                     uuid: "string",
                     compile_script_id: "string",
                     run_script_id: s.file,
                     compare_script_id: "string",
-                    testcase_id: "string", //put the testcase ID here. /api/judgehosts/get_files/testcase/$testcase_id will be called later
+                    testcase_id: "string", // /api/judgehosts/get_files/testcase/$testcase_id will be called later
                     testcase_hash: "string",
                     compile_config: {
                         hash: "string",
+                        script_timelimit: 5000, //units in ms probably?
+                        script_memory_limit: 1024, //units in MB probably?
+                        script_filesize_limit: 10, //units in KB probably?
                     },
                     run_config: {
-                        combined_run_compare: false, //or true?
+                        combined_run_compare: false, // true for interactive problems I think
                         hash: "string",
+                        memory_limit: p.constraints.memory,
+                        output_limit: 256, //units in MB probably?
+                        process_limit: p.constraints.time //probably time limit? idk
                     },
                     compare_config: {
+                        combined_run_compare: false, // true for interactive problems I think
                         hash: "string",
                     },
                 });
