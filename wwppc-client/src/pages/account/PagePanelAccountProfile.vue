@@ -17,11 +17,14 @@ onMounted(async () => {
     usernameNotEditable.value = accountManager.username;
     gradeInput.value = accountManager.grade?.toString();
     experienceInput.value = accountManager.experience?.toString();
+    joinCodeNotEditable.value = accountManager.teamJoinCode ?? '';
 });
 
 // prevent username being overwritten
 const usernameNotEditable = ref('');
+const joinCodeNotEditable = ref('');
 watch(() => accountManager.username, () => usernameNotEditable.value = accountManager.username);
+watch(() => accountManager.teamJoinCode, () => joinCodeNotEditable.value = accountManager.teamJoinCode ?? '');
 
 // oops
 const gradeInput = ref('');
@@ -263,8 +266,8 @@ onMounted(clearDangerButtons);
             <div class="profileTeamSection">
                 <span class="nowrap">
                     <span>Join Code:</span>
-                    <UITextBox v-model="accountManager.teamJoinCode" disabled></UITextBox>
-                    <UICopyButton :value="accountManager.teamJoinCode ?? ''"></UICopyButton>
+                    <UITextBox v-model=joinCodeNotEditable disabled></UITextBox>
+                    <UICopyButton :value="joinCodeNotEditable ?? ''"></UICopyButton>
                 </span>
             </div>
             <div class="profileTeamSection" v-if="accountManager.team != accountManager.username">

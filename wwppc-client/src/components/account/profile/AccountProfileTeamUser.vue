@@ -20,7 +20,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <AnimateInContainer type="slideUp" show-on-screen single>
+    <AnimateInContainer type="slideUp" single>
         <DoubleCutCornerContainer hover-animation="swell">
             <div class="cardContent">
                 <img :src="data?.profileImage" class="cardProfileImg">
