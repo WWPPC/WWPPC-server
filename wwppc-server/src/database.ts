@@ -153,8 +153,9 @@ export class Database {
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
             if (value instanceof Array) {
-                bindings.push(value);
-                conditions.push(`${name} IN ($${bindings.length})`);
+                const start = bindings.length;
+                bindings.push(...value);
+                conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
             } else if (value != undefined) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
