@@ -181,7 +181,7 @@ const deleteAccount = async () => {
             await modal.showModal({
                 title: 'Delete Account',
                 content: 'Please wait...',
-            });
+            }).result;
         }
     }
     modalSpam();
