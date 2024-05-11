@@ -53,7 +53,6 @@ import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
 import { createServerSocket } from './socket';
-import cloneDeep from 'lodash.clonedeep';
 
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
@@ -82,7 +81,7 @@ app.get('/web/api/userData/:username', async (req, res) => {
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else {
-        const data2 = cloneDeep(data);
+        const data2 = structuredClone(data);
         data2.email = '';
         res.json(data2);
     }
@@ -92,8 +91,8 @@ app.get('/web/api/teamData/:username', async (req, res) => {
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else {
-        const data2 = cloneDeep(data);
-        data2.joinCode = null;
+        const data2 = structuredClone(data);
+        data2.joinCode = '';
         res.json(data2);
     }
 });
