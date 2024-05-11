@@ -2,7 +2,7 @@
 import ContactFooter from '@/components/ContactFooter.vue';
 import ScrollIndicator from '@/components/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, GlowText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -32,11 +32,16 @@ const router = useRouter();
                     <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
-                                <br>
+                                <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')" disabled></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')"></UILinkButton>
                                 </div>
-                                <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
+                                <p style="text-align: center; text-wrap: balance;">
+                                    Register at any point before the contest starts to compete!
+                                </p>
+                                <p style="text-align: center; font-size: var(--font-small);">
+                                    <i>Scroll down to see contest schedule.</i>
+                                </p>
                             </span>
                         </CenteredContainer>
                     </CutCornerContainer>
@@ -69,6 +74,8 @@ const router = useRouter();
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                         WWPIT 2024 will be on June 2, starting at 10:24 AM EST.
+                        <br><br>
+                        Scroll up to see the contest schedule.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>

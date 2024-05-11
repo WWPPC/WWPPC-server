@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { glitchTextTransition, autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager } from '@/scripts/AccountManager';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
 const modal = globalModal();
 const accountManager = useAccountManager();
 
-// random nullish coalescers fix weird bug in dev
 const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 10);
 const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 10);
-onMounted(() => {
-    glitchTextTransition(dispName.value, accountManager.displayName ?? '', (t) => { dispName.value = t; }, 40, 1, 20);
-    glitchTextTransition(username.value, '@' + accountManager.username ?? '', (t) => { username.value = t; }, 40, 1, 20);
-});
 
 const fileUpload = ref<HTMLInputElement>();
 const changeProfileImage = (event: any) => {
@@ -60,7 +55,7 @@ const changeProfileImage = (event: any) => {
                         {{ reg }}
                     </span>
                 </AnimateInContainer>
-                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.pastRegistrations" :key="i" :delay="i * 200" single>
+                <AnimateInContainer type="fade" v-for="(reg, i) in accountManager.pastRegistrations" :key="i" :delay="i * 200" single>
                     <span class="accountUserRegistrationLine">
                         <div class="registrationStatusDotCompleted"></div>
                         {{ reg }}
@@ -97,7 +92,7 @@ const changeProfileImage = (event: any) => {
 .accountUserDisp {
     display: grid;
     grid-auto-flow: column;
-    grid-template-rows: var(--imageSize) 1fr 1fr 1fr 1fr;
+    grid-template-rows: var(--imageSize) min-content min-content min-content min-content;
     justify-items: center;
 }
 
@@ -163,13 +158,14 @@ const changeProfileImage = (event: any) => {
 .accountUserRegistrations {
     font-size: var(--font-20);
     text-align: center;
-    padding-bottom: 10px;
+    padding: 10px 0px;
 }
 
 .accountUserRegistrationLine {
     display: flex;
     flex-direction: row;
     column-gap: 4px;
+    margin: 4px 0px;
     line-height: 1em;
     text-wrap: nowrap;
     word-wrap: nowrap;

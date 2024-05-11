@@ -58,8 +58,6 @@ const largeHeader = ref(true);
                     <PairedGridContainer style="font-size: var(--font-small);">
                         <span>Name:</span>
                         <UITextBox :value="userData?.firstName + ' ' + userData?.lastName" width="var(--fwidth)" disabled></UITextBox>
-                        <span>Email:</span>
-                        <UITextBox :value="userData?.email" width="var(--fwidth)" disabled></UITextBox>
                         <span>School:</span>
                         <UITextBox :value="userData?.school" width="var(--fwidth)" disabled></UITextBox>
                         <span>Grade Level:</span>
@@ -108,13 +106,13 @@ const largeHeader = ref(true);
                                 {{ reg }}
                             </span>
                         </AnimateInContainer>
-                        <AnimateInContainer type="slideUp" v-for="(reg, i) in userData?.pastRegistrations" :key="i" :delay="i * 200" single>
+                        <AnimateInContainer type="fade" v-for="(reg, i) in userData?.pastRegistrations" :key="i" :delay="i * 200" single>
                             <span class="registrationLine">
                                 <div class="registrationStatusDotCompleted"></div>
                                 {{ reg }}
                             </span>
                         </AnimateInContainer>
-                        <span v-if="!userData?.registrations.length">
+                        <span v-if="!userData?.registrations.length && !userData?.pastRegistrations.length">
                             <!-- very hacky, true if no registrations or undefined -->
                             This user is not registered for any contests
                         </span>
@@ -212,7 +210,9 @@ const largeHeader = ref(true);
 .registrationLine {
     display: flex;
     flex-direction: row;
+    margin: 4px 0px;
     column-gap: 4px;
+    font-size: var(--font-medium);
     line-height: 1em;
     text-wrap: nowrap;
     word-wrap: nowrap;

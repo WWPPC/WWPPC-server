@@ -214,36 +214,44 @@ export interface AsyncTextTransition {
 export function autoFlipTextTransition(source: WatchSource, speed: number, block = 1): Ref<string> {
     const textRef = ref(typeof source == 'function' ? source() : source.value);
     let runningTransition: AsyncTextTransition;
-    watch(source, () => {
+    const run = () => {
         if (runningTransition != undefined) runningTransition.cancel();
         runningTransition = flipTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, block);
-    });
+    };
+    watch(source, run);
+    run();
     return textRef;
 }
 export function autoGlitchTextTransition(source: WatchSource, speed: number, block: number = 1, glitchLength: number = 5, advanceMod: number = 1, startGlitched?: boolean, letterOverride?: string): Ref<string> {
     const textRef = ref(typeof source == 'function' ? source() : source.value);
     let runningTransition: AsyncTextTransition;
-    watch(source, () => {
+    const run = () => {
         if (runningTransition != undefined) runningTransition.cancel();
         runningTransition = glitchTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, block, glitchLength, advanceMod, startGlitched, letterOverride);
-    });
+    };
+    watch(source, run);
+    run();
     return textRef;
 }
 export function autoRandomFlipTextTransition(source: WatchSource, speed: number, gap: number = 2): Ref<string> {
     const textRef = ref(typeof source == 'function' ? source() : source.value);
     let runningTransition: AsyncTextTransition;
-    watch(source, () => {
+    const run = () => {
         if (runningTransition != undefined) runningTransition.cancel();
         runningTransition = randomFlipTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, gap);
-    });
+    };
+    watch(source, run);
+    run();
     return textRef;
 }
 export function autoRandomGlitchTextTransition(source: WatchSource, speed: number, gap: number = 2, startGlitched?: boolean, letterOverride?: string): Ref<string> {
     const textRef = ref(typeof source == 'function' ? source() : source.value);
     let runningTransition: AsyncTextTransition;
-    watch(source, () => {
+    const run = () => {
         if (runningTransition != undefined) runningTransition.cancel();
         runningTransition = randomGlitchTextTransition(textRef.value, typeof source == 'function' ? source() : source.value, (t) => { textRef.value = t }, speed, gap, startGlitched, letterOverride);
-    });
+    };
+    watch(source, run);
+    run();
     return textRef;
 }

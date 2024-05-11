@@ -230,7 +230,6 @@ export const useAccountManager = defineStore('accountManager', {
             const dat = await this.getUserData(this.username);
             const dat2 = await this.getTeamData(this.username);
             if (dat != null && dat2 != null) {
-                this.email = dat.email;
                 this.firstName = dat.firstName;
                 this.lastName = dat.lastName;
                 this.displayName = dat.displayName;
@@ -295,5 +294,8 @@ export const useAccountManager = defineStore('accountManager', {
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('teamJoinCode', (code: string) => {
         state.teamJoinCode = code;
+    });
+    socket.on('privateUserData', (data: { email: string }) => {
+        state.email = data.email;
     });
 });

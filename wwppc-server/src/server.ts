@@ -53,6 +53,7 @@ import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
 import { createServerSocket } from './socket';
+import cloneDeep from 'lodash.clonedeep';
 
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
@@ -80,15 +81,20 @@ app.get('/web/api/userData/:username', async (req, res) => {
     const data = await database.getAccountData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
-    else res.json(data);
+    else {
+        const data2 = cloneDeep(data);
+        data2.email = '';
+        res.json(data2);
+    }
 });
 app.get('/web/api/teamData/:username', async (req, res) => {
-    const data: any = await database.getTeamData(req.params.username);
+    const data = await database.getTeamData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
     else {
-        data.joinCode = null;
-        res.json(data);
+        const data2 = cloneDeep(data);
+        data2.joinCode = null;
+        res.json(data2);
     }
 });
 app.get('/web/api/contestList', async (req, res) => {
@@ -486,6 +492,9 @@ io.on('connection', async (s) => {
     });
     database.getTeamData(socket.username).then((data) => {
         if (typeof data == 'object') socket.emit('teamJoinCode', data.joinCode);
+    });
+    database.getAccountData(socket.username).then((data) => {
+        if (typeof data == 'object') socket.emit('privateUserData', { email: data.email });
     });
     // hand off to ContestManager
     contestManager.addUser(socket);

@@ -51,16 +51,12 @@ onMounted(() => {
     grid-auto-flow: column;
     margin: 4px 4px;
     padding: 4px 0px;
-    background-color: #222;
+    background-color: #333;
     border-radius: 8px;
     align-items: center;
     justify-items: center;
     transition: 50ms ease margin;
     will-change: margin;
-}
-
-.contestProblemListProblem:nth-child(odd) {
-    background-color: #333;
 }
 
 .contestProblemListProblem:hover {

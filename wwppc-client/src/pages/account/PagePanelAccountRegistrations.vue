@@ -38,14 +38,16 @@ const attemptRegister = async () => {
     accountManager.updateOwnUserData();
 };
 const attemptUnregister = async (registration: string) => {
+    showRegisterWait.value = true;
     const res = await accountManager.unregisterContest(registration);
     if (res != AccountOpResult.SUCCESS) modal.showModal({
         title: 'Could not unregister',
-        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ALREADY_EXISTS ? 'Already registered' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)')))
+        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)'))
     });
+    showRegisterWait.value = false;
     updateAvailableContestList();
     accountManager.updateOwnUserData();
-}
+};
 </script>
 
 <template>
@@ -53,17 +55,17 @@ const attemptUnregister = async (registration: string) => {
         <TitledCutCornerContainer title="Your contests" hover-animation="lift">
             <div class="roundedBlock" v-if="accountManager.registrations.length > 0">
                 <h3>Upcoming</h3>
-                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.registrations" :key="i" :delay="i * 200" single>
+                <AnimateInContainer type="fade" v-for="(reg, i) in accountManager.registrations" :key="i" :delay="i * 200" single>
                     <div class="registrationBlock">
                         <div class="registrationStatusDotUpcoming"></div>
                         {{ reg }}
-                        <UIButton text="Unregister" @click="attemptUnregister(reg)"></UIButton>
+                        <UIButton class="registrationUnregister" text="Unregister" color="red" @click="attemptUnregister(reg)" glitch-on-mount></UIButton>
                     </div>
                 </AnimateInContainer>
             </div>
             <div class="roundedBlock" v-if="accountManager.pastRegistrations.length > 0">
                 <h3>Past</h3>
-                <AnimateInContainer type="slideUp" v-for="(reg, i) in accountManager.pastRegistrations" :key="i" :delay="i * 200" single>
+                <AnimateInContainer type="fade" v-for="(reg, i) in accountManager.pastRegistrations" :key="i" :delay="i * 200" single>
                     <div class="registrationBlock">
                         <div class="registrationStatusDotCompleted"></div>
                         {{ reg }}
@@ -73,6 +75,7 @@ const attemptUnregister = async (registration: string) => {
             <h3 v-if="accountManager.registrations.length == 0 && accountManager.pastRegistrations.length == 0">
                 You are not registered for any contests!
             </h3>
+            <WaitCover text="Please wait..." :show="showRegisterWait"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
@@ -96,8 +99,10 @@ const attemptUnregister = async (registration: string) => {
     box-sizing: border-box;
     width: 100%;
     padding: 8px 8px;
+    margin: 8px 0px;
     border-radius: 8px;
     background-color: #222;
+    align-items: center;
 }
 
 .registrationStatusDotUpcoming,
@@ -113,5 +118,14 @@ const attemptUnregister = async (registration: string) => {
 
 .registrationStatusDotCompleted {
     background-color: lime;
+}
+
+.registrationUnregister {
+    opacity: 0;
+    transition: 50ms linear opacity;
+}
+
+.registrationBlock:hover>.registrationUnregister {
+    opacity: 1;
 }
 </style>

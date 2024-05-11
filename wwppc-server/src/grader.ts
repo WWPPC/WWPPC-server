@@ -51,11 +51,11 @@ export class DomjudgeGrader implements Grader {
             //no parameters for some reason?
             res.json([
                 {
-                  "id": "string",
-                  "hostname": "FvZDS9zQBfg3y..LscGIT1pzpuChISCxBwp9uSDP2rP8kScWvVnJkw5UkpERFZXMHfSmGpxetmMIjfLSLi104ww7gv",
-                  "enabled": true,
-                  "polltime": "string",
-                  "hidden": true
+                    "id": "string",
+                    "hostname": "FvZDS9zQBfg3y..LscGIT1pzpuChISCxBwp9uSDP2rP8kScWvVnJkw5UkpERFZXMHfSmGpxetmMIjfLSLi104ww7gv",
+                    "enabled": true,
+                    "polltime": "string",
+                    "hidden": true
                 }
             ]);
         });
@@ -174,7 +174,7 @@ export class DomjudgeGrader implements Grader {
                 const p = problems[0];
 
                 arr.push({
-                    submitid: s.username+s.time.toString(),
+                    submitid: s.username + s.time.toString(),
                     judgetaskid: 0, //
                     type: "string", //'prefetch' or 'debug_info' (or neither?)
                     priority: 0,
