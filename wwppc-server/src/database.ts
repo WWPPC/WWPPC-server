@@ -183,7 +183,11 @@ export class Database {
     async getAccountList(): Promise<AccountData[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT * FROM users');
+            const data = await this.#db.query(`
+                SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
+                FROM users
+                INNER JOIN teams ON users.team=teams.username
+            `);
             if (data.rows.length > 0) {
                 const ret: AccountData[] = [];
                 for (const row of data.rows) {
