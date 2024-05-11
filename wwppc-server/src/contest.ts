@@ -138,12 +138,12 @@ export class ContestManager {
                 return;
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Unregistering contest: ' + request.contest);
-            const res = await this.db.registerContest(socket.username, request.contest);
+            const res = await this.db.unregisterContest(socket.username, request.contest);
             socket.emit('registerContestResponse', res);
             if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-        // REPLACE THESE WITH SERVER-INITIATED BROADCAST
+        // REPLACE THESE WITH SERVER-INITIATED BROADCAST (instead of using socket.io as bad fetch)
 
         //get problem list for running contest
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
