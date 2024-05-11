@@ -448,13 +448,15 @@ export class Database {
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-                await this.#db.query('DELETE FROM users WHERE username=$1; DELETE FROM teams WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = await this.checkAccount(username, password);
                 if (res != AccountOpResult.SUCCESS) return res;
-                await this.#db.query('DELETE FROM users WHERE username=$1; DELETE FROM teams WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 return AccountOpResult.SUCCESS;
             }
