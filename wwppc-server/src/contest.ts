@@ -141,7 +141,7 @@ export class ContestManager {
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Unregistering contest: ' + request.contest);
             const res = await this.db.unregisterContest(socket.username, request.contest);
-            socket.emit('unregisterContestResponse', res);
+            socket.emit('registerContestResponse', res);
             if (config.debugMode) socket.logWithId(this.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
