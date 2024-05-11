@@ -71,7 +71,6 @@ export function validateCredentials(username: string, password: string): boolean
     return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9\-_=+]+$/.test(username);
 }
 
-
 const unsaved = ref(false);
 const unsaved2 = ref(false);
 const state = reactive<ExtendedAccountData>({
@@ -144,7 +143,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async requestRecovery(username: string, email: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.handshakeComplete || serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve, reject) => {
                 try {
                     serverConnection.emit('requestRecovery', {
@@ -161,7 +160,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async recoverAccount(username: string, recoveryPassword: string, newPassword: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.handshakeComplete || serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve, reject) => {
                 try {
                     serverConnection.emit('recoverCredentials', {
@@ -194,7 +193,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('setUserData', {
                     firstName: this.firstName,
@@ -215,7 +214,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async writeTeamData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('setTeamData', {
                     teamName: this.teamName,
@@ -258,7 +257,7 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async joinTeam(joinCode: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('joinTeam', { code: joinCode, token: token });
                 serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
@@ -266,12 +265,29 @@ export const useAccountManager = defineStore('accountManager', {
         },
         async leaveTeam(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.INCORRECT_CREDENTIALS;
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('leaveTeam');
                 serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
             });
+        },
+        async registerContest(contest: string, token: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve) => {
+                serverConnection.emit('registerContest', { contest: contest, token: token });
+                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+            });
+        },
+        async unregisterContest(contest: string): Promise<AccountOpResult> {
+            const serverConnection = useServerConnection();
+            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            return await new Promise(async (resolve) => {
+                serverConnection.emit('registerContest', { contest: contest });
+                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+            });
         }
+
     }
 });
 

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { AnimateInContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { UIDropdown } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, UIButton, UIDropdown } from '@/components/ui-defaults/UIDefaults';
 import { useAccountManager } from '@/scripts/AccountManager';
 import { useContestManager } from '@/scripts/ContestManager';
+import recaptcha from '@/scripts/recaptcha';
 import { onMounted, ref, watch } from 'vue';
+import { AccountOpResult } from '@/scripts/ServerConnection';
+import WaitCover from '@/components/WaitCover.vue';
 
 const accountManager = useAccountManager();
 const contestManager = useContestManager();
+const modal = globalModal();
 
 const contestList = ref<{ text: string, value: string }[]>([]);
 const registrationSelected = ref('');
@@ -18,6 +22,21 @@ const updateAvailableContestList = async () => {
 };
 onMounted(updateAvailableContestList);
 watch(() => accountManager.registrations, updateAvailableContestList);
+
+const showRegisterWait = ref(false);
+const attemptRegister = async () => {
+    if (registrationSelected.value == '') return;
+    showRegisterWait.value = true;
+    const token = await recaptcha.execute('register_contest');
+    const res = await accountManager.registerContest(registrationSelected.value, token);
+    if (res != AccountOpResult.SUCCESS) modal.showModal({
+        title: 'Could not register',
+        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ALREADY_EXISTS ? 'Already registered' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)')))
+    });
+    showRegisterWait.value = false;
+    updateAvailableContestList();
+    accountManager.updateOwnUserData();
+};
 </script>
 
 <template>
@@ -49,8 +68,11 @@ watch(() => accountManager.registrations, updateAvailableContestList);
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
         <TitledCutCornerContainer title="Register" hover-animation="lift">
-            <UIDropdown :items="contestList" :v-bind="registrationSelected"></UIDropdown><br>
+            <UIDropdown :items="contestList" v-model="registrationSelected" width="200px"></UIDropdown>
+            <UIButton text="Register" :disabled="registrationSelected == ''" @click="attemptRegister"></UIButton>
+            <br>
             <span>Registering will also register your entire team!</span>
+            <WaitCover text="Please wait..." :show="showRegisterWait"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
 </template>

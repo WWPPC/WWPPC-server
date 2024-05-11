@@ -22,7 +22,7 @@ connectionEnforcer.loginInclude.add('/account');
             <PanelNavLargeLogo></PanelNavLargeLogo>
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
-                <PanelNavButton text="Account" for="/account/profile" is-default></PanelNavButton>
+                <PanelNavButton text="Profile" for="/account/profile" is-default></PanelNavButton>
                 <PanelNavButton text="Register" for="/account/registrations"></PanelNavButton>
             </PanelNavList>
             <PanelRightList>

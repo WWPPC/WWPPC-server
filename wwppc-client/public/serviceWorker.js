@@ -67,7 +67,7 @@ let updateCache = async (cache, request, preloadResponse) => {
     }
 };
 self.addEventListener("fetch", (e) => {
-    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin) && !e.request.url.startsWith(self.location.origin + '/admin') && !e.request.url.startsWith(self.location.origin + '/api')) {
+    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin) && !e.request.url.startsWith(self.location.origin + '/admin') && !e.request.url.startsWith(self.location.origin + '/web/api') && !e.request.url.startsWith(self.location.origin + '/web/socket.io')) {
         e.respondWith(getCached(e.request, e.preloadResponse));
     }
 });

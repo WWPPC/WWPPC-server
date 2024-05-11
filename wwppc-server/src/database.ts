@@ -311,7 +311,7 @@ export class Database {
             const data = await this.#db.query(`
                 SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
                 FROM users
-                INNER JOIN teams ON users.username=teams.username
+                INNER JOIN teams ON users.team=teams.username
                 WHERE users.username=$1
                 `, [
                 username
@@ -628,20 +628,33 @@ export class Database {
         }
     }
     /**
-     * Register an account for a contest, also registering all other accounts on the same team. **Does not validate credentials**.
+     * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR`)
      */
-    async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async registerContest(username: string, contest: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(`
-            `, [
-                username, contest
+            const exists = await this.#db.query(
+                'SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
+                username
             ]);
-            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
-            return AccountOpResult.NOT_EXISTS;
+            if (exists.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            if (exists.rows[0].registrations.includes(contest)) return AccountOpResult.ALREADY_EXISTS;
+            const res = await this.#db.query(`
+                UPDATE teams SET registrations=(
+                    (SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1))
+                    || $2
+                ) WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
+                RETURNING teams.username
+                `, [
+                username, [contest]
+            ]);
+            if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            // reset cache here too
+            this.#userCache.delete(username);
+            return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (registerContest):');
             this.logger.error('' + err);
@@ -660,11 +673,18 @@ export class Database {
         const startTime = performance.now();
         try {
             const res = await this.#db.query(`
+            UPDATE teams SET registrations=ARRAY_REMOVE(
+                (SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)),
+                $2
+            ) WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
+            RETURNING teams.username
             `, [
                 username, contest
             ]);
-            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
-            return AccountOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            // reset cache here too
+            this.#userCache.delete(username);
+            return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (unregisterContest):');
             this.logger.error('' + err);

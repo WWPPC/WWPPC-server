@@ -70,7 +70,7 @@ export enum AccountOpResult {
     ERROR = 4
 }
 export const getAccountOpMessage = (res: number): string => {
-    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)';
+    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Internal error' : 'Unknown error (this is a bug?)';
 };
 export interface CredentialsSignupData {
     firstName: string
@@ -110,7 +110,6 @@ socket.on('getCredentials', async (session) => {
 export const sendCredentials = async (username: string, password: string | number[], token: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
     return await new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
-            console.warn('Attempted login/signup while logged in');
             resolve(AccountOpResult.ERROR);
             return;
         }

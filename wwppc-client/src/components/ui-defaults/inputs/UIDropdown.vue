@@ -42,8 +42,6 @@ defineExpose({
 <style>
 .uiDropdown {
     display: inline-block;
-    position: relative;
-    bottom: 2px;
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'initial'");
     height: v-bind("$props.height ?? '32px'");

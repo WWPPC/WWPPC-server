@@ -2,11 +2,11 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, Problem, Round, Score, UUID, isUUID } from './database';
+import { AccountOpResult, AdminPerms, Database, isUUID, Problem, reverse_enum, Round, Score } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
-import { ServerSocket } from './socket';
 import { validateRecaptcha } from './recaptcha';
+import { ServerSocket } from './socket';
 
 /**User info */
 interface ContestUser {
@@ -110,17 +110,41 @@ export class ContestManager {
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return 0;
 
         // new event handlers
-        //toggle registration for a contest (maybe use the #users Map rather than reading from db each time)
         socket.on('registerContest', async (request: { contest: string, token: string }) => {
-            if (request == null || typeof request.contest !== 'string') {
+            if (request == null || typeof request.contest !== 'string' || typeof request.token !== 'string') {
                 socket.kick('invalid registerContest payload');
                 return;
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Registering contest: ' + request.contest);
-            const recaptchaRes = await validateRecaptcha(request.token, socket.ip);
+            const recaptchaResponse = await validateRecaptcha(request.token, socket.ip);
+            if (recaptchaResponse instanceof Error) {
+                this.logger.error('reCAPTCHA verification failed:');
+                this.logger.error(recaptchaResponse.message);
+                if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
+                socket.emit('registerContestResponse', AccountOpResult.ERROR);
+                return;
+            } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
+                if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
+                socket.emit('registerContestResponse', AccountOpResult.INCORRECT_CREDENTIALS);
+                return;
+            } else if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
             const res = await this.db.registerContest(socket.username, request.contest);
-            socket.emit('')
+            socket.emit('registerContestResponse', res);
+            if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
         });
+        socket.on('unregisterContest', async (request: { contest: string }) => {
+            if (request == null || typeof request.contest !== 'string') {
+                socket.kick('invalid unregisterContest payload');
+                return;
+            }
+            if (config.debugMode) socket.logWithId(this.logger.info, 'Unregistering contest: ' + request.contest);
+            const res = await this.db.registerContest(socket.username, request.contest);
+            socket.emit('registerContestResponse', res);
+            if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
+        });
+
+        // REPLACE THESE WITH SERVER-INITIATED BROADCAST
+
         //get problem list for running contest
         socket.on('getProblemList', async (request: { contest: string, token: number }) => {
             //check valid contest first
@@ -222,6 +246,7 @@ export class ContestManager {
                 token: request.token
             });
         });
+
         //submit a solution
         socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
             // needs response event
