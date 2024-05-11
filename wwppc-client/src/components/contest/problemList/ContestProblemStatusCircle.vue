@@ -25,15 +25,7 @@ const showModal = () => {
     <div class="contestProblemListProblemStatus" :title="completionStateString(props.status)" @dblclick="showModal"></div>
 </template>
 
-<style scoped>
-.contestProblemListProblemStatus {
-    width: 32px;
-    height: 32px;
-    animation: 2000ms linear v-bind("completionStateAnimation(props.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
-    border-radius: 50%;
-    cursor: help;
-}
-
+<style>
 @keyframes p-brightness-oscillation {
     from {
         filter: brightness(1);
@@ -140,5 +132,14 @@ const showModal = () => {
     50% {
         background-color: hsl(60deg, 100%, 50%);
     }
+}
+</style>
+<style scoped>
+.contestProblemListProblemStatus {
+    width: 32px;
+    height: 32px;
+    animation: 2000ms linear v-bind("completionStateAnimation(props.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
+    border-radius: 50%;
+    cursor: help;
 }
 </style>

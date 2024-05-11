@@ -229,7 +229,7 @@ onMounted(clearDangerButtons);
                 </PairedGridContainer>
                 <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
             </form>
-            <WaitCover text="Please wait..." :show=showWriteDataWait></WaitCover>
+            <WaitCover text="Please wait..." :show="showWriteDataWait || accountManager.displayName == ''"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
@@ -273,7 +273,7 @@ onMounted(clearDangerButtons);
             <div class="profileTeamSection" v-if="accountManager.team !== accountManager.username">
                 <UIButton text="Leave Team" color="red" glitch-on-mount @click=leaveTeam></UIButton>
             </div>
-            <WaitCover text="Please wait..." :show=showWriteTeamDataWait></WaitCover>
+            <WaitCover text="Please wait..." :show="showWriteTeamDataWait || accountManager.team == ''"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>

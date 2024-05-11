@@ -187,22 +187,14 @@ const submitUpload = async () => {
                             { text: 'Python 3.6.9', value: 'py369' }
                         ]" required></UIDropdown>
                     </div>
+                    <!-- disable depending on contestManager state -->
                     <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload></UIButton>
-                    <!--probably disable/enable this?-->
                 </form>
             </DoubleCutCornerContainer>
-
-            <!-- PREVIOUS SUBMISSIONS-->
-
-            <!--            <AnimateInContainer type="fade" v-for="(problem, index) in previousSubmissions" :key=problem[index].status :delay="index * 100">-->
-            <!--                asdf-->
-            <!--            </AnimateInContainer>-->
-
             <DoubleCutCornerContainer flipped>
-                Previous submissions:
+                <h3 style="text-align: center;">Previous submissions</h3>
                 <AnimateInContainer type="fade" v-for="(item, index) in submissions" :key="index" :delay="index * 100">
                     <div class="contestProblemListProblem">
-                        <span class="previousProblemListName">Submission {{ index }}</span>
                         <span class="previousProblemStatusCircle">
                             <ContestProblemStatusCircle :status="item.status"></ContestProblemStatusCircle>
                         </span>
@@ -211,7 +203,7 @@ const submitUpload = async () => {
                         </span>
                     </div>
                 </AnimateInContainer>
-
+                <div v-if="submissions.length == 0" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
             </DoubleCutCornerContainer>
         </div>
     </div>

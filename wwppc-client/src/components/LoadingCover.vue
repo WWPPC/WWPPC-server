@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router';
 defineProps<{
     text: string
     ignoreServer?: boolean
+    show?: boolean
 }>();
 
 const serverConnection = useServerConnection();
@@ -14,7 +15,7 @@ const route = useRoute();
 
 <template>
     <Transition>
-        <div class="loadingCoverContainer" v-if="!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer)">
+        <div class="loadingCoverContainer" v-if="$props.show || (!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer))">
             <div class="loadingCoverSquareWrapper">
                 <UILoadingSquare></UILoadingSquare>
             </div>
