@@ -33,7 +33,7 @@ const router = useRouter();
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
                                 <br>
-                                <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                <GlitchText text="Registrations open!" font-size="var(--font-large)" color="lime" glow flashing :steps=4 start-glitched></GlitchText>
                                 <br>
                                 <div class="centered" style="margin: 4px;">
                                     <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')"></UILinkButton>
