@@ -163,6 +163,7 @@ const changeProfileImage = (event: any) => {
 .accountUserRegistrations {
     font-size: var(--font-20);
     text-align: center;
+    padding-bottom: 10px;
 }
 
 .accountUserRegistrationLine {
