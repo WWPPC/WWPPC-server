@@ -46,7 +46,7 @@ export class ContestManager {
         this.app = app;
         this.io = io;
         this.logger = logger;
-        this.#grader = new DomjudgeGrader(app, logger);
+        this.#grader = new DomjudgeGrader(app, logger, db);
 
         // split individual contests to running contest class
 

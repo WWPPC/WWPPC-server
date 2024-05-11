@@ -1097,7 +1097,7 @@ export interface Problem {
     /**List of test cases */
     cases: TestCase[]
     /**Runtime constraints */
-    constraints: { time: number, memory: number }
+    constraints: ProblemConstraints
     /**Public visibility of problem */
     hidden: boolean
     /**Archival status - can be fetched through API? */
