@@ -48,6 +48,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             res.redirect(403, '/admin/login');
         }
     });
+    // vikram put code here
     if (!config.serveStatic) {
         // make sure fonts and borrowed assets load
         app.use('/assets/*', express.static(path.resolve(process.env.CLIENT_PATH!, 'assets/')));
