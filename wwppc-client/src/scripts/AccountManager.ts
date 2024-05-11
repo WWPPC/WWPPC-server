@@ -284,7 +284,7 @@ export const useAccountManager = defineStore('accountManager', {
             if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('unregisterContest', { contest: contest });
-                serverConnection.once('unregisterContestResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
             });
         }
 
