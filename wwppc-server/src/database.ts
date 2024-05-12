@@ -767,26 +767,24 @@ export class Database {
                 }
             });
             const contestIdList = Array.from(contestIdSet.values());
-            if (contestIdList.length > 0) {
-                const { queryConditions, bindings } = this.#buildColumnConditions([
-                    { name: 'id', value: id != undefined ? contestIdList: undefined }
-                ]);
-                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
-                for (const contest of data.rows) {
-                    const c = {
-                        id: contest.id,
-                        rounds: contest.rounds,
-                        exclusions: contest.exclusions,
-                        maxTeamSize: contest.maxteamsize,
-                        startTime: contest.starttime,
-                        endTime: contest.endtime
-                    };
-                    this.#contestCache.set(contest.id, {
-                        contest: c,
-                        expiration: performance.now() + config.dbCacheTime
-                    });
-                    contests.push(c);
-                }
+            const { queryConditions, bindings } = this.#buildColumnConditions([
+                { name: 'id', value: id != undefined ? contestIdList : undefined }
+            ]);
+            const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
+            for (const contest of data.rows) {
+                const c = {
+                    id: contest.id,
+                    rounds: contest.rounds,
+                    exclusions: contest.exclusions,
+                    maxTeamSize: contest.maxteamsize,
+                    startTime: contest.starttime,
+                    endTime: contest.endtime
+                };
+                this.#contestCache.set(contest.id, {
+                    contest: c,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+                contests.push(c);
             }
             return contests;
         } catch (err) {
