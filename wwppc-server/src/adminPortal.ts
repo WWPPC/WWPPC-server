@@ -5,7 +5,7 @@ import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
 import ContestManager from './contest';
-import Database, { AccountOpResult, AdminPerms } from './database';
+import Database, { AccountOpResult, AdminPerms, reverse_enum, TeamOpResult } from './database';
 import Logger from './log';
 
 process.env.ADMIN_PANEL_PATH ??= path.resolve(__dirname, '../admin-portal');
@@ -64,13 +64,20 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         app.get('/icon2-small.png', (req, res) => res.sendFile(icon2Small));
     }
 
-    const defaultResponseMapping = (res, stat: AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR) => {
+    const defaultResponseMapping = (res, stat: AccountOpResult) => {
         if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);
         else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
         else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
         else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
         else res.sendStatus(500);
     };
+    const defaultResponseMapping2 = (res, stat: TeamOpResult) => {
+        if (stat == TeamOpResult.SUCCESS) res.sendStatus(200);
+        else if (stat == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
+        else if (stat == TeamOpResult.CONTEST_CONFLICT || stat == TeamOpResult.CONTEST_MEMBER_LIMIT || stat == TeamOpResult.CONTEST_ALREADY_EXISTS || stat == TeamOpResult.NOT_ALLOWED) res.status(409).json(reverse_enum(TeamOpResult, stat));
+        else if (stat == TeamOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
+        else res.sendStatus(500);
+    }
     // functions
     app.get('/admin/api/accountList', async (req, res) => {
         const data = await database.getAccountList();
@@ -101,7 +108,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             return;
         }
         const stat = await database.setAccountTeam(req.body.username, req.body.team);
-        defaultResponseMapping(res, stat);
+        defaultResponseMapping2(res, stat);
     });
 
     // prevent single-page stuff from resolving this

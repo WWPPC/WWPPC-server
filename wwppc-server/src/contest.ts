@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, isUUID, Problem, reverse_enum, Round, Score } from './database';
+import { AccountOpResult, AdminPerms, Database, isUUID, Problem, reverse_enum, Round, Score, TeamOpResult } from './database';
 import { DomjudgeGrader, Grader } from './grader';
 import Logger from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -114,34 +114,52 @@ export class ContestManager {
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Registering contest: ' + request.contest);
             const recaptchaResponse = await validateRecaptcha(request.token, socket.ip);
-
-            //check valid team size
-            const contestData = await this.db.readContests(request.contest);
-            if (contestData === null || contestData.length !== 1) {
-                socket.kick('invalid registerContest payload');
-                return;
-            }
-            const teamData = await this.db.getTeamData(socket.username);
-            if (teamData === null || teamData === AccountOpResult.NOT_EXISTS || teamData == AccountOpResult.ERROR) {
-                socket.kick('invalid registerContest payload');
-                return;
-            }
-            if (contestData[0].maxTeamSize < teamData.members.length) {
-                socket.emit('registerContestResponse', AccountOpResult.ERROR);
-                return;
-            }
-
             if (recaptchaResponse instanceof Error) {
                 this.logger.error('reCAPTCHA verification failed:');
                 this.logger.error(recaptchaResponse.message);
                 if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
-                socket.emit('registerContestResponse', AccountOpResult.ERROR);
+                socket.emit('registerContestResponse', TeamOpResult.INCORRECT_CREDENTIALS);
                 return;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
                 if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
-                socket.emit('registerContestResponse', AccountOpResult.INCORRECT_CREDENTIALS);
+                socket.emit('registerContestResponse', TeamOpResult.INCORRECT_CREDENTIALS);
                 return;
             } else if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
+            // check valid team size and exclusion lists
+            const contestData = await this.db.readContests(request.contest);
+            const teamData = await this.db.getTeamData(socket.username);
+            const userData = await this.db.getAccountData(socket.username);
+            if (contestData == null || contestData.length != 1) {
+                socket.emit('registerContestResponse', TeamOpResult.ERROR);
+                return;
+            }
+            if (typeof teamData != 'object') {
+                socket.emit('registerContestResponse', teamData);
+                return;
+            }
+            if (typeof userData != 'object') {
+                socket.emit('registerContestResponse', userData);
+                return;
+            }
+            if (contestData[0].maxTeamSize < teamData.members.length) {
+                socket.emit('registerContestResponse', TeamOpResult.CONTEST_MEMBER_LIMIT);
+                return;
+            }
+            // very long code to check for conflicts
+            let ret = false;
+            if (userData.registrations.some(async (r) => {
+                const contest = await this.db.readContests(r);
+                if (contest == null || contest.length != 1) {
+                    socket.emit('registerContestResponse', TeamOpResult.ERROR);
+                    ret = true;
+                    return true;
+                }
+                return contest[0].exclusions.includes(request.contest);
+            })) {
+                if (ret) return;
+                socket.emit('registerContestResponse', TeamOpResult.CONTEST_CONFLICT);
+                return;
+            }
             const res = await this.db.registerContest(socket.username, request.contest);
             socket.emit('registerContestResponse', res);
             if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));

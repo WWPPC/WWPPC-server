@@ -86,7 +86,7 @@ app.get('/web/api/userData/:username', async (req, res) => {
 });
 app.get('/web/api/teamData/:username', async (req, res) => {
     const data = await database.getTeamData(req.params.username);
-    if (data == TeamOpResult.ACCOUNT_NOT_EXISTS) res.sendStatus(404);
+    if (data == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == TeamOpResult.ERROR) res.sendStatus(500);
     else {
         const data2 = structuredClone(data);
@@ -450,7 +450,7 @@ io.on('connection', async (s) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.code);
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
-            socket.emit('teamActionResponse', recaptchaRes);
+            socket.emit('teamActionResponse', recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
             return;
         }
         const currentTeam = await database.getAccountTeam(socket.username);
@@ -459,9 +459,10 @@ io.on('connection', async (s) => {
             return;
         }
         if (socket.username != currentTeam) {
-            socket.emit('teamActionResponse', AccountOpResult.ERROR);
+            socket.emit('teamActionResponse', TeamOpResult.NOT_ALLOWED);
             return;
         }
+        // have to check team size!!
         const res = await database.setAccountTeam(socket.username, data.code, true);
         socket.emit('teamActionResponse', res);
         const teamData = await database.getTeamData(socket.username);

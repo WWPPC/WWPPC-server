@@ -143,7 +143,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
 @media (max-width: 100vh) {
     .homeColumns {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: min-content min-content;
         grid-auto-flow: column;
     }
 }

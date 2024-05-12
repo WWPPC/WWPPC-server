@@ -69,8 +69,21 @@ export enum AccountOpResult {
     INCORRECT_CREDENTIALS = 3,
     ERROR = 4
 }
+export enum TeamOpResult {
+    SUCCESS = 0,
+    ACCOUNT_NOT_EXISTS = 1,
+    TEAM_NOT_EXISTS = 2,
+    CONTEST_NOT_EXISTS = 3,
+    CONTEST_CONFLICT = 4,
+    CONTEST_MEMBER_LIMIT = 5,
+    CONTEST_ALREADY_EXISTS = 6,
+    ERROR = 7
+}
 export const getAccountOpMessage = (res: number): string => {
     return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account with username already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Internal error' : 'Unknown error (this is a bug?)';
+};
+export const getTeamOpMessage = (res: number): string => {
+    return res + 'buh'
 };
 export interface CredentialsSignupData {
     firstName: string

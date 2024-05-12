@@ -522,13 +522,13 @@ export class Database {
     /**
      * Get the id of a user's team (the team creator's username). **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {string | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR} Team id or an error code
+     * @returns {string | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Team id or an error code
      */
-    async getAccountTeam(username: string): Promise<string | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR> {
+    async getAccountTeam(username: string): Promise<string | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.getAccountData(username);
-            if (data == AccountOpResult.NOT_EXISTS) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            if (data == AccountOpResult.NOT_EXISTS) return TeamOpResult.NOT_EXISTS;
             if (data == AccountOpResult.ERROR) return TeamOpResult.ERROR;
             return data.team;
         } catch (err) {
@@ -544,9 +544,9 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} team Valid username (of team) OR join code
      * @param {boolean} useJoinCode If should search by join code instead (default false)
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.TEAM_NOT_EXISTS | TeamOpResult.ERROR} Update status
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Update status
      */
-    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.TEAM_NOT_EXISTS | TeamOpResult.ERROR> {
+    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             if (useJoinCode) {
@@ -554,18 +554,18 @@ export class Database {
                     'SELECT users.username FROM users WHERE users.team=(SELECT teams.username FROM teams WHERE teams.joincode=$1)', [
                     team
                 ]);
-                if (exists.rows.length == 0) return TeamOpResult.TEAM_NOT_EXISTS;
+                if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
                 const res = await this.#db.query(
                     'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
                     username, team
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             } else {
                 const res = await this.#db.query(
                     'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username', [
                     username, team
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.TEAM_NOT_EXISTS;
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             }
             this.#userCache.delete(username);
             this.#teamCache.forEach((v, k) => {
@@ -583,9 +583,9 @@ export class Database {
     /**
      * Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {TeamData | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR} Team data or an error code
+     * @returns {TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Team data or an error code
      */
-    async getTeamData(username: string): Promise<TeamData | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR> {
+    async getTeamData(username: string): Promise<TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.#db.query(
@@ -610,7 +610,7 @@ export class Database {
                 });
                 return teamDat;
             }
-            return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            return TeamOpResult.NOT_EXISTS;
         } catch (err) {
             this.logger.error('Database error (getTeamData):');
             this.logger.error('' + err);
@@ -623,16 +623,16 @@ export class Database {
      * Overwrite the team data for an existing team. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {TeamData} teamData New data
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR} Update status
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Update status
      */
-    async updateTeamData(username: string, teamData: TeamData): Promise<TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR> {
+    async updateTeamData(username: string, teamData: TeamData): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.#db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
-            if (res.rows.length == 0) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             this.#teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.#teamCache.set(k, {
                     data: teamData,
@@ -652,16 +652,16 @@ export class Database {
      * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. Does not prevent registering a team that is too large. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.CONTEST_NOT_EXISTS | TeamOpResult.ERROR} Registration status
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.ERROR} Registration status
      */
-    async registerContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.CONTEST_NOT_EXISTS | TeamOpResult.ERROR> {
+    async registerContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const exists = await this.#db.query(
                 'SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
                 username
             ]);
-            if (exists.rows.length == 0) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return TeamOpResult.CONTEST_ALREADY_EXISTS;
             const res = await this.#db.query(`
                 UPDATE teams SET registrations=(
@@ -672,7 +672,7 @@ export class Database {
                 `, [
                 username, [contest]
             ]);
-            if (res.rows.length == 0) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             this.#teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.#userCache.delete(k);
             });
@@ -689,9 +689,9 @@ export class Database {
      * Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR} Registration status
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Registration status
      */
-    async unregisterContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.ACCOUNT_NOT_EXISTS | TeamOpResult.ERROR> {
+    async unregisterContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.#db.query(`
@@ -703,7 +703,7 @@ export class Database {
             `, [
                 username, contest
             ]);
-            if (res.rows.length == 0) return TeamOpResult.ACCOUNT_NOT_EXISTS;
+            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             this.#teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.#userCache.delete(k);
             });
@@ -1062,11 +1062,11 @@ export function reverse_enum(enumerator, v): string {
 export enum AccountOpResult {
     /**The operation was completed successfully */
     SUCCESS = 0,
-    /**The operation failed because cannot not overwrite existing account */
+    /**The operation failed because database cannot not overwrite existing account */
     ALREADY_EXISTS = 1,
-    /**The operation failed because requested account does not exist */
+    /**The operation failed because the requested account does not exist */
     NOT_EXISTS = 2,
-    /**The operation failed because of authentication failure */
+    /**The operation failed because of an authentication failure */
     INCORRECT_CREDENTIALS = 3,
     /**The operation failed because of an unexpected issue */
     ERROR = 4
@@ -1076,18 +1076,18 @@ export enum AccountOpResult {
 export enum TeamOpResult {
     /**The operation was completed successfully */
     SUCCESS = 0,
-    /**The operation failed because requested account does not exist */
-    ACCOUNT_NOT_EXISTS = 1,
-    /**The operation failed because requested team does not exist */
-    TEAM_NOT_EXISTS = 2,
-    /**The operation failed because requested contest does not exist */
-    CONTEST_NOT_EXISTS = 3,
-    /**The operation failed because requested contest is on exclude list of other registration */
-    CONTEST_CONFLICT = 4,
-    /**The operation failed because member count exceeds limits in a registration */
-    CONTEST_MEMBER_LIMIT = 5,
-    /**The operation failed because requestion contest is already a registration */
-    CONTEST_ALREADY_EXISTS = 6,
+    /**The operation failed because the reqested account, team, or contest does not exist */
+    NOT_EXISTS = 1,
+    /**The operation failed because the requested contest is on exclude list of other registration */
+    CONTEST_CONFLICT = 2,
+    /**The operation failed because the member count exceeds limits in a registration */
+    CONTEST_MEMBER_LIMIT = 3,
+    /**The operation failed because the requested contest is already a registration */
+    CONTEST_ALREADY_EXISTS = 4,
+    /**The operation failed because of an authentication failure */
+    INCORRECT_CREDENTIALS = 5,
+    /**The operation failed because of an unspecified restriction */
+    NOT_ALLOWED = 6,
     /**The operation failed because of an unexpected issue */
     ERROR = 7
 }

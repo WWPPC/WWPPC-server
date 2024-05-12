@@ -69,7 +69,15 @@ const router = useRouter();
                 <GlitchText text="Contest Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
-        
+        <!-- make reusable components? like panel system -->
+        <div class="scheduleBlock">
+            <CutCornerContainer flipped>
+                <!-- scrollable time table -->
+            </CutCornerContainer>
+            <CutCornerContainer vertical-flipped>
+                <!-- depending on time table hover, show different content -->
+            </CutCornerContainer>
+        </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo2]"></ScrollIndicator>
     </div>
     <div class="fullBlock stretchBlock">
@@ -102,12 +110,12 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What's the contest format?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        <ul>
-                            <li>There will be 4 separate timed rounds of 64 minutes each, 3 for each division</li>
-                            <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
-                            <li>Submissions are only graded after the round ends</li>
-                            <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
-                        </ul>
+                    <ul>
+                        <li>There will be 4 separate timed rounds of 64 minutes each, 3 for each division</li>
+                        <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
+                        <li>Submissions are only graded after the round ends</li>
+                        <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
+                    </ul>
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
@@ -157,12 +165,25 @@ const router = useRouter();
     height: 100%;
 }
 
+.scheduleBlock {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    row-gap: 16px;
+    column-gap: 16px;
+    flex-grow: 1;
+}
+
 @media (max-width: 100vh) {
     .contestInfoBlock {
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: repeat(4, min-content);
         grid-auto-flow: column;
         min-height: min-content;
+    }
+
+    .scheduleBlock {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: min-content min-content;
     }
 }
 
