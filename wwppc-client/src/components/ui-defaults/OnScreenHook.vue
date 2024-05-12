@@ -36,7 +36,7 @@ export default {
     <div class="onScreenHook"></div>
 </template>
 
-<style>
+<style scoped>
 .onScreenHook {
     position: relative;
     top: v-bind("$props.offsetTop ?? ''");

@@ -56,7 +56,7 @@ defineExpose({
     </div>
 </template>
 
-<style>
+<style scoped>
 .headeredCollapsibleContainer {
     position: relative;
     box-sizing: border-box;

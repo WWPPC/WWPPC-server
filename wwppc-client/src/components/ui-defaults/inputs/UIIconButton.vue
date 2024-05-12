@@ -41,7 +41,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     </label>
 </template>
 
-<style>
+<style scoped>
 .uiIconButtonLabel {
     display: flex;
     box-sizing: border-box;
@@ -91,7 +91,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     border-color: red;
 }
 
-.uiIconButtonLabel:hover > .uiIconButtonImage {
+.uiIconButtonLabel:hover>.uiIconButtonImage {
     background-color: v-bind("$props.imgHoverColor ?? $props.imgColor ?? 'white'");
 }
 

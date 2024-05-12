@@ -24,7 +24,7 @@ defineExpose({
     </label>
 </template>
 
-<style>
+<style scoped>
 .uiToggleLabel {
     display: inline-block;
     position: relative;

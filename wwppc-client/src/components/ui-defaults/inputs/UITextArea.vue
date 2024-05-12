@@ -33,7 +33,7 @@ defineExpose({
     <textarea class="uiTextArea" @input=input v-model=text :title=props.title :placeholder=props.placeholder></textarea>
 </template>
 
-<style>
+<style scoped>
 .uiTextArea {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");

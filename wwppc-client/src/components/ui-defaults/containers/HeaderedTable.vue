@@ -70,7 +70,7 @@ export interface TableGeneratedData {
     </div>
 </template>
 
-<style>
+<style scoped>
 .headeredTableContainer {
     display: table;
     box-sizing: border-box;

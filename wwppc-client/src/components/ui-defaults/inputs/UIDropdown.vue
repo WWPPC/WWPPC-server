@@ -39,7 +39,7 @@ defineExpose({
     </select>
 </template>
 
-<style>
+<style scoped>
 .uiDropdown {
     display: inline-block;
     box-sizing: border-box;

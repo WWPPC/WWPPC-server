@@ -31,7 +31,6 @@ watch(() => props.text, () => buttonText.value = props.text);
 </script>
 
 <template>
-    <!-- i don't like <button> tags -->
     <label :class="'uiLinkButtonLabel ' + (props.disabled ? 'uiLinkButtonLabelDisabled' : '')">
         <input type="button" class="uiLinkButton" @click=click :title=title :disabled=props.disabled>
         <span class="uiLinkButtonText">{{ buttonText }}</span>
@@ -39,7 +38,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     </label>
 </template>
 
-<style>
+<style scoped>
 .uiLinkButtonLabel {
     display: flex;
     box-sizing: border-box;

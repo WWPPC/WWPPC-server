@@ -31,7 +31,9 @@ defineProps<{
     padding: 0px 0px;
     overflow: hidden;
 }
+</style>
 
+<style scoped>
 .titledDoubleCutCornerContainerTitle {
     contain: layout;
     grid-row: 1;

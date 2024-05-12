@@ -151,7 +151,7 @@ export interface ModalParams {
     </div>
 </template>
 
-<style>
+<style scoped>
 .modalContainer {
     display: grid;
     grid-template-rows: 1fr min-content 1fr;

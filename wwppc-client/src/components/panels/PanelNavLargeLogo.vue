@@ -11,7 +11,7 @@ const router = useRouter();
     <img class="wwppcLargeLogo" src="/logo.svg" @click="router.push($props.target ?? '/home/home')">
 </template>
 
-<style>
+<style scoped>
 .wwppcLargeLogo {
     max-width: 100%;
     max-height: 100%;

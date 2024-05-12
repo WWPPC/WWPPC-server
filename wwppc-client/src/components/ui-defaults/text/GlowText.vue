@@ -15,7 +15,7 @@ const props = defineProps<{
     </div>
 </template>
 
-<style>
+<style scoped>
 .glowText {
     font-weight: bold;
     font-family: 'Source Code Pro', Courier, monospace;

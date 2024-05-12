@@ -9,7 +9,7 @@ import NotFound from '@/pages/NotFound.vue';
     </main>
 </template>
 
-<style>
+<style scoped>
 .panelViewBody {
     display: grid;
     position: relative;

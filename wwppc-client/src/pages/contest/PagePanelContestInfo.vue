@@ -65,7 +65,7 @@ const router = useRouter();
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
             <ShowOnscreenContainer>
-                <GlitchText text="Contest Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
+                <GlitchText text="Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
         <!-- make reusable components? like panel system -->

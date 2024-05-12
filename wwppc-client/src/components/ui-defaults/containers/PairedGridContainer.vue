@@ -11,7 +11,7 @@ defineProps<{
     </div>
 </template>
 
-<style>
+<style scoped>
 .pairedGridContainer {
     display: grid;
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);

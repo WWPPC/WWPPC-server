@@ -52,4 +52,4 @@ export default {
     <GlowText :text=dispText :font-size=$props.fontSize :color=$props.color :glow=$props.glow :shadow=$props.shadow :flashing=$props.flashing></GlowText>
 </template>
 
-<style></style>
+<style scoped></style>

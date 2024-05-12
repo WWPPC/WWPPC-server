@@ -9,7 +9,7 @@ defineProps<{
     <div class="uiDivider"></div>
 </template>
 
-<style>
+<style scoped>
 .uiDivider {
     display: inline-block;
     box-sizing: content-box;

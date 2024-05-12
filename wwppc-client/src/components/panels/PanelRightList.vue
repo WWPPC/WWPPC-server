@@ -6,7 +6,7 @@
     </nav>
 </template>
 
-<style>
+<style scoped>
 .panelHeaderRight {
     display: flex;
     flex-direction: row;

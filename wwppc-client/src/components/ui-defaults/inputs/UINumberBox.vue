@@ -31,7 +31,7 @@ defineExpose({
     <input type="number" :class="'uiNumberBox ' + (props.highlightInvalid ? 'uiNumberBoxHighlightInvalid' : '')" @input=input v-model=number :title=props.title :min=props.min :max=props.max :step=props.step>
 </template>
 
-<style>
+<style scoped>
 .uiNumberBox {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'initial'");

@@ -63,14 +63,12 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 .animateInContainer {
     width: v-bind("$props.width ?? 'initial'");
     height: v-bind("$props.height ?? 'initial'");
     will-change: transform, opacity;
 }
-</style>
-<style scoped>
 .animHidden.anim-fade {
     opacity: 0;
 }

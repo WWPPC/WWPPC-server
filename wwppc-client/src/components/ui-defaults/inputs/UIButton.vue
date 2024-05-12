@@ -34,7 +34,7 @@ watch(() => props.text, () => buttonText.value = props.text);
     <input :type="props.type ?? 'button'" class="uiButton" :value=buttonText @click=click :title=props.title>
 </template>
 
-<style>
+<style scoped>
 .uiButton {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");

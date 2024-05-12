@@ -40,7 +40,7 @@ onMounted(() => {
     <input type="button" :class="'panelNavButton ' + (((props.isDefault && $route.params.panel == undefined) || props.for == `/${$route.params.page}/${$route.params.panel}`) ? 'panelNavButtonSelected ' : '') + (isMobileRef ? 'panelNavButtonNoHover' : '')" :value=buttonText @click=click @mouseover=mouseover :title=title>
 </template>
 
-<style>
+<style scoped>
 .panelNavButton {
     appearance: none;
     min-width: 128px;

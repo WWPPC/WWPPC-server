@@ -21,7 +21,7 @@ defineProps<{
     </div>
 </template>
 
-<style>
+<style scoped>
 .uiLoadingSquare {
     display: inline-grid;
     grid-template-columns: repeat(3, 33%);

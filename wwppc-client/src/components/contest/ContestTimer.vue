@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { useContestManager } from '@/scripts/ContestManager';
 
-// use reactive stuff from contest manager
+
+const contestManager = useContestManager();
+
 // flashing animations later
 </script>
 
 <template>
-    <div class="contestTimerContainer">
+    <div class="contestTimerContainer" v-if="contestManager.inContest">
         <img src="/assets/timer.svg" class="contestTimerImg">
         <span class="contestTimerTextTop">Round 0</span>
         <span class="contestTimerTextBottom">00:00</span>

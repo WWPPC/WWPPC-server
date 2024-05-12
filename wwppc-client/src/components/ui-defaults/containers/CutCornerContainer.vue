@@ -19,7 +19,7 @@ defineProps<{
     </div>
 </template>
 
-<style>
+<style scoped>
 .cutCornerContainerWrapper {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'initial'");

@@ -12,7 +12,7 @@ const copy = () => {
     <img src="/assets/copy.svg" class="uiCopyButton" @click="copy()" title="Copy to clipboard">
 </template>
 
-<style>
+<style scoped>
 .uiCopyButton {
     width: 1em;
     height: 1em;

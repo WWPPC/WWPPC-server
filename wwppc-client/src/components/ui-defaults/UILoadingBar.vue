@@ -11,7 +11,7 @@ defineProps<{
     <div class="uiLoadingBar"></div>
 </template>
 
-<style>
+<style scoped>
 .uiLoadingBar {
     width: v-bind("$props.width ?? '100%'");
     height: v-bind("$props.height ?? '12px'");

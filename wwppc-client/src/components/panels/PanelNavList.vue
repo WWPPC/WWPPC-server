@@ -20,7 +20,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 .panelNavOuter {
     position: relative;
     display: flex;

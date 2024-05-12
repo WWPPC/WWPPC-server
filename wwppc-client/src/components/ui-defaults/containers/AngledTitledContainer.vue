@@ -25,7 +25,7 @@ defineProps<{
     </div>
 </template>
 
-<style>
+<style scoped>
 .titledAngleContainer {
     position: relative;
     box-sizing: border-box;

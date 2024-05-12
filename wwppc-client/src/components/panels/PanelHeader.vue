@@ -11,7 +11,7 @@
     </header>
 </template>
 
-<style>
+<style scoped>
 .panelHeader {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -50,9 +50,6 @@
     height: 100%;
     background-color: #151515;
 }
-</style>
-
-<style scoped>
 .v-enter-active,
 .v-leave-active {
     transition: 500ms;

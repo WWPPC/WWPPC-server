@@ -39,6 +39,22 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 </template>
 
 <style>
+.fullBlock {
+    width: 100%;
+    min-height: 100%;
+    margin-bottom: 32px;
+    scroll-snap-align: start;
+    scroll-margin-top: 16px;
+    scroll-margin-bottom: 16px;
+    will-change: transform;
+}
+
+.fullBlock:last-child {
+    margin-bottom: 0px;
+}
+</style>
+
+<style scoped>
 .panelBody {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -77,20 +93,6 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     scroll-snap-type: none !important;
 }
 
-.fullBlock {
-    width: 100%;
-    min-height: 100%;
-    margin-bottom: 32px;
-    scroll-snap-align: start;
-    scroll-margin-top: 16px;
-    scroll-margin-bottom: 16px;
-    will-change: transform;
-}
-
-.fullBlock:last-child {
-    margin-bottom: 0px;
-}
-
 .panelBodyTransitionWipeContainer {
     position: relative;
     grid-row: 1;
@@ -126,9 +128,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     font-size: 12px;
     font-family: 'Source Code Pro', Courier, monospace;
 }
-</style>
 
-<style scoped>
 .v-enter-active,
 .v-leave-active {
     transition: 500ms;

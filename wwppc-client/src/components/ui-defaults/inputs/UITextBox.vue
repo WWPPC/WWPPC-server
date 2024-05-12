@@ -31,7 +31,7 @@ defineExpose({
     <input :type="props.type ?? 'text'" :class="'uiTextBox ' + (props.highlightInvalid ? 'uiTextBoxHighlightInvalid' : '')" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
 </template>
 
-<style>
+<style scoped>
 .uiTextBox {
     box-sizing: border-box;
     width: v-bind("$props.width ?? 'unset'");

@@ -26,7 +26,7 @@ defineExpose({
     <input ref="fileInput" type="file" class="uiFileUpload" @change=input>
 </template>
 
-<style>
+<style scoped>
 .uiFileUpload {
     box-sizing: border-box;
     height: 32px;
@@ -34,6 +34,7 @@ defineExpose({
     font-family: 'Source Code Pro', Courier, monospace;
     font-size: 12px;
 }
+
 .uiFileUpload::file-selector-button {
     appearance: none;
     background-color: black;
@@ -44,10 +45,12 @@ defineExpose({
     transition: 50ms ease transform, 50ms ease border-color;
     cursor: pointer;
 }
+
 .uiFileUpload::file-selector-button:hover {
     transform: translateY(-2px);
     border-color: lime;
 }
+
 .uiFileUpload::file-selector-button:active {
     transform: translateY(2px);
     border-color: red;

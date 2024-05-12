@@ -28,17 +28,6 @@ if ((route.params.page === undefined && props.isDefault && route.params.catchAll
 </template>
 
 <style>
-.panelView {
-    display: grid;
-    grid-template-rows: 100px minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr);
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-}
-
 @keyframes panel-wipe {
     0% {
         transform: none;
@@ -83,6 +72,17 @@ if ((route.params.page === undefined && props.isDefault && route.params.catchAll
 </style>
 
 <style scoped>
+.panelView {
+    display: grid;
+    grid-template-rows: 100px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
 .v-enter-active {
     animation: panel-transition-in 500ms linear;
 }

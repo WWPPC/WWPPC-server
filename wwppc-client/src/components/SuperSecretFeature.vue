@@ -22,7 +22,7 @@ watch(() => route.query.super_secret_scanlines, () => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .superSecretDiv {
     position: fixed;
     top: 0px;

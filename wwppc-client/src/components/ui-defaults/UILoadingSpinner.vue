@@ -11,7 +11,7 @@ defineProps<{
     <div class="uiLoadingSpinner"></div>
 </template>
 
-<style>
+<style scoped>
 .uiLoadingSpinner {
     width: v-bind("$props.width ?? '100%'");
     height: v-bind("$props.height ?? '100%'");
