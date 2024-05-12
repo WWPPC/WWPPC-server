@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
-import { MultipaneSelectorContainer, MultipaneSelector } from '@/components/multipane/Multipane';
+import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, GlowText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
@@ -61,7 +61,6 @@ const router = useRouter();
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
-    <!--Put the schedule here?-->
     <div class="fullBlock stretchBlock">
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
@@ -69,17 +68,96 @@ const router = useRouter();
                 <GlitchText text="Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
-        <!-- make reusable components? like panel system -->
         <div class="scheduleBlock">
             <CutCornerContainer flipped no-padding>
                 <MultipaneSelectorContainer for="contestSchedule">
-                    <MultipaneSelector for="test">
-                        10:30 oofFFFFFFF
+                    <div class="scheduleHeader">
+                        June 1
+                    </div>
+                    <MultipaneSelector for="precontest">
+                        Practice & testing
+                    </MultipaneSelector>
+                    <div class="scheduleHeader">
+                        June 2
+                    </div>
+                    <MultipaneSelector for="openingCeremonies">
+                        <div class="scheduleRow">
+                            <div>10:24-10:54</div>
+                            <div>|</div>
+                            <div>Opening ceremonies</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="round1">
+                        <div class="scheduleRow">
+                            <div>11:00-12:04</div>
+                            <div>|</div>
+                            <div>Round 1 (Novice)</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="round2">
+                        <div class="scheduleRow">
+                            <div>12:12-1:16</div>
+                            <div>|</div>
+                            <div>Round 2 (Novice)<br>Round 1 (Advanced)</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="lunch">
+                        <div class="scheduleRow">
+                            <div>1:16-2:20</div>
+                            <div>|</div>
+                            <div>Lunch break</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="round3">
+                        <div class="scheduleRow">
+                            <div>2:20-3:28</div>
+                            <div>|</div>
+                            <div>Round 3 (Novice)<br>Round 2 (Advanced)</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="round4">
+                        <div class="scheduleRow">
+                            <div>3:36-4:44</div>
+                            <div>|</div>
+                            <div>Round 3 (Advanced)</div>
+                        </div>
+                    </MultipaneSelector>
+                    <MultipaneSelector for="closingCeremonies">
+                        <div class="scheduleRow">
+                            <div>5:00-5:30</div>
+                            <div>|</div>
+                            <div>Closing ceremonies</div>
+                        </div>
                     </MultipaneSelector>
                 </MultipaneSelectorContainer>
             </CutCornerContainer>
-            <CutCornerContainer vertical-flipped>
-                <!-- depending on time table hover, show different content -->
+            <CutCornerContainer vertical-flipped no-padding>
+                <MultipanePaneContainer for="contestSchedule" default="precontest">
+                    <MultipanePane for="precontest">
+                        pre-contest
+                    </MultipanePane>
+                    <MultipanePane for="openingCeremonies">
+                        opening ceremonies
+                    </MultipanePane>
+                    <MultipanePane for="round1">
+                        round 1
+                    </MultipanePane>
+                    <MultipanePane for="round2">
+                        round 2
+                    </MultipanePane>
+                    <MultipanePane for="lunch">
+                        lunch
+                    </MultipanePane>
+                    <MultipanePane for="round3">
+                        round 3
+                    </MultipanePane>
+                    <MultipanePane for="round4">
+                        round 4
+                    </MultipanePane>
+                    <MultipanePane for="closingCeremonies">
+                        closing ceremonies
+                    </MultipanePane>
+                </MultipanePaneContainer>
             </CutCornerContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo2]"></ScrollIndicator>
@@ -187,6 +265,35 @@ const router = useRouter();
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: min-content min-content;
     }
+}
+
+.scheduleHeader {
+    padding: 4px 4px;
+    border-bottom: 4px solid white;
+    background-color: #222;
+    text-align: center;
+    font-size: var(--font-medium);
+    font-weight: bold;
+}
+
+.scheduleRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: var(--font-20);
+    text-wrap: nowrap;
+    word-wrap: none;
+}
+
+.scheduleRow>div:nth-child(1) {
+    text-align: right;
+    width: 5.2em;
+}
+
+.scheduleRow>div:nth-child(2) {
+    font-weight: 900;
+    margin: 0px 0.4em;
+    color: #AAA;
 }
 
 .faq {

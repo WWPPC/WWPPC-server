@@ -77,6 +77,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     font-size: 16px;
     background-color: black;
     scroll-snap-type: y mandatory;
+    scroll-snap-stop: always;
     scroll-timeline-name: --panelScrollTimeline;
     perspective: 100px;
     overflow-y: auto;

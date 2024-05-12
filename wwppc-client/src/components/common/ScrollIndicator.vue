@@ -3,14 +3,14 @@ import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import { isMobileRef } from '@/scripts/userAgent';
 
 defineProps<{
-    anchor?: string
+    anchor: string
 }>();
 </script>
 <script lang="ts">
 export default {
     methods: {
         scroll() {
-            if (this.$props.anchor) document.querySelector(this.$props.anchor)?.scrollIntoView({ behavior: 'smooth' });
+            document.querySelector(this.$props.anchor)?.scrollIntoView({ behavior: 'smooth' });
         }
     }
 }

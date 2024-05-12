@@ -12,8 +12,7 @@ provide('multipane-selector-id', props.for);
 const mouseleave = () => {
     if (multipane[props.for] != undefined) multipane[props.for]!.hovering = '';
 };
-multipane[props.for] = new Multipane();
-
+if (multipane[props.for] == undefined) multipane[props.for] = new Multipane();
 </script>
 
 <template>

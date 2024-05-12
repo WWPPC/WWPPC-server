@@ -1,8 +1,29 @@
 <script setup lang="ts">
+import { inject } from 'vue';
+
+defineProps<{
+    for: string
+}>();
+
+const multipaneId = inject('multipane-selector-id');
+
+if (typeof multipaneId != 'string') throw new Error('MultipaneSelector not placed in MultipaneSelectorContainer');
 </script>
 
 <template>
-    <div></div>
+    <div class="multipanePane" :name="multipaneId + '-' + $props.for">
+        <slot></slot>
+    </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.multipanePane {
+    contain: layout;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 12px 12px;
+    scroll-snap-align: start;
+}
+</style>
