@@ -66,7 +66,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
                 serverConnection.onconnecterror(() => { m.cancel(); return true; });
                 serverConnection.once('connect', () => m.cancel());
                 m.result.then((v) => v === true && window.location.reload());
-                if (checkLogin()) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+                if (checkLogin()) router.replace({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
             };
             const checkLogin = () => {
                 const trimmed = route.path.replace(/\/*$/, '');
@@ -78,7 +78,7 @@ export const useConnectionEnforcer = defineStore('connectionenforcer', {
             watch(() => route.params, () => {
                 if (serverConnection.connectError) showConnectError();
                 if (serverConnection.handshakeComplete && !serverConnection.connected) showDisconnected();
-                if (checkLogin() && route.query.ignore_server === undefined) router.push({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 } });
+                if (checkLogin() && route.query.ignore_server === undefined) router.replace({ path: '/login', query: { redirect: route.fullPath, clearQuery: 1 }});
             });
         }
     }
