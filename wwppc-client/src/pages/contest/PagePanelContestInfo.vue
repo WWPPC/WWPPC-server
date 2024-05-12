@@ -51,7 +51,7 @@ const router = useRouter();
                 <AnimateInContainer type="slideUp" height="100%" :delay=100>
                     <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
                         <p>
-                            WWP Informatics Tournament (WWPIT) is a ICPC / Codeforces / USACO-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from Codeforces ratings 800-2500.
+                            WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
                             <br><br>
                             The contest will be held online, on this website, between two divisions: Novice and Advanced.
                         </p>
@@ -61,6 +61,7 @@ const router = useRouter();
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
+    <!--Put the schedule here?-->
     <div class="fullBlock stretchBlock">
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
