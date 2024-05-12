@@ -138,7 +138,7 @@ export class ContestManager {
                 return;
             }
             if (typeof userData != 'object') {
-                socket.emit('registerContestResponse', userData);
+                socket.emit('registerContestResponse', userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
                 return;
             }
             if (contestData[0].maxTeamSize < teamData.members.length) {
@@ -146,19 +146,16 @@ export class ContestManager {
                 return;
             }
             // very long code to check for conflicts
-            let ret = false;
-            if (userData.registrations.some(async (r) => {
+            for (const r of userData.registrations) {
                 const contest = await this.db.readContests(r);
                 if (contest == null || contest.length != 1) {
                     socket.emit('registerContestResponse', TeamOpResult.ERROR);
-                    ret = true;
-                    return true;
+                    return;
                 }
-                return contest[0].exclusions.includes(request.contest);
-            })) {
-                if (ret) return;
-                socket.emit('registerContestResponse', TeamOpResult.CONTEST_CONFLICT);
-                return;
+                if (contest[0].exclusions.includes(request.contest)) {
+                    socket.emit('registerContestResponse', TeamOpResult.CONTEST_CONFLICT);
+                    return;
+                }
             }
             const res = await this.db.registerContest(socket.username, request.contest);
             socket.emit('registerContestResponse', res);

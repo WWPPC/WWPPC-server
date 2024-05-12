@@ -33,12 +33,11 @@ const router = useRouter();
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
                                 <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                <br>
                                 <div class="centered" style="margin: 4px;">
                                     <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')"></UILinkButton>
                                 </div>
-                                <p style="text-align: center; text-wrap: balance;">
-                                    Register at any point before the contest starts to compete!
-                                </p>
+                                <br>
                                 <p style="text-align: center; font-size: var(--font-small);">
                                     <i>Scroll down to see contest schedule.</i>
                                 </p>
@@ -93,8 +92,6 @@ const router = useRouter();
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                         WWPIT 2024 will be on June 2, starting at 10:24 AM EST.
-                        <br><br>
-                        Scroll up to see the contest schedule.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
