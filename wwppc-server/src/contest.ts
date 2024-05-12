@@ -146,19 +146,16 @@ export class ContestManager {
                 return;
             }
             // very long code to check for conflicts
-            let ret = false;
-            if (userData.registrations.some(async (r) => {
+            for (const r of userData.registrations) {
                 const contest = await this.db.readContests(r);
                 if (contest == null || contest.length != 1) {
                     socket.emit('registerContestResponse', TeamOpResult.ERROR);
-                    ret = true;
-                    return true;
+                    return;
                 }
-                return contest[0].exclusions.includes(request.contest);
-            })) {
-                if (ret) return;
-                socket.emit('registerContestResponse', TeamOpResult.CONTEST_CONFLICT);
-                return;
+                if (contest[0].exclusions.includes(request.contest)) {
+                    socket.emit('registerContestResponse', TeamOpResult.CONTEST_CONFLICT);
+                    return;
+                }
             }
             const res = await this.db.registerContest(socket.username, request.contest);
             socket.emit('registerContestResponse', res);
