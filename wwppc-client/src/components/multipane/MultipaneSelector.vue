@@ -12,16 +12,20 @@ const multipaneId = inject('multipane-selector-id');
 if (typeof multipaneId != 'string') throw new Error('MultipaneSelector not placed in MultipaneSelectorContainer');
 
 // mouseenter and mouseover ARE NOT THE SAME!
+const panes = multipane[multipaneId];
+
+if (panes == undefined) throw new Error('MultipaneSelector for nonexistent multipane instance');
+
 const mouseenter = () => {
-    if (multipane[multipaneId] != undefined) multipane[multipaneId].hovering = props.for;
+    panes.hovering = props.for;
 };
 const click = () => {
-    if (multipane[multipaneId] != undefined) multipane[multipaneId].selected = props.for;
+    panes.selected = props.for;
 };
 </script>
 
 <template>
-    <div class="multipaneSelector" @mouseenter="mouseenter()" @click="click()">
+    <div :class="'multipaneSelector ' + ((panes.hovering == '' && panes.selected == props.for) ? 'multipaneSelectorSelected ' : '')" @mouseenter="mouseenter()" @click="click()">
         <slot></slot>
     </div>
 </template>
@@ -35,7 +39,8 @@ const click = () => {
     cursor: pointer;
 }
 
-.multipaneSelector:hover {
+.multipaneSelector:hover,
+.multipaneSelectorSelected {
     background-color: #444;
 }
 </style>

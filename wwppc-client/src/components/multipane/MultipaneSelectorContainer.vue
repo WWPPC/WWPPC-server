@@ -16,7 +16,7 @@ if (multipane[props.for] == undefined) multipane[props.for] = new Multipane();
 </script>
 
 <template>
-    <div class="multipaneSelectorContainer" @mouseout="mouseleave()">
+    <div class="multipaneSelectorContainer" @mouseleave="mouseleave()">
         <slot></slot>
     </div>
 </template>

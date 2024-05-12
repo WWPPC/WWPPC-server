@@ -75,7 +75,9 @@ const router = useRouter();
                         June 1
                     </div>
                     <MultipaneSelector for="precontest">
-                        Practice & testing
+                        <div class="scheduleRow">
+                            Practice & Testing
+                        </div>
                     </MultipaneSelector>
                     <div class="scheduleHeader">
                         June 2
