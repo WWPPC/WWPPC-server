@@ -8,12 +8,13 @@ defineProps<{
     flipped?: boolean
     verticalFlipped?: boolean
     hoverAnimation?: 'lift' | 'swell'
+    noPadding?: boolean
 }>();
 </script>
 
 <template>
-    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2' : '') + (isMobileRef ? 'noHover' : '')">
-        <div :class="'cutCornerContainer ' + ($props.flipped ? 'cutCornerContainerReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerReversed2' : '')">
+    <div :class="'cutCornerContainerWrapper ' + ($props.flipped ? 'cutCornerContainerWrapperReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerWrapperReversed2 ' : '') + (isMobileRef ? 'noHover' : '')">
+        <div :class="'cutCornerContainer ' + ($props.noPadding ? 'noPadding ' : '') + ($props.flipped ? 'cutCornerContainerReversed ' : '') + ($props.verticalFlipped ? 'cutCornerContainerReversed2' : '')">
             <slot></slot>
         </div>
     </div>
@@ -73,6 +74,10 @@ defineProps<{
 
 .cutCornerContainerWrapper:hover {
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
+}
+
+.noPadding {
+    padding: 0px 0px;
 }
 
 .noHover {

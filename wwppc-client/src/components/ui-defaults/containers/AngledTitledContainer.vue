@@ -9,11 +9,12 @@ defineProps<{
     align?: 'left' | 'center' | 'right'
     fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
+    noPadding?: boolean
 }>();
 </script>
 
 <template>
-    <div :class="'titledAngleContainer' + (isMobileRef ? 'noHover' : '')">
+    <div :class="'titledAngleContainer ' + ($props.noPadding ? 'noPadding ' : '') + (isMobileRef ? 'noHover' : '')">
         <div class="titledAngleContainerBody">
             <slot></slot>
         </div>
@@ -71,6 +72,11 @@ defineProps<{
     padding-top: 76px;
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+.noPadding>.titledAngleContainerBody {
+    padding: 0px 0px;
+    padding-top: 64px;
 }
 
 .titledAngleContainerFade {

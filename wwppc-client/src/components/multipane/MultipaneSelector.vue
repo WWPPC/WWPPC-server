@@ -1,8 +1,39 @@
 <script setup lang="ts">
+import { inject } from 'vue';
+import { useMultipane } from './Multipane';
+
+const props = defineProps<{
+    for: string
+}>();
+
+const multipane = useMultipane();
+const multipaneId = inject('multipane-selector-id');
+
+if (typeof multipaneId != 'string') throw new Error('MultipaneSelector not placed in MultipaneSelectorContainer');
+
+const mouseover = () => {
+    if (multipane[multipaneId] != undefined) multipane[multipaneId].hovering = props.for;
+};
+const click = () => {
+    if (multipane[multipaneId] != undefined) multipane[multipaneId].selected = props.for;
+};
 </script>
 
 <template>
-    <div></div>
+    <div class="multipaneSelector" @mouseover="mouseover()" @click="click()">
+        <slot></slot>
+    </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.multipaneSelector {
+    background-color: transparent;
+    border-bottom: 4px solid white;
+    transition: 100ms cubic-bezier(0.2, 1, 0.5, 1.6) background-color;
+    cursor: pointer;
+}
+
+.multipaneSelector:hover {
+    background-color: #444;
+}
+</style>

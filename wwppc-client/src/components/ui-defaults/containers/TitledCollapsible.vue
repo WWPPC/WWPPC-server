@@ -11,6 +11,7 @@ const props = defineProps<{
     fontSize?: string
     startCollapsed?: boolean
     hoverAnimation?: 'lift' | 'swell'
+    noPadding?: boolean
 }>();
 
 const show = ref(props.startCollapsed == false);
@@ -42,7 +43,7 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="'headeredCollapsibleContainer' + (isMobileRef ? 'noHover' : '')">
+    <div :class="'headeredCollapsibleContainer ' + ($props.noPadding ? 'noPadding ' : '') + (isMobileRef ? 'noHover' : '')">
         <label class="headeredCollapsibleContainerHeader">
             <h2 class="headeredCollapsibleContainerTitle">{{ props.title }}</h2>
             <div class="headeredCollapsibleContainerImage"></div>
@@ -116,13 +117,17 @@ defineExpose({
     position: absolute;
     box-sizing: border-box;
     width: 100%;
-    padding: 16px 12px;
+    padding: 12px 12px;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
 .headeredCollapsibleContainer:hover {
     transform: v-bind("$props.hoverAnimation == 'lift' ? 'translateY(-8px)' : ($props.hoverAnimation == 'swell' ? 'scale(102%)' : '')");
+}
+
+.noPadding>.headeredCollapsibleContainerBodyWrapper>.headeredCollapsibleContainerBody {
+    padding: 0px 0px;
 }
 
 .noHover {

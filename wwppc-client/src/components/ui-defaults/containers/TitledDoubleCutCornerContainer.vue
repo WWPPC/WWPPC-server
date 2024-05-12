@@ -9,15 +9,16 @@ defineProps<{
     align?: 'left' | 'center' | 'right'
     fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
+    noPadding?: boolean
 }>();
 </script>
 
 <template>
-    <DoubleCutCornerContainer class="doubleCutCornerContainerNoPadding" :width=$props.width :height=$props.height :border-color=$props.borderColor :hover-animation=$props.hoverAnimation>
+    <DoubleCutCornerContainer class="doubleCutCornerContainerNoPadding" :width=$props.width :height=$props.height :border-color=$props.borderColor :hover-animation=$props.hoverAnimation no-padding>
         <div class="titledDoubleCutCornerContainerTitle">
             <h2>{{ $props.title }}</h2>
         </div>
-        <div class="titledDoubleCutCornerContainerBody">
+        <div :class="'titledDoubleCutCornerContainerBody ' + ($props.noPadding ? 'noPadding' : '')">
             <slot></slot>
         </div>
         <div class="titledDoubleCutCornerContainerFade"></div>
@@ -28,7 +29,6 @@ defineProps<{
 .doubleCutCornerContainerNoPadding>.doubleCutCornerContainer {
     display: grid;
     grid-template-rows: min-content 1fr;
-    padding: 0px 0px;
     overflow: hidden;
 }
 </style>
@@ -77,5 +77,9 @@ defineProps<{
     box-shadow: 0px 0px 12px black inset;
     clip-path: xywh(0 0 calc(100% - 28px) 100%);
     pointer-events: none;
+}
+
+.noPadding {
+    padding: 0px 0px;
 }
 </style>

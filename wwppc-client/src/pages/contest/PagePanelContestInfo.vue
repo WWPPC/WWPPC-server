@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
+import { MultipaneSelectorContainer, MultipaneSelector } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, GlowText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
@@ -70,8 +71,12 @@ const router = useRouter();
         </CenteredContainer>
         <!-- make reusable components? like panel system -->
         <div class="scheduleBlock">
-            <CutCornerContainer flipped>
-                <!-- scrollable time table -->
+            <CutCornerContainer flipped no-padding>
+                <MultipaneSelectorContainer for="contestSchedule">
+                    <MultipaneSelector for="test">
+                        10:30 oofFFFFFFF
+                    </MultipaneSelector>
+                </MultipaneSelectorContainer>
             </CutCornerContainer>
             <CutCornerContainer vertical-flipped>
                 <!-- depending on time table hover, show different content -->
