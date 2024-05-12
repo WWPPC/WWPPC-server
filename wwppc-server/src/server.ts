@@ -6,7 +6,7 @@ import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(config.path, '.env') });
 
 // verify environment variables exist
-if (['DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH', 'EMAIL_TEMPLATE_PATH'].some((v) => process.env[v] == undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -14,12 +14,10 @@ if (['DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIEN
 import Logger from './log';
 const logger = new Logger();
 logger.info('Starting WWPPC server...');
-if (config.debugMode) {
-    logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
-    logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);
-    logger.debug('CLIENT_PATH: ' + process.env.CLIENT_PATH);
-    logger.debug('Current config:\n' + JSON.stringify(config), true);
-}
+logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
+logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);
+logger.debug('CLIENT_PATH: ' + process.env.CLIENT_PATH);
+logger.debug('Current config:\n' + JSON.stringify(config), true);
 
 // set up networking
 import express from 'express';

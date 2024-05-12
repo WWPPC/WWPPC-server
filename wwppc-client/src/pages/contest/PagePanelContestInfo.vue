@@ -11,7 +11,7 @@ const router = useRouter();
 <template>
     <div class="centered contestTitle">
         <ShowOnscreenContainer>
-            <GlitchText text="WWPIT" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+            <GlitchText text="WWPIT" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         </ShowOnscreenContainer>
     </div>
     <div class="fullBlock stretchBlock">
@@ -65,7 +65,17 @@ const router = useRouter();
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
             <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="Contest Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
+            </ShowOnscreenContainer>
+        </CenteredContainer>
+        
+        <ScrollIndicator anchor="a[name=pageHackathonScrollTo2]"></ScrollIndicator>
+    </div>
+    <div class="fullBlock stretchBlock">
+        <a name="pageHackathonScrollTo2"></a>
+        <CenteredContainer>
+            <ShowOnscreenContainer>
+                <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
         <br>

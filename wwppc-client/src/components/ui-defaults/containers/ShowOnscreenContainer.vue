@@ -6,7 +6,7 @@ export default {
         single: Boolean
     },
     data() {
-        return { createdObserver: false }
+        return { createdObserver: false };
     },
     mounted() {
         if (this.createdObserver) return;

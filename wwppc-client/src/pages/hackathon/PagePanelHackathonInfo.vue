@@ -8,7 +8,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 <template>
     <div class="centered hackathonTitle">
         <ShowOnscreenContainer>
-            <GlitchText text="WWPHacks" font-size="var(--font-title)" color="lime" shadow glow :steps=1 :delay=400 random></GlitchText>
+            <GlitchText text="WWPHacks" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         </ShowOnscreenContainer>
     </div>
     <div class="fullBlock stretchBlock">
@@ -55,7 +55,7 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
             <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="min(15vh, calc(100vw / 8))" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </CenteredContainer>
         <div class="faq">

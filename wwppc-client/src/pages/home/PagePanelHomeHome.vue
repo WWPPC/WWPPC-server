@@ -9,7 +9,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
 <template>
     <div class="centered homeTitle">
         <ShowOnscreenContainer>
-            <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 :delay=300 random></GlitchText>
+            <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 random on-visible></GlitchText>
         </ShowOnscreenContainer>
     </div>
     <div class="fullBlock homeBlock">
@@ -22,7 +22,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
                                 <div style="flex-grow: 1;">
-                                    <GlitchText text="WWPHacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
+                                    <GlitchText text="WWPHacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
                                     <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                                     <UIDivider color="#AAA"></UIDivider>
                                     <p>
@@ -45,8 +45,8 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
                                 <div style="flex-grow: 1;">
-                                    <GlitchText text="WWPIT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=300 random></GlitchText>
-                                    <GlitchText text="06/02/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
+                                    <GlitchText text="WWPIT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
+                                    <GlitchText text="06/02/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :delay=10 start-glitched></GlitchText>
                                     <UIDivider color="#AAA"></UIDivider>
                                     <p>
                                         WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
@@ -69,7 +69,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
         <a name="pageHomeScrollTo"></a>
         <div class="centered">
             <ShowOnscreenContainer>
-                <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </div>
         <div style="flex-grow: 1;">
@@ -97,7 +97,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
         <div class="centered">
             <a name="pageHomeScrollTo2"></a>
             <ShowOnscreenContainer>
-                <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
+                <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </div>
         <div class="sponsors">

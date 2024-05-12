@@ -32,11 +32,12 @@ watch(() => route.params, () => {
     loadUserData();
 });
 // spaghetti
-const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40, 1, 10, 2, true);
-const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40, 1, 10, 2, true);
+const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40, 1, 10, 3, true);
+const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40, 1, 10, 3, true);
 const grade = ref<number[]>([]);
 const experience = ref<number[]>([]);
 const languages = ref<string[]>([]);
+const biography = autoGlitchTextTransition(() => userData.value?.bio ?? '', 40, 4, 10);
 watch(userData, () => {
     grade.value = [userData.value?.grade ?? 0];
     experience.value = [userData.value?.experience ?? 0];
@@ -70,7 +71,7 @@ const largeHeader = ref(true);
                 </TitledCutCornerContainer>
                 <TitledDoubleCutCornerContainer title="Biography" align="center" height="100%" flipped>
                     <p>
-                        {{ userData?.bio }}
+                        {{ biography }}
                     </p>
                 </TitledDoubleCutCornerContainer>
                 <TitledCutCornerContainer title="Team" align="center" height="100%" style="grid-row: span 2;">

@@ -8,7 +8,7 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
     <div class="fullBlock">
         <a name="pageAboutScrollTo"></a>
         <div class="centered">
-            <GlitchText text="WWPPC Team" font-size="var(--font-title)" color="lime" glow shadow random :steps=1></GlitchText>
+            <GlitchText text="WWPPC Team" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </div>
         <br>
         <br>

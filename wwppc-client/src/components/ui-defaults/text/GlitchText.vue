@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { glitchTextTransition, randomGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
+import { watch } from 'vue';
+import { glitchTextTransition, randomGlitchTextTransition, type AsyncTextTransition } from '@/components/ui-defaults/TextTransitions';
 import GlowText from './GlowText.vue';
-const props = defineProps<{
+
+defineProps<{
     text: string
     steps?: number
     delay?: number
@@ -12,23 +13,43 @@ const props = defineProps<{
     glow?: boolean
     shadow?: boolean
     flashing?: boolean
+    onVisible?: boolean
 }>();
-
-const dispText = ref(props.text.replace(/./g, ' '));
-const runGlitch = () => {
-    if (props.random) {
-        setTimeout(() => randomGlitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, props.steps, true), props.delay);
-    } else {
-        glitchTextTransition(dispText.value, props.text, (t) => { dispText.value = t; }, 20, 1, props.text.length + (props.delay ?? 0), props.steps, true);
-    }
-};
-
-onMounted(runGlitch);
-watch(() => props.text, runGlitch);
+</script>
+<script lang="ts">
+export default {
+    data() {
+        return {
+            activated: false,
+            dispText: this.$props.text.replace('/.g', ' ')
+        };
+    },
+    mounted() {
+        if (this.activated) return;
+        this.activated = true;
+        let running: AsyncTextTransition | null = null;
+        const runGlitch = () => {
+            if (running) running.cancel();
+            if (this.$props.random) {
+                running = randomGlitchTextTransition(this.dispText, this.$props.text, (t) => { this.dispText = t; }, 20, this.$props.steps, true, this.$props.delay);
+            } else {
+                running = glitchTextTransition(this.dispText, this.$props.text, (t) => { this.dispText = t; }, 20, 1, this.$props.text.length + (this.$props.delay ?? 0), this.$props.steps, true);
+            }
+        };
+        if (this.$props.onVisible) {
+            const observer = new IntersectionObserver(([entry]) => {
+                if (entry.isIntersecting) runGlitch();
+            }, { threshold: 0 });
+            observer.observe(this.$el);
+        }
+        watch(() => this.$props.text, runGlitch);
+        runGlitch();
+    },
+}
 </script>
 
 <template>
-    <GlowText :text=dispText :font-size=props.fontSize :color=props.color :glow=props.glow :shadow=props.shadow :flashing=props.flashing></GlowText>
+    <GlowText :text=dispText :font-size=$props.fontSize :color=$props.color :glow=$props.glow :shadow=$props.shadow :flashing=$props.flashing></GlowText>
 </template>
 
 <style></style>

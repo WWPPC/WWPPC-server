@@ -38,7 +38,6 @@ export class Mailer {
         const startTime = performance.now();
         this.#logger = logger;
         this.#templates = new Map();
-        // ok typescript has a bug and requires this option to be true for some reason
         fs.readdir(templatePath, { withFileTypes: true }, (err: Error | null, files: fs.Dirent[]) => {
             if (err !== null) {
                 this.#logger.handleError('Email template indexing failed:', err);
