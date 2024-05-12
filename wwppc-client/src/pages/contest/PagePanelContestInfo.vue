@@ -32,16 +32,12 @@ const router = useRouter();
                     <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
-                                <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                <br>
+                                <GlitchText text="Registrations open!" font-size="var(--font-large)" color="lime" glow flashing :steps=4 start-glitched></GlitchText>
+                                <br>
                                 <div class="centered" style="margin: 4px;">
                                     <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')"></UILinkButton>
                                 </div>
-                                <p style="text-align: center; text-wrap: balance;">
-                                    Register at any point before the contest starts to compete!
-                                </p>
-                                <p style="text-align: center; font-size: var(--font-small);">
-                                    <i>Scroll down to see contest schedule.</i>
-                                </p>
                             </span>
                         </CenteredContainer>
                     </CutCornerContainer>
