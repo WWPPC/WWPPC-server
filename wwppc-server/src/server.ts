@@ -46,7 +46,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
-import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted, TeamData } from './database';
+import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted, TeamData, TeamOpResult } from './database';
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
@@ -86,8 +86,8 @@ app.get('/web/api/userData/:username', async (req, res) => {
 });
 app.get('/web/api/teamData/:username', async (req, res) => {
     const data = await database.getTeamData(req.params.username);
-    if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
-    else if (data == AccountOpResult.ERROR) res.sendStatus(500);
+    if (data == TeamOpResult.ACCOUNT_NOT_EXISTS) res.sendStatus(404);
+    else if (data == TeamOpResult.ERROR) res.sendStatus(500);
     else {
         const data2 = structuredClone(data);
         data2.joinCode = '';
@@ -451,6 +451,15 @@ io.on('connection', async (s) => {
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
             socket.emit('teamActionResponse', recaptchaRes);
+            return;
+        }
+        const currentTeam = await database.getAccountTeam(socket.username);
+        if (typeof currentTeam != 'string') {
+            socket.emit('teamActionResponse', currentTeam);
+            return;
+        }
+        if (socket.username != currentTeam) {
+            socket.emit('teamActionResponse', AccountOpResult.ERROR);
             return;
         }
         const res = await database.setAccountTeam(socket.username, data.code, true);
