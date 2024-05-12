@@ -168,6 +168,7 @@ export class Database {
     }
 
     #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
+    #teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
@@ -456,6 +457,7 @@ export class Database {
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
+                this.#userCache.delete(username);
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = await this.checkAccount(username, password);
@@ -463,6 +465,7 @@ export class Database {
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`[Database] Deleted account ${username}`, true);
+                this.#userCache.delete(username);
                 return AccountOpResult.SUCCESS;
             }
         } catch (err) {
@@ -563,8 +566,10 @@ export class Database {
                 ]);
                 if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             }
-            // reset the cache so we don't have to make requests to update it
             this.#userCache.delete(username);
+            this.#teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.#teamCache.delete(k);
+            });
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (setAccountTeam):');
@@ -598,6 +603,10 @@ export class Database {
                     members: data2.rows.map(row => row.username),
                     joinCode: data.rows[0].joincode
                 };
+                this.#teamCache.set(username, {
+                    data: teamDat,
+                    expiration: performance.now() + config.dbCacheTime
+                });
                 return teamDat;
             }
             return AccountOpResult.NOT_EXISTS;
@@ -622,8 +631,14 @@ export class Database {
                 'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
-            if (res.rows.length > 0) return AccountOpResult.SUCCESS;
-            return AccountOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            this.#teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.#teamCache.set(k, {
+                    data: teamData,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+            });
+            return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (updateTeamData):');
             this.logger.error('' + err);
@@ -657,8 +672,9 @@ export class Database {
                 username, [contest]
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-            // reset cache here too
-            this.#userCache.delete(username);
+            this.#teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.#userCache.delete(k);
+            });
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (registerContest):');
@@ -687,8 +703,9 @@ export class Database {
                 username, contest
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-            // reset cache here too
-            this.#userCache.delete(username);
+            this.#teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.#userCache.delete(k);
+            });
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (unregisterContest):');
@@ -726,7 +743,60 @@ export class Database {
         }
     }
 
-    #roundCache: Map<string, { rounds: Round[], expiration: number }> = new Map();
+    #contestCache: Map<string, { contests: Contest[], expiration: number }> = new Map();
+    async readContests(id?: string): Promise<Contest[] | null> {
+        const startTime = performance.now();
+        try {
+            if (id != undefined) {
+                if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
+                if (this.#contestCache.has(id)) return this.#contestCache.get(id)!.contests;
+            }
+            const { queryConditions, bindings } = this.#buildColumnConditions([
+                { name: 'id', value: id }
+            ]);
+            const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
+            const contests = data.rows.map((contest) => ({
+                id: contest.id,
+                rounds: contest.rounds,
+                exclusions: contest.exclusions,
+                maxTeamSize: contest.maxteamsize,
+                startTime: contest.starttime,
+                endTime: contest.endtime
+            }));
+            if (id != undefined) this.#contestCache.set(id, {
+                contests: contests,
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return contests;
+        } catch (err) {
+            this.logger.error('Database error (readContests):');
+            this.logger.error('' + err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] readContests in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    async writeContest(contest: Contest): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize];
+            const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize) VALUES ($1, $2, $3, $4)', data);
+            this.#contestCache.set(contest.id, {
+                contests: [contest],
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return true;
+        } catch (err) {
+            this.logger.error('Database error (writeContest):');
+            this.logger.error('' + err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] writeContest in ${performance.now() - startTime}ms`, true);
+        }
+    }
+
+    #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
      * Filter and get a list of round data from the rounds database according to a criteria
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criterion
@@ -735,25 +805,40 @@ export class Database {
     async readRounds(c: ReadRoundsCriteria): Promise<Round[] | null> {
         const startTime = performance.now();
         try {
-            const cacheKey = c.contest + ' ' + c.round;
-            if (this.#roundCache.has(cacheKey) && this.#roundCache.get(cacheKey)!.expiration < performance.now()) this.#roundCache.delete(cacheKey);
-            if (this.#roundCache.has(cacheKey)) return this.#roundCache.get(cacheKey)!.rounds;
+            const roundIdSet: Set<string> = new Set();
+            if (c.id != undefined && isUUID(c.id)) roundIdSet.add(c.id);
+            if (c.contest != undefined) {
+                // filter by grabbing ids from contest lists (code unreadable??)
+                const contests = await this.readContests(c.contest);
+                if (contests === null) return null;
+                contests.flatMap((c) => c.rounds).forEach((v) => roundIdSet.add(v));
+            }
+            const rounds: Round[] = [];
+            roundIdSet.forEach((id) => {
+                if (this.#roundCache.has(id) && this.#roundCache.get(id)!.expiration < performance.now()) this.#roundCache.delete(id);
+                if (this.#roundCache.has(id)) {
+                    roundIdSet.delete(id);
+                    rounds.push(this.#roundCache.get(id)!.round);
+                }
+            });
+            const roundIdList = Array.from(roundIdSet.values());
             const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'contest', value: c.contest },
-                { name: 'number', value: c.round }
+                { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
             ]);
             const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
-            const rounds = data.rows.map((round) => ({
-                contest: round.contest,
-                round: round.number,
-                problems: round.problems,
-                startTime: round.starttime,
-                endTime: round.endtime
-            }));
-            this.#roundCache.set(cacheKey, {
-                rounds: rounds,
-                expiration: performance.now() + config.dbCacheTime
-            });
+            for (const round of data.rows) {
+                const r = {
+                    id: round.id,
+                    problems: round.problems,
+                    startTime: round.starttime,
+                    endTime: round.endtime
+                };
+                this.#roundCache.set(round.id, {
+                    round: r,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+                rounds.push(r);
+            }
             return rounds;
         } catch (err) {
             this.logger.error('Database error (readRounds):');
@@ -771,11 +856,11 @@ export class Database {
     async writeRound(round: Round): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [round.contest, round.round, round.problems, round.startTime, round.endTime];
-            const update = await this.#db.query('UPDATE rounds SET problems=$3, starttime=$4, endtime=$5 WHERE contest=$1 AND number=$2 RETURNING contest', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO rounds (contest, number, problems, starttime, endtime) VALUES ($1, $2, $3, $4, $5)', data);
-            this.#roundCache.set(round.contest + ' ' + round.round, {
-                rounds: [round],
+            const data = [round.id, round.problems, round.startTime, round.endTime];
+            const update = await this.#db.query('UPDATE rounds SET problems=$2, starttime=$3, endtime=$4 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO rounds (id, problems, starttime, endtime) VALUES ($1, $2, $3, $4)', data);
+            this.#roundCache.set(round.id, {
+                round: round,
                 expiration: performance.now() + config.dbCacheTime
             });
             return true;
@@ -821,7 +906,6 @@ export class Database {
                 { name: 'author', value: c.author }
             ]);
             const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
-            // adding the problems to cache
             const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
             for (const problem of filteredRows) {
                 const p = {
@@ -1071,17 +1155,30 @@ export interface TeamData {
     joinCode: string
 }
 
+/**Descriptor for a single contest */
+export interface Contest {
+    /**Contest ID, also used as name */
+    readonly id: string
+    /**List of round UUIDs within the contest */
+    rounds: UUID[]
+    /**List of other contest ids that cannot be registered simultaneously */
+    exclusions: string[]
+    /**Maximum team size allowed to register */
+    maxTeamSize: number
+    /**Time of round start, UNIX */
+    startTime: number
+    /**Time of round end, UNIX */
+    endTime: number
+}
 /**Descriptor for a single round */
 export interface Round {
-    /**Contest ID */
-    readonly contest: string
-    /**Zero-indexed round number in contest */
-    readonly round: number
+    /**UUID */
+    readonly id: UUID
     /**List of problem UUIDs within the round */
     problems: UUID[]
-    /**Time of round start, UTC */
+    /**Time of round start, UNIX */
     startTime: number
-    /**Time of round end, UTC */
+    /**Time of round end, UNIX */
     endTime: number
 }
 /**Descriptor for a single problem */
@@ -1100,7 +1197,7 @@ export interface Problem {
     constraints: ProblemConstraints
     /**Public visibility of problem */
     hidden: boolean
-    /**Archival status - can be fetched through API? */
+    /**Archival status - can be fetched through API instead */
     archived: boolean
 }
 /**Descriptor for the constraints of a single problem */
@@ -1149,14 +1246,16 @@ export enum ScoreState {
     RUNTIME_ERROR = 5
 }
 
-/**Criteria to filter by. Leaving a value undefined removes the criterion */
+/**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadRoundsCriteria {
     /**Contest ID */
     contest?: string
     /**Zero-indexed round within the contest */
     round?: number
+    /**Round ID */
+    id?: UUID
 }
-/**Criteria to filter by. Leaving a value undefined removes the criterion */
+/**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ProblemRoundCriteria {
     /**Contest ID */
     contest?: string
@@ -1164,8 +1263,10 @@ interface ProblemRoundCriteria {
     round?: number
     /**Zero-indexed problem number within the round */
     number?: number
+    /**Round ID */
+    roundId?: UUID
 }
-/**Criteria to filter by. Leaving a value undefined removes the criterion */
+/**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadProblemsCriteria {
     /**UUID of problem */
     id?: UUID
@@ -1178,7 +1279,7 @@ interface ReadProblemsCriteria {
     /**Round based filter for problems */
     contest?: ProblemRoundCriteria
 }
-/**Criteria to filter by. Leaving a value undefined removes the criterion */
+/**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadSubmissionsCriteria {
     /**UUID of problem */
     id?: UUID

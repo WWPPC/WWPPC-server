@@ -84,14 +84,9 @@ export class ContestManager {
      * @returns {string[] | null} List of unique contest IDs or null if an error occured
      */
     async getContestList(): Promise<string[] | null> {
-        const rounds = await this.db.readRounds({});
-        if (rounds === null) return null;
-        const contests = new Map<string, number>();
-        for (const r of rounds) contests.set(r.contest, Math.min(contests.get(r.contest) ?? Infinity, r.startTime));
-        contests.forEach((value, key) => {
-            if (value < Date.now()) contests.delete(key);
-        });
-        return Array.from(contests.keys());
+        const contests = await this.db.readContests();
+        if (contests === null) return null;
+        return contests.filter(c => c.startTime > Date.now()).map(c => c.id);
     }
     async getContestData(participantView: boolean) {
 
@@ -145,109 +140,7 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-        // REPLACE THESE WITH SERVER-INITIATED BROADCAST (instead of using socket.io as bad fetch)
-
-        //get problem list for running contest
-        socket.on('getProblemList', async (request: { contest: string, token: number }) => {
-            //check valid contest first
-            if (request == null || typeof request.contest !== 'string') {
-                socket.kick('invalid getProblemList payload');
-                return;
-            }
-            const rounds = await this.db.readRounds({ contest: request.contest });
-            if (rounds == null) {
-                socket.emit('contestList', { data: [], token: request.token });
-                return;
-            }
-            const packet: Array<Object> = [];
-            const canViewAllRounds = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
-            for (const round of rounds) {
-                if (round.startTime > Date.now() && !canViewAllRounds) {
-                    continue;
-                }
-                // make sure to check submission status for the problems
-                const roundProblems = await this.db.readProblems({ contest: { contest: request.contest, round: round.round } });
-                const problems: Array<Object> = [];
-                for (let p in roundProblems) {
-                    if (roundProblems[p].hidden && !canViewAllRounds) {
-                        continue;
-                    }
-                    problems.push({
-                        id: roundProblems[p].id,
-                        contest: request.contest,
-                        round: round.round,
-                        number: p,
-                        name: roundProblems[p].name,
-                        author: roundProblems[p].author,
-                        status: 0
-                    });
-                }
-                packet.push({
-                    contest: request.contest,
-                    number: round.round,
-                    problems: problems,
-                    startTime: round.startTime,
-                    endTime: round.endTime,
-                });
-            }
-            socket.emit('problemList', { data: packet, token: request.token });
-        });
-        socket.on('getProblemData', async (request: { id: undefined, contest: string, round: number, number: number, token: number } | { id: string, contest: undefined, round: undefined, number: undefined, token: number }) => {
-            if (request == null || ((typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number') && (typeof request.id !== 'string' || !isUUID(request.id)))) {
-                socket.kick('invalid getProblemData payload');
-                return;
-            }
-            let problems: Problem[] | null;
-            if (typeof request.id === 'string') problems = await this.db.readProblems({ id: request.id });
-            else problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
-            // oopsies, database error
-            if (problems === null) {
-                socket.emit('problemData', {
-                    problem: null,
-                    submission: null,
-                    token: request.token
-                });
-                return;
-            }
-            // note that a hidden problem will override a visible contest
-            if (!(await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS))) {
-                //remove all hidden problems
-                problems = problems.filter((p) => !p.hidden);
-            }
-            if (problems.length !== 1) {
-                // problem does not exist or some sort of error and multiple problems matched
-                socket.emit('problemData', {
-                    problem: null,
-                    submission: null,
-                    token: request.token
-                });
-                return;
-            }
-            const problem = problems[0];
-            const userSubmissions = await this.db.readSubmissions({ id: problem.id, username: socket.username });
-            let submission: { time: number, scores: Score[] } | null = null;
-            if (userSubmissions !== null && userSubmissions.length === 1) {
-                submission = {
-                    time: userSubmissions[0].time,
-                    scores: userSubmissions[0].scores
-                };
-            }
-            socket.emit('problemData', {
-                problem: {
-                    id: problem.id,
-                    contest: request.contest,
-                    round: request.round,
-                    number: request.number,
-                    name: problem.name,
-                    author: problem.author,
-                    content: problem.content,
-                    constraints: problem.constraints,
-                    hidden: problem.hidden
-                },
-                submission: submission,
-                token: request.token
-            });
-        });
+        // SERVER-DRIVEN PROBLEM LIST/PROBLEM DATA
 
         //submit a solution
         socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
@@ -323,9 +216,9 @@ class RunningContest {
 
     readonly #users: Map<string, ContestUser> = new Map();
 
-    constructor(id: string, roundsRaw: Round[]) {
+    constructor(id: string, rounds: Round[]) {
         this.id = id;
-        this.rounds = roundsRaw.filter(r => r.contest === this.id);
+        this.rounds = rounds;
         // timer to step through rounds
     }
 
