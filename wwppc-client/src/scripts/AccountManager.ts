@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
 
-import { AccountOpResult, type CredentialsSignupData, sendCredentials, socket, useServerConnection } from './ServerConnection';
+import { AccountOpResult, type CredentialsSignupData, sendCredentials, socket, TeamOpResult, useServerConnection } from './ServerConnection';
 
 export interface AccountData {
     username: string
@@ -212,16 +212,16 @@ export const useAccountManager = defineStore('accountManager', {
                 });
             });
         },
-        async writeTeamData(): Promise<AccountOpResult> {
+        async writeTeamData(): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('setTeamData', {
                     teamName: this.teamName,
                     teamBio: this.teamBio
                 });
-                serverConnection.once('teamActionResponse', (res: AccountOpResult) => {
-                    if (res == AccountOpResult.SUCCESS) unsaved2.value = false;
+                serverConnection.once('teamActionResponse', (res: TeamOpResult) => {
+                    if (res == TeamOpResult.SUCCESS) unsaved2.value = false;
                     resolve(res);
                 });
             });
@@ -254,36 +254,36 @@ export const useAccountManager = defineStore('accountManager', {
             return false;
 
         },
-        async joinTeam(joinCode: string, token: string): Promise<AccountOpResult> {
+        async joinTeam(joinCode: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('joinTeam', { code: joinCode, token: token });
-                serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('teamActionResponse', (res: TeamOpResult) => resolve(res));
             });
         },
-        async leaveTeam(): Promise<AccountOpResult> {
+        async leaveTeam(): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('leaveTeam');
-                serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('teamActionResponse', (res: TeamOpResult) => resolve(res));
             });
         },
-        async registerContest(contest: string, token: string): Promise<AccountOpResult> {
+        async registerContest(contest: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('registerContest', { contest: contest, token: token });
-                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
             });
         },
-        async unregisterContest(contest: string): Promise<AccountOpResult> {
+        async unregisterContest(contest: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('unregisterContest', { contest: contest });
-                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
             });
         }
 

@@ -36,7 +36,6 @@ watch(() => props.text, () => buttonText.value = props.text);
 <template>
     <label :class="'uiIconButtonLabel ' + (props.disabled ? 'uiIconButtonLabelDisabled' : '')">
         <input type="button" class="uiIconButton" @click=click :title=title :disabled=props.disabled>
-        <!-- <img :src=props.img class="uiIconButtonImage"> -->
         <div class="uiIconButtonImage"></div>
         <span class="uiIconButtonText">{{ buttonText }}</span>
     </label>

@@ -4,7 +4,7 @@ import { AnimateInContainer, PairedGridContainer, TitledCollapsible, TitledCutCo
 import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode, UICopyButton } from '@/components/ui-defaults/UIDefaults';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager, gradeMaps, experienceMaps, languageMaps } from '@/scripts/AccountManager';
-import { AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
+import { AccountOpResult, getAccountOpMessage, getTeamOpMessage, TeamOpResult } from '@/scripts/ServerConnection';
 import { onMounted, ref, watch } from 'vue';
 import recaptcha from '@/scripts/recaptcha';
 import AccountProfileTeamUser from '@/components/account/profile/AccountProfileTeamUser.vue';
@@ -60,7 +60,7 @@ const writeTeamData = async () => {
     // artificial wait
     await new Promise((resolve) => setTimeout(resolve, 500));
     const res = await accountManager.writeTeamData();
-    if (res != AccountOpResult.SUCCESS) modal.showModal({ title: 'Write data failed', content: getAccountOpMessage(res), color: 'red' });
+    if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Write data failed', content: getAccountOpMessage(res), color: 'red' });
     showWriteTeamDataWait.value = false;
 };
 const joinTeam = async () => {
@@ -68,8 +68,8 @@ const joinTeam = async () => {
     if (joinTeamCode.value.length != 6) return;
     const token = await recaptcha.execute('join_team');
     const res = await accountManager.joinTeam(joinTeamCode.value, token);
-    if (res == AccountOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
-    else if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
+    if (res == TeamOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
+    else if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not join team', content: getTeamOpMessage(res), color: 'red' });
     showWriteTeamDataWait.value = false;
     accountManager.updateOwnUserData();
 };
@@ -77,7 +77,7 @@ const leaveTeam = async () => {
     showWriteTeamDataWait.value = true;
     if (accountManager.username == accountManager.team) return;
     const res = await accountManager.leaveTeam();
-    if (res == AccountOpResult.ERROR) modal.showModal({ title: 'Error', content: 'An error occured while trying to join the team. Try again later.', color: 'red' });
+    if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not join team', content: getTeamOpMessage(res), color: 'red' });
     showWriteTeamDataWait.value = false;
     accountManager.updateOwnUserData();
 };

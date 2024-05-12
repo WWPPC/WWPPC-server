@@ -5,7 +5,7 @@ import { useAccountManager } from '@/scripts/AccountManager';
 import { useContestManager } from '@/scripts/ContestManager';
 import recaptcha from '@/scripts/recaptcha';
 import { onMounted, ref, watch } from 'vue';
-import { AccountOpResult } from '@/scripts/ServerConnection';
+import { getTeamOpMessage, TeamOpResult } from '@/scripts/ServerConnection';
 import WaitCover from '@/components/WaitCover.vue';
 
 const accountManager = useAccountManager();
@@ -29,10 +29,7 @@ const attemptRegister = async () => {
     showRegisterWait.value = true;
     const token = await recaptcha.execute('register_contest');
     const res = await accountManager.registerContest(registrationSelected.value, token);
-    if (res != AccountOpResult.SUCCESS) modal.showModal({
-        title: 'Could not register',
-        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ALREADY_EXISTS ? 'Already registered' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)')))
-    });
+    if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not register', content: getTeamOpMessage(res), color: 'red' });
     showRegisterWait.value = false;
     updateAvailableContestList();
     accountManager.updateOwnUserData();
@@ -40,10 +37,7 @@ const attemptRegister = async () => {
 const attemptUnregister = async (registration: string) => {
     showRegisterWait.value = true;
     const res = await accountManager.unregisterContest(registration);
-    if (res != AccountOpResult.SUCCESS) modal.showModal({
-        title: 'Could not unregister',
-        content: res == AccountOpResult.NOT_EXISTS ? 'Contest not found' : (res == AccountOpResult.ERROR ? 'Internal error' : (res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : 'Unknown error (bug?)'))
-    });
+    if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not register', content: getTeamOpMessage(res), color: 'red' });
     showRegisterWait.value = false;
     updateAvailableContestList();
     accountManager.updateOwnUserData();

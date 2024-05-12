@@ -193,6 +193,7 @@ io.on('connection', async (s) => {
             if (password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 if (config.debugMode) socket.logWithId(logger.debug, 'Credentials failed to decode');
+                lockout = false;
                 socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
             if (typeof creds.username != 'string' || typeof password != 'string' || !database.validate(creds.username, password) || typeof creds.token != 'string') {
@@ -204,6 +205,7 @@ io.on('connection', async (s) => {
             if (config.debugMode) socket.logWithId(logger.debug, 'Successfully received credentials');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
+                lockout = false;
                 socket.emit('credentialRes', recaptchaRes);
                 return;
             }
@@ -275,6 +277,7 @@ io.on('connection', async (s) => {
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to send recovery email');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
+                lockout = false;
                 socket.emit('credentialRes', recaptchaRes);
                 return;
             }
@@ -350,6 +353,7 @@ io.on('connection', async (s) => {
             if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
+                lockout = false;
                 socket.emit('credentialRes', recaptchaRes);
                 return;
             }
