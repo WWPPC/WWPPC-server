@@ -138,7 +138,7 @@ export class ContestManager {
                 return;
             }
             if (typeof userData != 'object') {
-                socket.emit('registerContestResponse', userData);
+                socket.emit('registerContestResponse', userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
                 return;
             }
             if (contestData[0].maxTeamSize < teamData.members.length) {

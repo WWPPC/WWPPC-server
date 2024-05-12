@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
 
-import { AccountOpResult, type CredentialsSignupData, sendCredentials, socket, useServerConnection } from './ServerConnection';
+import { AccountOpResult, TeamOpResult, type CredentialsSignupData, sendCredentials, socket, useServerConnection } from './ServerConnection';
 
 export interface AccountData {
     username: string
@@ -270,20 +270,20 @@ export const useAccountManager = defineStore('accountManager', {
                 serverConnection.once('teamActionResponse', (res: AccountOpResult) => resolve(res));
             });
         },
-        async registerContest(contest: string, token: string): Promise<AccountOpResult> {
+        async registerContest(contest: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('registerContest', { contest: contest, token: token });
-                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
             });
         },
-        async unregisterContest(contest: string): Promise<AccountOpResult> {
+        async unregisterContest(contest: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return AccountOpResult.ERROR;
+            if (!serverConnection.loggedIn) return TeamOpResult.ERROR;
             return await new Promise(async (resolve) => {
                 serverConnection.emit('unregisterContest', { contest: contest });
-                serverConnection.once('registerContestResponse', (res: AccountOpResult) => resolve(res));
+                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
             });
         }
 

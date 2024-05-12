@@ -755,8 +755,8 @@ export class Database {
         try {
             const contestIdSet: Set<string> = new Set();
             if (id != undefined) {
-                if (typeof id == 'string' && isUUID(id)) contestIdSet.add(id);
-                else for (const contest of id) if (isUUID(contest)) contestIdSet.add(contest);
+                if (typeof id == 'string') contestIdSet.add(id);
+                else for (const contest of id) contestIdSet.add(contest);
             }
             const contests: Contest[] = [];
             contestIdSet.forEach((id) => {
@@ -767,24 +767,26 @@ export class Database {
                 }
             });
             const contestIdList = Array.from(contestIdSet.values());
-            const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'id', value: id != undefined ? contestIdList : undefined }
-            ]);
-            const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
-            for (const contest of data.rows) {
-                const c = {
-                    id: contest.id,
-                    rounds: contest.rounds,
-                    exclusions: contest.exclusions,
-                    maxTeamSize: contest.maxteamsize,
-                    startTime: contest.starttime,
-                    endTime: contest.endtime
-                };
-                this.#contestCache.set(contest.id, {
-                    contest: c,
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                contests.push(c);
+            if (contestIdList.length > 0 || id == undefined) {
+                const { queryConditions, bindings } = this.#buildColumnConditions([
+                    { name: 'id', value: id != undefined ? contestIdList : undefined }
+                ]);
+                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
+                for (const contest of data.rows) {
+                    const c = {
+                        id: contest.id,
+                        rounds: contest.rounds,
+                        exclusions: contest.exclusions,
+                        maxTeamSize: contest.maxteamsize,
+                        startTime: contest.starttime,
+                        endTime: contest.endtime
+                    };
+                    this.#contestCache.set(contest.id, {
+                        contest: c,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    contests.push(c);
+                }
             }
             return contests;
         } catch (err) {
@@ -848,7 +850,7 @@ export class Database {
                 }
             });
             const roundIdList = Array.from(roundIdSet.values());
-            if (roundIdList.length > 0) {
+            if (roundIdList.length > 0 || (c.id == undefined && c.contest == undefined && c.round == undefined)) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
                 ]);
