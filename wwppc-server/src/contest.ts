@@ -114,6 +114,23 @@ export class ContestManager {
             }
             if (config.debugMode) socket.logWithId(this.logger.info, 'Registering contest: ' + request.contest);
             const recaptchaResponse = await validateRecaptcha(request.token, socket.ip);
+
+            //check valid team size
+            const contestData = await this.db.readContests(request.contest);
+            if (contestData === null || contestData.length !== 1) {
+                socket.kick('invalid registerContest payload');
+                return;
+            }
+            const teamData = await this.db.getTeamData(socket.username);
+            if (teamData === null || teamData === AccountOpResult.NOT_EXISTS || teamData == AccountOpResult.ERROR) {
+                socket.kick('invalid registerContest payload');
+                return;
+            }
+            if (contestData[0].maxTeamSize < teamData.members.length) {
+                socket.emit('registerContestResponse', AccountOpResult.ERROR);
+                return;
+            }
+
             if (recaptchaResponse instanceof Error) {
                 this.logger.error('reCAPTCHA verification failed:');
                 this.logger.error(recaptchaResponse.message);

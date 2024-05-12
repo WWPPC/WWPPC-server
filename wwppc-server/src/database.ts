@@ -648,7 +648,7 @@ export class Database {
         }
     }
     /**
-     * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. **Does not validate credentials**.
+     * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. Does not prevent registering a team that is too large. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Registration status (a non-existent contest will return `ERROR`)
