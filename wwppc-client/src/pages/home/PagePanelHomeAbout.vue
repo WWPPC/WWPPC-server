@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContactFooter from '@/components/ContactFooter.vue';
+import ContactFooter from '@/components/common/ContactFooter.vue';
 import HomeAboutCreditsCard from '@/components/home/about/HomeAboutCreditsCard.vue';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>

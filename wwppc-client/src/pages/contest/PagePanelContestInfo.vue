@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ContactFooter from '@/components/ContactFooter.vue';
-import ScrollIndicator from '@/components/ScrollIndicator.vue';
+import ContactFooter from '@/components/common/ContactFooter.vue';
+import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, GlowText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
@@ -18,7 +18,18 @@ const router = useRouter();
         <!-- spacer -->
         <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="contestInfoBlock">
-            <div>
+            <div style="grid-row: span 2;">
+                <AnimateInContainer type="slideUp" height="100%" :delay=100>
+                    <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
+                        <p>
+                            WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
+                            <br><br>
+                            The contest will be held online, on this website, between two divisions: Novice and Advanced.
+                        </p>
+                    </TitledDoubleCutCornerContainer>
+                </AnimateInContainer>
+            </div>
+            <div style="grid-column: 1;">
                 <AnimateInContainer type="slideUp" height="100%" :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
                         <div class="centered">
@@ -44,17 +55,6 @@ const router = useRouter();
                             </span>
                         </CenteredContainer>
                     </CutCornerContainer>
-                </AnimateInContainer>
-            </div>
-            <div style="grid-row: span 2;">
-                <AnimateInContainer type="slideUp" height="100%" :delay=100>
-                    <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
-                        <p>
-                            WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
-                            <br><br>
-                            The contest will be held online, on this website, between two divisions: Novice and Advanced.
-                        </p>
-                    </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
             </div>
         </div>

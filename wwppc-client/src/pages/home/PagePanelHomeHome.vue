@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ScrollIndicator from "@/components/ScrollIndicator.vue";
+import ScrollIndicator from "@/components/common/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer } from "@/components/ui-defaults/UIContainers";
 import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
-import ContactFooter from '@/components/ContactFooter.vue';
+import ContactFooter from '@/components/common/ContactFooter.vue';
 import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
 </script>
 

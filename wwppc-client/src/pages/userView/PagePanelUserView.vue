@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoadingCover from '@/components/LoadingCover.vue';
+import LoadingCover from '@/components/common/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';
 import OnScreenHook from '@/components/ui-defaults/OnScreenHook.vue';
 import { AnimateInContainer, CutCornerContainer, PairedGridContainer, TitledCutCornerContainer, TitledDoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';

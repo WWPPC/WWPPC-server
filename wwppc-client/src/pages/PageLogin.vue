@@ -4,8 +4,8 @@ import { UIButton, UIDropdown, UITextBox, globalModal } from '@/components/ui-de
 import { ref, watch } from 'vue';
 import { useServerConnection, AccountOpResult, getAccountOpMessage } from '@/scripts/ServerConnection';
 import { useRoute, useRouter } from 'vue-router';
-import LoadingCover from '@/components/LoadingCover.vue';
-import WaitCover from '@/components/WaitCover.vue';
+import LoadingCover from '@/components/common/LoadingCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 import { PairedGridContainer } from '@/components/ui-defaults/UIContainers';
 import { languageMaps, experienceMaps, gradeMaps, useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';

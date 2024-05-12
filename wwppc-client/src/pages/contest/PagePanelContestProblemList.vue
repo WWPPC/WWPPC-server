@@ -6,7 +6,7 @@ import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInCon
 import { onMounted, ref } from 'vue';
 import { useContestManager } from '@/scripts/ContestManager';
 import { useRoute } from 'vue-router';
-import WaitCover from '@/components/WaitCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
 
 const route = useRoute();

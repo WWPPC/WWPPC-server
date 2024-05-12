@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useServerConnection } from '@/scripts/ServerConnection';
-import { UILoadingSquare } from './ui-defaults/UIDefaults';
+import { UILoadingSquare } from '@/components/ui-defaults/UIDefaults';
 import { useRoute } from 'vue-router';
 
 defineProps<{

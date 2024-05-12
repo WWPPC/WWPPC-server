@@ -6,7 +6,7 @@ import { useContestManager } from '@/scripts/ContestManager';
 import recaptcha from '@/scripts/recaptcha';
 import { onMounted, ref, watch } from 'vue';
 import { getTeamOpMessage, TeamOpResult } from '@/scripts/ServerConnection';
-import WaitCover from '@/components/WaitCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 
 const accountManager = useAccountManager();
 const contestManager = useContestManager();

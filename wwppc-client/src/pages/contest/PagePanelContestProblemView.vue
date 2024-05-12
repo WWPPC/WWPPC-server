@@ -6,7 +6,7 @@ import { completionStateString, type ContestProblem, ContestProblemCompletionSta
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
-import WaitCover from '@/components/WaitCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 import latexify from '@/scripts/katexify';
 import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
 import AnimateInContainer from "@/components/ui-defaults/containers/AnimateInContainer.vue";

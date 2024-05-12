@@ -67,6 +67,12 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     overflow-x: hidden;
 }
 
+@media (max-width: 100vh) {
+    .panelBodySlotContainer {
+        scroll-snap-type: none !important;
+    }
+}
+
 .noSnap {
     scroll-snap-type: none !important;
 }

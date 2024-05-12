@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavLargeLogo, PanelView } from '@/components/panels/PanelManager';
 import { globalModal, UIButton, UITextBox } from '@/components/ui-defaults/UIDefaults';
-import WaitCover from '@/components/WaitCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 import recaptcha from '@/scripts/recaptcha';

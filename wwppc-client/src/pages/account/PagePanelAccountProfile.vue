@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WaitCover from '@/components/WaitCover.vue';
+import WaitCover from '@/components/common/WaitCover.vue';
 import { AnimateInContainer, PairedGridContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { UITextArea, UITextBox, UIDropdown, globalModal, ModalMode, UICopyButton } from '@/components/ui-defaults/UIDefaults';
 import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';

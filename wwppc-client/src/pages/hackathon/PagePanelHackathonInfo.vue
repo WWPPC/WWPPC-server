@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ContactFooter from '@/components/ContactFooter.vue';
-import ScrollIndicator from '@/components/ScrollIndicator.vue';
+import ContactFooter from '@/components/common/ContactFooter.vue';
+import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
@@ -123,6 +123,10 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         grid-template-rows: repeat(4, min-content);
         grid-auto-flow: column;
         min-height: min-content;
+    }
+
+    .hacksInfoBlock>div:nth-child(2) {
+        order: -1;
     }
 }
 
