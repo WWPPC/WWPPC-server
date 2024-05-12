@@ -932,7 +932,7 @@ export class Database {
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
-            if (problemIdList.length > 0) {
+            if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
                     { name: 'name', value: c.name },
@@ -1021,7 +1021,7 @@ export class Database {
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
-            if (problemIdList.length > 0) {
+            if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username }
