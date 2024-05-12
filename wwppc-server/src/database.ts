@@ -744,30 +744,50 @@ export class Database {
         }
     }
 
-    #contestCache: Map<string, { contests: Contest[], expiration: number }> = new Map();
-    async readContests(id?: string): Promise<Contest[] | null> {
+    #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
+    /**
+     * Filter and get a list of contest data from the contests table according to a criteria.
+     * @param {string | string[]} id Contest ID or list of contest ids. Leaving undefined removes the criteria 
+     * @returns {Contest[] | null} Array of contest data matching the filter criteria
+     */
+    async readContests(id?: string | string[]): Promise<Contest[] | null> {
         const startTime = performance.now();
         try {
+            const contestIdSet: Set<string> = new Set();
             if (id != undefined) {
-                if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
-                if (this.#contestCache.has(id)) return this.#contestCache.get(id)!.contests;
+                if (typeof id == 'string' && isUUID(id)) contestIdSet.add(id);
+                else for (const contest of id) if (isUUID(contest)) contestIdSet.add(contest);
             }
-            const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'id', value: id }
-            ]);
-            const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
-            const contests = data.rows.map((contest) => ({
-                id: contest.id,
-                rounds: contest.rounds,
-                exclusions: contest.exclusions,
-                maxTeamSize: contest.maxteamsize,
-                startTime: contest.starttime,
-                endTime: contest.endtime
-            }));
-            if (id != undefined) this.#contestCache.set(id, {
-                contests: contests,
-                expiration: performance.now() + config.dbCacheTime
+            const contests: Contest[] = [];
+            contestIdSet.forEach((id) => {
+                if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
+                if (this.#contestCache.has(id)) {
+                    contestIdSet.delete(id);
+                    contests.push(this.#contestCache.get(id)!.contest);
+                }
             });
+            const contestIdList = Array.from(contestIdSet.values());
+            if (contestIdList.length > 0) {
+                const { queryConditions, bindings } = this.#buildColumnConditions([
+                    { name: 'id', value: id != undefined ? contestIdList: undefined }
+                ]);
+                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
+                for (const contest of data.rows) {
+                    const c = {
+                        id: contest.id,
+                        rounds: contest.rounds,
+                        exclusions: contest.exclusions,
+                        maxTeamSize: contest.maxteamsize,
+                        startTime: contest.starttime,
+                        endTime: contest.endtime
+                    };
+                    this.#contestCache.set(contest.id, {
+                        contest: c,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    contests.push(c);
+                }
+            }
             return contests;
         } catch (err) {
             this.logger.error('Database error (readContests):');
@@ -777,6 +797,11 @@ export class Database {
             if (config.debugMode) this.logger.debug(`[Database] readContests in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Write a contest to the contests table.
+     * @param {Contest} contest Contest to write
+     * @returns {boolean} If the write was successful
+     */
     async writeContest(contest: Contest): Promise<boolean> {
         const startTime = performance.now();
         try {
@@ -784,7 +809,7 @@ export class Database {
             const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4 WHERE id=$1 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize) VALUES ($1, $2, $3, $4)', data);
             this.#contestCache.set(contest.id, {
-                contests: [contest],
+                contest: contest,
                 expiration: performance.now() + config.dbCacheTime
             });
             return true;
@@ -799,17 +824,19 @@ export class Database {
 
     #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
-     * Filter and get a list of round data from the rounds database according to a criteria
-     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criterion
-     * @returns {Round[]} Array of round data matching the filter criteria. If the query failed the returned array is empty
+     * Filter and get a list of round data from the rounds table according to a criteria.
+     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criteria
+     * @returns {Round[] | null} Array of round data matching the filter criteria. If the query failed the returned value is `null`
      */
     async readRounds(c: ReadRoundsCriteria): Promise<Round[] | null> {
         const startTime = performance.now();
         try {
             const roundIdSet: Set<string> = new Set();
-            if (c.id != undefined && isUUID(c.id)) roundIdSet.add(c.id);
+            if (c.id != undefined) {
+                if (typeof c.id == 'string' && isUUID(c.id)) roundIdSet.add(c.id);
+                else for (const contest of c.id) if (isUUID(contest)) roundIdSet.add(contest);
+            }
             if (c.contest != undefined) {
-                // filter by grabbing ids from contest lists (code unreadable??)
                 const contests = await this.readContests(c.contest);
                 if (contests === null) return null;
                 contests.flatMap((c) => c.rounds).forEach((v) => roundIdSet.add(v));
@@ -823,22 +850,24 @@ export class Database {
                 }
             });
             const roundIdList = Array.from(roundIdSet.values());
-            const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
-            ]);
-            const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
-            for (const round of data.rows) {
-                const r = {
-                    id: round.id,
-                    problems: round.problems,
-                    startTime: round.starttime,
-                    endTime: round.endtime
-                };
-                this.#roundCache.set(round.id, {
-                    round: r,
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                rounds.push(r);
+            if (roundIdList.length > 0) {
+                const { queryConditions, bindings } = this.#buildColumnConditions([
+                    { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
+                ]);
+                const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
+                for (const round of data.rows) {
+                    const r = {
+                        id: round.id,
+                        problems: round.problems,
+                        startTime: round.starttime,
+                        endTime: round.endtime
+                    };
+                    this.#roundCache.set(round.id, {
+                        round: r,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    rounds.push(r);
+                }
             }
             return rounds;
         } catch (err) {
@@ -850,7 +879,7 @@ export class Database {
         }
     }
     /**
-     * Write a round to the rounds database
+     * Write a round to the rounds table.
      * @param {Round} round Round to write
      * @returns {boolean} If the write was successful
      */
@@ -876,17 +905,19 @@ export class Database {
 
     #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
-     * Filter and get a list of problems from the problems database according to a criteria
+     * Filter and get a list of problems from the problems table according to a criteria.
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criterion
-     * @returns {Problem[]} Array of problems matching the filter criteria. If the query failed the returned array is empty
+     * @returns {Problem[] | null} Array of problems matching the filter criteria. If the query failed the returned value is `null`
      */
     async readProblems(c: ReadProblemsCriteria): Promise<Problem[] | null> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
-            if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
+            if (c.id != undefined) {
+                if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
+                else for (const contest of c.id) if (isUUID(contest)) problemIdSet.add(contest);
+            }
             if (c.contest != undefined) {
-                // filter by grabbing ids from round lists (code unreadable??)
                 const rounds = await this.readRounds(c.contest);
                 if (rounds === null) return null;
                 if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
@@ -901,29 +932,31 @@ export class Database {
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
-            const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
-                { name: 'name', value: c.name },
-                { name: 'author', value: c.author }
-            ]);
-            const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
-            const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
-            for (const problem of filteredRows) {
-                const p = {
-                    id: problem.id,
-                    name: problem.name,
-                    author: problem.author,
-                    content: problem.content,
-                    cases: problem.cases,
-                    constraints: problem.constraints,
-                    hidden: problem.hidden,
-                    archived: problem.archived
-                };
-                this.#problemCache.set(problem.id, {
-                    problem: p,
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                problems.push(problem);
+            if (problemIdList.length > 0) {
+                const { queryConditions, bindings } = this.#buildColumnConditions([
+                    { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                    { name: 'name', value: c.name },
+                    { name: 'author', value: c.author }
+                ]);
+                const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
+                const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
+                for (const problem of filteredRows) {
+                    const p = {
+                        id: problem.id,
+                        name: problem.name,
+                        author: problem.author,
+                        content: problem.content,
+                        cases: problem.cases,
+                        constraints: problem.constraints,
+                        hidden: problem.hidden,
+                        archived: problem.archived
+                    };
+                    this.#problemCache.set(problem.id, {
+                        problem: p,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    problems.push(problem);
+                }
             }
             return problems;
         } catch (err) {
@@ -935,7 +968,7 @@ export class Database {
         }
     }
     /**
-     * Write a problem to the problems database
+     * Write a problem to the problems table.
      * @param {Problem} problem Problem to write
      * @returns {boolean} If the write was successful
      */
@@ -961,18 +994,19 @@ export class Database {
 
     #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
-     * Filter and get a list of submissions from the submissions database according to a criteria.
+     * Filter and get a list of submissions from the submissions table according to a criteria.
      * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
     async readSubmissions(c: ReadSubmissionsCriteria): Promise<Submission[] | null> {
         const startTime = performance.now();
         try {
-            // reusing code from readProblems (oops)
             const problemIdSet: Set<string> = new Set();
-            if (c.id != undefined && isUUID(c.id)) problemIdSet.add(c.id);
+            if (c.id != undefined) {
+                if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
+                else for (const contest of c.id) if (isUUID(contest)) problemIdSet.add(contest);
+            }
             if (c.contest != undefined) {
-                // filter by grabbing ids from round lists (code unreadable??)
                 const rounds = await this.readRounds(c.contest);
                 if (rounds === null) return null;
                 if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
@@ -987,25 +1021,27 @@ export class Database {
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
-            const { queryConditions, bindings } = this.#buildColumnConditions([
-                { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
-                { name: 'username', value: c.username }
-            ]);
-            const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions}`, bindings);
-            for (const submission of data.rows) {
-                const s = {
-                    username: submission.username,
-                    problemId: submission.id,
-                    time: submission.time,
-                    file: submission.file,
-                    lang: submission.language,
-                    scores: submission.scores
-                };
-                this.#submissionCache.set(submission.id + ' ' + submission.username, {
-                    submission: s,
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                submissions.push(s);
+            if (problemIdList.length > 0) {
+                const { queryConditions, bindings } = this.#buildColumnConditions([
+                    { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                    { name: 'username', value: c.username }
+                ]);
+                const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions}`, bindings);
+                for (const submission of data.rows) {
+                    const s = {
+                        username: submission.username,
+                        problemId: submission.id,
+                        time: submission.time,
+                        file: submission.file,
+                        lang: submission.language,
+                        scores: submission.scores
+                    };
+                    this.#submissionCache.set(submission.id + ' ' + submission.username, {
+                        submission: s,
+                        expiration: performance.now() + config.dbCacheTime
+                    });
+                    submissions.push(s);
+                }
             }
             return submissions;
         } catch (err) {
@@ -1017,7 +1053,7 @@ export class Database {
         }
     }
     /**
-     * Write a submission to the submissions database
+     * Write a submission to the submissions table.
      * @param {Submission} submission Submission to write
      * @returns {boolean} If the write was successful
      */
@@ -1274,7 +1310,7 @@ interface ReadRoundsCriteria {
     /**Zero-indexed round within the contest */
     round?: number
     /**Round ID */
-    id?: UUID
+    id?: UUID | UUID[]
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ProblemRoundCriteria {
@@ -1290,7 +1326,7 @@ interface ProblemRoundCriteria {
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadProblemsCriteria {
     /**UUID of problem */
-    id?: UUID
+    id?: UUID | UUID[]
     /**Display name of problem */
     name?: string
     /**Author username of problem */
@@ -1303,7 +1339,7 @@ interface ReadProblemsCriteria {
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadSubmissionsCriteria {
     /**UUID of problem */
-    id?: UUID
+    id?: UUID | UUID[]
     /**Username of submitter */
     username?: string
     /**Round-based filter for problems */

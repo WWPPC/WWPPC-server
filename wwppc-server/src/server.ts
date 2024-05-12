@@ -453,19 +453,33 @@ io.on('connection', async (s) => {
             socket.emit('teamActionResponse', recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
             return;
         }
-        const currentTeam = await database.getAccountTeam(socket.username);
-        if (typeof currentTeam != 'string') {
-            socket.emit('teamActionResponse', currentTeam);
+        // prevent joining while already on other team
+        const userData = await database.getAccountData(socket.username);
+        const teamData = await database.getTeamData(socket.username);
+        if (typeof userData != 'object') {
+            socket.emit('teamActionResponse', userData);
             return;
         }
-        if (socket.username != currentTeam) {
+        if (typeof teamData != 'object') {
+            socket.emit('teamActionResponse', teamData);
+            return;
+        }
+        if (socket.username != userData.team) {
             socket.emit('teamActionResponse', TeamOpResult.NOT_ALLOWED);
             return;
         }
-        // have to check team size!!
+        // prevent violating team size limits
+        const contests = await database.readContests(userData.registrations);
+        if (contests == null) {
+            socket.emit('teamActionResponse', TeamOpResult.ERROR);
+            return;
+        }
+        if (contests.some((c) => c.maxTeamSize <= teamData.members.length + 1)) {
+            socket.emit('teamActionResponse', TeamOpResult.CONTEST_MEMBER_LIMIT);
+            return;
+        }
         const res = await database.setAccountTeam(socket.username, data.code, true);
         socket.emit('teamActionResponse', res);
-        const teamData = await database.getTeamData(socket.username);
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
     socket.on('leaveTeam', async () => {
