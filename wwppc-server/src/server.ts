@@ -421,6 +421,7 @@ io.on('connection', async (s) => {
         const recaptchaRes = await checkRecaptcha(creds.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
             socket.emit('credentialRes', recaptchaRes);
+            socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, recaptchaRes));
             return;
         }
         const res = await database.changeAccountPassword(socket.username, password, newPassword);
@@ -441,6 +442,7 @@ io.on('connection', async (s) => {
         const recaptchaRes = await checkRecaptcha(creds.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
             socket.emit('credentialRes', recaptchaRes);
+            socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, recaptchaRes));
             return;
         }
         const res = await database.deleteAccount(socket.username, password);
@@ -452,6 +454,10 @@ io.on('connection', async (s) => {
             socket.kick('invalid joinTeam payload');
         }
         if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.code);
+        const respond = (code: TeamOpResult) => {
+            if (config.debugMode) socket.logWithId(logger.info, 'Join team: ' + reverse_enum(TeamOpResult, code));
+            socket.emit('teamActionResponse', code);
+        };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
             socket.emit('teamActionResponse', recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
@@ -459,31 +465,34 @@ io.on('connection', async (s) => {
         }
         // prevent joining while already on other team
         const userData = await database.getAccountData(socket.username);
+        if (typeof userData != 'object') { respond(userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR); return; }
+        if (socket.username != userData.team) { respond(TeamOpResult.NOT_ALLOWED); return; }
+        // first join so can check team data
+        const res = await database.setAccountTeam(socket.username, data.code, true);
+        if (res != TeamOpResult.SUCCESS) { respond(res); return; }
+        const userData2 = await database.getAccountData(socket.username);
         const teamData = await database.getTeamData(socket.username);
-        if (typeof userData != 'object') {
-            socket.emit('teamActionResponse', userData);
+        if (typeof teamData != 'object') { respond(teamData); return; }
+        const resetTeam = async () => {
+            const res2 = await database.setAccountTeam(socket.username, socket.username);
+            if (res2 != TeamOpResult.SUCCESS) socket.logWithId(logger.warn, 'Join team failed but could not reset team! Code: ' + reverse_enum(TeamOpResult, res2));
+        };
+        if (typeof userData2 != 'object') {
+            respond(userData2 == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
+            await resetTeam();
             return;
         }
-        if (typeof teamData != 'object') {
-            socket.emit('teamActionResponse', teamData);
-            return;
-        }
-        if (socket.username != userData.team) {
-            socket.emit('teamActionResponse', TeamOpResult.NOT_ALLOWED);
-            return;
-        }
-        // prevent violating team size limits
-        const contests = await database.readContests(userData.registrations);
-        if (contests == null) {
-            socket.emit('teamActionResponse', TeamOpResult.ERROR);
-            return;
-        }
+        // make sure won't violate restrictions
+        const contests = await database.readContests(userData2.registrations);
+        if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
         if (contests.some((c) => c.maxTeamSize <= teamData.members.length + 1)) {
             socket.emit('teamActionResponse', TeamOpResult.CONTEST_MEMBER_LIMIT);
+            await resetTeam();
             return;
         }
-        const res = await database.setAccountTeam(socket.username, data.code, true);
-        socket.emit('teamActionResponse', res);
+        // already set team before
+        respond(TeamOpResult.SUCCESS);
+        // update join code here
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
     socket.on('leaveTeam', async () => {
