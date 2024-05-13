@@ -19,45 +19,39 @@ const router = useRouter();
         <!-- spacer -->
         <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="contestInfoBlock">
-            <div style="grid-row: span 2;">
-                <AnimateInContainer type="slideUp" height="100%" :delay=100>
-                    <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
-                        <p>
-                            WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
-                            <br><br>
-                            The contest will be held online, on this website, between two divisions: Novice and Advanced.
-                        </p>
-                    </TitledDoubleCutCornerContainer>
-                </AnimateInContainer>
-            </div>
-            <div style="grid-column: 1;">
-                <AnimateInContainer type="slideUp" height="100%" :delay=200>
-                    <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
-                        <div class="centered">
-                            <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
-                        </div>
-                    </TitledDoubleCutCornerContainer>
-                </AnimateInContainer>
-            </div>
-            <div>
-                <AnimateInContainer type="slideUp" height="100%" :delay=300>
-                    <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                        <CenteredContainer>
-                            <span style="font-size: var(--font-20);">
-                                <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
-                                <br>
-                                <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" @click="router.push('/account/registrations')"></UILinkButton>
-                                </div>
-                                <br>
-                                <p style="text-align: center; font-size: var(--font-small);">
-                                    <i>Scroll down to see contest schedule</i>
-                                </p>
-                            </span>
-                        </CenteredContainer>
-                    </CutCornerContainer>
-                </AnimateInContainer>
-            </div>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
+                    <p>
+                        WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
+                        <br><br>
+                        The contest will be held online, on this website, between two divisions: Novice and Advanced.
+                    </p>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-column: 1;">
+                <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
+                    <div class="centered">
+                        <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
+                    </div>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=300>
+                <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
+                    <CenteredContainer>
+                        <span style="font-size: var(--font-20);">
+                            <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                            <br>
+                            <div class="centered" style="margin: 4px;">
+                                <UILinkButton text="Register" color="lime" font-size="var(--font-large)" @click="router.push('/account/registrations')"></UILinkButton>
+                            </div>
+                            <br>
+                            <p style="text-align: center; font-size: var(--font-small);">
+                                <i>Scroll down to see contest schedule</i>
+                            </p>
+                        </span>
+                    </CenteredContainer>
+                </CutCornerContainer>
+            </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
@@ -69,143 +63,147 @@ const router = useRouter();
             </ShowOnscreenContainer>
         </CenteredContainer>
         <div class="scheduleBlock">
-            <CutCornerContainer flipped no-padding>
-                <MultipaneSelectorContainer for="contestSchedule">
-                    <div class="scheduleHeader">
-                        June 1
-                    </div>
-                    <MultipaneSelector for="precontest">
-                        <div class="scheduleRow">
-                            Practice & Testing
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <CutCornerContainer height="100%" flipped no-padding>
+                    <MultipaneSelectorContainer for="contestSchedule">
+                        <div class="scheduleHeader">
+                            June 1
                         </div>
-                    </MultipaneSelector>
-                    <div class="scheduleHeader">
-                        June 2
-                    </div>
-                    <MultipaneSelector for="openingCeremonies">
-                        <div class="scheduleRow">
-                            <div>10:15-10:45</div>
-                            <div>|</div>
-                            <div>Opening ceremonies</div>
+                        <MultipaneSelector for="precontest">
+                            <div class="scheduleRow">
+                                Practice & Testing
+                            </div>
+                        </MultipaneSelector>
+                        <div class="scheduleHeader">
+                            June 2
                         </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="round1">
-                        <div class="scheduleRow">
-                            <div>11:00-12:00</div>
-                            <div>|</div>
-                            <div>Round 1 (Novice)</div>
-                        </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="round2">
-                        <div class="scheduleRow">
-                            <div>12:10-1:10</div>
-                            <div>|</div>
-                            <div>Round 2 (Novice)<br>Round 1 (Advanced)</div>
-                        </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="lunch">
-                        <div class="scheduleRow">
-                            <div>1:10-2:10</div>
-                            <div>|</div>
-                            <div>Lunch break</div>
-                        </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="round3">
-                        <div class="scheduleRow">
-                            <div>2:10-3:20</div>
-                            <div>|</div>
-                            <div>Round 3 (Novice)<br>Round 2 (Advanced)</div>
-                        </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="round4">
-                        <div class="scheduleRow">
-                            <div>3:30-4:40</div>
-                            <div>|</div>
-                            <div>Round 3 (Advanced)</div>
-                        </div>
-                    </MultipaneSelector>
-                    <MultipaneSelector for="closingCeremonies">
-                        <div class="scheduleRow">
-                            <div>4:55-5:30</div>
-                            <div>|</div>
-                            <div>Closing ceremonies</div>
-                        </div>
-                    </MultipaneSelector>
-                </MultipaneSelectorContainer>
-            </CutCornerContainer>
-            <CutCornerContainer vertical-flipped no-padding style="font-size: var(--font-medium);">
-                <MultipanePaneContainer for="contestSchedule" default="precontest">
-                    <MultipanePane for="precontest">
-                        <GlitchText text="Pre-contest Practice & Testing" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Teams (including the WWPPC team) will have a chance to test the contest system with a few practice rounds.
-                        </p>
-                        <p>
-                            The practice contest will be open all day. You <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="openingCeremonies">
-                        <GlitchText text="Opening Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Opening and closing ceremonies will be held on our Discord server!
-                        </p>
-                        <div class="centered">
-                            <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
-                                <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
-                            </a>
-                        </div>
-                        <p>
-                            We'll give more details and instructions on the contest format there.
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="round1">
-                        <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Round 1 for Novice division is 60 minutes long with 3-4 problems.
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="round2">
-                        <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3-4 problems.
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="lunch">
-                        <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Lunch is one hour long and we'll be hosting some fun events during the break!
-                            <br><br>
-                            However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="round3">
-                        <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3-4 problems.
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="round4">
-                        <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Round 1 for Novice division is 70 minutes long with 3-4 problems.
-                        </p>
-                    </MultipanePane>
-                    <MultipanePane for="closingCeremonies">
-                        <GlitchText text="Closing Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                        <p>
-                            Opening and closing ceremonies will be held on our Discord server!
-                        </p>
-                        <div class="centered">
-                            <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
-                                <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
-                            </a>
-                        </div>
-                        <p>
-                            We will announce the winners and prizes for each division before closing off the contest.
-                        </p>
-                    </MultipanePane>
-                </MultipanePaneContainer>
-            </CutCornerContainer>
+                        <MultipaneSelector for="openingCeremonies">
+                            <div class="scheduleRow">
+                                <div>10:15-10:45</div>
+                                <div>|</div>
+                                <div>Opening ceremonies</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="round1">
+                            <div class="scheduleRow">
+                                <div>11:00-12:00</div>
+                                <div>|</div>
+                                <div>Round 1 (Novice)</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="round2">
+                            <div class="scheduleRow">
+                                <div>12:10-1:10</div>
+                                <div>|</div>
+                                <div>Round 2 (Novice)<br>Round 1 (Advanced)</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="lunch">
+                            <div class="scheduleRow">
+                                <div>1:10-2:10</div>
+                                <div>|</div>
+                                <div>Lunch break</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="round3">
+                            <div class="scheduleRow">
+                                <div>2:10-3:20</div>
+                                <div>|</div>
+                                <div>Round 3 (Novice)<br>Round 2 (Advanced)</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="round4">
+                            <div class="scheduleRow">
+                                <div>3:30-4:40</div>
+                                <div>|</div>
+                                <div>Round 3 (Advanced)</div>
+                            </div>
+                        </MultipaneSelector>
+                        <MultipaneSelector for="closingCeremonies">
+                            <div class="scheduleRow">
+                                <div>4:55-5:30</div>
+                                <div>|</div>
+                                <div>Closing ceremonies</div>
+                            </div>
+                        </MultipaneSelector>
+                    </MultipaneSelectorContainer>
+                </CutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100>
+                <CutCornerContainer height="100%" vertical-flipped no-padding style="font-size: var(--font-medium);">
+                    <MultipanePaneContainer for="contestSchedule" default="precontest">
+                        <MultipanePane for="precontest">
+                            <GlitchText text="Pre-contest Practice & Testing" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Teams (including the WWPPC team) will have a chance to test the contest system with a few practice rounds.
+                            </p>
+                            <p>
+                                The practice contest will be open all day. You <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="openingCeremonies">
+                            <GlitchText text="Opening Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Opening and closing ceremonies will be held on our Discord server!
+                            </p>
+                            <div class="centered">
+                                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                                    <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                                </a>
+                            </div>
+                            <p>
+                                We'll give more details and instructions on the contest format there.
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="round1">
+                            <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Round 1 for Novice division is 60 minutes long with 5 problems.
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="round2">
+                            <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3-4 problems.
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="lunch">
+                            <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Lunch is one hour long and we'll be hosting some fun events during the break!
+                                <br><br>
+                                However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="round3">
+                            <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3-4 problems.
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="round4">
+                            <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Round 1 for Novice division is 70 minutes long with 3-4 problems.
+                            </p>
+                        </MultipanePane>
+                        <MultipanePane for="closingCeremonies">
+                            <GlitchText text="Closing Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Opening and closing ceremonies will be held on our Discord server!
+                            </p>
+                            <div class="centered">
+                                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                                    <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                                </a>
+                            </div>
+                            <p>
+                                We will announce the winners and prizes for each division before closing off the contest.
+                            </p>
+                        </MultipanePane>
+                    </MultipanePaneContainer>
+                </CutCornerContainer>
+            </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo2]"></ScrollIndicator>
     </div>

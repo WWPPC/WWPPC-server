@@ -20,6 +20,7 @@ const accountManager = useAccountManager();
 const userData = ref<AccountData | null>(null);
 const teamData = ref<TeamData | null>(null);
 const loadUserData = async () => {
+    userData.value = null;
     await serverConnection.handshakePromise;
     await nextTick();
     if (route.params.userView != null) {
@@ -245,6 +246,7 @@ const largeHeader = ref(true);
     grid-auto-flow: row dense;
     margin: 12px 8px;
     align-items: center;
+    justify-items: stretch;
     row-gap: 24px;
     column-gap: 24px;
 }

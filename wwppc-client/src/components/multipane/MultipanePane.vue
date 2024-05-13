@@ -18,7 +18,7 @@ if (typeof multipaneId != 'string') throw new Error('MultipaneSelector not place
 
 <style scoped>
 .multipanePane {
-    contain: layout;
+    contain: size layout paint;
     display: inline-block;
     box-sizing: border-box;
     width: 100%;

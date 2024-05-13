@@ -56,6 +56,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 
 <style scoped>
 .panelBody {
+    contain: size layout paint;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);

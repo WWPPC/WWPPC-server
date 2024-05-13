@@ -15,7 +15,7 @@ watch(() => route.query, () => {
     ignoreServer.value = route.query.ignore_server !== undefined;
 });
 
-const name = ref('Not logged in');
+const name = ref('Not signed in');
 const buttonText = ref('Log in');
 
 const buttonAction = () => {
@@ -23,12 +23,19 @@ const buttonAction = () => {
     else if (serverConnection.manualLogin) router.push('/login');
 };
 
-serverConnection.handshakePromise.then(() => {
-    if (serverConnection.loggedIn) {
-        glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
-        name.value = accountManager.displayName;
-        watch(() => accountManager.displayName, () => name.value = accountManager.displayName);
-    }
+serverConnection.onconnect(() => {
+    serverConnection.handshakePromise.then(() => {
+        if (serverConnection.loggedIn) {
+            glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
+            name.value = accountManager.displayName;
+        }
+    });
+});
+watch(() => accountManager.displayName, () => {
+    if (serverConnection.loggedIn) name.value = accountManager.displayName;
+});
+serverConnection.ondisconnect(() => {
+    name.value = 'Not signed in';
 });
 </script>
 

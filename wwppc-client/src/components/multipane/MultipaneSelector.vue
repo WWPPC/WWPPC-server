@@ -43,4 +43,8 @@ const click = () => {
 .multipaneSelectorSelected {
     background-color: #444;
 }
+
+.multipaneSelector:last-child {
+    border-bottom: none;
+}
 </style>

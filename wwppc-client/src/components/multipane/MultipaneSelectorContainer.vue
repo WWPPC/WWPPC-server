@@ -23,9 +23,10 @@ if (multipane[props.for] == undefined) multipane[props.for] = new Multipane();
 
 <style scoped>
 .multipaneSelectorContainer {
+    contain: layout;
     display: flex;
     flex-direction: column;
-    padding-bottom: -4px;
+    border-bottom: 4px solid white;
     overflow-y: auto;
     overflow-x: hidden;
 }

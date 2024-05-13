@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/common/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer } from "@/components/ui-defaults/UIContainers";
-import { GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
+import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
 </script>
@@ -17,7 +17,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
         <div style="height: calc(1.25 * var(--font-huge-title))"></div>
         <div class="homeColumns">
             <div>
-                <AnimateInContainer type="slideUp" height="100%" :delay=100>
+                <AnimateInContainer type="slideUp" height="100%" show-on-screen :delay=100>
                     <DoubleCutCornerContainer height="100%" hover-animation="lift">
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
@@ -29,10 +29,13 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                                         WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
                                     </p>
                                 </div>
-                                <div class="centered">
-                                    <AnimateInContainer type="fade" :delay=300>
-                                        <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-20)" color="lime"></UILinkButton>
-                                    </AnimateInContainer>
+                                <div style="display: flex; flex-direction: column;">
+                                    <GlowText text="" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                    <div class="centered" style="margin-top: 0.5em;">
+                                        <AnimateInContainer type="fade" :delay=400>
+                                            <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-large)" color="lime"></UILinkButton>
+                                        </AnimateInContainer>
+                                    </div>
                                 </div>
                             </div>
                         </CenteredContainer>
@@ -40,7 +43,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                 </AnimateInContainer>
             </div>
             <div>
-                <AnimateInContainer type="slideUp" height="100%" :delay=200>
+                <AnimateInContainer type="slideUp" height="100%" show-on-screen :delay=200>
                     <DoubleCutCornerContainer height="100%" hover-animation="lift">
                         <CenteredContainer height="100%">
                             <div class="homeVertical">
@@ -52,10 +55,13 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                                         WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
                                     </p>
                                 </div>
-                                <div class="centered">
-                                    <AnimateInContainer type="fade" :delay=400>
-                                        <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-20)" color="lime"></UILinkButton>
-                                    </AnimateInContainer>
+                                <div style="display: flex; flex-direction: column;">
+                                    <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                    <div class="centered" style="margin-top: 0.5em;">
+                                        <AnimateInContainer type="fade" :delay=400>
+                                            <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-large)" color="lime"></UILinkButton>
+                                        </AnimateInContainer>
+                                    </div>
                                 </div>
                             </div>
                         </CenteredContainer>
@@ -72,24 +78,59 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                 <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </div>
-        <div style="flex-grow: 1;">
-            <p style="text-wrap: balance;">
-                WWPPC is the combined host of WWP-IT and WWPHacks, created by members of West Windsor Plainsboro High School South Coding Club in New Jersey.
-            </p>
-            <p style="text-wrap: balance;">
-                WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
-            </p>
-            <p style="text-wrap: balance;">
-                We hope to foster a passion for competitive programming for all through the inaugural WWPIT tournament!
-            </p>
-            <div class="centered">
-                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
-                </a>
-                <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
-                    <UIIconButton text="GitHub" img="/img/github-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
-                </a>
-            </div>
+        <div class="homeGeneralInfoColumns" style="font-size: var(--font-medium);">
+            <AnimateInContainer type="slideUp" show-on-screen style="grid-row: span 2;">
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <div class="centered" style="height: 4em;">
+                        <img src="/icon2.png">
+                    </div>
+                    <p style="text-wrap: balanced;">
+                        WWPPC is the host of WWPHacks and WWPIT, created by members of the WW-P HSS Absolute Coding Club in New Jersey.
+                    </p>
+                    <p style="text-wrap: balanced; color: lime;">
+                        WWPPC is a 501c3 nonprofit now!
+                    </p>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <div class="centered" style="height: 2em;">
+                        <img src="/img/mlh-logo.svg">
+                    </div>
+                    <p style="text-wrap: balanced;">
+                        WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
+                    </p>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen style="grid-row: span 2;">
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <p style="text-wrap: balance; font-size: var(--font-20);">
+                        WWPPC: West Winsor-Plainsboro Programming Contest
+                    </p>
+                    <p style="text-wrap: balance; font-size: var(--font-20);">
+                        WWPIT: West Winsor-Plainsboro Informatics Tournament
+                    </p>
+                    <p style="text-wrap: balance; font-size: var(--font-20);">
+                        WWPHacks: WWPHacks <i>(not an acronym)</i>
+                    </p>
+                    <UIDivider></UIDivider>
+                    <p style="text-wrap: balance; font-size: var(--font-16);">
+                        <i>WWPPC is not affiliated with or endorsed by the West Windsor-Plainsboro Regional School District</i>
+                    </p>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <div class="centered">
+                        <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                            <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                        </a>
+                        <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
+                            <UIIconButton text="GitHub" img="/img/github-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
+                        </a>
+                    </div>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo2]"></ScrollIndicator>
     </div>
@@ -130,7 +171,6 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
 .homeColumns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-auto-flow: row;
     row-gap: 24px;
     column-gap: 24px;
     flex-grow: 1;
@@ -144,7 +184,6 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
     .homeColumns {
         grid-template-columns: 1fr;
         grid-template-rows: min-content min-content;
-        grid-auto-flow: column;
     }
 }
 
@@ -157,6 +196,15 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
 
 p {
     text-align: center;
+}
+
+.homeGeneralInfoColumns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    flex-grow: 1;
+    justify-items: stretch;
+    row-gap: 24px;
+    column-gap: 24px;
 }
 
 .sponsors {

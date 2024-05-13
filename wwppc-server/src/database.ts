@@ -1076,6 +1076,19 @@ export class Database {
             if (config.debugMode) this.logger.debug(`[Database] writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
+
+    /**
+     * Clears all database account, team, admin, contest, round, problem, and submission cache entries.
+     */
+    clearCache() {
+        this.#userCache.clear();
+        this.#teamCache.clear();
+        this.#adminCache.clear();
+        this.#contestCache.clear();
+        this.#roundCache.clear();
+        this.#problemCache.clear();
+        this.#submissionCache.clear();
+    }
 }
 export default Database;
 

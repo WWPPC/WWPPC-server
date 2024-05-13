@@ -30,17 +30,21 @@ const attemptRegister = async () => {
     const token = await recaptcha.execute('register_contest');
     const res = await accountManager.registerContest(registrationSelected.value, token);
     if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not register', content: getTeamOpMessage(res), color: 'red' });
+    await Promise.all([
+        accountManager.updateOwnUserData(),
+        updateAvailableContestList()
+    ]);
     showRegisterWait.value = false;
-    updateAvailableContestList();
-    accountManager.updateOwnUserData();
 };
 const attemptUnregister = async (registration: string) => {
     showRegisterWait.value = true;
     const res = await accountManager.unregisterContest(registration);
     if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not register', content: getTeamOpMessage(res), color: 'red' });
+    await Promise.all([
+        accountManager.updateOwnUserData(),
+        updateAvailableContestList()
+    ]);
     showRegisterWait.value = false;
-    updateAvailableContestList();
-    accountManager.updateOwnUserData();
 };
 </script>
 

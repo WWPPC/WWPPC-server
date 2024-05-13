@@ -15,39 +15,33 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
         <!-- spacer -->
         <div style="height: calc(1.25 * var(--font-title))"></div>
         <div class="hacksInfoBlock">
-            <div style="grid-row: span 2;">
-                <AnimateInContainer type="slideUp" height="100%" :delay=100>
+                <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                     <TitledDoubleCutCornerContainer title="Come hack with us!" height="100%" align="center" hover-animation="lift">
                         <p>
                             WWPHacks is a hackathon where programmers compete to develop technological solutions to real-world problems within 24 hours. Teams will build projects, attend workshops, and compete for prizes. Judges will evaluate the projects, with winners receiving interesting awards. At the end of the day, participants will leave the hackathon with technical experience, new friends, and fulfillment.
                         </p>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
-            </div>
-            <div>
-                <AnimateInContainer type="slideUp" height="100%" :delay=200>
+                <AnimateInContainer type="slideUp" show-on-screen :delay=200>
                     <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift" flipped>
                         <div class="centered">
                             <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
                         </div>
                     </TitledDoubleCutCornerContainer>
                 </AnimateInContainer>
-            </div>
-            <div>
-                <AnimateInContainer type="slideUp" height="100%" :delay=300>
+                <AnimateInContainer type="slideUp" show-on-screen :delay=300>
                     <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
                         <CenteredContainer>
                             <span style="font-size: var(--font-20);">
                                 <br>
                                 <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-24)" disabled></UILinkButton>
+                                    <UILinkButton text="Register" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
                                 </div>
                                 <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
                             </span>
                         </CenteredContainer>
                     </CutCornerContainer>
                 </AnimateInContainer>
-            </div>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>

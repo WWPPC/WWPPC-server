@@ -13,6 +13,7 @@
 
 <style scoped>
 .panelHeader {
+    contain: size layout paint;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
