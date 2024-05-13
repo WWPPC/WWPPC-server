@@ -51,7 +51,7 @@ const router = useRouter();
                                 </div>
                                 <br>
                                 <p style="text-align: center; font-size: var(--font-small);">
-                                    <i>Scroll down to see contest schedule.</i>
+                                    <i>Scroll down to see contest schedule</i>
                                 </p>
                             </span>
                         </CenteredContainer>
@@ -161,19 +161,19 @@ const router = useRouter();
                     <MultipanePane for="round1">
                         <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 1 for Novice division is 60 minutes long with 3 questions.
+                            Round 1 for Novice division is 60 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="round2">
                         <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3 questions.
+                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="lunch">
                         <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Lunch break! Lunch is one hour long and we'll be hosting some fun events (like Tetris and maybe even <i>Bedwards</i>) during the break!
+                            Lunch is one hour long and we'll be hosting some fun events during the break!
                             <br><br>
                             However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
                         </p>
@@ -181,13 +181,13 @@ const router = useRouter();
                     <MultipanePane for="round3">
                         <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3 questions.
+                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="round4">
                         <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 1 for Novice division is 70 minutes long with 3 questions.
+                            Round 1 for Novice division is 70 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="closingCeremonies">
@@ -201,7 +201,7 @@ const router = useRouter();
                             </a>
                         </div>
                         <p>
-                            We will announce the winners of each division, as well as the prizes (that definitely haven't already been announced) before closing off the contest.
+                            We will announce the winners and prizes for each division before closing off the contest.
                         </p>
                     </MultipanePane>
                 </MultipanePaneContainer>
