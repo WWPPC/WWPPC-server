@@ -18,13 +18,16 @@ onMounted(async () => {
     gradeInput.value = accountManager.grade?.toString();
     experienceInput.value = accountManager.experience?.toString();
     joinCodeNotEditable.value = accountManager.teamJoinCode ?? '';
+    emailNotEditable.value = accountManager.email;
 });
 
 // prevent username being overwritten
 const usernameNotEditable = ref('');
+const emailNotEditable = ref('');
 const joinCodeNotEditable = ref('');
 watch(() => accountManager.username, () => usernameNotEditable.value = accountManager.username);
 watch(() => accountManager.teamJoinCode, () => joinCodeNotEditable.value = accountManager.teamJoinCode ?? '');
+watch(() => accountManager.email, () => emailNotEditable.value = accountManager.email);
 
 // oops
 const gradeInput = ref('');
@@ -282,7 +285,7 @@ onMounted(clearDangerButtons);
                 <span>Username:</span>
                 <UITextBox v-model=usernameNotEditable width="var(--fwidth)" title="Your unique username (you cannot edit this)" disabled></UITextBox>
                 <span>Email:</span>
-                <UITextBox v-model=accountManager.email width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
+                <UITextBox v-model=emailNotEditable width="var(--fwidth)" title="Email used to update you on contests, password changes, etc. (you cannot edit this)" disabled></UITextBox>
             </PairedGridContainer>
             <br>
             <TitledCollapsible title="Danger buttons" font-size="var(--font-medium)" border-color="red" @click="clearDangerButtons" start-collapsed>
