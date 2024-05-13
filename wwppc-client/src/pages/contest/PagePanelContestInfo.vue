@@ -3,7 +3,7 @@ import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, GlowText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, GlowText, UILinkButton, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -84,80 +84,125 @@ const router = useRouter();
                     </div>
                     <MultipaneSelector for="openingCeremonies">
                         <div class="scheduleRow">
-                            <div>10:24-10:54</div>
+                            <div>10:15-10:45</div>
                             <div>|</div>
                             <div>Opening ceremonies</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="round1">
                         <div class="scheduleRow">
-                            <div>11:00-12:04</div>
+                            <div>11:00-12:00</div>
                             <div>|</div>
                             <div>Round 1 (Novice)</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="round2">
                         <div class="scheduleRow">
-                            <div>12:12-1:16</div>
+                            <div>12:10-1:10</div>
                             <div>|</div>
                             <div>Round 2 (Novice)<br>Round 1 (Advanced)</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="lunch">
                         <div class="scheduleRow">
-                            <div>1:16-2:20</div>
+                            <div>1:10-2:10</div>
                             <div>|</div>
                             <div>Lunch break</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="round3">
                         <div class="scheduleRow">
-                            <div>2:20-3:28</div>
+                            <div>2:10-3:20</div>
                             <div>|</div>
                             <div>Round 3 (Novice)<br>Round 2 (Advanced)</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="round4">
                         <div class="scheduleRow">
-                            <div>3:36-4:44</div>
+                            <div>3:30-4:40</div>
                             <div>|</div>
                             <div>Round 3 (Advanced)</div>
                         </div>
                     </MultipaneSelector>
                     <MultipaneSelector for="closingCeremonies">
                         <div class="scheduleRow">
-                            <div>5:00-5:30</div>
+                            <div>4:55-5:30</div>
                             <div>|</div>
                             <div>Closing ceremonies</div>
                         </div>
                     </MultipaneSelector>
                 </MultipaneSelectorContainer>
             </CutCornerContainer>
-            <CutCornerContainer vertical-flipped no-padding>
+            <CutCornerContainer vertical-flipped no-padding style="font-size: var(--font-medium);">
                 <MultipanePaneContainer for="contestSchedule" default="precontest">
                     <MultipanePane for="precontest">
-                        pre-contest
+                        <GlitchText text="Pre-contest Practice & Testing" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Teams (including the WWPPC team) will have a chance to test the contest system with a few practice rounds.
+                        </p>
+                        <p>
+                            The practice contest will be open all day. You <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="openingCeremonies">
-                        opening ceremonies
+                        <GlitchText text="Opening Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Opening and closing ceremonies will be held on our Discord server!
+                        </p>
+                        <div class="centered">
+                            <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                                <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                            </a>
+                        </div>
+                        <p>
+                            We'll give more details and instructions on the contest format there.
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="round1">
-                        round 1
+                        <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Round 1 for Novice division is 60 minutes long with 3 questions.
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="round2">
-                        round 2
+                        <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3 questions.
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="lunch">
-                        lunch
+                        <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Lunch break! Lunch is one hour long and we'll be hosting some fun events (like Tetris and maybe even <i>Bedwards</i>) during the break!
+                            <br><br>
+                            However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="round3">
-                        round 3
+                        <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3 questions.
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="round4">
-                        round 4
+                        <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Round 1 for Novice division is 70 minutes long with 3 questions.
+                        </p>
                     </MultipanePane>
                     <MultipanePane for="closingCeremonies">
-                        closing ceremonies
+                        <GlitchText text="Closing Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                        <p>
+                            Opening and closing ceremonies will be held on our Discord server!
+                        </p>
+                        <div class="centered">
+                            <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                                <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                            </a>
+                        </div>
+                        <p>
+                            We will announce the winners of each division, as well as the prizes (that definitely haven't already been announced) before closing off the contest.
+                        </p>
                     </MultipanePane>
                 </MultipanePaneContainer>
             </CutCornerContainer>
@@ -176,7 +221,10 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 will be on June 2, starting at 10:24 AM EST.
+                        WWPIT 2024 will be on June 2, starting at 10:15 AM EST.
+                        It will run until 5:30 PM, with the latest time being 6:00 PM in case of unexpected slowdowns.
+                        <br><br>
+                        <i>Scroll up to see contest schedule</i>
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
@@ -193,7 +241,8 @@ const router = useRouter();
                 <TitledCollapsible title="What's the contest format?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                     <ul>
-                        <li>There will be 4 separate timed rounds of 64 minutes each, 3 for each division</li>
+                        <li>There will be 4 separate timed rounds: Round 1 is novice only, rounds 2 and 3 are overlapping, and round 4 is advanced only</li>
+                        <li>Rounds 1 and 2 are 60 minutes each; rounds 3 and 4 are 70 minutes each</li>
                         <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
                         <li>Submissions are only graded after the round ends</li>
                         <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
@@ -281,6 +330,7 @@ const router = useRouter();
 .scheduleRow {
     display: flex;
     flex-direction: row;
+    margin: 0px 4px;
     align-items: center;
     font-size: var(--font-20);
     text-wrap: nowrap;

@@ -37,7 +37,6 @@ export default {
     height: 100%;
     scroll-snap-type: x mandatory;
     text-wrap: nowrap;
-    word-wrap: none;
     overflow: hidden;
 }
 
