@@ -51,7 +51,7 @@ const router = useRouter();
                                 </div>
                                 <br>
                                 <p style="text-align: center; font-size: var(--font-small);">
-                                    <i>Scroll down to see contest schedule.</i>
+                                    <i>Scroll down to see contest schedule</i>
                                 </p>
                             </span>
                         </CenteredContainer>
@@ -173,7 +173,7 @@ const router = useRouter();
                     <MultipanePane for="lunch">
                         <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Lunch break! Lunch is one hour long and we'll be hosting some fun events (like Tetris and maybe even <i>Bedwards</i>) during the break!
+                            Lunch is one hour long and we'll be hosting some fun events during the break!
                             <br><br>
                             However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
                         </p>
@@ -201,7 +201,7 @@ const router = useRouter();
                             </a>
                         </div>
                         <p>
-                            We will announce the winners of each division, as well as the prizes (that definitely haven't already been announced) before closing off the contest.
+                            We will announce the winners and prizes for each division before closing off the contest.
                         </p>
                     </MultipanePane>
                 </MultipanePaneContainer>
