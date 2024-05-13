@@ -161,13 +161,13 @@ const router = useRouter();
                     <MultipanePane for="round1">
                         <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 1 for Novice division is 60 minutes long with 3 questions.
+                            Round 1 for Novice division is 60 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="round2">
                         <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3 questions.
+                            Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="lunch">
@@ -181,13 +181,13 @@ const router = useRouter();
                     <MultipanePane for="round3">
                         <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3 questions.
+                            Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="round4">
                         <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                         <p>
-                            Round 1 for Novice division is 70 minutes long with 3 questions.
+                            Round 1 for Novice division is 70 minutes long with 3-4 problems.
                         </p>
                     </MultipanePane>
                     <MultipanePane for="closingCeremonies">
