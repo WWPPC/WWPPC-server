@@ -3,11 +3,13 @@ import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
 import { UILoadingSpinner } from '@/components/ui-defaults/UIDefaults';
 import { type AccountData, useAccountManager } from '@/scripts/AccountManager';
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
     user: string
 }>();
 
+const router = useRouter();
 const accountManager = useAccountManager();
 
 const data = ref<AccountData | null>(null);
@@ -18,11 +20,15 @@ watch(() => props.user, async () => {
 onMounted(async () => {
     data.value = await accountManager.getUserData(props.user);
 });
+
+const openUserView = () => {
+    router.push('/user/@' + props.user);
+};
 </script>
 
 <template>
     <AnimateInContainer type="slideUp" single>
-        <div class="cardContent">
+        <div class="cardContent" @click="openUserView()">
             <img :src="data?.profileImage" class="cardProfileImg">
             <span class="cardName">{{ data?.displayName }}</span>
             <Transition>
@@ -47,6 +53,7 @@ onMounted(async () => {
     overflow: hidden;
     transition: 200ms ease transform;
     will-change: transform;
+    cursor: pointer;
 }
 
 .cardContent:hover {
