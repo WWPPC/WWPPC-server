@@ -11,6 +11,7 @@ import NotFound from '@/pages/NotFound.vue';
 
 <style scoped>
 .panelViewBody {
+    contain: size layout;
     display: grid;
     position: relative;
     grid-template-columns: minmax(0, 1fr);

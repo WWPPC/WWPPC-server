@@ -31,7 +31,7 @@ const route = useRoute();
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    position: absolute;
+    position: fixed;
     bottom: 0px;
     left: 0px;
     width: 100%;

@@ -26,6 +26,9 @@ onMounted(async () => {
     await nextTick();
     boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
 });
+window.addEventListener('resize', () => {
+    boxHeight.value = body.value?.getBoundingClientRect().height ?? 0;
+});
 
 const emit = defineEmits<{
     (e: 'open'): any

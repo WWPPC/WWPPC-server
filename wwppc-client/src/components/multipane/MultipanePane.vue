@@ -24,7 +24,6 @@ if (typeof multipaneId != 'string') throw new Error('MultipaneSelector not place
     width: 100%;
     height: 100%;
     padding: 12px 12px;
-    scroll-snap-align: start;
     text-wrap: initial;
     overflow-x: hidden;
     overflow-y: auto;

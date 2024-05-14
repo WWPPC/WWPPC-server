@@ -88,7 +88,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                         WWPPC is the host of WWPHacks and WWPIT, created by members of the WW-P HSS Absolute Coding Club in New Jersey.
                     </p>
                     <p style="text-wrap: balanced; color: lime;">
-                        WWPPC is a 501c3 nonprofit now!
+                        WWPPC is a 501c3 nonprofit organization.
                     </p>
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
@@ -98,20 +98,23 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                         <img src="/img/mlh-logo.svg">
                     </div>
                     <p style="text-wrap: balanced;">
-                        WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2021.
+                        WWPHacks has been featured as an offical <a href="https://mlh.io/" target="_blank">Major League Hacking</a> hackathon in 2022.
                     </p>
                 </DoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen style="grid-row: span 2;">
                 <DoubleCutCornerContainer height="100%" hover-animation="lift">
                     <p style="text-wrap: balance; font-size: var(--font-20);">
-                        WWPPC: West Winsor-Plainsboro Programming Contest
+                        <span style="color: lime;">WWPPC</span>:
+                        West Winsor-Plainsboro Programming Contest
                     </p>
                     <p style="text-wrap: balance; font-size: var(--font-20);">
-                        WWPIT: West Winsor-Plainsboro Informatics Tournament
+                        <span style="color: lime;">WWPIT</span>:
+                        West Winsor-Plainsboro Informatics Tournament
                     </p>
                     <p style="text-wrap: balance; font-size: var(--font-20);">
-                        WWPHacks: WWPHacks <i>(not an acronym)</i>
+                        <span style="color: lime;">WWPHacks</span>:
+                        WWPHacks <i>(not an acronym)</i>
                     </p>
                     <UIDivider></UIDivider>
                     <p style="text-wrap: balance; font-size: var(--font-16);">
@@ -121,11 +124,12 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <DoubleCutCornerContainer height="100%" hover-animation="lift">
-                    <div class="centered">
-                        <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none;">
+                    <div style="text-align: center;">
+                        <a href="https://discord.wwppc.tech" target="_blank" class="centered" style="text-decoration: none;">
                             <UIIconButton text="Join us on Discord!" img="/img/discord-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
                         </a>
-                        <a href="https://github.com/WWPPC" target="_blank" style="text-decoration: none;">
+                        <div style="height: 0.5em;"></div>
+                        <a href="https://github.com/WWPPC" target="_blank" class="centered" style="text-decoration: none;">
                             <UIIconButton text="GitHub" img="/img/github-logo.svg" color="lime" font-size="var(--font-medium)" img-hover-color="#F05032"></UIIconButton>
                         </a>
                     </div>

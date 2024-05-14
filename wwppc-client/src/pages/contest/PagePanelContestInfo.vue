@@ -129,7 +129,7 @@ const router = useRouter();
                     </MultipaneSelectorContainer>
                 </CutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" show-on-screen :delay=100>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="min-height: 15em;">
                 <CutCornerContainer height="100%" vertical-flipped no-padding style="font-size: var(--font-medium);">
                     <MultipanePaneContainer for="contestSchedule" default="precontest">
                         <MultipanePane for="precontest">
@@ -227,6 +227,13 @@ const router = useRouter();
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="How do I compete?" startCollapsed>
+                    <p style="font-size: var(--font-20)">
+                        You can sign up <b><i><span style="text-decoration: underline;">NOW</span></i></b> by <b>creating an account and registering <i><a href="/account/registrations" target="_blank">RIGHT HERE</a></i></b>, NO prerequisites needed!
+                    </p>
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                         WWPIT will be held on this website!
@@ -239,10 +246,11 @@ const router = useRouter();
                 <TitledCollapsible title="What's the contest format?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                     <ul>
-                        <li>There will be 4 separate timed rounds: Round 1 is novice only, rounds 2 and 3 are overlapping, and round 4 is advanced only</li>
-                        <li>Rounds 1 and 2 are 60 minutes each; rounds 3 and 4 are 70 minutes each</li>
+                        <li>There will be 3 separate timed rounds for each division, running at the same time</li>
+                        <li>Each round has 3-5 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
+                        <li>Submissions are only graded <i>after</i> the round ends</li>
                         <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
-                        <li>Submissions are only graded after the round ends</li>
+                        <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
                         <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                     </ul>
                     </p>
@@ -349,9 +357,14 @@ const router = useRouter();
 .faq {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+    grid-auto-flow: dense;
     width: 100%;
     row-gap: 24px;
     column-gap: 24px;
+}
+
+ul>li {
+    margin-bottom: 0.5em;
 }
 
 .spacer {
