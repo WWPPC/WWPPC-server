@@ -129,6 +129,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     left: 4px;
     font-size: 12px;
     font-family: 'Source Code Pro', Courier, monospace;
+    pointer-events: none;
 }
 
 .v-enter-active,

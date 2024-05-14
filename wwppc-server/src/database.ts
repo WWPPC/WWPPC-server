@@ -246,11 +246,12 @@ export class Database {
                     `, [
                     username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
+                const joinCode = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
                 await this.#db.query(`
                     INSERT INTO teams (username, registrations, name, biography, joincode)
                     VALUES ($1, $2, $3, $4, $5)
                     `, [
-                    username, [], username, '', Math.random().toFixed(6).substring(2)
+                    username, [], username, '', joinCode
                 ]);
             }
             this.#userCache.set(username, {
@@ -540,7 +541,7 @@ export class Database {
         }
     }
     /**
-     * Set the id of a user's team (the team creator's username). Also copies registrations for upcoming contests into the user's registrations. **Does not validate credentials**.
+     * Set the id of a user's team (the team creator's username). Also clears existing registrations to avoid incorrect registration reporting. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} team Valid username (of team) OR join code
      * @param {boolean} useJoinCode If should search by join code instead (default false)
@@ -555,17 +556,21 @@ export class Database {
                     team
                 ]);
                 if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const res = await this.#db.query(
+                const res = await this.#db.query('UPDATE teams SET registrations={} WHERE username=$1', [username]);
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                const res2 = await this.#db.query(
                     'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
                     username, team
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res2.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             } else {
-                const res = await this.#db.query(
+                const res = await this.#db.query('UPDATE teams SET registrations={} WHERE username=$1', [username]);
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                const res2 = await this.#db.query(
                     'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username', [
                     username, team
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res2.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             }
             this.#userCache.delete(username);
             this.#teamCache.forEach((v, k) => {

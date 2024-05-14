@@ -146,11 +146,11 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             </ShowOnscreenContainer>
         </div>
         <div class="sponsors">
+            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="8vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="8vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
