@@ -19,25 +19,40 @@ export default {
         const multipane = useMultipane();
         const panes = multipane[this.$props.for]!;
         watch(() => panes.hovering + '-' + panes.selected, () => {
-            this.$el?.querySelector(`div[name=${this.$props.for}-${panes.hovering != '' ? panes.hovering : panes.selected}]`)?.scrollIntoView({ behavior: 'smooth' });
+            const container: HTMLElement | undefined = this.$el?.children[0];
+            if (container== undefined) return;
+            const element: HTMLElement | null = container.querySelector(`div[name=${this.$props.for}-${panes.hovering != '' ? panes.hovering : panes.selected}]`);
+            const children: HTMLCollection = container.children;
+            const rect: DOMRect = container.getBoundingClientRect();
+            if (element == null) return;
+            container.style.transform = `translateX(${Array.from(children).findIndex((el) => el.isSameNode(element)) * -rect.width}px)`;
+            console.log(Array.from(children).findIndex((el) => el.isSameNode(element)))
         });
     }
 }
 </script>
 
 <template>
-    <div class="multipanePaneContainer">
-        <slot></slot>
+    <div class="multipanePaneContainerWrapper">
+        <div class="multipanePaneContainer">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.multipanePaneContainerWrapper {
+    contain: paint;
+    width: 100%;
+    height: 100%;
+}
+
 .multipanePaneContainer {
     width: 100%;
     height: 100%;
-    scroll-snap-type: x mandatory;
+    transition: 250ms ease transform;
     text-wrap: nowrap;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .multipanePainContainer {

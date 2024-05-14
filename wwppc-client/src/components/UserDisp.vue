@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { UIButton } from './ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
 import { glitchTextTransition } from './ui-defaults/TextTransitions';
@@ -24,6 +24,14 @@ const buttonAction = () => {
 };
 
 serverConnection.onconnect(() => {
+    serverConnection.handshakePromise.then(() => {
+        if (serverConnection.loggedIn) {
+            glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
+            name.value = accountManager.displayName;
+        }
+    });
+});
+onMounted(() => {
     serverConnection.handshakePromise.then(() => {
         if (serverConnection.loggedIn) {
             glitchTextTransition(buttonText.value, 'Account', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
