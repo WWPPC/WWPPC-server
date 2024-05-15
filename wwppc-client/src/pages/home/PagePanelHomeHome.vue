@@ -151,6 +151,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="8vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/aops-logo.png" url="https://axure.com/" height="16vh"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
