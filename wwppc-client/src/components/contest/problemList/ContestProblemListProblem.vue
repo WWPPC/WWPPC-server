@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { UILinkButton } from '@/components/ui-defaults/UIDefaults';
-import { type ContestProblemMetaData } from '@/scripts/ContestManager';
+import { type ContestProblem } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
 
 const props = defineProps<{
-    data: ContestProblemMetaData
+    data: ContestProblem
 }>();
 
 const router = useRouter();
@@ -18,7 +18,7 @@ onMounted(() => {
     setTimeout(() => {
         glitchTextTransition('', props.data.name, (t) => { nameText.value = t; }, 40);
         glitchTextTransition('', 'Author: ' + props.data.author, (t) => { authorText.value = t; }, 40);
-    }, props.data.round * 200 + props.data.number * 100);
+    }, (props.data.round ?? 0) * 200 + (props.data.number ?? 0) * 100);
 });
 </script>
 

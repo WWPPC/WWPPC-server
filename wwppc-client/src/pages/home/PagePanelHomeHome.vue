@@ -85,7 +85,7 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                         <img src="/icon2.png">
                     </div>
                     <p style="text-wrap: balanced;">
-                        WWPPC is the host of WWPHacks and WWPIT, created by members of the WW-P HSS Absolute Coding Club in New Jersey.
+                        WWPPC is a programming competition consisting of WWPHacks and WWPIT, created by members of the WW-P HSS Absolute Coding Club in New Jersey.
                     </p>
                     <p style="text-wrap: balanced; color: lime;">
                         WWPPC is a 501c3 nonprofit organization.

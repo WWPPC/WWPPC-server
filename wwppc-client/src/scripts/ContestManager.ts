@@ -12,18 +12,9 @@ export interface Contest {
 export interface ContestRound {
     contest: string
     number: number
-    problems: ContestProblemMetaData[]
+    problems: ContestProblem[]
     startTime: number
     endTime: number
-}
-export interface ContestProblemMetaData {
-    id: string
-    contest: string
-    round: number
-    number: number
-    name: string
-    author: string
-    status: ContestProblemCompletionState
 }
 export interface ContestProblem {
     id: string
@@ -34,8 +25,8 @@ export interface ContestProblem {
     author: string
     content: string
     constraints: { memory: number, time: number }
+    submissions: ContestSubmission[]
     status: ContestProblemCompletionState
-    hidden: boolean
 }
 export enum ContestProblemCompletionState {
     /**Not attempted */
@@ -92,7 +83,7 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
 };
 
-// TESTING DATA - SET currContest BACK TO EMPTY
+// replace with new state variable that is just Contest
 const state = reactive<{
     inContest: boolean,
     currContest: string

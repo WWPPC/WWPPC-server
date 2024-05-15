@@ -36,6 +36,9 @@ const loadProblems = async () => {
                         number: 0,
                         name: 'Test Problem 0',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.GRADED_PASS
                     },
                     {
@@ -45,6 +48,9 @@ const loadProblems = async () => {
                         number: 1,
                         name: 'Test Problem 1',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.GRADED_FAIL
                     },
                     {
@@ -54,6 +60,9 @@ const loadProblems = async () => {
                         number: 2,
                         name: 'Test Problem 2',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.SUBMITTED
                     },
                     {
@@ -63,6 +72,9 @@ const loadProblems = async () => {
                         number: 3,
                         name: 'Test Problem 3',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.GRADED_PARTIAL
                     }
                 ],
@@ -79,6 +91,9 @@ const loadProblems = async () => {
                         number: 0,
                         name: 'Test Problem 0',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.UPLOADED
                     },
                     {
@@ -88,6 +103,9 @@ const loadProblems = async () => {
                         number: 1,
                         name: 'Test Problem 1',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.NOT_UPLOADED
                     },
                     {
@@ -97,6 +115,9 @@ const loadProblems = async () => {
                         number: 2,
                         name: 'Test Problem 2',
                         author: 'SP^2',
+                        content: '',
+                        constraints: { memory: 0, time: 0 },
+                        submissions: [],
                         status: ContestProblemCompletionState.ERROR
                     }
                 ],

@@ -3,7 +3,8 @@ import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, Problem, reverse_enum, Round, Score, TeamOpResult } from './database';
-import { DomjudgeGrader, Grader } from './grader';
+import Grader from './grader';
+import DomjudgeGrader from './domjudgeGrader';
 import Logger from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
@@ -177,6 +178,7 @@ export class ContestManager {
         //submit a solution
         socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
             // needs response event
+            // need to write to database first, also read it back to get data not here
 
             // also need to check valid language, valid problem id
             if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
@@ -212,6 +214,7 @@ export class ContestManager {
                 file: request.file,
                 lang: request.lang,
                 scores: [],
+                history: []
             });
         });
 

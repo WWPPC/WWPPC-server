@@ -48,8 +48,8 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 </codeblock>
     `,
     constraints: { memory: 1, time: -1 },
+    submissions: [],
     status: ContestProblemCompletionState.ERROR,
-    hidden: false
 });
 const submissions = ref<ContestSubmission[]>([]);
 const loadErrorModal = (title: string, content: string) => {
@@ -94,7 +94,7 @@ contestManager.onSubmissionStatus(({ status }) => {
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
 });
-const problemName = autoGlitchTextTransition(() => problem.value.name + (problem.value.hidden ? ' (HIDDEN)' : ''), 40, 1, 20);
+const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
 const problemSubtitle1 = autoGlitchTextTransition(() => {
     if (problem.value.contest === undefined) return `By ${problem.value.author}`;
     return `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;

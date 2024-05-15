@@ -545,11 +545,14 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} team Valid username (of team) OR join code
      * @param {boolean} useJoinCode If should search by join code instead (default false)
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Update status
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.NOT_ALLOWED | TeamOpResult.ERROR} Update status
      */
-    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.NOT_ALLOWED | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
+            const existingUserData = await this.getAccountData(username);
+            if (typeof existingUserData != 'object') return existingUserData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR;
+            if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
             if (useJoinCode) {
                 const exists = await this.#db.query(
                     'SELECT users.username FROM users WHERE users.team=(SELECT teams.username FROM teams WHERE teams.joincode=$1)', [
@@ -944,15 +947,14 @@ export class Database {
                     { name: 'author', value: c.author }
                 ]);
                 const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
-                const filteredRows = data.rows.filter((v) => c.constraints == undefined || c.constraints(v));
-                for (const problem of filteredRows) {
+                for (const problem of data.rows) {
                     const p = {
                         id: problem.id,
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        cases: problem.cases,
-                        constraints: problem.constraints,
+                        cases: JSON.parse(problem.cases),
+                        constraints: JSON.parse(problem.constraints),
                         hidden: problem.hidden,
                         archived: problem.archived
                     };
@@ -1039,7 +1041,8 @@ export class Database {
                         time: submission.time,
                         file: submission.file,
                         lang: submission.language,
-                        scores: submission.scores
+                        scores: JSON.parse(submission.scores),
+                        history: submission.history
                     };
                     this.#submissionCache.set(submission.id + ' ' + submission.username, {
                         submission: s,
@@ -1065,13 +1068,26 @@ export class Database {
     async writeSubmission(submission: Submission): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now()];
-            const update = await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6 WHERE username=$1 AND id=$2 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', data);
-            this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
-                submission: submission,
-                expiration: performance.now() + config.dbCacheTime
-            });
+            const existing = await this.#db.query('SELECT time, history FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
+            if (existing.rows.length > 0) {
+                const history: { time: number, scores: Score[] }[] = JSON.parse(existing.rows[0].history);
+                history.push({ time: existing.rows[0].time, scores: JSON.parse(existing.rows[0].scores) });
+                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
+                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
+                ]);
+                this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
+                    submission: { ...submission, history: history },
+                    expiration: performance.now() + config.dbCacheTime
+                });
+            } else {
+                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [
+                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), '[]'
+                ]);
+                this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
+                    submission: submission,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+            }
             return true;
         } catch (err) {
             this.logger.error('Database error (writeSubmission):');
@@ -1269,18 +1285,16 @@ export interface Problem {
     /**List of test cases */
     cases: TestCase[]
     /**Runtime constraints */
-    constraints: ProblemConstraints
+    constraints: {
+        /**Time limit per test case in millseconds */
+        time: number
+        /**Memory limit per test case in megabytes */
+        memory: number
+    }
     /**Public visibility of problem */
     hidden: boolean
     /**Archival status - can be fetched through API instead */
     archived: boolean
-}
-/**Descriptor for the constraints of a single problem */
-export interface ProblemConstraints {
-    /**Time limit per test case in millseconds */
-    time: number
-    /**Memory limit per test case in megabytes */
-    memory: number
 }
 /**Descriptor for a single test case */
 export interface TestCase {
@@ -1303,6 +1317,13 @@ export interface Submission {
     lang: string
     /**Resulting scores of the submission */
     scores: Score[]
+    /**Shortened list of previous submissions and their results, without content */
+    history: {
+        /**Time of submission, UNIX milliseconds */
+        time: number,
+        /**Resulting scores of the submission */
+        scores: Score[]
+    }[]
 }
 /**Descriptor for the score of a single test case */
 export interface Score {
@@ -1320,6 +1341,11 @@ export enum ScoreState {
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
 }
+
+type CriteriaComparison<T> = {
+    op: '<' | '>' | '!',
+    v: T
+} | T;
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadRoundsCriteria {
@@ -1349,10 +1375,9 @@ interface ReadProblemsCriteria {
     name?: string
     /**Author username of problem */
     author?: string
-    /**Constraints validator for problem */
-    constraints?: (c: ProblemConstraints) => boolean
     /**Round based filter for problems */
     contest?: ProblemRoundCriteria
+
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadSubmissionsCriteria {
@@ -1362,4 +1387,6 @@ interface ReadSubmissionsCriteria {
     username?: string
     /**Round-based filter for problems */
     contest?: ProblemRoundCriteria
+    /**More specific validators */
+    filter?: (c: Problem) => boolean
 }

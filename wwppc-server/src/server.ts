@@ -463,27 +463,23 @@ io.on('connection', async (s) => {
             socket.emit('teamActionResponse', recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
             return;
         }
-        // prevent joining while already on other team
-        const userData = await database.getAccountData(socket.username);
-        if (typeof userData != 'object') { respond(userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR); return; }
-        if (socket.username != userData.team) { respond(TeamOpResult.NOT_ALLOWED); return; }
         // first join so can check team data
         const res = await database.setAccountTeam(socket.username, data.code, true);
         if (res != TeamOpResult.SUCCESS) { respond(res); return; }
-        const userData2 = await database.getAccountData(socket.username);
+        const userData = await database.getAccountData(socket.username);
         const teamData = await database.getTeamData(socket.username);
         if (typeof teamData != 'object') { respond(teamData); return; }
         const resetTeam = async () => {
             const res2 = await database.setAccountTeam(socket.username, socket.username);
             if (res2 != TeamOpResult.SUCCESS) socket.logWithId(logger.warn, 'Join team failed but could not reset team! Code: ' + reverse_enum(TeamOpResult, res2));
         };
-        if (typeof userData2 != 'object') {
-            respond(userData2 == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
+        if (typeof userData != 'object') {
+            respond(userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
             await resetTeam();
             return;
         }
         // make sure won't violate restrictions
-        const contests = await database.readContests(userData2.registrations);
+        const contests = await database.readContests(userData.registrations);
         if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
         if (contests.some((c) => c.maxTeamSize <= teamData.members.length + 1)) {
             socket.emit('teamActionResponse', TeamOpResult.CONTEST_MEMBER_LIMIT);
