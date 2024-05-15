@@ -14,11 +14,12 @@ if (multipane[props.for] == undefined) multipane[props.for] = new Multipane();
 multipane[props.for]!.selected = props.default;
 </script>
 <script lang="ts">
+let added = false;
 export default {
     mounted() {
         const multipane = useMultipane();
         const panes = multipane[this.$props.for]!;
-        watch(() => panes.hovering + '-' + panes.selected, () => {
+        const scroll = () => {
             const container: HTMLElement | undefined = this.$el?.children[0];
             if (container== undefined) return;
             const element: HTMLElement | null = container.querySelector(`div[name=${this.$props.for}-${panes.hovering != '' ? panes.hovering : panes.selected}]`);
@@ -26,8 +27,11 @@ export default {
             const rect: DOMRect = container.getBoundingClientRect();
             if (element == null) return;
             container.style.transform = `translateX(${Array.from(children).findIndex((el) => el.isSameNode(element)) * -rect.width}px)`;
-            console.log(Array.from(children).findIndex((el) => el.isSameNode(element)))
-        });
+        };
+        watch(() => panes.hovering + '-' + panes.selected, scroll);
+        if (added) return;
+        added = true;
+        window.addEventListener('resize', scroll);
     }
 }
 </script>

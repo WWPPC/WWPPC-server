@@ -25,13 +25,18 @@ connectionEnforcer.connectionInclude.add('/user');
 
 const userData = ref<AccountData | null>(null);
 const teamData = ref<TeamData | null>(null);
+const showLoading = ref(true);
 const loadUserData = async () => {
     userData.value = null;
+    showLoading.value = true;
     await serverConnection.handshakePromise;
     await nextTick();
     if (route.params.userView != null) {
-        userData.value = await accountManager.getUserData(route.params.userView.toString());
-        teamData.value = await accountManager.getTeamData(route.params.userView.toString());
+        await Promise.all([
+            accountManager.getUserData(route.params.userView.toString()).then((v) => userData.value = v),
+            accountManager.getTeamData(route.params.userView.toString()).then((v) => teamData.value = v)
+        ]);
+        showLoading.value = false;
     }
 };
 watch(() => route.params, () => {
@@ -138,9 +143,9 @@ const largeHeader = ref(true);
                         </div>
                     </div>
                 </div>
-                <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
             </PanelBody>
-            <LoadingCover text="Loading..." ignore-server :show="userData === null"></LoadingCover>
+            <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
+            <LoadingCover text="Loading..." ignore-server :show="showLoading"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

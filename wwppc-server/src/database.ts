@@ -555,16 +555,18 @@ export class Database {
     async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.NOT_ALLOWED | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const existingUserData = await this.getAccountData(username);
-            if (typeof existingUserData != 'object') return existingUserData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR;
-            if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
+            if (team != username || useJoinCode) {
+                const existingUserData = await this.getAccountData(username);
+                if (typeof existingUserData != 'object') return existingUserData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR;
+                if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
+            }
             if (useJoinCode) {
                 const res = await this.#db.query(
                     'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 RETURNING users.username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
+                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
                 if (reset.rows.length == 0) return TeamOpResult.ERROR;
             } else {
                 const res = await this.#db.query(
@@ -572,7 +574,7 @@ export class Database {
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
+                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
                 if (reset.rows.length == 0) return TeamOpResult.ERROR;
             }
             this.#userCache.delete(username);
