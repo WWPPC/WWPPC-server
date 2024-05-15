@@ -559,26 +559,21 @@ export class Database {
             if (typeof existingUserData != 'object') return existingUserData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR;
             if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
             if (useJoinCode) {
-                const exists = await this.#db.query(
-                    'SELECT users.username FROM users WHERE users.team=(SELECT teams.username FROM teams WHERE teams.joincode=$1)', [
-                    team
-                ]);
-                if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const res2 = await this.#db.query(
-                    'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
+                const res = await this.#db.query(
+                    'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 RETURNING users.username', [
                     username, team
                 ]);
-                if (res2.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
+                if (reset.rows.length == 0) return TeamOpResult.ERROR;
             } else {
-                const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const res2 = await this.#db.query(
-                    'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username', [
+                const res = await this.#db.query(
+                    'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.username=$2) RETURNING users.username', [
                     username, team
                 ]);
-                if (res2.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
+                if (reset.rows.length == 0) return TeamOpResult.ERROR;
             }
             this.#userCache.delete(username);
             this.#teamCache.forEach((v, k) => {
