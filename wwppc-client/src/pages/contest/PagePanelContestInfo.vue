@@ -158,7 +158,7 @@ const router = useRouter();
                         <MultipanePane for="round1">
                             <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 1 for Novice division is 60 minutes long with 5 problems.
+                                Round 1 for Novice division is 60 minutes long with 4-6 problems.
                             </p>
                         </MultipanePane>
                         <MultipanePane for="round2">
@@ -184,7 +184,7 @@ const router = useRouter();
                         <MultipanePane for="round4">
                             <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 1 for Novice division is 70 minutes long with 3-4 problems.
+                                Round 3 for Advanced division is 70 minutes long with 3-4 problems.
                             </p>
                         </MultipanePane>
                         <MultipanePane for="closingCeremonies">
