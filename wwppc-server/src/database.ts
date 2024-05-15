@@ -564,7 +564,7 @@ export class Database {
                     team
                 ]);
                 if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const res = await this.#db.query('UPDATE teams SET registrations={} WHERE username=$1', [username]);
+                const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
                 const res2 = await this.#db.query(
                     'UPDATE users SET team=(SELECT username FROM teams WHERE joincode=$2) WHERE username=$1 AND EXISTS (SELECT username FROM teams WHERE joincode=$2) RETURNING username', [
@@ -572,7 +572,7 @@ export class Database {
                 ]);
                 if (res2.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             } else {
-                const res = await this.#db.query('UPDATE teams SET registrations={} WHERE username=$1', [username]);
+                const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1', [username]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
                 const res2 = await this.#db.query(
                     'UPDATE users SET team=$2 WHERE username=$1 AND EXISTS (SELECT username FROM users WHERE username=$2) RETURNING username', [

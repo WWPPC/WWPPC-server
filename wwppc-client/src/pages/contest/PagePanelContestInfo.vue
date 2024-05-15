@@ -219,7 +219,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 will be on June 2, starting at 10:15 AM EST.
+                        WWPIT 2024 will be on <b>June 2</b>, starting at 10:15 AM EST.
                         It will run until 5:30 PM, with the latest time being 6:00 PM in case of unexpected slowdowns.
                         <br><br>
                         <i>Scroll up to see contest schedule</i>
@@ -247,7 +247,7 @@ const router = useRouter();
                     <p style="font-size: var(--font-20)">
                     <ul>
                         <li>There will be 3 separate timed rounds for each division, running at the same time</li>
-                        <li>Each round has 3-5 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
+                        <li>Each round has 3-6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
                         <li>Submissions are only graded <i>after</i> the round ends</li>
                         <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
                         <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
