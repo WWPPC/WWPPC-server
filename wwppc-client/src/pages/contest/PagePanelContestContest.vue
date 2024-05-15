@@ -3,7 +3,7 @@
 
 <template>
     <div class="fullBlock">
-        This is the contest page! Your registration will appear here... once we implement registering for contests.
+        ok contest page done
     </div>
 </template>
 

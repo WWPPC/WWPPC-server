@@ -85,6 +85,17 @@ const leaveTeam = async () => {
     showWriteTeamDataWait.value = false;
 };
 
+const teamCodeType = ref<'text' | 'password'>('password');
+const onCodeMouseEnter = () => {
+    teamCodeType.value = 'text';
+};
+const onCodeMouseLeave = () => {
+    teamCodeType.value = 'password';
+};
+onMounted(() => {
+    document.addEventListener('blur', () => teamCodeType.value = 'password');
+});
+
 // danger buttons
 const showCredWait = ref(false);
 const currentPasswordInput = ref('');
@@ -232,7 +243,7 @@ onMounted(clearDangerButtons);
                 </PairedGridContainer>
                 <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
             </form>
-            <WaitCover text="Please wait..." :show="showWriteDataWait || accountManager.displayName == ''"></WaitCover>
+            <WaitCover text="Please wait..." :show="(showWriteDataWait || accountManager.displayName == '') && $route.query.ignore_server === undefined"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
@@ -269,14 +280,14 @@ onMounted(clearDangerButtons);
             <div class="profileTeamSection">
                 <span class="nowrap">
                     <span>Join Code:</span>
-                    <UITextBox v-model=joinCodeNotEditable disabled></UITextBox>
+                    <UITextBox v-model=joinCodeNotEditable :type=teamCodeType disabled @mouseenter="onCodeMouseEnter" @mouseleave="onCodeMouseLeave"></UITextBox>
                     <UICopyButton :value="joinCodeNotEditable ?? ''"></UICopyButton>
                 </span>
             </div>
             <div class="profileTeamSection" v-if="accountManager.team !== accountManager.username">
                 <UIButton text="Leave Team" color="red" glitch-on-mount @click=leaveTeam></UIButton>
             </div>
-            <WaitCover text="Please wait..." :show="showWriteTeamDataWait || accountManager.team == ''"></WaitCover>
+            <WaitCover text="Please wait..." :show="(showWriteTeamDataWait || accountManager.team == '') && $route.query.ignore_server === undefined"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>
