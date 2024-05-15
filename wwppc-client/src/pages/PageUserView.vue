@@ -28,6 +28,7 @@ const teamData = ref<TeamData | null>(null);
 const showLoading = ref(true);
 const loadUserData = async () => {
     userData.value = null;
+    teamData.value = null;
     showLoading.value = true;
     await serverConnection.handshakePromise;
     await nextTick();

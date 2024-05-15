@@ -10,7 +10,7 @@ const modal = globalModal();
 const accountManager = useAccountManager();
 
 const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 10);
-const username = autoGlitchTextTransition(() => accountManager.username, 40, 1, 10);
+const username = autoGlitchTextTransition(() => '@' + accountManager.username, 40, 1, 10);
 
 const fileUpload = ref<HTMLInputElement>();
 const changeProfileImage = (event: any) => {

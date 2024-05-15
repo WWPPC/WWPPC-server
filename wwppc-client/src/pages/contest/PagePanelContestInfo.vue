@@ -138,7 +138,7 @@ const router = useRouter();
                                 Teams (including the WWPPC team) will have a chance to test the contest system with a few practice rounds.
                             </p>
                             <p>
-                                The practice contest will be open all day. You <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
+                                The practice contest will be open all day. If you wish to enter the practice, you <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
                             </p>
                         </MultipanePane>
                         <MultipanePane for="openingCeremonies">

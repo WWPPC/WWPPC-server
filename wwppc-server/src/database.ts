@@ -562,7 +562,7 @@ export class Database {
             }
             if (useJoinCode) {
                 const res = await this.#db.query(
-                    'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 RETURNING users.username', [
+                    'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.joincode=$2) RETURNING users.username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
