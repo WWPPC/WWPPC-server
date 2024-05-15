@@ -73,16 +73,16 @@ const joinTeam = async () => {
     const res = await accountManager.joinTeam(joinTeamCode.value, token);
     if (res == TeamOpResult.NOT_EXISTS) modal.showModal({ title: 'Invalid join code', content: 'The join code is invalid. Verify your join code is correct, then try again.', color: 'yellow' });
     else if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not join team', content: getTeamOpMessage(res), color: 'red' });
+    await accountManager.updateOwnUserData();
     showWriteTeamDataWait.value = false;
-    accountManager.updateOwnUserData();
 };
 const leaveTeam = async () => {
     showWriteTeamDataWait.value = true;
     if (accountManager.username == accountManager.team) return;
     const res = await accountManager.leaveTeam();
     if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not join team', content: getTeamOpMessage(res), color: 'red' });
+    await accountManager.updateOwnUserData();
     showWriteTeamDataWait.value = false;
-    accountManager.updateOwnUserData();
 };
 
 // danger buttons

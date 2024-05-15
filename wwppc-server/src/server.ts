@@ -486,6 +486,12 @@ io.on('connection', async (s) => {
             await resetTeam();
             return;
         }
+        const res2 = await database.unregisterAllContests(socket.username);
+        if (res2 != TeamOpResult.SUCCESS) {
+            socket.emit('teamActionResponse', res2);
+            await resetTeam();
+            return;
+        }
         // already set team before
         respond(TeamOpResult.SUCCESS);
         // update join code here

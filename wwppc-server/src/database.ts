@@ -566,16 +566,12 @@ export class Database {
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
-                if (reset.rows.length == 0) return TeamOpResult.ERROR;
             } else {
                 const res = await this.#db.query(
                     'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.username=$2) RETURNING users.username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-                const reset = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
-                if (reset.rows.length == 0) return TeamOpResult.ERROR;
             }
             this.#userCache.delete(username);
             this.#teamCache.forEach((v, k) => {
@@ -724,6 +720,25 @@ export class Database {
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`[Database] unregisterContest in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Unregister an account for all contests (shortcut method), also unregistering all other accounts on the same team. **Does not validate credentials**.
+     * @param {string} username Valid username
+     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Registration status
+     */
+    async unregisterAllContests(username: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+        const startTime = performance.now();
+        try {
+            const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
+            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+            return TeamOpResult.SUCCESS;
+        } catch (err) {
+            this.logger.error('Database error (unregisterAllContests):');
+            this.logger.error('' + err);
+            return TeamOpResult.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`[Database] unregisterAllContests in ${performance.now() - startTime}ms`, true);
         }
     }
 
