@@ -148,7 +148,7 @@ export class Database {
      * @param {{ name: string, value: SqlValue | undefined | null }[]} columns Array of columns with conditions to check. If any value is undefined the condition is omitted
      * @returns { queryConditions: string, bindings: SqlValue[] } String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
      */
-    #buildColumnConditions(columns: { name: string, value: SqlValue | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
+    #buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
         const conditions: string[] = [];
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
@@ -156,7 +156,12 @@ export class Database {
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
-            } else if (value != undefined) {
+            // } else if (typeof value == 'object' && value != null) {
+            //     if (value.op == '><' || value.op == '<>') {
+            //     } else {
+            //         value.v
+            //     }
+            } else if (value != null) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
             }
@@ -928,7 +933,11 @@ export class Database {
             if (c.contest != undefined) {
                 const rounds = await this.readRounds(c.contest);
                 if (rounds === null) return null;
-                if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                if (c.contest.number != undefined) {
+                    const n = c.contest.number;
+                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => n.includes(i))).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const problems: Problem[] = [];
@@ -1016,7 +1025,11 @@ export class Database {
             if (c.contest != undefined) {
                 const rounds = await this.readRounds(c.contest);
                 if (rounds === null) return null;
-                if (c.contest.number != undefined) rounds.map((r) => r.problems[c.contest!.number!]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                if (c.contest.number != undefined) {
+                    const n = c.contest.number;
+                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => n.includes(i))).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const submissions: Submission[] = [];
@@ -1113,9 +1126,26 @@ export class Database {
 }
 export default Database;
 
+export type UUID = string;
+
 export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
-export type UUID = string;
+/**Flexible comparison type for database filtering */
+// type FilterComparison<T> = {
+//     op: '<' | '>' | '>=' | '<='
+//     v: number & T
+// } | {
+//     op: '><' | '<>'
+//     v1: number & T
+//     v2: number & T
+// } | {
+//     op: '=' | '!'
+//     v: T
+// } | {
+//     op: '=' | '!'
+//     v: T[]
+// } | T | T[];
+type FilterComparison<T> = T | T[];
 
 export function isUUID(id: string): id is UUID {
     return uuidValidate(id);
@@ -1342,30 +1372,29 @@ export enum ScoreState {
     RUNTIME_ERROR = 5
 }
 
-type CriteriaComparison<T> = {
-    op: '<' | '>' | '!',
-    v: T
-} | T;
-
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadRoundsCriteria {
     /**Contest ID */
-    contest?: string
+    contest?: string | string[]
     /**Zero-indexed round within the contest */
-    round?: number
+    round?: FilterComparison<number>
     /**Round ID */
     id?: UUID | UUID[]
+    /**Start of round, UNIX time */
+    startTime?: FilterComparison<number>
+    /**End of round, UNIX time */
+    endTime?: FilterComparison<number>
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ProblemRoundCriteria {
     /**Contest ID */
-    contest?: string
+    contest?: string | string[]
     /**Zero-indexed round within the contest */
-    round?: number
+    round?: FilterComparison<number>
     /**Zero-indexed problem number within the round */
-    number?: number
+    number?: FilterComparison<number>
     /**Round ID */
-    roundId?: UUID
+    roundId?: UUID | UUID[]
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadProblemsCriteria {
@@ -1377,7 +1406,6 @@ interface ReadProblemsCriteria {
     author?: string
     /**Round based filter for problems */
     contest?: ProblemRoundCriteria
-
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 interface ReadSubmissionsCriteria {
@@ -1387,6 +1415,4 @@ interface ReadSubmissionsCriteria {
     username?: string
     /**Round-based filter for problems */
     contest?: ProblemRoundCriteria
-    /**More specific validators */
-    filter?: (c: Problem) => boolean
 }
