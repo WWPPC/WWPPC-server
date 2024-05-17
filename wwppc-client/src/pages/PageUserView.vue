@@ -57,7 +57,6 @@ watch(userData, () => {
     languages.value = userData.value?.languages ?? [];
     if (userData.value) setTitlePanel(userData.value.displayName);
 });
-watch(() => userData.value?.grade, () => console.log(userData.value?.grade))
 onMounted(loadUserData);
 
 const largeHeader = ref(true);
@@ -101,7 +100,7 @@ const largeHeader = ref(true);
                             <TitledCutCornerContainer title="Team" align="center" height="100%" style="grid-row: span 2;">
                                 <div class="userViewTeamGrid">
                                     <div class="userViewTeamList">
-                                        <AccountProfileTeamUser v-for="user in teamData?.teamMembers" :key="user" :user="user"></AccountProfileTeamUser>
+                                        <AccountProfileTeamUser v-for="user in teamData?.teamMembers" :key="user" :user="user" :team="teamData!.team"></AccountProfileTeamUser>
                                     </div>
                                     <div>
                                         <PairedGridContainer width="100%">

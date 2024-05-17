@@ -126,7 +126,7 @@ socket.on('getCredentials', async (session) => {
 export const sendCredentials = async (username: string, password: string | number[], token: string, signupData?: CredentialsSignupData): Promise<AccountOpResult> => {
     return await new Promise(async (resolve, reject) => {
         if (state.loggedIn) {
-            resolve(AccountOpResult.ERROR);
+            resolve(AccountOpResult.NOT_CONNECTED);
             return;
         }
         try {

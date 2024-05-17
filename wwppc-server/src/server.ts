@@ -449,14 +449,21 @@ io.on('connection', async (s) => {
         socket.emit('credentialRes', res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
+    let teamLockout = false;
     socket.on('joinTeam', async (data: { code: string, token: string }) => {
         if (data == null || typeof data.code != 'string' || typeof data.token != 'string') {
             socket.kick('invalid joinTeam payload');
         }
+        if (teamLockout) {
+            socket.kick('overlapping team operations');
+            return;
+        }
+        teamLockout = true;
         if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.code);
         const respond = (code: TeamOpResult) => {
             if (config.debugMode) socket.logWithId(logger.info, 'Join team: ' + reverse_enum(TeamOpResult, code));
             socket.emit('teamActionResponse', code);
+            teamLockout = false;
         };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
@@ -482,13 +489,13 @@ io.on('connection', async (s) => {
         const contests = await database.readContests(userData.registrations);
         if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
         if (contests.some((c) => c.maxTeamSize <= teamData.members.length)) {
-            socket.emit('teamActionResponse', TeamOpResult.CONTEST_MEMBER_LIMIT);
+            respond(TeamOpResult.CONTEST_MEMBER_LIMIT);
             await resetTeam();
             return;
         }
         const res2 = await database.unregisterAllContests(socket.username);
         if (res2 != TeamOpResult.SUCCESS) {
-            socket.emit('teamActionResponse', res2);
+            respond(res2);
             await resetTeam();
             return;
         }
@@ -498,9 +505,15 @@ io.on('connection', async (s) => {
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
     socket.on('leaveTeam', async () => {
+        if (teamLockout) {
+            socket.kick('overlapping team operations');
+            return;
+        }
+        teamLockout = true;
         if (config.debugMode) socket.logWithId(logger.info, 'Leaving team');
         const res = await database.setAccountTeam(socket.username, socket.username);
         socket.emit('teamActionResponse', res);
+        teamLockout = false;
         const teamData = await database.getTeamData(socket.username);
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
@@ -508,10 +521,16 @@ io.on('connection', async (s) => {
         if (data == null || typeof data.user != 'string' || typeof data.token != 'string') {
             socket.kick('invalid kickTeam payload');
         }
+        if (teamLockout) {
+            socket.kick('overlapping team operations');
+            return;
+        }
+        teamLockout = true;
         if (config.debugMode) socket.logWithId(logger.info, 'Kicking user from team: ' + data.user);
         const respond = (code: TeamOpResult) => {
             if (config.debugMode) socket.logWithId(logger.info, 'Kick user: ' + reverse_enum(TeamOpResult, code));
             socket.emit('teamActionResponse', code);
+            teamLockout = false;
         };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {

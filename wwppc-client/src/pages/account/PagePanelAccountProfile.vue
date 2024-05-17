@@ -264,7 +264,7 @@ onMounted(clearDangerButtons);
                 <h3>Your Team</h3>
                 <div class="profileTeamGrid">
                     <div class="profileTeamList">
-                        <AccountProfileTeamUser v-for="user in accountManager.teamMembers" :key="user" :user="user"></AccountProfileTeamUser>
+                        <AccountProfileTeamUser v-for="user in accountManager.teamMembers" :key="user" :user="user" :team="accountManager.team" allow-kick></AccountProfileTeamUser>
                     </div>
                     <form action="javascript:void(0)" @submit=writeTeamData>
                         <PairedGridContainer width="100%">
