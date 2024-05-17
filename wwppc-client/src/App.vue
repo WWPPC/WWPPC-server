@@ -9,6 +9,7 @@ import PageLogin from '@/pages/PageLogin.vue';
 import PageTest from '@/pages/PageTest.vue';
 import NotFound from '@/pages/NotFound.vue';
 import SuperSecretFeature from '@/components/SuperSecretFeature.vue';
+import SuperSecretCarrier from '@/components/SuperSecretCarrier.vue';
 import { ref, watch } from 'vue';
 import '@/scripts/app';
 import { useRoute } from 'vue-router';
@@ -55,4 +56,5 @@ watch(() => route.params, () => {
     <PageTools></PageTools>
     <FullscreenModal ref="modalComponent"></FullscreenModal>
     <SuperSecretFeature></SuperSecretFeature>
+    <SuperSecretCarrier></SuperSecretCarrier>
 </template>

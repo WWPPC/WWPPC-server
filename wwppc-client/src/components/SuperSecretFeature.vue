@@ -29,8 +29,8 @@ watch(() => route.query.super_secret_scanlines, () => {
     left: 0px;
     width: 100vw;
     height: 100vh;
-    pointer-events: none;
     background-color: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
     z-index: 999999;
 }
 

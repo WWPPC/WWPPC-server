@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AnimateInContainer, DoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import HomeAboutCreditsCardIcon from './HomeAboutCreditsCardIcon.vue';
+import { ref } from 'vue';
 
 defineProps<{
     name: string,
@@ -12,6 +13,8 @@ defineProps<{
     bio: string
     img: string
 }>();
+
+const funAnimation = ref(Math.random() < 0.01);
 </script>
 
 <template>
@@ -76,6 +79,19 @@ defineProps<{
 
 .cardContainer:hover>.card {
     transform: rotateY(180deg);
+    animation-name: spinny-carrier;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-duration: v-bind("funAnimation ? '500ms' : ''");
+}
+
+@keyframes spinny-carrier {
+    from {
+        transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+    }
+    to {
+        transform: rotateX(360deg) rotateY(720deg) rotateZ(360deg);
+    }
 }
 
 .cardFront,
