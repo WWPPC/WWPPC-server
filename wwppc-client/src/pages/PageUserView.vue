@@ -47,16 +47,17 @@ watch(() => route.params, () => {
 // spaghetti
 const username = autoGlitchTextTransition(() => '@' + (userData.value?.username ?? ''), 40, 1, 10, 3, true);
 const displayName = autoGlitchTextTransition(() => userData.value?.displayName ?? '', 40, 1, 10, 3, true);
-const grade = ref<number[]>([]);
-const experience = ref<number[]>([]);
+const grade = ref<string>('');
+const experience = ref<string>('');
 const languages = ref<string[]>([]);
 const biography = autoGlitchTextTransition(() => userData.value?.bio ?? '', 40, 4, 10);
 watch(userData, () => {
-    grade.value = [userData.value?.grade ?? 0];
-    experience.value = [userData.value?.experience ?? 0];
+    grade.value = '' + (userData.value?.grade ?? '');
+    experience.value = '' + (userData.value?.experience ?? '');
     languages.value = userData.value?.languages ?? [];
     if (userData.value) setTitlePanel(userData.value.displayName);
 });
+watch(() => userData.value?.grade, () => console.log(userData.value?.grade))
 onMounted(loadUserData);
 
 const largeHeader = ref(true);
@@ -85,11 +86,11 @@ const largeHeader = ref(true);
                                     <span>School:</span>
                                     <UITextBox :value="userData?.school" width="var(--fwidth)" disabled></UITextBox>
                                     <span>Grade Level:</span>
-                                    <UIDropdown :value="grade" width="var(--fwidth)" :items="gradeMaps" disabled></UIDropdown>
+                                    <UIDropdown v-model="grade" width="var(--fwidth)" :items="gradeMaps" disabled></UIDropdown>
                                     <span>Experience Level:</span>
-                                    <UIDropdown :value="experience" width="var(--fwidth)" :items="experienceMaps" disabled></UIDropdown>
+                                    <UIDropdown v-model="experience" width="var(--fwidth)" :items="experienceMaps" disabled></UIDropdown>
                                     <span>Known Languages:</span>
-                                    <UIDropdown :value="languages" width="var(--fwidth)" height="6em" :items="languageMaps" multiple disabled></UIDropdown>
+                                    <UIDropdown v-model="languages" width="var(--fwidth)" height="6em" :items="languageMaps" multiple disabled></UIDropdown>
                                 </PairedGridContainer>
                             </TitledCutCornerContainer>
                             <TitledDoubleCutCornerContainer title="Biography" align="center" height="100%" flipped>

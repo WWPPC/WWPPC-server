@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 
 interface DropdownItem {
     text: string
@@ -11,14 +12,18 @@ const props = defineProps<{
     width?: string
     height?: string
     default?: string
+    multiple?: boolean
 }>();
-const selected = defineModel<string | string[]>({ default: '' });
 const emit = defineEmits<{
     (e: 'input', value: string | string[]): any
 }>();
+const selected = defineModel<string | string[]>({ default: '' });
 function input() {
     emit('input', selected.value);
 }
+onMounted(() => {
+    selected.value = props.default ?? (props.multiple ? [] : '');
+});
 defineExpose({
     value: selected,
     items: props.items,
@@ -27,12 +32,12 @@ defineExpose({
 </script>
 
 <template>
-    <select class="uiDropdown" @change=input v-model=selected :title=props.title>
-        <option v-for="item in props.items" :key=item.value :value=item.value :selected="item.value == props.default">
+    <select class="uiDropdown" @change=input v-model=selected :title=props.title :multiple=props.multiple>
+        <option v-for="item in props.items" :key=item.value :value=item.value>
             {{ item.text }}
         </option>
         <optgroup v-for="itemGroup in props.groupedItems" :key=itemGroup.label :label=itemGroup.label>
-            <option v-for="item in itemGroup.items" :key=item.text :label=item.text :selected="item.text == props.default">
+            <option v-for="item in itemGroup.items" :key=item.text :label=item.text>
                 {{ item.value }}
             </option>
         </optgroup>
@@ -73,7 +78,7 @@ defineExpose({
 }
 
 .uiDropdown option:checked {
-    color: lime;
+    color: lime !important;
 }
 
 .uiDropdown optgroup {
