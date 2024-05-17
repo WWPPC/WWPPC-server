@@ -460,7 +460,7 @@ io.on('connection', async (s) => {
         };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
-            socket.emit('teamActionResponse', recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
+            respond(recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
             return;
         }
         // first join so can check team data
@@ -503,6 +503,23 @@ io.on('connection', async (s) => {
         socket.emit('teamActionResponse', res);
         const teamData = await database.getTeamData(socket.username);
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
+    });
+    socket.on('kickTeam', async (data: { user: string, token: string }) => {
+        if (data == null || typeof data.user != 'string' || typeof data.token != 'string') {
+            socket.kick('invalid kickTeam payload');
+        }
+        if (config.debugMode) socket.logWithId(logger.info, 'Kicking user from team: ' + data.user);
+        const respond = (code: TeamOpResult) => {
+            if (config.debugMode) socket.logWithId(logger.info, 'Kick user: ' + reverse_enum(TeamOpResult, code));
+            socket.emit('teamActionResponse', code);
+        };
+        const recaptchaRes = await checkRecaptcha(data.token);
+        if (recaptchaRes != AccountOpResult.SUCCESS) {
+            respond(recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
+            return;
+        }
+        const res = await database.setAccountTeam(data.user, data.user);
+        respond(res);
     });
     socket.on('setTeamData', async (data: { teamName: string, teamBio: string }) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating team data');

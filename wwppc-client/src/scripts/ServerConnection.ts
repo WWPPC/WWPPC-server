@@ -67,7 +67,8 @@ export enum AccountOpResult {
     ALREADY_EXISTS = 1,
     NOT_EXISTS = 2,
     INCORRECT_CREDENTIALS = 3,
-    ERROR = 4
+    ERROR = 4,
+    NOT_CONNECTED = 5
 }
 export enum TeamOpResult {
     SUCCESS = 0,
@@ -77,13 +78,14 @@ export enum TeamOpResult {
     CONTEST_ALREADY_EXISTS = 4,
     INCORRECT_CREDENTIALS = 5,
     NOT_ALLOWED = 6,
-    ERROR = 7
+    ERROR = 7,
+    NOT_CONNECTED = 5
 }
 export const getAccountOpMessage = (res: number): string => {
-    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Internal error' : 'Unknown response code (this is a bug?)';
+    return res == AccountOpResult.SUCCESS ? 'Success' : res == AccountOpResult.ALREADY_EXISTS ? 'Account already exists' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Incorrect credentials' : res == AccountOpResult.ERROR ? 'Internal error' : res == AccountOpResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown response code (this is a bug?)';
 };
 export const getTeamOpMessage = (res: number): string => {
-    return res == TeamOpResult.SUCCESS ? 'Success' : res == TeamOpResult.NOT_EXISTS ? 'Account, team, or contest not found' : res == TeamOpResult.CONTEST_CONFLICT ? 'Conflict with other registration' : res == TeamOpResult.CONTEST_MEMBER_LIMIT ? 'Too many team members' : res == TeamOpResult.CONTEST_ALREADY_EXISTS ? 'Already registered' : res == TeamOpResult.NOT_ALLOWED ? 'Not allowed (unspecified)' : res == TeamOpResult.ERROR ? 'Internal error' : 'Unknown response code (this is a bug?)';
+    return res == TeamOpResult.SUCCESS ? 'Success' : res == TeamOpResult.NOT_EXISTS ? 'Account, team, or contest not found' : res == TeamOpResult.CONTEST_CONFLICT ? 'Conflict with other registration' : res == TeamOpResult.CONTEST_MEMBER_LIMIT ? 'Too many team members' : res == TeamOpResult.CONTEST_ALREADY_EXISTS ? 'Already registered' : res == TeamOpResult.NOT_ALLOWED ? 'Not allowed (unspecified)' : res == TeamOpResult.ERROR ? 'Internal error' : res == AccountOpResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown response code (this is a bug?)';
 };
 
 export interface CredentialsSignupData {
