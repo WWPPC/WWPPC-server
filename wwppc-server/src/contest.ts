@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, isUUID, Problem, reverse_enum, Round, Score, TeamOpResult } from './database';
+import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
 import Grader from './grader';
 import DomjudgeGrader from './domjudgeGrader';
 import Logger from './log';
@@ -173,49 +173,49 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-        // SERVER-DRIVEN PROBLEM LIST/PROBLEM DATA
-
-        //submit a solution
-        socket.on('updateSubmission', async (request: { file: string, contest: string, round: number, number: number, lang: string }) => {
-            // needs response event
-            // need to write to database first, also read it back to get data not here
-
+        socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }) => {
             // also need to check valid language, valid problem id
-            if (request == null || typeof request.contest !== 'string' || typeof request.round !== 'number' || typeof request.number !== 'number' || typeof request.file !== 'string' || typeof request.lang !== 'string') {
+            if (data == null || typeof data.id !== 'string' || typeof data.file !== 'string' || typeof data.lang !== 'string' || isUUID(data.id)) {
                 socket.kick('invalid updateSubmission payload');
                 return;
             }
-            if (request.file.length > 10240) {
-                socket.kick('updateSubmission file too large');
+            if (config.debugMode) socket.logWithId(this.logger.debug, 'Update submission: ' + data.id);
+            const respond = (success: boolean, message: string) => {
+                if (config.debugMode) socket.logWithId(this.logger.debug, `Update submission: ${data.id} - ${success ? 'success' : 'fail'}: ${message}`);
+                socket.emit('submissionStatus', success);
+            };
+            if (data.file.length > 10240) {
+                respond(false, 'file too large');
                 return;
             }
-            const problems = await this.db.readProblems({ contest: { contest: request.contest, round: request.round, number: request.number } });
-            if (problems === null) return;
-            if (problems.length !== 1) {
-                socket.kick('invalid updateSubmission contest, round, or problem ID');
+            const problems = await this.db.readProblems({ id: data.id });
+            if (problems === null) {
+                respond(false, 'nonexistent problem');
                 return;
             }
             const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
             if (problems[0].hidden && !canViewAllProblems) {
-                socket.kick('invalid updateSubmission contest, round, or problem ID');
+                socket.kick('attempt to view hidden problem');
                 return;
             }
-            const rounds = await this.db.readRounds({ contest: request.contest, round: request.round });
-            if (rounds === null) return;
-            //note that we are guaranteed to have a valid round, since we just checked valid problem
-            if (rounds[0].startTime > Date.now() || rounds[0].endTime < Date.now()) {
-                socket.kick('updateSubmission outside of contest window');
+            if (!Array.from(this.#contests.values()).some((contest) => contest.containsActiveProblem(data.id))) {
+                respond(false, 'problem currently not submittable');
                 return;
             }
-            this.#grader.queueSubmission({
+            const submission: Submission = {
                 username: socket.username,
-                problemId: problems[0].id,
-                time: Date.now(),
-                file: request.file,
-                lang: request.lang,
+                problemId: data.id,
+                file: data.file,
+                lang: data.lang,
                 scores: [],
-                history: []
-            });
+                history: [], // this doesn't matter
+                time: Date.now()
+            };
+            this.#grader.queueSubmission(submission);
+            if (!(await this.db.writeSubmission(submission))) {
+                respond(false, 'database error');
+                return;
+            }
         });
 
         // add to user list and return after attaching listeners
@@ -232,6 +232,7 @@ export class ContestManager {
         socket.on('disconnect', removeSelf);
         socket.on('timeout', removeSelf);
         socket.on('error', removeSelf);
+        // note: always add user to running contest list no matter what to ensure socket.io room join
         if (this.#users.has(socket.username)) return this.#users.get(socket.username)!.sockets.add(socket).size;
         this.#users.set(socket.username, {
             username: socket.username,
@@ -244,24 +245,137 @@ export class ContestManager {
     }
 }
 
+export interface ContestContest {
+    readonly id: string
+    rounds: ContestRound[]
+    startTime: number
+    endTime: number
+}
+export interface ContestRound {
+    readonly id: UUID
+    readonly contest: string
+    readonly number: number
+    problems: ContestProblem[]
+    startTime: number
+    endTime: number
+}
+export interface ContestProblem {
+    id: string
+    contest: string
+    round: number
+    number: number
+    name: string
+    author: string
+    content: string
+    constraints: { memory: number, time: number }
+}
+
 class RunningContest {
     readonly id;
-    readonly rounds: Round[];
-    #index = 0;
+    readonly db: Database;
+    readonly logger: Logger;
+    #data: ContestContest;
+    #index: number = 0;
+    readonly #sid: string;
 
     readonly #users: Map<string, ContestUser> = new Map();
 
-    constructor(id: string, rounds: Round[]) {
+    constructor(id: string, db: Database, logger: Logger) {
         this.id = id;
-        this.rounds = rounds;
-        // timer to step through rounds
+        this.db = db;
+        this.logger = logger;
+        this.#data = {
+            id: id,
+            rounds: [],
+            startTime: Infinity,
+            endTime: Infinity
+        };
+        this.#sid = Math.random().toString();
+        this.reload();
+    }
+
+    get data(): ContestContest {
+        return structuredClone(this.data);
+    }
+    async reload(): Promise<void> {
+        this.logger.info(`[RunningContest] Reloading contest data "${this.id}"`);
+        const contest = await this.db.readContests(this.id);
+        if (contest == null || contest.length == 0) {
+            if (contest == null) this.logger.error(`[RunningContest] Database error`);
+            else this.logger.error(`[RunningContest] Contest "${this.id}" does not exist`);
+            this.end();
+            return;
+        }
+        const rounds = await this.db.readRounds({ id: contest[0].rounds });
+        if (rounds === null) {
+            this.logger.error(`[RunningContest] Database error`);
+            this.end();
+            return;
+        }
+        const mappedRounds = await Promise.all(rounds.map(async (round, i): Promise<ContestRound | null> => {
+            const problems = await this.db.readProblems({ id: round.problems });
+            if (problems === null) {
+                this.logger.error(`[RunningContest] Database error`);
+                return null;
+            }
+            return {
+                id: round.id,
+                contest: this.id,
+                number: i,
+                problems: problems.map((problem, j): ContestProblem => ({
+                    id: problem.id,
+                    contest: this.id,
+                    round: i,
+                    number: j,
+                    name: problem.name,
+                    author: problem.author,
+                    content: problem.author,
+                    constraints: problem.constraints
+                })),
+                startTime: round.startTime,
+                endTime: round.endTime
+            };
+        }));
+        const stupidFix: ContestRound[] = [];
+        for (const r of mappedRounds) {
+            if (r != null) stupidFix.push(r);
+            else {
+                this.end();
+                return;
+            }
+        }
+        this.#data = {
+            id: this.id,
+            rounds: stupidFix,
+            startTime: contest[0].startTime,
+            endTime: contest[0].endTime
+        }
+    }
+
+    activeRound(): Round {
+        const r = this.#data.rounds[this.#index];
+        return {
+            id: r.id,
+            problems: r.problems.map((p) => p.id),
+            startTime: r.startTime,
+            endTime: r.endTime
+        };
+    }
+    containsActiveProblem(id: string): boolean {
+        return this.#data.rounds[this.#index].problems.some((p) => p.id === id);
     }
 
     addUser(user: ContestUser): void {
         this.#users.set(user.username, user);
+        user.sockets.forEach((socket) => socket.join(this.#sid))
     }
     removeUser(user: ContestUser): boolean {
+        if (this.#users.has(user.username)) user.sockets.forEach((socket) => socket.leave(this.#sid));
         return this.#users.delete(user.username);
+    }
+
+    end() {
+        this.#users.forEach((u) => this.removeUser(u));
     }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
+
 const props = defineProps<{
     show?: boolean
 }>();
@@ -11,15 +12,26 @@ const showAnyways = ref(route.query.battlecow !== undefined);
 watch(() => route.query.battlecow, () => {
     showAnyways.value = route.query.battlecow !== undefined || showAnyways.value;
 });
+
+const j1 = ref(false);
+const j2 = ref(false);
+const jumping1 = () => {
+    j1.value = true;
+    setTimeout(() => j1.value = false, 400);
+};
+const jumping2 = () => {
+    j2.value = true;
+    setTimeout(() => j2.value = false, 400);
+};
 </script>
 
 <template>
     <div class="superSecretCarrier" v-if="props.show || randomShow || showAnyways">
         <div class="launcherWrapper">
-            <img src="/assets/battlecow/red-launcher.png" class="launcher">
+            <img src="/assets/battlecow/red-launcher.png" :class="'launcher ' + (j1 ? 'jumping' : '')" @click="jumping1()">
         </div>
         <div class="carrierWrapper">
-            <img src="/assets/battlecow/blue-carrier.png" class="carrier">
+            <img src="/assets/battlecow/blue-carrier.png" :class="'carrier ' + (j2 ? 'jumping' : '')" @click="jumping2()">
         </div>
     </div>
 </template>
@@ -66,14 +78,20 @@ watch(() => route.query.battlecow, () => {
     border-radius: 3vh;
     background-color: currentColor;
     box-shadow: 0px 0px 2vh 2vh currentColor;
+    pointer-events: all;
+    cursor: pointer;
 }
 
 .carrier {
-    color: #0DF4;
+    color: #0AF4;
 }
 
 .launcher {
-    color: #F304;
+    color: #F204;
+}
+
+.jumping {
+    animation: 200ms cubic-bezier(0.1, 0.3, 0.6, 1) jump alternate infinite;
 }
 
 @keyframes translate {
@@ -94,6 +112,16 @@ watch(() => route.query.battlecow, () => {
 
     to {
         transform: rotateZ(5deg);
+    }
+}
+
+@keyframes jump {
+    from {
+        transform: translateY(0) rotateZ(-10deg);
+    }
+
+    to {
+        transform: translateY(-6vh) rotateZ(5deg);
     }
 }
 </style>

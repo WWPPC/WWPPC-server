@@ -466,6 +466,7 @@ export class Database {
                 this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
                 this.#userCache.delete(username);
                 for (const row of users.rows) {
+                    this.#userCache.delete(row.username);
                     this.#teamCache.delete(row.username);
                 }
                 return AccountOpResult.SUCCESS;
@@ -478,6 +479,7 @@ export class Database {
                 this.logger.info(`[Database] Deleted account ${username}`, true);
                 this.#userCache.delete(username);
                 for (const row of users.rows) {
+                    this.#userCache.delete(row.username);
                     this.#teamCache.delete(row.username);
                 }
                 return AccountOpResult.SUCCESS;

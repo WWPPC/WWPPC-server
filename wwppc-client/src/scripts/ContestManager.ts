@@ -18,9 +18,9 @@ export interface ContestRound {
 }
 export interface ContestProblem {
     id: string
-    contest: string | undefined
-    round: number | undefined
-    number: number | undefined
+    contest: string
+    round: number
+    number: number
     name: string
     author: string
     content: string
@@ -86,10 +86,10 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
 // replace with new state variable that is just Contest
 const state = reactive<{
     inContest: boolean,
-    currContest: string
+    contest: Contest | null
 }>({
     inContest: false,
-    currContest: 'WWPITTEST'
+    contest: null
 });
 
 export const useContestManager = defineStore('contestManager', {
@@ -100,104 +100,7 @@ export const useContestManager = defineStore('contestManager', {
             const res: string[] | null = await serverConnection.apiFetch('GET', '/contestList/');
             return res;
         },
-        async getContestData(): Promise<Contest | null> {
-            const serverConnection = useServerConnection();
-            const res: Contest | null = await serverConnection.apiFetch('GET', '/contestData/' + state.currContest);
-            return res;
-        },
-        // replace getProblemList and getProblemData/getProblemDataId with live updating
-        // server sends updates to client instead of client fetching
-        // will mean contest manager has to store the data
-        async getProblemList(): Promise<ContestRound[]> {
-            const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return [];
-            return await new Promise((resolve) => {
-                const token = Math.random();
-                serverConnection.emit('getProblemList', { contest: state.currContest, token });
-                const handle = ({ data, token: token2 }: { data: ContestRound[], token: number }) => {
-                    if (token2 != token) return;
-                    resolve(data);
-                    serverConnection.off('problemList', handle);
-                };
-                serverConnection.on('problemList', handle);
-            });
-        },
-        async getProblemData(round: number, number: number): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
-            const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return { problem: null, submission: null };
-            return await new Promise((resolve) => {
-                const token = Math.random();
-                serverConnection.emit('getProblemData', { contest: state.currContest, round, number, token });
-                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
-                    if (token2 != token) return;
-                    if (submission != null) {
-                        if (submission.scores == null) {
-                            submission.status = ContestProblemCompletionState.SUBMITTED;
-                        } else {
-                            submission.status = ContestProblemCompletionState.ERROR;
-                            let allWrong: boolean = true;
-                            let someWrong: boolean = false;
-                            for (const score of submission.scores) {
-                                if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
-                                    allWrong = false;
-                                } else {
-                                    someWrong = true;
-                                }
-
-                            }
-                            if (allWrong) {
-                                submission.status = ContestProblemCompletionState.GRADED_FAIL;
-                            } else if (someWrong) {
-                                submission.status = ContestProblemCompletionState.GRADED_PARTIAL;
-                            } else {
-                                submission.status = ContestProblemCompletionState.GRADED_PASS;
-                            }
-                        }
-                    }
-                    resolve({ submission, problem });
-                    serverConnection.off('problemData', handle);
-                };
-                serverConnection.on('problemData', handle);
-            });
-        },
-        async getProblemDataId(id: string): Promise<{ problem: ContestProblem | null, submission: ContestSubmission | null }> {
-            const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return { problem: null, submission: null };
-            return await new Promise((resolve) => {
-                const token = Math.random();
-                serverConnection.emit('getProblemData', { id, token });
-                const handle = ({ problem, submission, token: token2 }: { problem: ContestProblem | null, submission: ContestSubmission | null, token: number }) => {
-                    if (token2 != token) return;
-                    if (submission != null) {
-                        if (submission.scores == null) {
-                            submission.status = ContestProblemCompletionState.SUBMITTED;
-                        } else {
-                            submission.status = ContestProblemCompletionState.ERROR;
-                            let allWrong: boolean = true;
-                            let someWrong: boolean = false;
-                            for (const score of submission.scores) {
-                                if (!(score.state === ContestScoreState.INCORRECT || score.state === ContestScoreState.MEM_LIM_EXCEEDED || score.state === ContestScoreState.RUNTIME_ERROR || score.state === ContestScoreState.TIME_LIM_EXCEEDED)) {
-                                    allWrong = false;
-                                } else {
-                                    someWrong = true;
-                                }
-
-                            }
-                            if (allWrong) {
-                                submission.status = ContestProblemCompletionState.GRADED_FAIL;
-                            } else if (someWrong) {
-                                submission.status = ContestProblemCompletionState.GRADED_PARTIAL;
-                            } else {
-                                submission.status = ContestProblemCompletionState.GRADED_PASS;
-                            }
-                        }
-                    }
-                    resolve({ submission, problem });
-                    serverConnection.off('problemData', handle);
-                };
-                serverConnection.on('problemData', handle);
-            });
-        },
+        // server-driven contest list
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
             const serverConnection = useServerConnection();
             const res: ArchiveProblem | null = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
