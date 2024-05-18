@@ -144,6 +144,12 @@ const submitUpload = async () => {
         modal.showModal({ title: 'Could not submit', content: 'A problem occured while uploading your submission. Try reloading and submitting again.', color: 'red' });
     }
 }
+
+// thing for katex
+const problemContent = ref('');
+watch(problem, () => {
+    latexify(problem.value.content).then((html) => problemContent.value = html);
+});
 </script>
 
 <template>
@@ -157,7 +163,7 @@ const submitUpload = async () => {
                     <span v-html="problemSubtitle1"></span>
                     <span v-html="problemSubtitle2"></span>
                 </div>
-                <div class="problemViewContent" v-html="latexify(problem.content)"></div>
+                <div class="problemViewContent" v-html="problemContent"></div>
                 <WaitCover text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>

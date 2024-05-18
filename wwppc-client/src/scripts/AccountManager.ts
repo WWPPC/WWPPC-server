@@ -112,69 +112,37 @@ export const useAccountManager = defineStore('accountManager', {
         async changePassword(password: string, newPassword: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve, reject) => {
-                try {
-                    serverConnection.emit('changeCredentials', {
-                        password: await serverConnection.RSAencrypt(password),
-                        newPassword: await serverConnection.RSAencrypt(newPassword),
-                        token: token
-                    });
-                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
-                } catch (err) {
-                    serverConnection.removeAllListeners('credentialRes');
-                    reject(err);
-                }
+            return await serverConnection.emitWithAck('changeCredentials', {
+                password: await serverConnection.RSAencrypt(password),
+                newPassword: await serverConnection.RSAencrypt(newPassword),
+                token: token
             });
         },
         async deleteAccount(password: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve, reject) => {
-                try {
-                    serverConnection.emit('deleteCredentials', {
-                        password: await serverConnection.RSAencrypt(password),
-                        token: token
-                    });
-                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
-                } catch (err) {
-                    serverConnection.removeAllListeners('credentialRes');
-                    reject(err);
-                }
+            return await serverConnection.emitWithAck('deleteCredentials', {
+                password: await serverConnection.RSAencrypt(password),
+                token: token
             });
         },
         async requestRecovery(username: string, email: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.handshakeComplete || serverConnection.loggedIn) return AccountOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve, reject) => {
-                try {
-                    serverConnection.emit('requestRecovery', {
-                        username: username,
-                        email: email,
-                        token: token
-                    });
-                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
-                } catch (err) {
-                    serverConnection.removeAllListeners('credentialRes');
-                    reject(err);
-                }
+            return await serverConnection.emitWithAck('requestRecovery', {
+                username: username,
+                email: email,
+                token: token
             });
         },
         async recoverAccount(username: string, recoveryPassword: string, newPassword: string, token: string): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.handshakeComplete || serverConnection.loggedIn) return AccountOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve, reject) => {
-                try {
-                    serverConnection.emit('recoverCredentials', {
-                        username: username,
-                        recoveryPassword: await serverConnection.RSAencrypt(recoveryPassword),
-                        newPassword: await serverConnection.RSAencrypt(newPassword),
-                        token: token
-                    });
-                    serverConnection.once('credentialRes', (res: AccountOpResult) => resolve(res));
-                } catch (err) {
-                    serverConnection.removeAllListeners('credentialRes');
-                    reject(err);
-                }
+            return await serverConnection.emitWithAck('recoverCredentials', {
+                username: username,
+                recoveryPassword: await serverConnection.RSAencrypt(recoveryPassword),
+                newPassword: await serverConnection.RSAencrypt(newPassword),
+                token: token
             });
         },
         signout() {
@@ -195,37 +163,29 @@ export const useAccountManager = defineStore('accountManager', {
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return AccountOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('setUserData', {
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    displayName: this.displayName,
-                    profileImage: this.profileImage,
-                    bio: this.bio,
-                    school: this.school,
-                    grade: this.grade,
-                    experience: this.experience,
-                    languages: this.languages
-                });
-                serverConnection.once('setUserDataResponse', (res: AccountOpResult) => {
-                    if (res == AccountOpResult.SUCCESS) unsaved.value = false;
-                    resolve(res);
-                });
+            const res = await serverConnection.emitWithAck('setUserData', {
+                firstName: this.firstName,
+                lastName: this.lastName,
+                displayName: this.displayName,
+                profileImage: this.profileImage,
+                bio: this.bio,
+                school: this.school,
+                grade: this.grade,
+                experience: this.experience,
+                languages: this.languages
             });
+            if (res == AccountOpResult.SUCCESS) unsaved.value = false;
+            return res;
         },
         async writeTeamData(): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('setTeamData', {
-                    teamName: this.teamName,
-                    teamBio: this.teamBio
-                });
-                serverConnection.once('teamActionResponse', (res: TeamOpResult) => {
-                    if (res == TeamOpResult.SUCCESS) unsaved2.value = false;
-                    resolve(res);
-                });
+            const res = await serverConnection.emitWithAck('setTeamData', {
+                teamName: this.teamName,
+                teamBio: this.teamBio
             });
+            if (res == TeamOpResult.SUCCESS) unsaved2.value = false;
+            return res;
         },
         async updateOwnUserData(): Promise<boolean> {
             const dat = await this.getUserData(this.username);
@@ -258,44 +218,28 @@ export const useAccountManager = defineStore('accountManager', {
         async joinTeam(joinCode: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('joinTeam', { code: joinCode, token: token });
-                serverConnection.once('teamActionResponse', (res: TeamOpResult) => resolve(res));
-            });
+            return await serverConnection.emitWithAck('joinTeam', { code: joinCode, token: token });
         },
         async leaveTeam(): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('leaveTeam');
-                serverConnection.once('teamActionResponse', (res: TeamOpResult) => resolve(res));
-            });
+            return await serverConnection.emitWithAck('leaveTeam');
         },
         async kickTeam(username: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('kickTeam', { user: username, token: token });
-                serverConnection.once('teamActionResponse', (res: TeamOpResult) => resolve(res));
-            });
+            return await serverConnection.emitWithAck('kickTeam', { user: username, token: token });
         },
         async registerContest(contest: string, token: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('registerContest', { contest: contest, token: token });
-                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
-            });
+            return await serverConnection.emitWithAck('registerContest', { contest: contest, token: token });
         },
         async unregisterContest(contest: string): Promise<TeamOpResult> {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return TeamOpResult.NOT_CONNECTED;
-            return await new Promise(async (resolve) => {
-                serverConnection.emit('unregisterContest', { contest: contest });
-                serverConnection.once('registerContestResponse', (res: TeamOpResult) => resolve(res));
-            });
+            return await serverConnection.emitWithAck('unregisterContest', { contest: contest });
         }
-
     }
 });
 

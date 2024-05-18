@@ -4,7 +4,8 @@ import CountdownTimer from '@/components/common/CountdownTimer.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, GlowText, UILinkButton, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, UILinkButton, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { nextContest, nextContestEnd } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -35,22 +36,42 @@ const router = useRouter();
                         <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                     </div>
                     <div class="centered">
-                        <CountdownTimer :to="new Date('6/2/2024 9:30 AM EST')" type="clock" font-size="var(--font-large)" color="lime" glow></CountdownTimer>
+                        <CountdownTimer :to="nextContest" type="clock" font-size="var(--font-large)" color="lime" glow></CountdownTimer>
                     </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen :delay=300>
                 <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                    <CenteredContainer>
-                        <span style="font-size: var(--font-20);">
-                            <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
-                            <div class="centered" style="margin: 8px;">
-                                <UILinkButton text="Register" color="lime" font-size="var(--font-large)" @click="router.push('/account/registrations')"></UILinkButton>
-                            </div>
-                            <p style="text-align: center; font-size: var(--font-small);">
-                                <i>Scroll down to see contest schedule</i>
-                            </p>
-                        </span>
+                    <CenteredContainer style="font-size: var(--font-20);" v-if="Date.now() > nextContest.getTime()">
+                        <GlitchText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing random></GlitchText>
+                        <div class="centered" style="margin: 8px;">
+                            <UILinkButton text="Register" color="lime" font-size="var(--font-large)" @click="router.push('/account/registrations')"></UILinkButton>
+                        </div>
+                        <p style="text-align: center; font-size: var(--font-small);">
+                            <i>Scroll down to see contest schedule</i>
+                        </p>
+                    </CenteredContainer>
+                    <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() > nextContestEnd.getTime()">
+                        <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random></GlitchText>
+                        <div class="centered" style="margin: 8px;">
+                            <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
+                        </div>
+                        <p style="text-align: center">
+                            Thanks to all who participated! We hope to see you next year (and in smaller tournaments in-between)!
+                        </p>
+                    </CenteredContainer>
+                    <CenteredContainer style="font-size: var(--font-20);" v-else>
+                        <GlitchText text="Contest started!" font-size="var(--font-28)" color="lime" glow flashing flash-color="red" random></GlitchText>
+                        <div class="centered" style="margin: 8px;">
+                            <UILinkButton text="Contest" color="lime" font-size="var(--font-large)" @click="router.push('/contest/contest')"></UILinkButton>
+                        </div>
+                        <p style="text-align: center">
+                            The contest has started!
+                            Join our <a href="https://discord.wwppc.tech">Discord</a> server for important information during the contest!
+                        </p>
+                        <p style="text-align: center; font-size: var(--font-small);">
+                            <i>Scroll down to see contest schedule</i>
+                        </p>
                     </CenteredContainer>
                 </CutCornerContainer>
             </AnimateInContainer>

@@ -4,6 +4,7 @@ import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOn
 import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
+import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
 </script>
 
 <template>
@@ -56,7 +57,9 @@ import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue"
                                     </p>
                                 </div>
                                 <div style="display: flex; flex-direction: column;">
-                                    <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                    <GlitchText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing random v-if="Date.now() < nextContest.getTime()"></GlitchText>
+                                    <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random v-else-if="Date.now() > nextContestEnd.getTime()"></GlitchText>
+                                    <GlitchText text="Contest started!" font-size="var(--font-28)" color="lime" glow flashing flash-color="red" random v-else></GlitchText>
                                     <div class="centered" style="margin-top: 0.5em;">
                                         <AnimateInContainer type="fade" :delay=400>
                                             <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-large)" color="lime"></UILinkButton>
