@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AnimateInContainer } from '@/components/ui-defaults/UIContainers';
-import { globalModal, UIButton, UILoadingSpinner } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, ModalMode, UIButton, UILoadingSpinner } from '@/components/ui-defaults/UIDefaults';
 import { type AccountData, useAccountManager } from '@/scripts/AccountManager';
 import recaptcha from '@/scripts/recaptcha';
 import { getTeamOpMessage, TeamOpResult } from '@/scripts/ServerConnection';
@@ -31,6 +31,8 @@ const openUserView = () => {
 };
 
 const kick = async () => {
+    const confirmation = await modal.showModal({ title: 'Kick from team?', content: `You are about to kick ${data.value?.displayName} (@${props.user}) from the team. Are you sure?`, mode: ModalMode.CONFIRM }).result;
+    if (!confirmation) return;
     const token = await recaptcha.execute('kick_team');
     const res = await accountManager.kickTeam(props.user, token);
     if (res != TeamOpResult.SUCCESS) modal.showModal({ title: 'Could not kick from team', content: getTeamOpMessage(res), color: 'red' });

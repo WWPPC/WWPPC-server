@@ -51,7 +51,7 @@ const router = useRouter();
                             <i>Scroll down to see contest schedule</i>
                         </p>
                     </CenteredContainer>
-                    <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() > nextContestEnd.getTime()">
+                    <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() < nextContestEnd.getTime()">
                         <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random></GlitchText>
                         <div class="centered" style="margin: 8px;">
                             <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
