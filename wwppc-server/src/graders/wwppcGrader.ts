@@ -1,8 +1,8 @@
 import { Express } from 'express';
 
-import { Database, ScoreState, Submission } from './database';
-import Grader from './grader';
-import Logger from './log';
+import { Database, ScoreState, Submission } from '../database';
+import Grader, { GraderSubmission, GraderSubmissionComplete } from '../grader';
+import Logger from '../log';
 
 export class WwppcGrader extends Grader {
 
@@ -29,6 +29,23 @@ export class WwppcGrader extends Grader {
         //send to remote judgehost
         //put results in the `submission` variable
         return submission;
+    }
+
+    // wait WHY ARE THERE TWO???
+    queueUngraded(submission: GraderSubmission): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    cancelUngraded(username: string, problemId: string): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    get gradedList(): GraderSubmissionComplete[] {
+        throw new Error('Method not implemented.');
+    }
+    get hasGradedSubmissions(): boolean {
+        throw new Error('Method not implemented.');
+    }
+    emptyGradedList(): GraderSubmissionComplete[] {
+        throw new Error('Method not implemented.');
     }
 }
 

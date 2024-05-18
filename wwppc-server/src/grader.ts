@@ -1,27 +1,59 @@
-import { Submission } from './database';
+import { Score, UUID } from "./database"
+
+/**Submissions as used by the grading system */
+export interface GraderSubmission {
+    /**Username of submitter */
+    readonly username: string
+    /**UUID of problem submitted to */
+    readonly problemId: UUID
+    /**Time of submission, UNIX milliseconds */
+    time: number
+    /**Contents of the submission file */
+    file: string
+    /**Submission language */
+    lang: string
+}
+/**Submissions as used by the grading system */
+export interface GraderSubmissionComplete extends GraderSubmission {
+    /**Username of submitter */
+    readonly username: string
+    /**UUID of problem submitted to */
+    readonly problemId: UUID
+    /**Time of submission, UNIX milliseconds */
+    time: number
+    /**Contents of the submission file */
+    file: string
+    /**Submission language */
+    lang: string
+    /**Resulting scores of the submission */
+    scores: Score[]
+}
 
 export abstract class Grader {
     /**
-     * Queue a submission to be judged
-     * @param {Submission} submission submission data
-     * @returns {boolean} whether `submission` was successfully pushed to the queue
+     * Add a submission to the ungraded queue of submissions.
+     * @param {GraderSubmission} submission New submission
      */
-    // abstract queueSubmission(submission: Submission): boolean
+    abstract queueUngraded(submission: GraderSubmission): Promise<void>;
+    /**
+     * Cancel all ungraded submissions from a user to a problem.
+     * @param username Username of submitter
+     * @param problemId ID or problem
+     */
+    abstract cancelUngraded(username: string, problemId: UUID): Promise<void>;
 
     /**
-     * Get all graded submissions that were not seen since last call to this method
-     * @returns {Submission[]} submission data
+     * List of completed/graded submissions
      */
-    // abstract getNewGradedSubmissions(): Submission[]
-
+    abstract get gradedList(): GraderSubmissionComplete[]
     /**
-     * Judge a submission and return it.
-     * @param {Submission} submission submission to be judged
-     * @returns {Submission} `submission`, but now with judge results. If `submission.scores` is nonempty nothing will happen and `submission` will be returned.
+     * If the graded submissions list is not empty
      */
-    // judgeSubmission(submission: Submission): Promise<Submission>
-
-    //Maybe we should move judgeSubmission() to the Grader class, rather than it being in ContestManager?
+    abstract get hasGradedSubmissions(): boolean
+    /**
+     * Empties the graded submission list and returns the contents.
+     */
+    abstract emptyGradedList(): GraderSubmissionComplete[]
 }
 
 export default Grader;

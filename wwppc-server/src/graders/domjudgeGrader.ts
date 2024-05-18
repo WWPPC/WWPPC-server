@@ -1,8 +1,8 @@
 import { Express } from 'express';
 
-import { Database, ScoreState, Submission } from './database';
-import Grader from './grader';
-import Logger from './log';
+import { Database, ScoreState, Submission } from '../database';
+import Grader, { GraderSubmissionComplete } from '../grader';
+import Logger from '../log';
 
 export class DomjudgeGrader extends Grader {
     //interface to grade stuff
@@ -137,13 +137,13 @@ export class DomjudgeGrader extends Grader {
                 res.end();
                 return;
             }
-            const submissions = await this.#db.readSubmissions({username: user}); //change this to team name
+            const submissions = await this.#db.readSubmissions({ username: user }); //change this to team name
             if (submissions == null) {
                 res.sendStatus(500);
                 res.end();
                 return;
             }
-            const data = submissions.find((s: Submission) => {return s.time.toString() === time});
+            const data = submissions.find((s: Submission) => { return s.time.toString() === time });
             if (data == null) {
                 res.sendStatus(404);
                 res.end();
@@ -218,7 +218,7 @@ export class DomjudgeGrader extends Grader {
         this.#app.use('/api/*', (req, res) => res.sendStatus(404));
     }
 
-    queueSubmission(submission: Submission): boolean {
+    async queueUngraded(submission: Submission): Promise<void> {
         // this.#ungradedSubmissions.push(submission);
         submission.scores.push({
             state: ScoreState.CORRECT,
@@ -227,13 +227,21 @@ export class DomjudgeGrader extends Grader {
         });
         this.#gradedSubmissions.push(submission); //pretend it's graded for testing purposes
         // this.#logger.debug(submission.toString());
-        return true;
+    }
+    async cancelUngraded(username: string, problemId: string): Promise<void> {
+        // oof
     }
 
-    getNewGradedSubmissions(): Submission[] {
-        const arr = structuredClone(this.#gradedSubmissions);
-        this.#gradedSubmissions.length = 0;
-        return arr;
+    get gradedList(): GraderSubmissionComplete[] {
+        return this.#gradedSubmissions;
+    }
+    get hasGradedSubmissions(): boolean {
+        return this.#gradedSubmissions.length > 0
+    }
+    emptyGradedList(): GraderSubmissionComplete[] {
+        const l = structuredClone(this.#gradedSubmissions);
+        this.#gradedSubmissions = [];
+        return l;
     }
 
     // async judgeSubmission(submission: Submission): Promise<Submission> {

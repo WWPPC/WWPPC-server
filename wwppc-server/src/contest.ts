@@ -4,7 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
 import Grader from './grader';
-import DomjudgeGrader from './domjudgeGrader';
+import DomjudgeGrader from './graders/domjudgeGrader';
 import Logger from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
@@ -33,36 +33,6 @@ export class ContestManager {
         this.io = io;
         this.logger = logger;
         this.#grader = new DomjudgeGrader(app, logger, db);
-
-        // split individual contests to running contest class
-
-        // SEE NETWORK DOCUMENTATION
-        // SEE NETWORK DOCUMENTATION
-
-        // cache the contests too
-
-        //make sure this isn't accidentally left running when the object is deleted
-        //make sure this isn't accidentally left running when the object is deleted
-        //make sure this isn't accidentally left running when the object is deleted
-        //make sure this isn't accidentally left running when the object is deleted
-        //interval to check for new submissions from grader
-        const interval = setInterval(() => {
-            //new submissions
-            const newSubmissions = this.#grader.getNewGradedSubmissions();
-            for (const s of newSubmissions) {
-                this.io.to(s.username).emit('submissionStatus', {
-                    status: {
-                        time: s.time,
-                        scores: s.scores
-                    }
-                });
-                this.db.writeSubmission(s);
-            }
-        }, 1000);
-        //make sure this isn't accidentally left running when the object is deleted
-        //make sure this isn't accidentally left running when the object is deleted
-        //make sure this isn't accidentally left running when the object is deleted
-
     }
 
     /**
@@ -199,7 +169,7 @@ export class ContestManager {
                 history: [], // this doesn't matter
                 time: Date.now()
             };
-            this.#grader.queueSubmission(submission);
+            this.#grader.queueUngraded(submission);
             if (!(await this.db.writeSubmission(submission))) {
                 respond(false, 'database error');
                 return;
