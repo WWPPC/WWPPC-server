@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
-import UserDisp from '@/components/UserDisp.vue';
+import UserDisp from '@/components/common/UserDisp.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
 import { useRoute } from 'vue-router';
 import PagePanelContestInfo from './contest/PagePanelContestInfo.vue';
@@ -38,7 +38,7 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
-                <div v-if="contestManager.inContest || ignoreServer" style="display: flex;">
+                <div v-if="contestManager.contest !== null || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                     <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
                     <PanelNavButton text="Leaderboard" for="/contest/leaderboard"></PanelNavButton>
@@ -46,7 +46,7 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             </PanelNavList>
             <PanelRightList>
                 <UserDisp></UserDisp>
-                <ContestTimer v-if="contestManager.inContest || ignoreServer"></ContestTimer>
+                <ContestTimer></ContestTimer>
             </PanelRightList>
         </PanelHeader>
         <PanelMain>

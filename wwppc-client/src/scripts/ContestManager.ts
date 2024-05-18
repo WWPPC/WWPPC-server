@@ -85,10 +85,8 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
 
 // replace with new state variable that is just Contest
 const state = reactive<{
-    inContest: boolean,
     contest: Contest | null
 }>({
-    inContest: false,
     contest: null
 });
 
@@ -99,6 +97,12 @@ export const useContestManager = defineStore('contestManager', {
             const serverConnection = useServerConnection();
             const res: string[] | null = await serverConnection.apiFetch('GET', '/contestList/');
             return res;
+        },
+        getProblemData(round: number, number: number): ContestProblem | null {
+            return state.contest?.rounds[round]?.problems[number] ?? null;
+        },
+        getProblemDataId(id: string): ContestProblem | null {
+            return state.contest?.rounds.flatMap((r) => r.problems).find((p) => p.id === id) ?? null;
         },
         // server-driven contest list
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
@@ -133,7 +137,7 @@ export const useContestManager = defineStore('contestManager', {
 
 // prevent circular dependency nuke
 window.addEventListener('DOMContentLoaded', () => {
-    socket.on('example', () => {
-        // this exists to stop warning oof
+    socket.on('contestData', (data: Contest) => {
+        state.contest = data;
     });
 });

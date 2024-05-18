@@ -6,11 +6,12 @@ const props = defineProps<{
     glow?: boolean
     shadow?: boolean
     flashing?: boolean
+    flashColor?: string
 }>();
 </script>
 
 <template>
-    <div :class="'glowText ' + (props.flashing ? 'glowTextFlashing' : '')">
+    <div :class="'glowText ' + (props.flashing ? (props.flashColor != undefined ? 'glowTextFlashingColor' : 'glowTextFlashing') : '')">
         {{ props.text }}
     </div>
 </template>
@@ -30,6 +31,10 @@ const props = defineProps<{
     animation: 500ms linear glow-text-flashing alternate infinite;
 }
 
+.glowTextFlashingColor {
+    animation: 500ms linear glow-text-flashing-color alternate infinite;
+}
+
 @keyframes glow-text-flashing {
 
     0%,
@@ -40,6 +45,19 @@ const props = defineProps<{
     50%,
     100% {
         filter: brightness(1);
+    }
+}
+
+@keyframes glow-text-flashing-color {
+
+    0%,
+    49% {
+        color: v-bind("$props.color ?? 'white'");
+    }
+
+    50%,
+    100% {
+        color: v-bind("$props.flashColor");
     }
 }
 </style>
