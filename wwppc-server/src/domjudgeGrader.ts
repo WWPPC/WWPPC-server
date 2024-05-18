@@ -3,7 +3,6 @@ import { Express } from 'express';
 import { Database, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger from './log';
-import { isDefaultClause } from 'typescript';
 
 export class DomjudgeGrader extends Grader {
     //interface to grade stuff
@@ -123,7 +122,7 @@ export class DomjudgeGrader extends Grader {
             ]);
         });
         this.#app.get('/api/judgehosts/get_files/testcase/:id', (req, res) => {
-            
+
         });
         this.#app.get('/api/judgehosts/get_files/source/:id', async (req, res) => {
             //line 1136 of judgedaemon

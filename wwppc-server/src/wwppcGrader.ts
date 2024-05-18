@@ -1,0 +1,35 @@
+import { Express } from 'express';
+
+import { Database, ScoreState, Submission } from './database';
+import Grader from './grader';
+import Logger from './log';
+
+export class WwppcGrader extends Grader {
+
+    #judgehosts: Set<string> = new Set();
+
+    #app: Express;
+    #logger: Logger;
+    #db: Database;
+
+    constructor(app: Express, logger: Logger, db: Database) {
+        super();
+        this.#app = app;
+        this.#logger = logger;
+        this.#db = db;
+    }
+
+    /**
+     * Judge a submission and return it.
+     * @param {Submission} submission submission to be judged
+     * @returns {Submission} `submission`, but now with judge results. If `submission.scores` is nonempty nothing will happen and `submission` will be returned.
+     */
+    async judge(submission: Submission) {
+        //read db
+        //send to remote judgehost
+        //put results in the `submission` variable
+        return submission;
+    }
+}
+
+export default WwppcGrader;
