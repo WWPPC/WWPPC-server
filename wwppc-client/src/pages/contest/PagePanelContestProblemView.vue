@@ -68,21 +68,19 @@ onMounted(async () => {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
             return;
         }
-        const { problem: p, submission: s } = await contestManager.getProblemDataId(route.params.problemId.toString());
+        const p = await contestManager.getProblemDataId(route.params.problemId.toString());
         if (p === null) {
             loadErrorModal('Problem not found', 'The requested problem does not exist!');
             return;
         }
         problem.value = p;
-        if (s !== null) submissions.value = [s];
     } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
-        const { problem: p, submission: s } = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
+        const p = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
         if (p === null) {
             loadErrorModal('Problem not found', 'The requested problem does not exist!');
             return;
         }
         problem.value = p;
-        if (s !== null) submissions.value = [s];
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
@@ -129,7 +127,6 @@ const handleUpload = () => {
 };
 const submitUpload = async () => {
     if (typeof languageDropdown.value?.value !== 'string') {
-        console.log(languageDropdown.value);
         modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
         return;
     }

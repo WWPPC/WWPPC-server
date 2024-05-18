@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useContestManager } from '@/scripts/ContestManager';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 
 const contestManager = useContestManager();
 
@@ -8,9 +10,10 @@ const contestManager = useContestManager();
 </script>
 
 <template>
-    <div class="contestTimerContainer" v-if="contestManager.inContest">
+    <div class="contestTimerContainer" v-if="contestManager.contest !== null || route.query.ignore_server !== undefined">
         <img src="/assets/timer.svg" class="contestTimerImg">
         <span class="contestTimerTextTop">Round 0</span>
+        <!-- use timer component -->
         <span class="contestTimerTextBottom">00:00</span>
     </div>
 </template>
