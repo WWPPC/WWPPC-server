@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { UIButton } from './ui-defaults/UIDefaults';
+import { UIButton } from '@/components/ui-defaults/UIDefaults';
 import { useServerConnection } from '@/scripts/ServerConnection';
-import { glitchTextTransition } from './ui-defaults/TextTransitions';
+import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import { useRouter, useRoute } from 'vue-router';
 import { useAccountManager } from '@/scripts/AccountManager';
 
@@ -51,7 +51,7 @@ serverConnection.ondisconnect(() => {
     <div class="userDispContainer">
         <div class="userDispUser">
             <img :src=accountManager.profileImage class="userDispProfileImg" v-if="serverConnection.loggedIn || ignoreServer">
-            <span class="userDispUserName">{{ name }}</span>
+            <div class="userDispUserName">{{ name }}</div>
         </div>
         <UIButton :text=buttonText width="calc(100% - 16px)" font="20px" @click=buttonAction></UIButton>
     </div>
@@ -64,9 +64,9 @@ serverConnection.ondisconnect(() => {
     justify-content: center;
     align-items: center;
     min-width: 160px;
-    max-width: 0px;
+    max-width: 240px;
     margin: 0px 8px;
-    transition: 500ms ease min-width;
+    transition: 500ms ease max-width, 500ms ease min-width;
 }
 
 .userDispUser {
@@ -84,21 +84,21 @@ serverConnection.ondisconnect(() => {
 }
 
 .userDispUserName {
-    min-width: calc(100% - 32px);
-    max-width: calc(100% - 32px);
+    max-width: 200px;
     margin-left: 4px;
-    transition: 500ms ease min-width, 500ms ease opacity;
+    transition: 500ms ease max-width, 500ms ease opacity;
     text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .userDispContainer {
         min-width: 110px;
     }
 
     .userDispUserName {
         opacity: 0;
-        min-width: 0px;
         max-width: 0px;
     }
 }

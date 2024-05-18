@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavButton, PanelNavList, PanelRightList, PanelView, PanelNavLargeLogo } from '@/components/panels/PanelManager';
-import UserDisp from '@/components/UserDisp.vue';
+import UserDisp from '@/components/common/UserDisp.vue';
 import PagePanelHomeAbout from '@/pages/home/PagePanelHomeAbout.vue';
 import PagePanelHomeHome from '@/pages/home/PagePanelHomeHome.vue';
 </script>

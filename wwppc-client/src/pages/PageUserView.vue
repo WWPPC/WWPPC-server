@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PanelView, PanelHeader, PanelNavLargeLogo, PanelMain, PanelBody, PanelRightList, PanelNavList } from '@/components/panels/PanelManager';
-import UserDisp from '@/components/UserDisp.vue';
+import UserDisp from '@/components/common/UserDisp.vue';
 import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 import LoadingCover from '@/components/common/LoadingCover.vue';
 import NotFound from '@/pages/NotFound.vue';

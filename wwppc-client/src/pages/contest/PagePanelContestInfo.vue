@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/common/ContactFooter.vue';
+import CountdownTimer from '@/components/common/CountdownTimer.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
@@ -22,7 +23,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
                     <p>
-                        WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of elimination, with problems ranging from AP CS A–USACO Platinum.
+                        WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of problems, ranging from AP CSA to USACO Platinum.
                         <br><br>
                         The contest will be held online, on this website, between two divisions: Novice and Advanced.
                     </p>
@@ -33,6 +34,9 @@ const router = useRouter();
                     <div class="centered">
                         <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                     </div>
+                    <div class="centered">
+                        <CountdownTimer :to="new Date('6/2/2024 9:30 AM EST')" type="clock" font-size="var(--font-large)" color="lime" glow></CountdownTimer>
+                    </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen :delay=300>
@@ -40,11 +44,9 @@ const router = useRouter();
                     <CenteredContainer>
                         <span style="font-size: var(--font-20);">
                             <GlowText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
-                            <br>
-                            <div class="centered" style="margin: 4px;">
+                            <div class="centered" style="margin: 8px;">
                                 <UILinkButton text="Register" color="lime" font-size="var(--font-large)" @click="router.push('/account/registrations')"></UILinkButton>
                             </div>
-                            <br>
                             <p style="text-align: center; font-size: var(--font-small);">
                                 <i>Scroll down to see contest schedule</i>
                             </p>
