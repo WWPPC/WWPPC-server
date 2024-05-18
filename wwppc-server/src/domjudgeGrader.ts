@@ -121,8 +121,38 @@ export class DomjudgeGrader extends Grader {
                 },
             ]);
         });
-        this.#app.get('/api/judgehosts/get_files/testcase/*', (req, res) => {
+        this.#app.get('/api/judgehosts/get_files/testcase/:id', (req, res) => {
 
+        });
+        this.#app.get('/api/judgehosts/get_files/source/:id', async (req, res) => {
+            //line 1136 of judgedaemon
+            if (typeof req.params.id !== 'string') {
+                res.sendStatus(400);
+                res.end();
+                return;
+            }
+            const [user, time] = req.params.id.split(';', 2); //time is a STRING
+            if (typeof user !== 'string' || typeof time !== 'string') {
+                res.sendStatus(400);
+                res.end();
+                return;
+            }
+            const submissions = await this.#db.readSubmissions({username: user}); //change this to team name
+            if (submissions == null) {
+                res.sendStatus(500);
+                res.end();
+                return;
+            }
+            const data = submissions.find((s: Submission) => {return s.time.toString() === time});
+            if (data == null) {
+                res.sendStatus(404);
+                res.end();
+                return;
+            }
+            res.json({
+                filename: user + '_' + time, // spaghetti moment (id has semicolon but filename has underscore)
+                content: data.file
+            });
         });
         this.#app.post('/api/judgehosts/fetch-work', async (req, res) => {
             // if (req.body == null || typeof req.body.hostname === 'undefined' || typeof req.body.max_batchsize === 'undefined') {
@@ -153,7 +183,7 @@ export class DomjudgeGrader extends Grader {
                 const p = problems[0];
 
                 arr.push({
-                    submitid: s.username + s.time.toString(),
+                    submitid: s.username + ";" + s.time.toString(), // id of the submission, may be fetched later (see judgedaemon line 1136)
                     judgetaskid: 0, //
                     type: "string", //'prefetch' or 'debug_info' (or neither?)
                     priority: 0,
