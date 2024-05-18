@@ -34,7 +34,7 @@ const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.crea
 const limiter = rateLimit({
     windowMs: 100,
     max: 30,
-    handler: function (req, res, options) {
+    handler: (req, res, next) => {
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
@@ -170,9 +170,15 @@ io.on('connection', async (s) => {
             if (recaptchaResponse.stack) logger.error(recaptchaResponse.stack);
             return AccountOpResult.ERROR;
         } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
-            if (config.debugMode) socket.logWithId(logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
+            if (config.debugMode) {
+                socket.logWithId(logger.debug, 'reCAPTCHA verification failed:');
+                socket.logWithId(logger.debug, JSON.stringify(recaptchaResponse), true);
+            }
             return AccountOpResult.INCORRECT_CREDENTIALS;
-        } else if (config.debugMode) socket.logWithId(logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
+        } else if (config.debugMode) {
+            socket.logWithId(logger.debug, 'reCAPTCHA verification successful:');
+            socket.logWithId(logger.debug, JSON.stringify(recaptchaResponse), true);
+        }
         return AccountOpResult.SUCCESS;
     };
     if (await new Promise((resolve, reject) => {

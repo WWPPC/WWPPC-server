@@ -3,7 +3,10 @@
 
 <template>
     <div class="fullBlock">
-        ok contest page done
+        <!-- big contest timer -->
+        <!-- contest instructions -->
+        <!-- important info, like discord and clarifications location -->
+        <!-- OK GLHF -->
     </div>
 </template>
 
