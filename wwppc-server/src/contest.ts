@@ -5,7 +5,7 @@ import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
 import Grader from './grader';
 import DomjudgeGrader from './graders/domjudgeGrader';
-import Logger from './log';
+import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
 import WwppcGrader from './graders/wwppcGrader';
@@ -20,7 +20,7 @@ export class ContestManager {
     readonly db: Database;
     readonly app: Express;
     readonly io: SocketIOServer;
-    readonly logger: Logger;
+    readonly logger: NamedLogger;
 
     /**
      * @param {Database} db Database connection
@@ -32,7 +32,7 @@ export class ContestManager {
         this.db = db;
         this.app = app;
         this.io = io;
-        this.logger = logger;
+        this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = new WwppcGrader(app, logger, db);
     }
 
@@ -69,7 +69,7 @@ export class ContestManager {
                 socket.kick('invalid registerContest payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.info, 'Registering contest: ' + data.contest);
+            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Registering contest: ' + data.contest);
             const recaptchaResponse = await validateRecaptcha(data.token, socket.ip);
             if (recaptchaResponse instanceof Error) {
                 this.logger.error('reCAPTCHA verification failed:');
@@ -78,10 +78,10 @@ export class ContestManager {
                 cb(TeamOpResult.INCORRECT_CREDENTIALS);
                 return;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
-                if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
                 cb(TeamOpResult.INCORRECT_CREDENTIALS);
                 return;
-            } else if (config.debugMode) socket.logWithId(this.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
+            } else if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
             // check valid team size and exclusion lists
             const contestData = await this.db.readContests(data.contest);
             const teamData = await this.db.getTeamData(socket.username);
@@ -116,17 +116,17 @@ export class ContestManager {
             }
             const res = await this.db.registerContest(socket.username, data.contest);
             cb(res);
-            if (config.debugMode) socket.logWithId(this.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
         });
         socket.on('unregisterContest', async (data: { contest: string }, cb: (res: TeamOpResult) => any) => {
             if (data == null || typeof data.contest != 'string' || typeof cb != 'function') {
                 socket.kick('invalid unregisterContest payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.info, 'Unregistering contest: ' + data.contest);
+            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Unregistering contest: ' + data.contest);
             const res = await this.db.unregisterContest(socket.username, data.contest);
             cb(res);
-            if (config.debugMode) socket.logWithId(this.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
 
@@ -137,9 +137,9 @@ export class ContestManager {
                 socket.kick('invalid updateSubmission payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.debug, 'Update submission: ' + data.id);
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + data.id);
             const respond = (success: boolean, message: string) => {
-                if (config.debugMode) socket.logWithId(this.logger.debug, `Update submission: ${data.id} - ${success ? 'success' : 'fail'}: ${message}`);
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${success ? 'success' : 'fail'}: ${message}`);
                 socket.emit('submissionStatus', success);
             };
             if (data.file.length > 10240) {
@@ -226,7 +226,7 @@ class ContestHost {
         this.io = io;
         this.db = db;
         this.grader = grader;
-        this.logger = logger;
+        this.logger = new NamedLogger(logger, 'ContestHost');
         this.#data = {
             id: id,
             rounds: [],
@@ -241,17 +241,17 @@ class ContestHost {
         return structuredClone(this.data);
     }
     async reload(): Promise<void> {
-        this.logger.info(`[RunningContest] Reloading contest data "${this.id}"`);
+        this.logger.info(`Reloading contest data "${this.id}"`);
         const contest = await this.db.readContests(this.id);
         if (contest == null || contest.length == 0) {
-            if (contest == null) this.logger.error(`[RunningContest] Database error`);
-            else this.logger.error(`[RunningContest] Contest "${this.id}" does not exist`);
+            if (contest == null) this.logger.error(`Database error`);
+            else this.logger.error(`Contest "${this.id}" does not exist`);
             this.end();
             return;
         }
         const rounds = await this.db.readRounds({ id: contest[0].rounds });
         if (rounds === null) {
-            this.logger.error(`[RunningContest] Database error`);
+            this.logger.error(`Database error`);
             this.end();
             return;
         }

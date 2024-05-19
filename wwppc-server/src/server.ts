@@ -11,8 +11,8 @@ if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_
 }
 
 // start server
-import Logger from './log';
-const logger = new Logger();
+import { FileLogger } from './log';
+const logger = new FileLogger();
 logger.info('Starting WWPPC server...');
 logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);

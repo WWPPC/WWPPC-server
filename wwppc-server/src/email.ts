@@ -3,7 +3,7 @@ import { createTransport, Transporter } from 'nodemailer';
 import path from 'path';
 
 import config from './config';
-import Logger from './log';
+import Logger, { NamedLogger } from './log';
 import { minify } from './minifier';
 import inlineCss from 'inline-css';
 
@@ -28,7 +28,7 @@ interface MailerConstructorParams {
  */
 export class Mailer {
     readonly #transporter: Transporter;
-    readonly #logger: Logger;
+    readonly #logger: NamedLogger;
     readonly #templates: Map<string, string>;
 
     /**
@@ -36,7 +36,7 @@ export class Mailer {
      */
     constructor({ host, port = 587, secure = false, username, password, templatePath, logger }: MailerConstructorParams) {
         const startTime = performance.now();
-        this.#logger = logger;
+        this.#logger = new NamedLogger(logger, 'Mailer');
         this.#templates = new Map();
         fs.readdir(templatePath, { withFileTypes: true }, (err: Error | null, files: fs.Dirent[]) => {
             if (err !== null) {
@@ -74,14 +74,12 @@ export class Mailer {
         });
         this.#logger.info('SMTP server connected');
         if (config.debugMode) {
-            logger.debug('SMTP server connected to: ' + host);
-            logger.debug(`SMTP server connection time: ${performance.now() - startTime}ms`);
+            this.#logger.debug('SMTP server connected to: ' + host);
+            this.#logger.debug(`SMTP server connection time: ${performance.now() - startTime}ms`);
         }
         this.#transporter.on('error', (err) => {
-            logger.fatal('SMTP error:');
-            logger.fatal(err.message);
-            if (err.stack) logger.fatal(err.stack);
-            logger.destroy();
+            this.#logger.handleFatal('Fatal SMTP error:', err);
+            this.#logger.destroy();
             process.exit(-1);
         });
     }

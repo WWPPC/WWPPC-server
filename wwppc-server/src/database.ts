@@ -5,7 +5,7 @@ import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
 
 import config from './config';
 import { Mailer } from './email';
-import Logger from './log';
+import Logger, { NamedLogger } from './log';
 
 const salt = 5;
 
@@ -40,7 +40,7 @@ export class Database {
         hash: "SHA-256"
     }, false, ['encrypt', 'decrypt']);
     #publicKey: webcrypto.JsonWebKey | undefined;
-    readonly logger: Logger;
+    readonly logger: NamedLogger;
     readonly mailer: Mailer;
 
     /**
@@ -48,7 +48,7 @@ export class Database {
      */
     constructor({ uri, key, sslCert, logger, mailer }: DatabaseConstructorParams) {
         const startTime = performance.now();
-        this.logger = logger;
+        this.logger = new NamedLogger(logger, 'Database');
         this.mailer = mailer;
         this.connectPromise = new Promise(() => undefined);
         const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
@@ -60,26 +60,23 @@ export class Database {
         });
         this.connectPromise = Promise.all([
             this.#db.connect().catch((err) => {
-                logger.fatal('Could not connect to database:');
-                logger.fatal(err);
-                logger.fatal('Host: ' + this.#db.host);
-                logger.destroy();
+                this.logger.handleFatal('Could not connect to database:', err);
+                this.logger.fatal('Host: ' + this.#db.host);
+                this.logger.destroy();
                 process.exit(-1);
             }),
             setPublicKey()
         ]);
         this.connectPromise.then(() => {
-            logger.info('Database connected');
+            this.logger.info('Database connected');
             if (config.debugMode) {
-                logger.debug('Database connected to: ' + this.#db.host);
-                logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
+                this.logger.debug('Database connected to: ' + this.#db.host);
+                this.logger.debug(`Database connection time: ${performance.now() - startTime}ms`);
             }
         });
         this.#db.on('error', (err) => {
-            logger.fatal('Database error:');
-            logger.fatal(err.message);
-            if (err.stack) logger.fatal(err.stack);
-            logger.destroy();
+            this.logger.handleFatal('Fatal database error:', err);
+            this.logger.destroy();
             process.exit(-1);
         });
     }
@@ -228,7 +225,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] getAccountList in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getAccountList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -272,14 +269,14 @@ export class Database {
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
-            this.logger.info(`[Database] Created account "${username}"`, true);
+            this.logger.info(`Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.error('Database error (createAccount):');
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] createAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`createAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -306,7 +303,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] checkAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`checkAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -357,7 +354,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] getAccountData in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getAccountData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -384,7 +381,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] updateAccountData in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`updateAccountData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -402,7 +399,7 @@ export class Database {
             if (res != AccountOpResult.SUCCESS) return res;
             const encryptedPassword = await bcrypt.hash(newPassword, salt);
             await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
-            this.logger.info(`[Database] Reset password via password for "${username}"`, true);
+            this.logger.info(`Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -410,7 +407,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] changeAccountPassword in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`changeAccountPassword in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -430,7 +427,7 @@ export class Database {
                 if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
                     await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
-                    this.logger.info(`[Database] Reset password via token for "${username}"`, true);
+                    this.logger.info(`Reset password via token for "${username}"`, true);
                     return AccountOpResult.SUCCESS;
                 } else return AccountOpResult.INCORRECT_CREDENTIALS;
             }
@@ -440,7 +437,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -454,7 +451,7 @@ export class Database {
         const startTime = performance.now();
         try {
             if (adminUsername != undefined) {
-                this.logger.warn(`[Database] "${adminUsername}" is trying to delete account "${username}"!`);
+                this.logger.warn(`"${adminUsername}" is trying to delete account "${username}"!`);
                 const res = await this.checkAccount(adminUsername, password);
                 if (res != AccountOpResult.SUCCESS) return res;
                 if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
@@ -463,7 +460,7 @@ export class Database {
                 const users = await this.#db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
-                this.logger.info(`[Database] Deleted account "${username}" (by "${adminUsername}")`, true);
+                this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
                 this.#userCache.delete(username);
                 for (const row of users.rows) {
                     this.#userCache.delete(row.username);
@@ -476,7 +473,7 @@ export class Database {
                 const users = await this.#db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
                 await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
-                this.logger.info(`[Database] Deleted account ${username}`, true);
+                this.logger.info(`Deleted account ${username}`, true);
                 this.#userCache.delete(username);
                 for (const row of users.rows) {
                     this.#userCache.delete(row.username);
@@ -489,7 +486,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] deleteAccount in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`deleteAccount in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -502,7 +499,7 @@ export class Database {
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
-                this.logger.info(`[Database] Fetched recovery password for ${username}`, true);
+                this.logger.info(`Fetched recovery password for ${username}`, true);
                 return this.#RSAdecryptSymmetric(data.rows[0].recoverypass);
             }
             return AccountOpResult.NOT_EXISTS;
@@ -511,7 +508,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] getRecoveryPassword in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -531,7 +528,7 @@ export class Database {
             this.logger.error('' + err);
             return AccountOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -552,7 +549,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] getAccountTeam in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getAccountTeam in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -593,7 +590,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] setAccountTeam in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`setAccountTeam in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -632,7 +629,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] getTeamData in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getTeamData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -661,7 +658,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] updateTeamData in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`updateTeamData in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -698,7 +695,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] registerContest in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`registerContest in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -729,7 +726,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] unregisterContest in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`unregisterContest in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -748,7 +745,7 @@ export class Database {
             this.logger.error('' + err);
             return TeamOpResult.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] unregisterAllContests in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`unregisterAllContests in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -775,7 +772,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] hasPerms in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`hasPerms in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -829,7 +826,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] readContests in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`readContests in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -853,7 +850,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] writeContest in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`writeContest in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -910,7 +907,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] readRounds in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`readRounds in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -934,7 +931,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] writeRound in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`writeRound in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -1002,7 +999,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] readProblems in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`readProblems in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -1026,7 +1023,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] writeProblem in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`writeProblem in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -1092,7 +1089,7 @@ export class Database {
             this.logger.error('' + err);
             return null;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] readSubmissions in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`readSubmissions in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
@@ -1129,7 +1126,7 @@ export class Database {
             this.logger.error('' + err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`[Database] writeSubmission in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
 

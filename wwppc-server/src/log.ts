@@ -1,14 +1,68 @@
 import fs from 'fs';
 import * as fspath from 'path';
 
+export interface Logger {
+    /**
+     * Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
+     * @returns Timestamp in YYYY-MM-DD [HH:MM:SS] format.
+     */
+    timestamp(): string
+    /**
+     * Append a debug-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    debug(text: string, logOnly?: boolean): void
+    /**
+     * Append an information-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    info(text: string, logOnly?: boolean): void
+    /**
+     * Append a warning-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    warn(text: string, logOnly?: boolean): void
+    /**
+     * Append an error-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    error(text: string, logOnly?: boolean): void
+    /**
+     * Append a fatal-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    fatal(text: string, logOnly?: boolean): void
+    /**
+     * Shorthand for appending `Error` objects as error-level logs.
+     * @param {string} message Accompanying message
+     * @param error `Error` object
+     */
+    handleError(message: string, error: any): void
+    /**
+     * Shorthand for appending `Error` objects as fatal-level logs.
+     * @param {string} message Accompanying message
+     * @param error `Error` object
+     */
+    handleFatal(message: string, error: any): void
+    /**
+     * Safely closes the logging session.
+     */
+    destroy(): void
+}
+
 /**
- * A simple logging class with timestamps and logging levels.
+ * A simple logging class with timestamps and logging levels that writes to file and stdout.
  */
-export default class Logger {
+export class FileLogger implements Logger {
     #file;
 
     /**
-     * Create a new `Logger` in a specified directory. Creating a `Logger` will also create a `logs/` directory
+     * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a `logs/` directory
      * if there already exists a log.log in the directory, moving it in. This means creating multiple
      * `Loggers` in the same directory will break them.
      * @param {string} path Filepath to the log directory. The default is `'./'`.
@@ -31,10 +85,6 @@ export default class Logger {
         }
     }
 
-    /**
-     * Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
-     * @returns Timestamp in YYYY-MM-DD [HH:MM:SS] format.
-     */
     timestamp(): string {
         const time = new Date();
         let month = (time.getMonth() + 1).toString();
@@ -49,52 +99,21 @@ export default class Logger {
         if (second.length == 1) second = 0 + second;
         return `${time.getFullYear()}-${month}-${day} [${hour}:${minute}:${second}]`;
     }
-    /**
-     * Append a debug-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
     debug(text: string, logOnly = false) {
         this.#append('debug', text, 36, logOnly);
     }
-    /**
-     * Append an information-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
     info(text: string, logOnly = false) {
         this.#append(' info', text, 34, logOnly);
     }
-    /**
-     * Append a warning-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
     warn(text: string, logOnly = false) {
         this.#append(' warn', text, 33, logOnly);
     }
-    /**
-     * Append an error-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
     error(text: string, logOnly = false) {
         this.#append('error', text, 31, logOnly);
     }
-    /**
-     * Append a fatal-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
     fatal(text: string, logOnly = false) {
         this.#append('fatal', text, 35, logOnly);
     }
-
-    /**
-     * Shorthand for appending `Error` objects as error-level logs.
-     * @param {string} message Accompanying message
-     * @param error `Error` object
-     */
     handleError(message: string, error: any) {
         this.error(message);
         if (error instanceof Error) {
@@ -102,6 +121,15 @@ export default class Logger {
             if (error.stack) this.error(error.stack);
         } else {
             this.error('' + error);
+        }
+    }
+    handleFatal(message: string, error: any) {
+        this.fatal(message);
+        if (error instanceof Error) {
+            this.fatal(error.message);
+            if (error.stack) this.fatal(error.stack);
+        } else {
+            this.fatal('' + error);
         }
     }
 
@@ -115,9 +143,6 @@ export default class Logger {
         fs.appendFile(this.#file, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => { if (err) console.error(err) });
     }
 
-    /**
-     * Safely closes the logging session.
-     */
     destroy() {
         if (this.#file == undefined) return;
         this.info('Logger instance destroyed');
@@ -125,3 +150,63 @@ export default class Logger {
         this.#file = undefined;
     }
 }
+
+/**
+ * An extension of any other Logger that adds a name prefix to all messages.
+ */
+export class NamedLogger implements Logger {
+    readonly logger: Logger;
+    readonly name: string;
+
+    /**
+     * Create a new `NamedLogger` around an existing `Logger`.
+     * @param logger Logger instance to wrap around
+     * @param name Name prefix, without brackets
+     */
+    constructor(logger: Logger, name: string) {
+        this.logger = logger;
+        this.name = name;
+    }
+
+    timestamp(): string {
+        return this.logger.timestamp();
+    }
+    debug(text: string, logOnly = false) {
+        this.logger.debug(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
+    }
+    info(text: string, logOnly = false) {
+        this.logger.info(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
+    }
+    warn(text: string, logOnly = false) {
+        this.logger.warn(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
+    }
+    error(text: string, logOnly = false) {
+        this.logger.error(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
+    }
+    fatal(text: string, logOnly = false) {
+        this.logger.fatal(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
+    }
+    handleError(message: string, error: any) {
+        this.error(message);
+        if (error instanceof Error) {
+            this.error(error.message);
+            if (error.stack) this.error(error.stack);
+        } else {
+            this.error('' + error);
+        }
+    }
+    handleFatal(message: string, error: any) {
+        this.fatal(message);
+        if (error instanceof Error) {
+            this.fatal(error.message);
+            if (error.stack) this.fatal(error.stack);
+        } else {
+            this.fatal('' + error);
+        }
+    }
+    destroy() {
+        this.logger.destroy();
+    }
+}
+
+export default Logger;
