@@ -5,12 +5,13 @@ import { onMounted, ref, watch } from 'vue';
 import latexify from '@/scripts/katexify';
 
 const html = ref('');
-
+const rendered = ref('');
 onMounted(() => {
     if (localStorage.getItem('problemEditorSaved') != null) html.value = localStorage.getItem('problemEditorSaved')!;
 });
 watch(html, () => {
     localStorage.setItem('problemEditorSaved', html.value);
+    latexify(html.value).then((html) => rendered.value = html);
 });
 </script>
 
@@ -20,7 +21,7 @@ watch(html, () => {
             <UITextArea v-model="html" resize="none" class="big"></UITextArea>
         </TitledCutCornerContainer>
         <TitledCutCornerContainer title="Rendered">
-            <div v-html="latexify(html)"></div>
+            <div v-html="rendered"></div>
         </TitledCutCornerContainer>
     </div>
 </template>

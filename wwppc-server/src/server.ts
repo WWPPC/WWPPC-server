@@ -182,25 +182,17 @@ io.on('connection', async (s) => {
         return AccountOpResult.SUCCESS;
     };
     if (await new Promise((resolve, reject) => {
-        let lockout = false;
-        socket.on('credentials', async (creds: { username: string, password: RSAEncrypted, token: string, signupData?: { firstName: string, lastName: string, email: string, school: string, grade: number, experience: number, languages: string[] } }) => {
-            if (creds == undefined) {
+        socket.on('credentials', async (creds: { username: string, password: RSAEncrypted, token: string, signupData?: { firstName: string, lastName: string, email: string, school: string, grade: number, experience: number, languages: string[] } }, cb: (res: AccountOpResult) => any) => {
+            if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            if (lockout) {
-                socket.kick('conflicting credential events');
-                resolve(true);
-                return;
-            }
-            lockout = true;
             const password = await database.RSAdecrypt(creds.password);
             if (password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
+                cb(AccountOpResult.INCORRECT_CREDENTIALS);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Credentials failed to decode');
-                lockout = false;
-                socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
             }
             if (typeof creds.username != 'string' || typeof password != 'string' || !database.validate(creds.username, password) || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
@@ -211,8 +203,7 @@ io.on('connection', async (s) => {
             if (config.debugMode) socket.logWithId(logger.debug, 'Successfully received credentials');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
-                lockout = false;
-                socket.emit('credentialRes', recaptchaRes);
+                cb(recaptchaRes);
                 return;
             }
             // actually create/check account
@@ -241,8 +232,7 @@ io.on('connection', async (s) => {
                     grade: creds.signupData.grade,
                     experience: creds.signupData.experience,
                 });
-                lockout = false;
-                socket.emit('credentialRes', res);
+                cb(res);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Sign up: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
@@ -253,8 +243,7 @@ io.on('connection', async (s) => {
             } else {
                 if (config.debugMode) socket.logWithId(logger.info, 'Logging in');
                 const res = await database.checkAccount(creds.username, password);
-                lockout = false;
-                socket.emit('credentialRes', res);
+                cb(res);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
                 if (res == 0) {
                     socket.removeAllListeners('credentials');
@@ -264,55 +253,44 @@ io.on('connection', async (s) => {
                 }
             }
         });
-        socket.on('requestRecovery', async (creds: { username: string, email: string, token: string }) => {
-            if (creds == undefined) {
+        socket.on('requestRecovery', async (creds: { username: string, email: string, token: string }, cb: (res: AccountOpResult) => any) => {
+            if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            if (lockout) {
-                socket.kick('conflicting credential events');
-                resolve(true);
-                return;
-            }
-            lockout = true;
             if (typeof creds.username != 'string' || typeof creds.email != 'string' || !database.validate(creds.username, 'dummyPass') || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 return;
             }
-            if (config.debugMode) socket.logWithId(logger.debug, 'Received request to send recovery email');
+            socket.logWithId(logger.info, 'Received request to send recovery email');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
-                lockout = false;
-                socket.emit('credentialRes', recaptchaRes);
+                cb(recaptchaRes);
                 return;
             }
             const data = await database.getAccountData(creds.username);
             if (typeof data != 'object') {
+                cb(data);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
                 else if (data == AccountOpResult.ERROR) socket.logWithId(logger.error, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, data));
-                lockout = false;
-                socket.emit('credentialRes', data);
                 return;
             }
             if (creds.email !== data.email) {
+                cb(AccountOpResult.INCORRECT_CREDENTIALS);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: INCORRECT_CREDENTIALS');
-                lockout = false;
-                socket.emit('credentialRes', AccountOpResult.INCORRECT_CREDENTIALS);
                 return;
             }
-            if (config.debugMode) socket.logWithId(logger.info, 'Account recovery via email password reset started');
+            socket.logWithId(logger.info, 'Account recovery via email password reset started');
             if (recentPasswordResetEmails.has(creds.username)) {
-                if (config.debugMode) socket.logWithId(logger.debug, 'Account recovery email could not be sent because of rate limiting');
-                lockout = false;
-                socket.emit('credentialRes', AccountOpResult.ALREADY_EXISTS);
+                cb(AccountOpResult.ALREADY_EXISTS);
+                socket.logWithId(logger.warn, 'Account recovery email could not be sent because of rate limiting');
                 return;
             }
             const recoveryPassword = await database.getRecoveryPassword(creds.username);
             if (typeof recoveryPassword != 'string') {
+                cb(recoveryPassword);
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, recoveryPassword));
-                lockout = false;
-                socket.emit('credentialRes', recoveryPassword);
                 return;
             }
             const recoveryUrl = `https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}`;
@@ -333,40 +311,32 @@ io.on('connection', async (s) => {
                 `]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
             recentPasswordResetEmails.add(creds.username);
-            lockout = false;
-            socket.emit('credentialRes', AccountOpResult.SUCCESS);
+            cb(AccountOpResult.SUCCESS);
+            socket.logWithId(logger.info, 'Account recovery email was sent successfully');
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });
-        socket.on('recoverCredentials', async (creds: { username: string, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
-            if (creds == undefined) {
+        socket.on('recoverCredentials', async (creds: { username: string, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+            if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            if (lockout) {
-                socket.kick('conflicting credential events');
-                resolve(true);
-                return;
-            }
-            lockout = true;
             const recoveryPassword = await database.RSAdecrypt(creds.recoveryPassword);
             const newPassword = await database.RSAdecrypt(creds.newPassword);
             if (typeof creds.username != 'string' || typeof recoveryPassword != 'string' || typeof newPassword != 'string' || !database.validate(creds.username, newPassword) || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 return;
             }
-            if (config.debugMode) socket.logWithId(logger.debug, 'Received request to recover credentials');
+            socket.logWithId(logger.info, 'Received request to recover credentials');
             const recaptchaRes = await checkRecaptcha(creds.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
-                lockout = false;
-                socket.emit('credentialRes', recaptchaRes);
+                cb(recaptchaRes);
                 return;
             }
             const res = await database.changeAccountPasswordToken(creds.username, recoveryPassword, newPassword);
-            if (config.debugMode) socket.logWithId(logger.debug, 'Recover account: ' + reverse_enum(AccountOpResult, res));
-            lockout = false;
-            socket.emit('credentialRes', res);
+            socket.logWithId(logger.info, 'Recover account: ' + reverse_enum(AccountOpResult, res));
+            cb(res);
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });
@@ -379,12 +349,12 @@ io.on('connection', async (s) => {
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
 
     // add remaining listeners
-    socket.on('setUserData', async (data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }) => {
+    socket.on('setUserData', async (data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }, cb: (res: AccountOpResult) => any) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating user data');
         if (data == null || typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
             || data.displayName.length > 32 || typeof data.profileImage != 'string' || data.profileImage.length > 65535 || typeof data.bio != 'string' || data.bio.length > 2048
             || typeof data.school != 'string' || data.school.length > 64 || typeof data.grade != 'number' || typeof data.experience != 'number'
-            || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined) {
+            || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined || typeof cb != 'function') {
             socket.kick('invalid setUserData payload');
             return;
         }
@@ -406,14 +376,11 @@ io.on('connection', async (s) => {
             team: ''
         };
         const res = await database.updateAccountData(socket.username, userDat);
-        socket.emit('setUserDataResponse', res);
-        if (config.debugMode) {
-            socket.logWithId(logger.debug, 'Update user data: ' + JSON.stringify(userDat), true);
-            socket.logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
-        }
+        cb(res);
+        if (config.debugMode) socket.logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('changeCredentials', async (creds: { password: RSAEncrypted, newPassword: RSAEncrypted, token: string }) => {
-        if (creds == null) {
+    socket.on('changeCredentials', async (creds: { password: RSAEncrypted, newPassword: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+        if (creds == null || typeof cb != 'function') {
             socket.kick('null credentials');
             return;
         }
@@ -426,16 +393,16 @@ io.on('connection', async (s) => {
         socket.logWithId(logger.info, 'Changing credentials');
         const recaptchaRes = await checkRecaptcha(creds.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
-            socket.emit('credentialRes', recaptchaRes);
+            cb(recaptchaRes);
             socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, recaptchaRes));
             return;
         }
         const res = await database.changeAccountPassword(socket.username, password, newPassword);
-        socket.emit('credentialRes', res);
+        cb(res);
         socket.logWithId(logger.info, 'Change credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('deleteCredentials', async (creds: { password: RSAEncrypted, token: string }) => {
-        if (creds == null) {
+    socket.on('deleteCredentials', async (creds: { password: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+        if (creds == null || typeof cb != 'function') {
             socket.kick('null credentials');
             return;
         }
@@ -447,29 +414,22 @@ io.on('connection', async (s) => {
         socket.logWithId(logger.info, 'Deleting credentials');
         const recaptchaRes = await checkRecaptcha(creds.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
-            socket.emit('credentialRes', recaptchaRes);
+            cb(recaptchaRes);
             socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, recaptchaRes));
             return;
         }
         const res = await database.deleteAccount(socket.username, password);
-        socket.emit('credentialRes', res);
+        cb(res);
         socket.logWithId(logger.info, 'Delete credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    let teamLockout = false;
-    socket.on('joinTeam', async (data: { code: string, token: string }) => {
-        if (data == null || typeof data.code != 'string' || typeof data.token != 'string') {
+    socket.on('joinTeam', async (data: { code: string, token: string }, cb: (res: TeamOpResult) => any) => {
+        if (data == null || typeof data.code != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
             socket.kick('invalid joinTeam payload');
         }
-        if (teamLockout) {
-            socket.kick('overlapping team operations');
-            return;
-        }
-        teamLockout = true;
         if (config.debugMode) socket.logWithId(logger.info, 'Joining team: ' + data.code);
         const respond = (code: TeamOpResult) => {
+            cb(code);
             if (config.debugMode) socket.logWithId(logger.info, 'Join team: ' + reverse_enum(TeamOpResult, code));
-            socket.emit('teamActionResponse', code);
-            teamLockout = false;
         };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
@@ -510,33 +470,22 @@ io.on('connection', async (s) => {
         // update join code here
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
-    socket.on('leaveTeam', async () => {
-        if (teamLockout) {
-            socket.kick('overlapping team operations');
-            return;
-        }
-        teamLockout = true;
-        if (config.debugMode) socket.logWithId(logger.info, 'Leaving team');
+    socket.on('leaveTeam', async (cb: (res: TeamOpResult) => any) => {
+        if (typeof cb != 'function')
+            if (config.debugMode) socket.logWithId(logger.info, 'Leaving team');
         const res = await database.setAccountTeam(socket.username, socket.username);
-        socket.emit('teamActionResponse', res);
-        teamLockout = false;
+        cb(res);
         const teamData = await database.getTeamData(socket.username);
         if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
     });
-    socket.on('kickTeam', async (data: { user: string, token: string }) => {
-        if (data == null || typeof data.user != 'string' || typeof data.token != 'string') {
+    socket.on('kickTeam', async (data: { user: string, token: string }, cb: (res: TeamOpResult) => any) => {
+        if (data == null || typeof data.user != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
             socket.kick('invalid kickTeam payload');
         }
-        if (teamLockout) {
-            socket.kick('overlapping team operations');
-            return;
-        }
-        teamLockout = true;
         if (config.debugMode) socket.logWithId(logger.info, 'Kicking user from team: ' + data.user);
         const respond = (code: TeamOpResult) => {
+            cb(res);
             if (config.debugMode) socket.logWithId(logger.info, 'Kick user: ' + reverse_enum(TeamOpResult, code));
-            socket.emit('teamActionResponse', code);
-            teamLockout = false;
         };
         const recaptchaRes = await checkRecaptcha(data.token);
         if (recaptchaRes != AccountOpResult.SUCCESS) {
@@ -546,9 +495,9 @@ io.on('connection', async (s) => {
         const res = await database.setAccountTeam(data.user, data.user);
         respond(res);
     });
-    socket.on('setTeamData', async (data: { teamName: string, teamBio: string }) => {
+    socket.on('setTeamData', async (data: { teamName: string, teamBio: string }, cb: (res: TeamOpResult) => any) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating team data');
-        if (data == null || typeof data.teamName != 'string' || data.teamName.length > 32 || typeof data.teamBio != 'string' || data.teamBio.length > 1024) {
+        if (data == null || typeof data.teamName != 'string' || data.teamName.length > 32 || typeof data.teamBio != 'string' || data.teamBio.length > 1024 || typeof cb != 'function') {
             socket.kick('invalid setTeamData payload');
             return;
         }
@@ -561,11 +510,8 @@ io.on('connection', async (s) => {
             joinCode: ''
         };
         const res = await database.updateTeamData(socket.username, teamDat);
-        socket.emit('teamActionResponse', res);
-        if (config.debugMode) {
-            socket.logWithId(logger.debug, 'Update team data: ' + JSON.stringify(teamDat), true);
-            socket.logWithId(logger.debug, 'Update team data: ' + reverse_enum(AccountOpResult, res));
-        }
+        cb(res);
+        if (config.debugMode) socket.logWithId(logger.debug, 'Update team data: ' + reverse_enum(AccountOpResult, res));
 
     });
     database.getTeamData(socket.username).then((data) => {

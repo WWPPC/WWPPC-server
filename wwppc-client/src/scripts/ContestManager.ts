@@ -83,6 +83,9 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
                         status == ContestProblemCompletionState.GRADED_PARTIAL ? 'Partially accepted' : 'Error fetching status'
 };
 
+export const nextContest = new Date('6/2/2024 9:30 AM EST');
+export const nextContestEnd = new Date('6/2/2024 5:00 PM EST');
+
 // replace with new state variable that is just Contest
 const state = reactive<{
     contest: Contest | null

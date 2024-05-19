@@ -132,7 +132,7 @@ export const sendCredentials = async (username: string, password: string | numbe
         try {
             const accountManager = useAccountManager();
             const password2 = password instanceof Array ? Uint32Array.from(password).buffer : await RSA.encrypt(password);
-            socket.emit('credentials', {
+            const res: AccountOpResult = await socket.emitWithAck('credentials', {
                 username: username,
                 password: password2,
                 token: token,
@@ -146,23 +146,20 @@ export const sendCredentials = async (username: string, password: string | numbe
                     languages: signupData.languages,
                 } : undefined
             });
-            socket.once('credentialRes', async (res: AccountOpResult) => {
-                if (res === AccountOpResult.SUCCESS) {
-                    window.localStorage.setItem('sessionCredentials', JSON.stringify({
-                        username: username,
-                        password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
-                    }));
-                    state.encryptedPassword = password2;
-                    window.localStorage.setItem('sessionId', RSA.sid.toString());
-                    state.loggedIn = true;
-                    loginResolve(undefined);
-                    accountManager.username = username;
-                    accountManager.updateOwnUserData();
-                }
-                resolve(res);
-            });
+            if (res === AccountOpResult.SUCCESS) {
+                window.localStorage.setItem('sessionCredentials', JSON.stringify({
+                    username: username,
+                    password: password2 instanceof ArrayBuffer ? Array.from(new Uint32Array(password2)) : password2,
+                }));
+                state.encryptedPassword = password2;
+                window.localStorage.setItem('sessionId', RSA.sid.toString());
+                state.loggedIn = true;
+                loginResolve(undefined);
+                accountManager.username = username;
+                accountManager.updateOwnUserData();
+            }
+            resolve(res);
         } catch (err) {
-            socket.removeAllListeners('credentialRes')
             reject(err);
         }
     });
@@ -178,8 +175,11 @@ export const useServerConnection = defineStore('serverconnection', {
     actions: {
         RSAencrypt: RSA.encrypt,
         // shorthands
-        emit(event: string, ...data: any[]) {
+        emit(event: string, ...data: any) {
             return socket.emit(event, ...data);
+        },
+        emitWithAck(event: string, ...data: any): Promise<any> {
+            return socket.emitWithAck(event, ...data);
         },
         on(event: string, handler: (...args: any[]) => any) {
             return socket.on(event, handler);
