@@ -148,8 +148,12 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
                 <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
             </ShowOnscreenContainer>
         </div>
-        <div class="sponsors">
+        <div class="cpi-partner">
+            <GlowText text="Partnered with" font-size="var(--font-huge)" color="lime" shadow></GlowText>
             <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
+            <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
+        </div>
+        <div class="sponsors">
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/aops-logo.png" url="https://artofproblemsolving.com/" height="16vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
@@ -212,6 +216,15 @@ p {
     flex-grow: 1;
     justify-items: stretch;
     row-gap: 24px;
+    column-gap: 24px;
+}
+
+.cpi-partner {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
     column-gap: 24px;
 }
 

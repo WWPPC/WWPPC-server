@@ -42,7 +42,7 @@ const router = useRouter();
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen :delay=300>
                 <CutCornerContainer height="100%" hover-animation="lift" flipped vertical-flipped>
-                    <CenteredContainer style="font-size: var(--font-20);" v-if="Date.now() > nextContest.getTime()">
+                    <CenteredContainer style="font-size: var(--font-20);" v-if="Date.now() < nextContest.getTime()">
                         <GlitchText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing random></GlitchText>
                         <div class="centered" style="margin: 8px;">
                             <UILinkButton text="Register" color="lime" font-size="var(--font-large)" @click="router.push('/account/registrations')"></UILinkButton>
@@ -51,7 +51,7 @@ const router = useRouter();
                             <i>Scroll down to see contest schedule</i>
                         </p>
                     </CenteredContainer>
-                    <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() < nextContestEnd.getTime()">
+                    <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() > nextContestEnd.getTime()">
                         <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random></GlitchText>
                         <div class="centered" style="margin: 8px;">
                             <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
