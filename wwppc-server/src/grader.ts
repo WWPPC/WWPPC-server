@@ -6,13 +6,13 @@ export abstract class Grader {
      * @param {Submission} submission submission data
      * @returns {boolean} whether `submission` was successfully pushed to the queue
      */
-    // abstract queueSubmission(submission: Submission): boolean
+    abstract queueSubmission(submission: Submission): boolean
 
     /**
      * Get all graded submissions that were not seen since last call to this method
      * @returns {Submission[]} submission data
      */
-    // abstract getNewGradedSubmissions(): Submission[]
+    abstract getNewGradedSubmissions(): Submission[]
 
     /**
      * Judge a submission and return it.
