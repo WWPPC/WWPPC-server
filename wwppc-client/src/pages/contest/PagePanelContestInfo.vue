@@ -272,7 +272,7 @@ const router = useRouter();
                         <li>There will be 3 separate timed rounds for each division, running at the same time</li>
                         <li>Each round has 3-6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
                         <li>Submissions are only graded <i>after</i> the round ends</li>
-                        <li>Teams will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
+                        <li>Teams of up to 4 will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
                         <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
                         <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                     </ul>
