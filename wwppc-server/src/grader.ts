@@ -34,7 +34,7 @@ export abstract class Grader {
      * Add a submission to the ungraded queue of submissions.
      * @param {GraderSubmission} submission New submission
      */
-    abstract queueUngraded(submission: GraderSubmission): Promise<void>;
+    abstract queueUngraded(submission: GraderSubmission);
     /**
      * Cancel all ungraded submissions from a user to a problem.
      * @param username Username of submitter

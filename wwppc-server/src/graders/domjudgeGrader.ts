@@ -218,7 +218,7 @@ export class DomjudgeGrader extends Grader {
         this.#app.use('/api/*', (req, res) => res.sendStatus(404));
     }
 
-    async queueUngraded(submission: Submission): Promise<void> {
+    async queueUngraded(submission: Submission) {
         // this.#ungradedSubmissions.push(submission);
         submission.scores.push({
             state: ScoreState.CORRECT,
@@ -236,7 +236,7 @@ export class DomjudgeGrader extends Grader {
         return this.#gradedSubmissions;
     }
     get hasGradedSubmissions(): boolean {
-        return this.#gradedSubmissions.length > 0
+        return this.#gradedSubmissions.length > 0;
     }
     emptyGradedList(): GraderSubmissionComplete[] {
         const l = structuredClone(this.#gradedSubmissions);

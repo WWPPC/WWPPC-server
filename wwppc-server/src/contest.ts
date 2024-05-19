@@ -8,6 +8,7 @@ import DomjudgeGrader from './graders/domjudgeGrader';
 import Logger from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
+import WwppcGrader from './graders/wwppcGrader';
 
 //user-facing contest manager
 //actual grading is done with the Grader class
@@ -32,7 +33,7 @@ export class ContestManager {
         this.app = app;
         this.io = io;
         this.logger = logger;
-        this.#grader = new DomjudgeGrader(app, logger, db);
+        this.#grader = new WwppcGrader(app, logger, db);
     }
 
     /**
