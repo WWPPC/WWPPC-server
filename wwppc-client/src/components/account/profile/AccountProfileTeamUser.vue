@@ -67,6 +67,7 @@ const kick = async () => {
 }
 
 .cardContent {
+    contain: layout;
     display: grid;
     grid-template-rows: 80px 40px;
     padding: 8px 4px;

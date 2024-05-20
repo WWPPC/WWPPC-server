@@ -12,8 +12,10 @@ import AccountProfileTeamUser from '@/components/account/profile/AccountProfileT
 const modal = globalModal();
 const accountManager = useAccountManager();
 
+const loading = ref(true);
 onMounted(async () => {
     await accountManager.updateOwnUserData();
+    loading.value = false;
     usernameNotEditable.value = accountManager.username;
     gradeInput.value = accountManager.grade?.toString();
     experienceInput.value = accountManager.experience?.toString();
@@ -243,7 +245,7 @@ onMounted(clearDangerButtons);
                 </PairedGridContainer>
                 <UIButton class="profileSaveButton" type="submit" v-if=accountManager.unsavedChanges text="Save" color="yellow" glitch-on-mount></UIButton>
             </form>
-            <WaitCover text="Please wait..." :show="(showWriteDataWait || accountManager.team === '') && $route.query.ignore_server === undefined"></WaitCover>
+            <WaitCover text="Please wait..." :show="(showWriteDataWait || loading) && $route.query.ignore_server === undefined"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=200>
@@ -287,7 +289,7 @@ onMounted(clearDangerButtons);
             <div class="profileTeamSection" v-if="accountManager.team !== accountManager.username">
                 <UIButton text="Leave Team" color="red" glitch-on-mount @click=leaveTeam></UIButton>
             </div>
-            <WaitCover text="Please wait..." :show="(showWriteTeamDataWait || accountManager.teamMembers.length == 0) && $route.query.ignore_server === undefined"></WaitCover>
+            <WaitCover text="Please wait..." :show="(showWriteTeamDataWait || loading) && $route.query.ignore_server === undefined"></WaitCover>
         </TitledCutCornerContainer>
     </AnimateInContainer>
     <AnimateInContainer type="slideUp" :delay=300>

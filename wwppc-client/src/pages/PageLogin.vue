@@ -103,7 +103,7 @@ const attemptRecovery = async () => {
         attemptedRecovery.value = true;
     } else modal.showModal({
         title: 'Could not send recovery email:',
-        content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
+        content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Internal error' : res == AccountOpResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown error (this is a bug?)'
     });
 };
 
@@ -195,7 +195,7 @@ watch(usernameInput, () => {
                                         <UITextBox :value="usernameInput" style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
                                         <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
                                         <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
-                                        <span v-if="true"><i>Reload to try again</i></span>
+                                        <span v-if="attemptedRecovery"><i>Reload to try again</i></span>
                                     </form>
                                 </div>
                             </div>
