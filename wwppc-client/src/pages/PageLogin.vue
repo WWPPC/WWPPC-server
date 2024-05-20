@@ -103,7 +103,7 @@ const attemptRecovery = async () => {
         attemptedRecovery.value = true;
     } else modal.showModal({
         title: 'Could not send recovery email:',
-        content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
+        content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Internal error' : res == AccountOpResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown error (this is a bug?)'
     });
 };
 
