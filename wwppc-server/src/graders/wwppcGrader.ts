@@ -1,4 +1,5 @@
-import { Express } from 'express';
+import { Express, Request } from 'express';
+import config from '../config';
 
 import { Database, ScoreState, Submission } from '../database';
 import Grader, { GraderSubmission, GraderSubmissionComplete } from '../grader';
@@ -23,21 +24,13 @@ export class WwppcGrader extends Grader {
         this.#logger = logger;
         this.#db = db;
         this.#app.get('/judge/get-work', async (req, res) => {
-            const auth = req.get('Authorization');
-            if (auth == null) {
-                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
-                return;
-            }
-            const [user, pass] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
-            if (user == null || pass == null) {
+            const creds = this.isValidJudgehostRequest(req);
+            if (creds == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
             }
 
-            //do some sort of db lookup to verify the password
-            //format: password:password
-            //assume the user is authenticated now
-
+            const user = creds[0];
             const submission = this.#ungradedSubmissions.shift();
             if (submission == null) {
                 res.sendStatus(200);
@@ -57,20 +50,13 @@ export class WwppcGrader extends Grader {
             });
         });
         this.#app.post('/judge/return-work', async (req, res) => {
-            const auth = req.get('Authorization');
-            if (auth == null) {
-                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
-                return;
-            }
-            const [user, pass] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
-            if (user == null || pass == null) {
+            const creds = this.isValidJudgehostRequest(req);
+            if (creds == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
             }
 
-            //do some sort of db lookup to verify the password
-            //format: password:password
-            //assume the user is authenticated now
+            const user = creds[0];
 
             //implement the rest later 
         });
@@ -93,6 +79,20 @@ export class WwppcGrader extends Grader {
         const l = structuredClone(this.#gradedSubmissions);
         this.#gradedSubmissions = [];
         return l;
+    }
+    isValidJudgehostRequest(req: Request): string[] | undefined {
+        const auth = req.get('Authorization');
+        if (auth == null) {
+            return;
+        }
+        const [user, pass] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
+        if (user == null || pass == null) {
+            return;
+        }
+        if (!config.graderAuthKeypairs.some((pair) => typeof pair.password == 'string' && pair.password == pass)) {
+            return;
+        }
+        return [user, pass];
     }
 }
 
