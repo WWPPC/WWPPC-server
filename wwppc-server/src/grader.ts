@@ -12,6 +12,8 @@ export interface GraderSubmission {
     file: string
     /**Submission language */
     lang: string
+    /**Time when we should assume the grader has gone offline and return the submission to queue */
+    deadline: number
 }
 /**Submissions as used by the grading system */
 export interface GraderSubmissionComplete extends GraderSubmission {
@@ -27,6 +29,8 @@ export interface GraderSubmissionComplete extends GraderSubmission {
     lang: string
     /**Resulting scores of the submission */
     scores: Score[]
+    /**Time when the grader returned the submission */
+    gradeTime: number
 }
 
 export abstract class Grader {

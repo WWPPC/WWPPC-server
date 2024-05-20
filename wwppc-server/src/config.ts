@@ -12,6 +12,7 @@ const config: {
     readonly defaultProfileImg: string
     readonly dbCacheTime: number
     readonly graderAuthKeypairs
+    readonly graderTimeout: number
     readonly logEmailActivity: boolean
     readonly debugMode: boolean
     readonly superSecretSecret: boolean

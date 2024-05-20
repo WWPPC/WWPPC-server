@@ -3,7 +3,7 @@ import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
-import Grader from './grader';
+import Grader, { GraderSubmission } from './grader';
 import DomjudgeGrader from './graders/domjudgeGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -161,17 +161,25 @@ export class ContestManager {
                 respond(false, 'problem currently not submittable');
                 return;
             }
-            const submission: Submission = {
+            const submission: GraderSubmission = {
                 username: socket.username,
                 problemId: data.id,
                 file: data.file,
                 lang: data.lang,
+                time: Date.now(),
+                deadline: Date.now() + config.graderTimeout + problems[0].constraints.time * problems[0].cases.length
+            };
+            const databaseSubmission: Submission = {
+                username: socket.username,
+                problemId: data.id,
+                file: data.file,
                 scores: [],
-                history: [], // this doesn't matter
+                history: [],
+                lang: data.lang,
                 time: Date.now()
             };
             this.#grader.queueUngraded(submission);
-            if (!(await this.db.writeSubmission(submission))) {
+            if (!(await this.db.writeSubmission(databaseSubmission))) {
                 respond(false, 'database error');
                 return;
             }

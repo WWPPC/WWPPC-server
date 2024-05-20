@@ -9,6 +9,7 @@ export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)
 
     #judgehosts: Map<string, GraderSubmission> = new Map();
+    //value stores the submission that is being graded
 
     #app: Express;
     #logger: Logger;
@@ -31,14 +32,17 @@ export class WwppcGrader extends Grader {
             }
 
             const user = creds[0];
-            const submission = this.#ungradedSubmissions.shift();
-            if (submission == null) {
-                res.sendStatus(200);
-                return;
+            let submission = this.#judgehosts.get(user);
+            if (submission == undefined) {
+                submission = this.#ungradedSubmissions.shift();
+                if (submission == undefined) {
+                    res.json({});
+                    return;
+                }
+                this.#judgehosts.set(user, submission);
             }
-            this.#judgehosts.set(user, submission);
             const problemData = await this.#db.readProblems({ id: submission.problemId });
-            if (problemData === null || problemData.length !== 0) {
+            if (problemData == null || problemData.length !== 0) {
                 res.sendStatus(500);
                 return;
             }
@@ -60,6 +64,21 @@ export class WwppcGrader extends Grader {
 
             //implement the rest later 
         });
+
+        setInterval(() => {
+            this.#judgehosts.forEach(async (submission, user) => {
+                //check if a submission has passed the deadline and return to queue
+                if (submission.deadline < Date.now()) {
+                    const problems = await this.#db.readProblems({ id: submission.problemId });
+                    if (problems == null || problems.length != 1) {
+                        return;
+                    }
+                    submission.deadline = Date.now() + problems[0].constraints.time * problems[0].cases.length;
+                    this.#ungradedSubmissions.unshift(submission);
+                    this.#judgehosts.delete(user);
+                }
+            });
+        }, 5000);
     }
 
     queueUngraded(submission: GraderSubmission) {
