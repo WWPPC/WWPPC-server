@@ -195,7 +195,7 @@ watch(usernameInput, () => {
                                         <UITextBox :value="usernameInput" style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
                                         <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
                                         <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
-                                        <span v-if="true"><i>Reload to try again</i></span>
+                                        <span v-if="attemptedRecovery"><i>Reload to try again</i></span>
                                     </form>
                                 </div>
                             </div>

@@ -294,7 +294,7 @@ io.on('connection', async (s) => {
                 return;
             }
             const recoveryUrl = `https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}`;
-            await mailer.sendFromTemplate('base', [creds.email], 'Reset Password', [
+            const res = await mailer.sendFromTemplate('base', [creds.email], 'Reset Password', [
                 ['title', 'Account Recovery Request'],
                 ['content', `
                 <h3>Hallo ${data.displayName}!</h3>
@@ -310,6 +310,11 @@ io.on('connection', async (s) => {
                 </div>
                 `]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
+            if (res instanceof Error) {
+                socket.logWithId(logger.info, `Account recovery email could not be sent due to error: ${res.message}`);
+                cb(AccountOpResult.ERROR);
+                return;
+            }
             recentPasswordResetEmails.add(creds.username);
             cb(AccountOpResult.SUCCESS);
             socket.logWithId(logger.info, `Account recovery email was sent successfully (sent to ${creds.email})`);
@@ -536,7 +541,7 @@ const connectionKickDecrementer = setInterval(() => {
     if (c % 600 == 0) recentPasswordResetEmails.clear();
 }, 1000);
 
-database.connectPromise.then(() => {
+Promise.all([database.connectPromise, mailer.ready]).then(() => {
     server.listen(config.port);
     logger.info(`Listening to port ${config.port}`);
 });
