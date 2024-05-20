@@ -70,7 +70,8 @@ export class Database {
         this.connectPromise.then(() => {
             this.logger.info('Database connected');
             if (config.debugMode) {
-                this.logger.debug(`Database connected to ${this.#db.host} in ${performance.now() - startTime}ms`);
+                this.logger.debug(`Connected to ${this.#db.host}`);
+                this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
             }
         });
         this.#db.on('error', (err) => {

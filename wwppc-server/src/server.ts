@@ -106,7 +106,7 @@ import attachAdminPortal from './adminPortal';
 attachAdminPortal(database, app, contestManager, logger);
 
 // static hosting optional
-logger.info('SERVE_STATIC=' + config.serveStatic.toString().toUpperCase());
+logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
 if (config.serveStatic) {
     const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
     app.use('/', express.static(process.env.CLIENT_PATH!));
