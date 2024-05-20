@@ -10,6 +10,7 @@ defineProps<{
     fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
     noPadding?: boolean
+    noScroll?: boolean
 }>();
 </script>
 
@@ -62,7 +63,7 @@ defineProps<{
     height: 100%;
     padding: 12px 12px;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: v-bind("$props.noScroll ? 'hidden' : 'auto'");
 }
 
 .titledCutCornerContainerFade {

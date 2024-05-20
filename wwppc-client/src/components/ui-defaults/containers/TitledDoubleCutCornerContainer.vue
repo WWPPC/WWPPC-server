@@ -10,6 +10,7 @@ defineProps<{
     fontSize?: string
     hoverAnimation?: 'lift' | 'swell'
     noPadding?: boolean
+    noScroll?: boolean
 }>();
 </script>
 

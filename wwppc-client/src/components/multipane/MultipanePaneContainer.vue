@@ -46,7 +46,6 @@ export default {
 
 <style scoped>
 .multipanePaneContainerWrapper {
-    contain: paint;
     width: 100%;
     height: 100%;
 }

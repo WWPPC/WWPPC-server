@@ -38,7 +38,6 @@ const attemptRecovery = async () => {
     showRecoveryWait.value = false;
     if (res == 0) modal.showModal({ title: 'Password changed', content: 'Your password has been changed.', color: 'lime'}).result.then(() => window.location.reload());
     else modal.showModal({ title: 'Recovery failed:', content: getAccountOpMessage(res), color: 'red' });
-    console.log(res)
 };
 </script>
 

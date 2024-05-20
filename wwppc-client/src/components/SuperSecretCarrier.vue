@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const route = useRoute();
-const randomShow = ref(Math.random() < 0.01);
+const randomShow = ref(Math.random() < 0.001);
 const showAnyways = ref(route.query.battlecow !== undefined);
 watch(() => route.query.battlecow, () => {
     showAnyways.value = route.query.battlecow !== undefined || showAnyways.value;

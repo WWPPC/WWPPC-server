@@ -9,6 +9,7 @@ defineProps<{
     verticalFlipped?: boolean
     hoverAnimation?: 'lift' | 'swell'
     noPadding?: boolean
+    noScroll?: boolean
 }>();
 </script>
 
@@ -44,7 +45,7 @@ defineProps<{
     clip-path: polygon(0% 0%, calc(100% - 30px) 0%, 100% 30px, 100% 100%, 0% 100%);
     background-color: black;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: v-bind("$props.noScroll ? 'hidden' : 'auto'");
 }
 
 /* spaghet */

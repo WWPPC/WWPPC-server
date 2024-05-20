@@ -24,7 +24,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
                     <p>
-                        WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to four compete in three rounds of problems, ranging from AP CSA to USACO Platinum.
+                        WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to 4 compete in 3 rounds of problems across 2 divisions, ranging from AP CSA to USACO Platinum.
                         <br><br>
                         The contest will be held online, on this website, between two divisions: Novice and Advanced.
                     </p>
@@ -152,8 +152,8 @@ const router = useRouter();
                     </MultipaneSelectorContainer>
                 </CutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="min-height: 15em;">
-                <CutCornerContainer height="100%" vertical-flipped no-padding style="font-size: var(--font-medium);">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="min-width: 0px; min-height: 15em;">
+                <CutCornerContainer height="100%" vertical-flipped no-padding no-scroll style="font-size: var(--font-medium);">
                     <MultipanePaneContainer for="contestSchedule" default="precontest">
                         <MultipanePane for="precontest">
                             <GlitchText text="Pre-contest Practice & Testing" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
@@ -273,6 +273,7 @@ const router = useRouter();
                         <li>Each round has 3-6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
                         <li>Submissions are only graded <i>after</i> the round ends</li>
                         <li>Teams of up to 4 will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
+                        <li>Ties will be broken by time submitted</li>
                         <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
                         <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
                     </ul>

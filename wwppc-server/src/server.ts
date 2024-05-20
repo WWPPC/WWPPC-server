@@ -17,7 +17,7 @@ logger.info('Starting server...');
 logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);
 logger.debug('CLIENT_PATH: ' + process.env.CLIENT_PATH);
-logger.debug('Current config:\n' + JSON.stringify(config), true);
+logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
 
 // set up networking
 import express from 'express';
@@ -312,7 +312,7 @@ io.on('connection', async (s) => {
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
             recentPasswordResetEmails.add(creds.username);
             cb(AccountOpResult.SUCCESS);
-            socket.logWithId(logger.info, 'Account recovery email was sent successfully');
+            socket.logWithId(logger.info, `Account recovery email was sent successfully (sent to ${creds.email})`);
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });

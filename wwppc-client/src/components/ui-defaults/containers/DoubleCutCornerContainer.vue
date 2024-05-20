@@ -8,6 +8,7 @@ defineProps<{
     flipped?: boolean
     hoverAnimation?: 'lift' | 'swell'
     noPadding?: boolean
+    noScroll?: boolean
 }>();
 </script>
 
@@ -43,7 +44,7 @@ defineProps<{
     clip-path: polygon(30px 0%, 100% 0%, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0% 100%, 0% 30px);
     background-color: black;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: v-bind("$props.noScroll ? 'hidden' : 'auto'");
 }
 
 .doubleCutCornerContainerWrapperReversed {

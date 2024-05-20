@@ -31,7 +31,7 @@ const openUserView = () => {
 };
 
 const kick = async () => {
-    const confirmation = await modal.showModal({ title: 'Kick from team?', content: `You are about to kick ${data.value?.displayName} (@${props.user}) from the team. Are you sure?`, mode: ModalMode.CONFIRM }).result;
+    const confirmation = await modal.showModal({ title: 'Kick from team?', content: `You are about to kick ${data.value?.displayName} (@${props.user}) from the team. Are you sure?`, mode: ModalMode.INPUT }).result;
     if (!confirmation) return;
     const token = await recaptcha.execute('kick_team');
     const res = await accountManager.kickTeam(props.user, token);

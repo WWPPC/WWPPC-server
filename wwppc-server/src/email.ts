@@ -97,7 +97,7 @@ export class Mailer {
             const inlined = await inlineCss(content, { url: 'https://wwppc.tech' });
             await this.#transporter.sendMail({
                 from: '"WWPPC" <no-reply@wwppc.tech>',
-                to: recipients.join(','),
+                to: recipients,
                 subject: subject,
                 text: plaintext,
                 html: inlined
@@ -127,7 +127,7 @@ export class Mailer {
                 const inlined = await inlineCss(text, { url: 'https://' + config.hostname });
                 await this.#transporter.sendMail({
                     from: `"WWPPC" <no-reply@${config.hostname}>`,
-                    to: recipients.join(','),
+                    to: recipients,
                     subject: subject,
                     text: plaintext,
                     html: inlined

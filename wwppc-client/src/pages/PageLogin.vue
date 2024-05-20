@@ -95,12 +95,13 @@ const toRecovery = async () => {
 const attemptRecovery = async () => {
     if (!validateCredentials(usernameInput.value, 'oof') || ((emailInput.value.trim()) == '')) return;
     showRecoveryWait.value = true;
-    attemptedRecovery.value = true;
     const token = await recaptcha.execute('recoverpassword');
     const res = await accountManager.requestRecovery(usernameInput.value, emailInput.value, token);
     showRecoveryWait.value = false;
-    if (res == 0) modal.showModal({ title: 'Recovery email sent', content: 'The recovery email was sent and should arrive in your inbox within 10 minutes.' });
-    else modal.showModal({
+    if (res == 0) {
+        modal.showModal({ title: 'Recovery email sent', content: 'The recovery email was sent and should arrive in your inbox within 10 minutes.' });
+        attemptedRecovery.value = true;
+    } else modal.showModal({
         title: 'Could not send recovery email:',
         content: res == AccountOpResult.ALREADY_EXISTS ? 'An email was already sent recently' : res == AccountOpResult.NOT_EXISTS ? 'Account not found' : res == AccountOpResult.INCORRECT_CREDENTIALS ? 'Inputted email does not match account record' : res == AccountOpResult.ERROR ? 'Database error' : 'Unknown error (this is a bug?)'
     });
@@ -133,8 +134,8 @@ watch(usernameInput, () => {
                                         <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" pattern="[a-z0-9\-_=+]*" highlight-invalid></UITextBox>
                                         <UITextBox v-model="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
-                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput == ''"></UIButton>
-                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled="showLoginWait || usernameInput.trim() == '' || passwordInput == ''"></UIButton>
+                                            <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled=showLoginWait></UIButton>
+                                            <UIButton text="Sign Up" type="button" @click="toSignUp" width="100px" title="Continue to create a new account" glitchOnMount :disabled=showLoginWait></UIButton>
                                         </span>
                                         <span class="loginForgotPassword" @click="toRecovery">Forgot password?</span>
                                     </form>
@@ -194,6 +195,7 @@ watch(usernameInput, () => {
                                         <UITextBox :value="usernameInput" style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
                                         <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
                                         <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
+                                        <span v-if="true"><i>Reload to try again</i></span>
                                     </form>
                                 </div>
                             </div>

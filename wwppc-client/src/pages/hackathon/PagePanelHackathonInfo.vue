@@ -56,20 +56,26 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        <i>wink</i>
+                        <i>All information is tentative as of now.</i>
+                        <br>
+                        WWPHacks is expected to happen towards of the start of the 2024-2025 school year.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="Where will it be held?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        Possible venues include... <i>TBD (we can't say anything about it yet)</i>
+                        <i>All information is tentative as of now.</i>
+                        <br>
+                        We can't say anything about possible venues yet.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How many people can be on a team?" startCollapsed>
                     <p style="font-size: var(--font-20)">
+                        <i>All information is tentative as of now.</i>
+                        <br>
                         Expect to have teams of 3-4 people
                     </p>
                 </TitledCollapsible>

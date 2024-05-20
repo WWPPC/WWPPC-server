@@ -109,11 +109,11 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
                 <DoubleCutCornerContainer height="100%" hover-animation="lift">
                     <p style="text-wrap: balance; font-size: var(--font-20);">
                         <span style="color: lime;">WWPPC</span>:
-                        West Winsor-Plainsboro Programming Contest
+                        West Windsor-Plainsboro Programming Contest
                     </p>
                     <p style="text-wrap: balance; font-size: var(--font-20);">
                         <span style="color: lime;">WWPIT</span>:
-                        West Winsor-Plainsboro Informatics Tournament
+                        West Windsor-Plainsboro Informatics Tournament
                     </p>
                     <p style="text-wrap: balance; font-size: var(--font-20);">
                         <span style="color: lime;">WWPHacks</span>:
@@ -150,7 +150,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
         </div>
         <div class="cpi-partner">
             <GlowText text="Partnered with" font-size="var(--font-huge)" color="lime" shadow></GlowText>
-            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="16vh"></HomeHomeSponsorLogo>
             <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
         </div>
         <div class="sponsors">
@@ -236,5 +236,11 @@ p {
     row-gap: 25px;
     column-gap: 50px;
     padding: 2% 10%;
+}
+
+@media (max-width: 100vh) {
+    .cpi-partner {
+        flex-direction: column;
+    }
 }
 </style>

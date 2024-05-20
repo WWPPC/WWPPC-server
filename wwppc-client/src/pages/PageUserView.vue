@@ -78,7 +78,7 @@ const largeHeader = ref(true);
                         <OnScreenHook @change="(v) => largeHeader = v" offset-top="-16px"></OnScreenHook>
                         <div style="height: 30vh;"></div>
                         <div class="grid">
-                            <TitledCutCornerContainer title="Profile" align="center" height="100%" style="grid-row: span 2;" flipped>
+                            <TitledCutCornerContainer title="Profile" hover-animation="lift" align="center" height="100%" style="grid-row: span 2;" flipped>
                                 <PairedGridContainer style="font-size: var(--font-small);">
                                     <span>Name:</span>
                                     <UITextBox :value="userData?.firstName + ' ' + userData?.lastName" width="var(--fwidth)" disabled></UITextBox>
@@ -92,12 +92,12 @@ const largeHeader = ref(true);
                                     <UIDropdown v-model="languages" width="var(--fwidth)" height="6em" :items="languageMaps" multiple disabled></UIDropdown>
                                 </PairedGridContainer>
                             </TitledCutCornerContainer>
-                            <TitledDoubleCutCornerContainer title="Biography" align="center" height="100%" flipped>
+                            <TitledDoubleCutCornerContainer title="Biography" hover-animation="lift" align="center" height="100%" flipped>
                                 <p>
                                     {{ biography }}
                                 </p>
                             </TitledDoubleCutCornerContainer>
-                            <TitledCutCornerContainer title="Team" align="center" height="100%" style="grid-row: span 2;">
+                            <TitledCutCornerContainer title="Team" hover-animation="lift" align="center" height="100%" style="grid-row: span 2;">
                                 <div class="userViewTeamGrid">
                                     <div class="userViewTeamList">
                                         <AccountProfileTeamUser v-for="user in teamData?.teamMembers" :key="user" :user="user" :team="teamData!.team"></AccountProfileTeamUser>

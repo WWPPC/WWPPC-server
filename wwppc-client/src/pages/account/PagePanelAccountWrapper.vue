@@ -24,6 +24,7 @@ const changeProfileImage = (event: any) => {
             if (reader.result.length > 65535) {
                 modal.showModal({ title: 'Image too large', content: 'Due to database restrictions, the maximum file size is an arbitrary small number.', color: 'red' });
                 if (fileUpload.value) fileUpload.value.value = '';
+                return;
             }
             accountManager.profileImage = reader.result;
             accountManager.writeUserData();
