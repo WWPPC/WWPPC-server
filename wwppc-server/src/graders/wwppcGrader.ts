@@ -8,7 +8,7 @@ import Logger from '../log';
 export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)
 
-    #judgehosts: Map<string, GraderSubmission> = new Map();
+    #judgehosts: Map<string, WwppcJudgehost> = new Map();
     //value stores the submission that is being graded
 
     #app: Express;
@@ -25,57 +25,114 @@ export class WwppcGrader extends Grader {
         this.#logger = logger;
         this.#db = db;
         this.#app.get('/judge/get-work', async (req, res) => {
+            //fetch work from the server
             const creds = this.isValidJudgehostRequest(req);
             if (creds == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
             }
 
-            const user = creds[0];
-            let submission = this.#judgehosts.get(user);
-            if (submission == undefined) {
-                submission = this.#ungradedSubmissions.shift();
-                if (submission == undefined) {
-                    res.json({});
+            const username = creds[0];
+            let user = this.#judgehosts.get(username);
+            if (user == undefined) {
+                user = {
+                    username: username,
+                    grading: undefined,
+                    deadline: -1,
+                    lastCommunication: Date.now()
+                }
+                this.#judgehosts.set(username, user);
+            }
+            if (user.grading == undefined) {
+                user.grading = this.#ungradedSubmissions.shift();
+                if (user.grading == undefined) {
+                    res.json(null);
                     return;
                 }
-                this.#judgehosts.set(user, submission);
             }
-            const problemData = await this.#db.readProblems({ id: submission.problemId });
-            if (problemData == null || problemData.length !== 0) {
-                res.sendStatus(500);
+            const problems = await this.#db.readProblems({ id: user.grading.problemId });
+            if (problems == null || problems.length != 1) {
                 return;
             }
             res.json({
-                file: submission.file,
-                lang: submission.lang,
-                cases: problemData[0].cases,
-                constraints: problemData[0].constraints
+                file: user.grading.file,
+                lang: user.grading.lang,
+                cases: problems[0].cases,
+                constraints: problems[0].constraints
             });
+            user.lastCommunication = Date.now();
+            this.#judgehosts.set(username, user);
         });
         this.#app.post('/judge/return-work', async (req, res) => {
+            //return work if you can't grade it for some reason
             const creds = this.isValidJudgehostRequest(req);
             if (creds == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
             }
 
-            const user = creds[0];
+            const username = creds[0];
+            let user = this.#judgehosts.get(username);
+            if (user == undefined || user.grading == undefined) {
+                res.sendStatus(400);
+                return;
+            }
 
-            //implement the rest later 
+            this.#ungradedSubmissions.unshift(user.grading);
+            user.grading = undefined;
+            user.lastCommunication = Date.now();
+            this.#judgehosts.set(username, user);
+            res.sendStatus(200);
+        });
+        this.#app.post('/judge/finish-work', async (req, res) => {
+            //return finished batch
+            const creds = this.isValidJudgehostRequest(req);
+            if (creds == undefined) {
+                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                return;
+            }
+
+            const username = creds[0];
+            let user = this.#judgehosts.get(username);
+            if (user == undefined || user.grading == undefined) {
+                res.sendStatus(400);
+                return;
+            }
+            const problems = await this.#db.readProblems({ id: user.grading.problemId });
+            if (problems == null || problems.length != 1) {
+                return;
+            }
+
+            let gradedSubmission: GraderSubmissionComplete;
+            try {
+                gradedSubmission = req.body.submission;
+            } catch {
+                res.sendStatus(400);
+                return;
+            }
+            if (gradedSubmission == null) {
+                return;
+            }
+
+            //insert code to write submission to database and push the old one to history
+            
+            user.grading = undefined;
+            user.lastCommunication = Date.now();
+            this.#judgehosts.set(username, user);
+            res.sendStatus(200);
         });
 
         setInterval(() => {
-            this.#judgehosts.forEach(async (submission, user) => {
+            this.#judgehosts.forEach(async (user, username) => {
                 //check if a submission has passed the deadline and return to queue
-                if (submission.deadline < Date.now()) {
-                    const problems = await this.#db.readProblems({ id: submission.problemId });
-                    if (problems == null || problems.length != 1) {
-                        return;
+                if (user == undefined) return;
+                if (user.grading != undefined && user.deadline < Date.now()) {
+                    this.#ungradedSubmissions.unshift(user.grading);
+                    user.grading = undefined;
+                    this.#judgehosts.set(username, user);
+                    if (user.lastCommunication + config.graderTimeout < Date.now()) {
+                        this.#judgehosts.delete(username);
                     }
-                    submission.deadline = Date.now() + problems[0].constraints.time * problems[0].cases.length;
-                    this.#ungradedSubmissions.unshift(submission);
-                    this.#judgehosts.delete(user);
                 }
             });
         }, 5000);
@@ -113,6 +170,18 @@ export class WwppcGrader extends Grader {
         }
         return [user, pass];
     }
+}
+
+/**Judgehost */
+export interface WwppcJudgehost {
+    /**Username */
+    username: string
+    /**Submission that is being graded */
+    grading: GraderSubmission | undefined
+    /**Deadline to return the submission (unix ms) */
+    deadline: number
+    /**Last time we communicated with this judgehost (unix ms) */
+    lastCommunication: number
 }
 
 export default WwppcGrader;

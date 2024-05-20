@@ -161,15 +161,7 @@ export class ContestManager {
                 respond(false, 'problem currently not submittable');
                 return;
             }
-            const submission: GraderSubmission = {
-                username: socket.username,
-                problemId: data.id,
-                file: data.file,
-                lang: data.lang,
-                time: Date.now(),
-                deadline: Date.now() + config.graderTimeout + problems[0].constraints.time * problems[0].cases.length
-            };
-            const databaseSubmission: Submission = {
+            const submission: Submission = {
                 username: socket.username,
                 problemId: data.id,
                 file: data.file,
@@ -179,7 +171,7 @@ export class ContestManager {
                 time: Date.now()
             };
             this.#grader.queueUngraded(submission);
-            if (!(await this.db.writeSubmission(databaseSubmission))) {
+            if (!(await this.db.writeSubmission(submission))) {
                 respond(false, 'database error');
                 return;
             }
