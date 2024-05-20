@@ -77,6 +77,7 @@ export class Mailer {
         });
         // no way to async connect without making not-readonly
         this.#transporter = createTransport({
+            name: config.hostname,
             host: host,
             port: port,
             secure: secure,
