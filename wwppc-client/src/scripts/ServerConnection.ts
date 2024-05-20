@@ -8,8 +8,7 @@ import recaptcha from './recaptcha';
 // send HTTP wakeup request before trying socket.io
 export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
 export const socket = io(serverHostname, {
-    // auth.token doesn't exist what are you talking about
-    path: '/web/socket.io',
+    path: '/web-socketio',
     autoConnect: false,
     reconnection: false
 });
@@ -165,7 +164,7 @@ export const sendCredentials = async (username: string, password: string | numbe
     });
 };
 
-const apiPath = serverHostname + '/web/api';
+const apiPath = serverHostname + '/api';
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {

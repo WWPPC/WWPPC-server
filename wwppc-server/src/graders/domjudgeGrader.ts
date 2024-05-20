@@ -23,6 +23,7 @@ export class DomjudgeGrader extends Grader {
 
     constructor(app: Express, logger: Logger, db: Database) {
         super();
+        throw new Error('DomjudgeGrader is deprecated');
         this.#app = app;
         this.#logger = logger;
         this.#db = db;

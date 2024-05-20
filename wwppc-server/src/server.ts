@@ -68,13 +68,13 @@ const database = new Database({
     mailer: mailer
 });
 const io = new SocketIOServer(server, {
-    path: '/web/socket.io',
+    path: '/web-socketio',
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 const contestManager = new ContestManager(database, app, io, logger);
 
 // additional http version of socket.io requests
-app.get('/web/api/userData/:username', async (req, res) => {
+app.get('/api/userData/:username', async (req, res) => {
     const data = await database.getAccountData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == AccountOpResult.ERROR) res.sendStatus(500);
@@ -84,7 +84,7 @@ app.get('/web/api/userData/:username', async (req, res) => {
         res.json(data2);
     }
 });
-app.get('/web/api/teamData/:username', async (req, res) => {
+app.get('/api/teamData/:username', async (req, res) => {
     const data = await database.getTeamData(req.params.username);
     if (data == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
     else if (data == TeamOpResult.ERROR) res.sendStatus(500);
@@ -94,12 +94,12 @@ app.get('/web/api/teamData/:username', async (req, res) => {
         res.json(data2);
     }
 });
-app.get('/web/api/contestList', async (req, res) => {
+app.get('/api/contestList', async (req, res) => {
     const data = await contestManager.getContestList();
     if (data === null) res.sendStatus(500);
     else res.json(data);
 });
-app.use('/web/api/*', (req, res) => res.sendStatus(404));
+app.use('/api/*', (req, res) => res.sendStatus(404));
 
 // admin portal
 import attachAdminPortal from './adminPortal';
