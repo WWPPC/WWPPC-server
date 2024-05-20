@@ -31,6 +31,7 @@ export class Mailer {
     readonly #transporter: Transporter;
     readonly #logger: NamedLogger;
     readonly #templates: Map<string, string>;
+    readonly #sender: { name: string, address: string };
 
     /**
      * @param params Parameters
@@ -39,6 +40,10 @@ export class Mailer {
         const startTime = performance.now();
         this.#logger = new NamedLogger(logger, 'Mailer');
         this.#templates = new Map();
+        this.#sender = {
+            name: 'WWPPC',
+            address: 'no-reply@' + config.hostname
+        };
         let resolveReadyPromise: (v: any) => any;
         this.ready = new Promise((resolve) => resolveReadyPromise = resolve);
         fs.readdir(templatePath, { withFileTypes: true }, async (err: Error | null, files: fs.Dirent[]) => {
@@ -103,9 +108,9 @@ export class Mailer {
      */
     async send(recipients: string[], subject: string, content: string, plaintext?: string): Promise<Error | undefined> {
         try {
-            const inlined = await inlineCss(content, { url: 'https://wwppc.tech' });
+            const inlined = await inlineCss(content, { url: 'https://' + config.hostname });
             await this.#transporter.sendMail({
-                from: '"WWPPC" <no-reply@wwppc.tech>',
+                from: this.#sender,
                 to: recipients,
                 subject: subject,
                 text: plaintext,
@@ -135,7 +140,7 @@ export class Mailer {
                 });
                 const inlined = await inlineCss(text, { url: 'https://' + config.hostname });
                 await this.#transporter.sendMail({
-                    from: `"WWPPC" <no-reply@${config.hostname}>`,
+                    from: this.#sender,
                     to: recipients,
                     subject: subject,
                     text: plaintext,
