@@ -13,7 +13,7 @@ if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_
 // start server
 import { FileLogger } from './log';
 const logger = new FileLogger();
-logger.info('Starting WWPPC server...');
+logger.info('Starting server...');
 logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);
 logger.debug('CLIENT_PATH: ' + process.env.CLIENT_PATH);
@@ -106,7 +106,7 @@ import attachAdminPortal from './adminPortal';
 attachAdminPortal(database, app, contestManager, logger);
 
 // static hosting optional
-logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
+logger.info('SERVE_STATIC=' + config.serveStatic.toString().toUpperCase());
 if (config.serveStatic) {
     const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
     app.use('/', express.static(process.env.CLIENT_PATH!));
@@ -538,7 +538,7 @@ const connectionKickDecrementer = setInterval(() => {
 
 database.connectPromise.then(() => {
     server.listen(config.port);
-    logger.info(`Server listening to port ${config.port}`);
+    logger.info(`Listening to port ${config.port}`);
 });
 
 const stopServer = async () => {

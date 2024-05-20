@@ -74,8 +74,7 @@ export class Mailer {
         });
         this.#logger.info('SMTP server connected');
         if (config.debugMode) {
-            this.#logger.debug('SMTP server connected to: ' + host);
-            this.#logger.debug(`SMTP server connection time: ${performance.now() - startTime}ms`);
+            this.#logger.debug(`SMTP server connected to ${host} in ${performance.now() - startTime}ms`);
         }
         this.#transporter.on('error', (err) => {
             this.#logger.handleFatal('Fatal SMTP error:', err);
