@@ -1,7 +1,7 @@
 import { Express } from 'express';
 
 import { Database, ScoreState, Submission } from '../database';
-import Grader, { GraderSubmissionComplete } from '../grader';
+import Grader from '../grader';
 import Logger from '../log';
 
 export class DomjudgeGrader extends Grader {
@@ -233,13 +233,13 @@ export class DomjudgeGrader extends Grader {
         // oof
     }
 
-    get gradedList(): GraderSubmissionComplete[] {
+    get gradedList(): Submission[] {
         return this.#gradedSubmissions;
     }
     get hasGradedSubmissions(): boolean {
         return this.#gradedSubmissions.length > 0;
     }
-    emptyGradedList(): GraderSubmissionComplete[] {
+    emptyGradedList(): Submission[] {
         const l = structuredClone(this.#gradedSubmissions);
         this.#gradedSubmissions = [];
         return l;
