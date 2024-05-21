@@ -10,6 +10,7 @@
     "graderAuthKeypairs": [
         ["example", "password-97P0l9gB1+tz7S+wBa"]
     ],
+    "graderTimeout": 180000,
     "logEmailActivity": true,
     "debugMode": false,
     "superSecretSecret": false

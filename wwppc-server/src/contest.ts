@@ -3,7 +3,7 @@ import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
-import Grader from './grader';
+import Grader, { GraderSubmission } from './grader';
 import DomjudgeGrader from './graders/domjudgeGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -165,9 +165,9 @@ export class ContestManager {
                 username: socket.username,
                 problemId: data.id,
                 file: data.file,
-                lang: data.lang,
                 scores: [],
-                history: [], // this doesn't matter
+                history: [],
+                lang: data.lang,
                 time: Date.now()
             };
             this.#grader.queueUngraded(submission);

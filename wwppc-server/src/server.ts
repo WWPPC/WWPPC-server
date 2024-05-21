@@ -21,6 +21,7 @@ logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
 
 // set up networking
 import express from 'express';
+import bodyParser from 'body-parser';
 import http from 'http';
 import https from 'https';
 import { rateLimit } from 'express-rate-limit';
@@ -38,6 +39,8 @@ const limiter = rateLimit({
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }
 });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(cors({ origin: '*' }));
 app.use(cookieParser());
