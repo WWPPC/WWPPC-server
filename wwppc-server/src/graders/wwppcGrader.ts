@@ -1,7 +1,8 @@
+import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
-import config from '../config';
 
-import { Database, ScoreState, Submission } from '../database';
+import config from '../config';
+import { Database } from '../database';
 import Grader, { GraderSubmission, GraderSubmissionComplete } from '../grader';
 import Logger from '../log';
 
@@ -24,6 +25,8 @@ export class WwppcGrader extends Grader {
         this.#app = app;
         this.#logger = logger;
         this.#db = db;
+        app.use('/judge/*', bodyParser.json());
+        app.use('/judge/*', bodyParser.urlencoded({ extended: true }));
         this.#app.get('/judge/get-work', async (req, res) => {
             //fetch work from the server
             const creds = this.isValidJudgehostRequest(req);
@@ -115,12 +118,13 @@ export class WwppcGrader extends Grader {
             }
 
             //insert code to write submission to database and push the old one to history
-            
+
             user.grading = undefined;
             user.lastCommunication = Date.now();
             this.#judgehosts.set(username, user);
             res.sendStatus(200);
         });
+        app.use('/judge/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
             this.#judgehosts.forEach(async (user, username) => {

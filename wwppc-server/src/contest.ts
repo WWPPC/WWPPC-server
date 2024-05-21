@@ -3,15 +3,15 @@ import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
-import Grader, { GraderSubmission } from './grader';
-import DomjudgeGrader from './graders/domjudgeGrader';
+import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
 import WwppcGrader from './graders/wwppcGrader';
 
-//user-facing contest manager
-//actual grading is done with the Grader class
+/**
+ * `ContestManager` handles all contest interfacing with clients.
+ */
 export class ContestManager {
     readonly #grader: Grader;
 
@@ -151,7 +151,7 @@ export class ContestManager {
                 respond(false, 'nonexistent problem');
                 return;
             }
-            const userData = await this.db.getAccountData(socket.username);
+            // const userData = await this.db.getAccountData(socket.username);
             const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
             if (problems[0].hidden && !canViewAllProblems) {
                 socket.kick('attempt to view hidden problem');
