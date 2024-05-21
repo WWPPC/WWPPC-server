@@ -1,40 +1,11 @@
-import { Score, UUID } from "./database"
-
-/**Submissions as used by the grading system */
-export interface GraderSubmission {
-    /**Username of submitter */
-    readonly username: string
-    /**UUID of problem submitted to */
-    readonly problemId: UUID
-    /**Time of submission, UNIX milliseconds */
-    time: number
-    /**Contents of the submission file */
-    file: string
-    /**Submission language */
-    lang: string
-}
-/**Submissions as used by the grading system */
-export interface GraderSubmissionComplete extends GraderSubmission {
-    /**Username of submitter */
-    readonly username: string
-    /**UUID of problem submitted to */
-    readonly problemId: UUID
-    /**Time of submission, UNIX milliseconds */
-    time: number
-    /**Contents of the submission file */
-    file: string
-    /**Submission language */
-    lang: string
-    /**Resulting scores of the submission */
-    scores: Score[]
-}
+import { Score, Submission, UUID } from "./database"
 
 export abstract class Grader {
     /**
      * Add a submission to the ungraded queue of submissions.
      * @param {GraderSubmission} submission New submission
      */
-    abstract queueUngraded(submission: GraderSubmission);
+    abstract queueUngraded(submission: Submission);
     /**
      * Cancel all ungraded submissions from a user to a problem.
      * @param username Username of submitter
@@ -45,7 +16,7 @@ export abstract class Grader {
     /**
      * List of completed/graded submissions
      */
-    abstract get gradedList(): GraderSubmissionComplete[]
+    abstract get gradedList(): Submission[]
     /**
      * If the graded submissions list is not empty
      */
@@ -53,7 +24,7 @@ export abstract class Grader {
     /**
      * Empties the graded submission list and returns the contents.
      */
-    abstract emptyGradedList(): GraderSubmissionComplete[]
+    abstract emptyGradedList(): Submission[]
 }
 
 export default Grader;

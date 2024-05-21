@@ -2,8 +2,8 @@ import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
 
 import config from '../config';
-import { Database } from '../database';
-import Grader, { GraderSubmission, GraderSubmissionComplete } from '../grader';
+import { Database, Submission } from '../database';
+import Grader from '../grader';
 import Logger from '../log';
 
 export class WwppcGrader extends Grader {
@@ -16,9 +16,9 @@ export class WwppcGrader extends Grader {
     #logger: Logger;
     #db: Database;
 
-    #ungradedSubmissions: GraderSubmission[] = [];
+    #ungradedSubmissions: Submission[] = [];
 
-    #gradedSubmissions: GraderSubmissionComplete[] = [];
+    #gradedSubmissions: Submission[] = [];
 
     constructor(app: Express, logger: Logger, db: Database) {
         super();
@@ -89,6 +89,8 @@ export class WwppcGrader extends Grader {
         });
         this.#app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
+            //doesn't validate if it's a valid problem etc
+            //we assume that the judgehost is returning grades from the previous get-work
             const creds = this.isValidJudgehostRequest(req);
             if (creds == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
@@ -101,23 +103,15 @@ export class WwppcGrader extends Grader {
                 res.sendStatus(400);
                 return;
             }
-            const problems = await this.#db.readProblems({ id: user.grading.problemId });
-            if (problems == null || problems.length != 1) {
-                return;
-            }
 
-            let gradedSubmission: GraderSubmissionComplete;
             try {
-                gradedSubmission = req.body.submission;
+                user.grading.scores = req.body.scores;
             } catch {
                 res.sendStatus(400);
                 return;
             }
-            if (gradedSubmission == null) {
-                return;
-            }
 
-            //insert code to write submission to database and push the old one to history
+            this.#gradedSubmissions.push(user.grading);
 
             user.grading = undefined;
             user.lastCommunication = Date.now();
@@ -134,6 +128,7 @@ export class WwppcGrader extends Grader {
                     this.#ungradedSubmissions.unshift(user.grading);
                     user.grading = undefined;
                     this.#judgehosts.set(username, user);
+                    //if they haven't talked to us in a while let's just assume they disconnected
                     if (user.lastCommunication + config.graderTimeout < Date.now()) {
                         this.#judgehosts.delete(username);
                     }
@@ -142,20 +137,20 @@ export class WwppcGrader extends Grader {
         }, 5000);
     }
 
-    queueUngraded(submission: GraderSubmission) {
+    queueUngraded(submission: Submission) {
         this.#ungradedSubmissions.push(submission); //pretend it's graded for testing purposes
     }
     cancelUngraded(username: string, problemId: string): Promise<void> {
         throw new Error('Method not implemented.');
         //you also have to tell the judgehost running this submission to stop!
     }
-    get gradedList(): GraderSubmissionComplete[] {
+    get gradedList(): Submission[] {
         return this.#gradedSubmissions;
     }
     get hasGradedSubmissions(): boolean {
         return this.#gradedSubmissions.length > 0;
     }
-    emptyGradedList(): GraderSubmissionComplete[] {
+    emptyGradedList(): Submission[] {
         const l = structuredClone(this.#gradedSubmissions);
         this.#gradedSubmissions = [];
         return l;
@@ -169,7 +164,7 @@ export class WwppcGrader extends Grader {
         if (user == null || pass == null) {
             return;
         }
-        if (!config.graderAuthKeypairs.some((pair) => typeof pair.password == 'string' && pair.password == pass)) {
+        if (!config.graderAuthKeypairs.some((pair) => pair.username == user && pair.password == pass)) {
             return;
         }
         return [user, pass];
@@ -181,7 +176,7 @@ export interface WwppcJudgehost {
     /**Username */
     username: string
     /**Submission that is being graded */
-    grading: GraderSubmission | undefined
+    grading: Submission | undefined
     /**Deadline to return the submission (unix ms) */
     deadline: number
     /**Last time we communicated with this judgehost (unix ms) */
