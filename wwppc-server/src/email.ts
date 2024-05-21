@@ -4,8 +4,8 @@ import path from 'path';
 
 import config from './config';
 import Logger, { NamedLogger } from './log';
-import { minify } from './minifier';
 import inlineCss from 'inline-css';
+import { minify as htmlMinify } from 'html-minifier';
 
 interface MailerConstructorParams {
     /**Hostname of SMTP server */
@@ -30,8 +30,8 @@ export class Mailer {
     readonly ready: Promise<any>;
     readonly #transporter: Transporter;
     readonly #logger: NamedLogger;
+    readonly #templatePathURL: string;
     readonly #templates: Map<string, string>;
-    readonly #sender: { name: string, address: string };
 
     /**
      * @param params Parameters
@@ -39,11 +39,8 @@ export class Mailer {
     constructor({ host, port = 587, secure = false, username, password, templatePath, logger }: MailerConstructorParams) {
         const startTime = performance.now();
         this.#logger = new NamedLogger(logger, 'Mailer');
+        this.#templatePathURL = 'file://' + templatePath;
         this.#templates = new Map();
-        this.#sender = {
-            name: 'WWPPC',
-            address: 'no-reply@' + config.hostname
-        };
         let resolveReadyPromise: (v: any) => any;
         this.ready = new Promise((resolve) => resolveReadyPromise = resolve);
         fs.readdir(templatePath, { withFileTypes: true }, async (err: Error | null, files: fs.Dirent[]) => {
@@ -60,13 +57,7 @@ export class Mailer {
                             this.#logger.handleError('Email template read failed:', err);
                             return;
                         }
-                        try {
-                            const minified = await minify(data, 'html');
-                            this.#templates.set(file.name.split('.')[0], minified);
-                        } catch (err) {
-                            this.#logger.handleError('Email template minification failed: ', err);
-                            this.#templates.set(file.name.split('.')[0], data);
-                        }
+                        this.#templates.set(file.name.split('.')[0], data);
                         if (config.debugMode) this.#logger.debug('Read email template ' + file.name);
                         resolve(undefined);
                     });
@@ -109,13 +100,23 @@ export class Mailer {
      */
     async send(recipients: string[], subject: string, content: string, plaintext?: string): Promise<Error | undefined> {
         try {
-            const inlined = await inlineCss(content, { url: 'https://' + config.hostname });
+            const inlined = await inlineCss(content, {
+                url: config.hostname,
+                removeHtmlSelectors: true
+            });
+            const minified = htmlMinify(inlined, {
+                collapseBooleanAttributes: true,
+                collapseWhitespace: true
+            });
             await this.#transporter.sendMail({
-                from: this.#sender,
+                from: {
+                    name: 'WWPPC',
+                    address: config.emailAddress
+                },
                 to: recipients,
                 subject: subject,
                 text: plaintext,
-                html: inlined
+                html: minified
             });
         } catch (err) {
             return new Error('' + err);
@@ -135,17 +136,27 @@ export class Mailer {
         try {
             if (this.#templates.has(template)) {
                 let text = this.#templates.get(template)!;
-                params.push(['hostname', config.hostname]);
+                params.push(['hostname', 'https://' + config.hostname]);
                 params.forEach(([key, value]) => {
                     text = text.replaceAll(`$${key}$`, value);
                 });
-                const inlined = await inlineCss(text, { url: 'https://' + config.hostname });
+                const inlined = await inlineCss(text, {
+                    url: this.#templatePathURL,
+                    removeHtmlSelectors: true
+                });
+                const minified = htmlMinify(inlined, {
+                    collapseBooleanAttributes: true,
+                    collapseWhitespace: true
+                });
                 await this.#transporter.sendMail({
-                    from: this.#sender,
+                    from: {
+                        name: 'WWPPC',
+                        address: config.emailAddress
+                    },
                     to: recipients,
                     subject: subject,
                     text: plaintext,
-                    html: inlined
+                    html: minified
                 });
             } else {
                 this.#logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, new Error('Template not found'));

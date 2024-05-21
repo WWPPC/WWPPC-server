@@ -5,6 +5,7 @@ process.env.CONFIG_PATH ??= path.resolve(__dirname, '../config/');
 const fileConfig = require(path.resolve(process.env.CONFIG_PATH, 'config.json'));
 const config: {
     readonly hostname: string
+    readonly emailAddress: string
     readonly port: string
     readonly serveStatic: boolean
     readonly maxConnectPerSecond: number
@@ -18,7 +19,6 @@ const config: {
     readonly path: string
 } = {
     ...fileConfig,
-    hostname: process.env.HOSTNAME ?? fileConfig.hostname,
     port: process.env.PORT ?? fileConfig.port,
     serveStatic: process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? fileConfig.serveStatic,
     debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode,

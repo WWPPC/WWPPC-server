@@ -28,7 +28,7 @@ defineExpose({
 </script>
 
 <template>
-    <input :type="props.type ?? 'text'" :class="'uiTextBox ' + (props.highlightInvalid ? 'uiTextBoxHighlightInvalid' : '')" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
+    <input :type="props.type ?? 'text'" :class="'uiTextBox ' + ((props.highlightInvalid && text.length > 0) ? 'uiTextBoxHighlightInvalid' : '')" @input=input v-model=text :title=props.title :placeholder=props.placeholder :autocomplete="props.autocomplete ?? 'off'">
 </template>
 
 <style scoped>

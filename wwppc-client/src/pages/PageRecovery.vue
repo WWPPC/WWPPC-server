@@ -7,9 +7,10 @@ import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
 import recaptcha from '@/scripts/recaptcha';
 import { getAccountOpMessage } from '@/scripts/ServerConnection';
 import { nextTick, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 
 const modal = globalModal();
 const accountManager = useAccountManager();
@@ -38,6 +39,7 @@ const attemptRecovery = async () => {
     showRecoveryWait.value = false;
     if (res == 0) modal.showModal({ title: 'Password changed', content: 'Your password has been changed.', color: 'lime'}).result.then(() => window.location.reload());
     else modal.showModal({ title: 'Recovery failed:', content: getAccountOpMessage(res), color: 'red' });
+    router.push('/login');
 };
 </script>
 

@@ -293,23 +293,11 @@ io.on('connection', async (s) => {
                 if (config.debugMode) socket.logWithId(logger.debug, 'Could not send recovery email: ' + reverse_enum(AccountOpResult, recoveryPassword));
                 return;
             }
-            const recoveryUrl = `https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}`;
-            const res = await mailer.sendFromTemplate('base', [creds.email], 'Reset Password', [
-                ['title', 'Account Recovery Request'],
-                ['content', `
-                <h3>Hallo ${data.displayName}!</h3>
-                <br>
-                You recently requested a password reset. Reset it with the button below, or click <a href="${recoveryUrl}">this link</a>.
-                <br><br>
-                <div class="centered">
-                <a href="${recoveryUrl}">
-                <button style="border-radius: 12px; height: 40px; padding: 0px 16px; background-color: black; color: lime; font-weight: bold; cursor: pointer;">RESET PASSWORD</button>
-                </a>
-                <br>
-                Not you? You can ignore this email.
-                </div>
-                `]
-            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: ${recoveryUrl}.\nNot you? You can ignore this email.`);
+            const res = await mailer.sendFromTemplate('password-reset', [creds.email], 'Reset Password', [
+                ['name', data.displayName],
+                ['user', creds.username],
+                ['pass', recoveryPassword]
+            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}.\nNot you? You can ignore this email.`);
             if (res instanceof Error) {
                 socket.logWithId(logger.info, `Account recovery email could not be sent due to error: ${res.message}`);
                 cb(AccountOpResult.ERROR);

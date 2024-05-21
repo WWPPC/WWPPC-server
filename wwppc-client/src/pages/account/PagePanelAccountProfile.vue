@@ -14,6 +14,7 @@ const accountManager = useAccountManager();
 
 const loading = ref(true);
 onMounted(async () => {
+    loading.value = true;
     await accountManager.updateOwnUserData();
     loading.value = false;
     usernameNotEditable.value = accountManager.username;
