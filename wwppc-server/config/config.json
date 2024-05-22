@@ -1,6 +1,6 @@
 {
     "hostname": "wwppc.tech",
-    "emailAddress": "no-reply@server.wwppc.tech",
+    "emailAddress": "no-reply@wwppc.tech",
     "port": 8000,
     "serveStatic": false,
     "maxConnectPerSecond": 5,

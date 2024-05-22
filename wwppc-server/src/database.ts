@@ -1093,7 +1093,7 @@ export class Database {
         }
     }
     /**
-     * Write a submission to the submissions table.
+     * Write a submission to the submissions table. The `history` field is ignored.
      * @param {Submission} submission Submission to write
      * @returns {boolean} If the write was successful
      */
