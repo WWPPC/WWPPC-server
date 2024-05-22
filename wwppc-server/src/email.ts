@@ -82,6 +82,7 @@ export class Mailer {
         if (config.debugMode) {
             this.#logger.debug(`Connected to ${host}`);
             this.#logger.debug(`Connection time: ${performance.now() - startTime}ms`);
+            this.#logger.debug('Current sending address: ' + config.emailAddress);
         }
         this.#transporter.on('error', (err) => {
             this.#logger.handleFatal('Fatal SMTP error:', err);

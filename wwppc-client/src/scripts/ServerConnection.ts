@@ -6,7 +6,7 @@ import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
 
 // send HTTP wakeup request before trying socket.io
-export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : ('https://wwppc.onrender.com' ?? window.location.host);
+export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : 'https://server.wwppc.tech';
 export const socket = io(serverHostname, {
     path: '/web-socketio',
     autoConnect: false,
