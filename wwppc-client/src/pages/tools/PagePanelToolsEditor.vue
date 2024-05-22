@@ -33,6 +33,7 @@ watch(html, () => {
     grid-template-columns: 1fr 1fr;
     column-gap: 24px;
 }
+
 .big {
     box-sizing: border-box;
     width: 100%;

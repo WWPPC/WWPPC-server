@@ -14,7 +14,6 @@ const username = autoGlitchTextTransition(() => '@' + accountManager.username, 4
 
 const fileUpload = ref<HTMLInputElement>();
 const changeProfileImage = (event: any) => {
-    // const file: File | undefined | null = fileUpload.value?.files?.item(0);
     const file: File | undefined = event.target?.files?.item(0);
     if (file == undefined) return;
     const reader = new FileReader();
