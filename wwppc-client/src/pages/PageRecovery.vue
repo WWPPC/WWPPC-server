@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PanelBody, PanelHeader, PanelMain, PanelNavLargeLogo, PanelView } from '@/components/panels/PanelManager';
 import { globalModal, UIButton, UITextBox } from '@/components/ui-defaults/UIDefaults';
+import LoadingCover from '@/components/common/LoadingCover.vue';
 import WaitCover from '@/components/common/WaitCover.vue';
 import { useAccountManager, validateCredentials } from '@/scripts/AccountManager';
 import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
@@ -39,7 +40,7 @@ const attemptRecovery = async () => {
     showRecoveryWait.value = false;
     if (res == 0) modal.showModal({ title: 'Password changed', content: 'Your password has been changed.', color: 'lime'}).result.then(() => window.location.reload());
     else modal.showModal({ title: 'Recovery failed:', content: getAccountOpMessage(res), color: 'red' });
-    router.push('/login');
+    router.push('/login?clearQuery=1');
 };
 </script>
 
@@ -63,6 +64,7 @@ const attemptRecovery = async () => {
                     </div>
                 </div>
                 <WaitCover text="Please wait..." :show=showRecoveryWait></WaitCover>
+                <LoadingCover text="Connecting..."></LoadingCover>
             </PanelBody>
         </PanelMain>
     </PanelView>

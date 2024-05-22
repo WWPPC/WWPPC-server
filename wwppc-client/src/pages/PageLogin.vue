@@ -206,7 +206,7 @@ watch(usernameInput, () => {
                 </div>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
                 <WaitCover text="Sending email..." :show=showRecoveryWait></WaitCover>
-                <LoadingCover text="Connecting..." ignore-server></LoadingCover>
+                <LoadingCover text="Connecting..."></LoadingCover>
             </PanelBody>
         </PanelMain>
     </PanelView>
