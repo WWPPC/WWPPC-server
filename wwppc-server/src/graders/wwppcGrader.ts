@@ -49,7 +49,7 @@ export class WwppcGrader extends Grader {
             if (user.grading == undefined) {
                 user.grading = this.#ungradedSubmissions.shift();
                 if (user.grading == undefined) {
-                    res.json(null);
+                    res.json();
                     return;
                 }
             }
@@ -160,7 +160,12 @@ export class WwppcGrader extends Grader {
         if (auth == null) {
             return;
         }
-        const [user, pass] = Buffer.from(auth.split(' ')[1], 'base64').toString().split(':');
+        let user, pass;
+        try {
+            [user, pass] = Buffer.from(auth, 'base64').toString().split(':');
+        } catch {
+            return;
+        }
         if (user == null || pass == null) {
             return;
         }
