@@ -18,6 +18,8 @@ import UIDivider from './UIDivider.vue';
 import GlowText from './text/GlowText.vue';
 import GlitchText from './text/GlitchText.vue';
 import UICopyButton from './UICopyButton.vue';
+import UITimer from './UITimer.vue';
+import UITimeDisplay from './UITimeDisplay.vue';
 
 export {
     UIButton,
@@ -37,7 +39,9 @@ export {
     UIDivider,
     GlowText,
     GlitchText,
-    UICopyButton
+    UICopyButton,
+    UITimer,
+    UITimeDisplay
 }
 
 const modal = ref<InstanceType<typeof FullscreenModal>>();

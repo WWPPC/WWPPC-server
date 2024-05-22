@@ -275,7 +275,7 @@ class ContestHost {
     get round(): number {
         return this.#index;
     }
-    activeRound(): Round {
+    get activeRound(): Round {
         const r = this.#data.rounds[this.#index];
         return {
             id: r.id,
@@ -286,6 +286,10 @@ class ContestHost {
     }
     containsActiveProblem(id: string): boolean {
         return this.#data.rounds[this.#index].problems.includes(id);
+    }
+    get visibleData(): ContestContest {
+        return this.#data;
+        // remove problems from rounds that haven't started
     }
 
     async processSubmission(data: { id: string, file: string, lang: string }): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {

@@ -47,6 +47,7 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
     scroll-margin-top: 16px;
     scroll-margin-bottom: 16px;
     will-change: transform;
+    transform-style: preserve-3d;
 }
 
 .fullBlock:last-child {

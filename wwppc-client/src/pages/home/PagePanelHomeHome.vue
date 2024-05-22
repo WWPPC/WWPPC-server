@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/common/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer, ShowOnscreenContainer } from "@/components/ui-defaults/UIContainers";
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
 import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
@@ -8,14 +8,8 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
 </script>
 
 <template>
-    <div class="centered homeTitle">
-        <ShowOnscreenContainer>
-            <GlitchText text="WWPPC 2024" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 random on-visible></GlitchText>
-        </ShowOnscreenContainer>
-    </div>
     <div class="fullBlock homeBlock">
-        <!-- spacer for title -->
-        <div style="height: calc(1.25 * var(--font-huge-title))"></div>
+        <GlitchText text="WWPPC 2024" class="homeTitle" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 random on-visible></GlitchText>
         <div class="homeColumns">
             <div>
                 <AnimateInContainer type="slideUp" height="100%" show-on-screen :delay=100>
@@ -77,9 +71,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
     <div class="fullBlock homeBlock">
         <a name="pageHomeScrollTo"></a>
         <div class="centered">
-            <ShowOnscreenContainer>
-                <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="About WWPPC" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </div>
         <div class="homeGeneralInfoColumns" style="font-size: var(--font-medium);">
             <AnimateInContainer type="slideUp" show-on-screen style="grid-row: span 2;">
@@ -144,9 +136,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
     <div class="fullBlock homeBlock">
         <div class="centered">
             <a name="pageHomeScrollTo2"></a>
-            <ShowOnscreenContainer>
-                <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </div>
         <div class="cpi-partner">
             <GlowText text="Partnered with" font-size="var(--font-huge)" color="lime" shadow></GlowText>
@@ -172,12 +162,10 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
 }
 
 .homeTitle {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     transform-origin: top;
     transform: translate3D(0px, -20vh, -50px) scale(150%);
     z-index: -1;
+    text-align: center;
 }
 
 .homeColumns {

@@ -177,4 +177,4 @@ export class Mailer {
     }
 }
 
-export default Mailer
+export default Mailer;

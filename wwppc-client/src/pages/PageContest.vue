@@ -53,7 +53,7 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             <PanelBody name="home" title="Home" is-default scroll-snap>
                 <PagePanelContestInfo></PagePanelContestInfo>
             </PanelBody>
-            <PanelBody name="contest" title="Contest">
+            <PanelBody name="contest" title="Contest" scroll-snap>
                 <PagePanelContestContest v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestContest>
             </PanelBody>
             <PanelBody name="problemList" title="Problem List">

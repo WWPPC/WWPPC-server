@@ -294,9 +294,9 @@ io.on('connection', async (s) => {
                 return;
             }
             const res = await mailer.sendFromTemplate('password-reset', [creds.email], 'Reset Password', [
-                ['name', data.displayName],
-                ['user', creds.username],
-                ['pass', recoveryPassword]
+                ['name', encodeURI(data.displayName)],
+                ['user', encodeURI(creds.username)],
+                ['pass', encodeURI(recoveryPassword)]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}.\nNot you? You can ignore this email.`);
             if (res instanceof Error) {
                 socket.logWithId(logger.info, `Account recovery email could not be sent due to error: ${res.message}`);

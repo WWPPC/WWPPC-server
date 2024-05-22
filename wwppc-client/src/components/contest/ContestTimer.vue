@@ -1,68 +1,170 @@
 <script setup lang="ts">
-import { useContestManager } from '@/scripts/ContestManager';
+import { nextContest, useContestManager } from '@/scripts/ContestManager';
 import { useRoute } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
+import { GlitchText, UITimer } from '@/components/ui-defaults/UIDefaults';
+
+const props = defineProps<{
+    big?: boolean
+}>();
 
 const route = useRoute();
-
 const contestManager = useContestManager();
 
-// flashing animations later
+const show = ref(false);
+onMounted(() => show.value = route.params.panel !== 'contest' || props.big);
+watch(() => route.params.panel, () => show.value = route.params.panel !== 'contest' || props.big);
+
+const round = ref('');
+const nextTime = ref(new Date(0));
+const color = ref('white');
+const flashColor = ref('');
+let inRound = false;
+const updateTime = () => {
+    if (contestManager.contest == undefined) {
+        if (props.big) round.value = 'Not in contest';
+        else round.value = '---';
+        nextTime.value = nextContest;
+        color.value = 'white';
+        return;
+    }
+    inRound = false;
+    color.value = 'white';
+    round.value = contestManager.contest.id;
+    nextTime.value = new Date(contestManager.contest.endtime);
+    const now = Date.now();
+    if (now > contestManager.contest.endtime) {
+        if (props.big) round.value = 'Contest ended';
+        else round.value = '---';
+        nextTime.value = new Date();
+        color.value = 'red';
+    }
+    for (let i = contestManager.contest.rounds.length - 1; i >= 0; i--) {
+        const r = contestManager.contest.rounds[i];
+        if (now < r.startTime) {
+            nextTime.value = new Date(r.startTime);
+            color.value = 'white';
+        } else if (now < r.endTime) {
+            round.value = `Round ${r.number}`;
+            if (props.big) round.value = `Round ${r.number}`;
+            else round.value = `Round ${r.number}`;
+            nextTime.value = new Date(r.endTime);
+            color.value = 'lime';
+            inRound = true;
+        }
+    }
+    updateFlash();
+};
+const updateFlash = () => {
+    if (inRound) {
+        if (nextTime.value.getTime() - Date.now() <= 300000) flashColor.value = 'red';
+        else flashColor.value = 'lime';
+    } else if (Date.now() > (contestManager.contest?.endtime ?? 0)) {
+        flashColor.value = '';
+    } else {
+        if (nextTime.value.getTime() - Date.now() <= 60000) flashColor.value = 'yellow';
+        else flashColor.value = 'white';
+    }
+};
+watch(() => contestManager.contest, updateTime);
+onMounted(updateTime);
+setInterval(updateFlash, 1000);
+
+const emit = defineEmits<{
+    (e: 'next', value: number): any
+}>();
+
+watch(nextTime, () => emit('next', nextTime.value.getTime()));
 </script>
 
 <template>
-    <div class="contestTimerContainer" v-if="contestManager.contest !== null || route.query.ignore_server !== undefined">
-        <img src="/assets/timer.svg" class="contestTimerImg">
-        <span class="contestTimerTextTop">Round 0</span>
-        <!-- use timer component -->
-        <span class="contestTimerTextBottom">00:00</span>
-    </div>
+    <Transition>
+        <div :class="'timer' + ($props.big ? '2' : '')" v-if="contestManager.contest !== null || route.query.ignore_server !== undefined" v-show="show">
+            <GlitchText :text="round" :class="'timerText' + ($props.big ? '2' : '')" :shadow="$props.big" :glow="$props.big" random on-visible></GlitchText>
+            <UITimer type="min-timer" :to="nextTime" :class="'timerTime' + ($props.big ? '2' : '')" :shadow="$props.big" :glow="$props.big" :color="color" :flashing="flashColor != ''" :flash-color="flashColor == color ? undefined : flashColor" @zero="updateTime"></UITimer>
+        </div>
+    </Transition>
 </template>
 
 <style scoped>
-.contestTimerContainer {
-    display: grid;
-    grid-template-columns: 34px 1fr;
-    grid-template-rows: 24px 1fr;
+.timer,
+.timer2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.timer {
     min-width: 150px;
     max-width: 150px;
     margin-right: 8px;
     padding-top: 12px;
-    align-items: center;
-    justify-items: center;
     transition: 500ms min-width;
 }
 
-.contestTimerImg {
-    width: 32px;
-    height: 32px;
-}
-
-.contestTimerTextTop {
+.timerText {
     font-size: 24px;
     text-wrap: nowrap;
     transition: 500ms font-size;
 }
 
-.contestTimerTextBottom {
-    grid-column: 1 / 3;
+.timerText2 {
+    font-size: var(--font-subtitle);
+    text-wrap: nowrap;
+}
+
+.timerTime {
     margin-top: -4px;
     font-size: 50px;
     text-wrap: nowrap;
     transition: 500ms font-size;
+    font-weight: normal;
+}
+
+.timerTime2 {
+    font-size: var(--font-huge-title);
+    text-wrap: nowrap;
+}
+
+.v-enter-active,
+.v-leave-active {
+    transition: 200ms ease min-width, 200ms ease max-width, 200ms linear opacity;
+}
+
+.v-enter-from,
+.v-leave-to {
+    min-width: 0px;
+    max-width: 0px;
+    opacity: 0;
+}
+
+.v-leave-from,
+.v-enter-to {
+    min-width: 150px;
+    max-width: 150px;
+    opacity: 1;
 }
 
 @media (max-width: 700px) {
-    .contestTimerContainer {
+    .timer {
         min-width: 110px;
         max-width: 110px;
         margin-left: -16px;
     }
 
-    .contestTimerTextTop {
-        font-size: 18px;
+    .timerText {
+        font-size: 16px;
     }
 
-    .contestTimerTextBottom {
+    .timerTime {
         font-size: 30px;
     }
-}</style>
+
+    .v-leave-from,
+    .v-enter-to {
+        min-width: 110px;
+        max-width: 110px;
+    }
+}
+</style>

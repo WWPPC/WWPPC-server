@@ -6,7 +6,7 @@ const props = defineProps<{
 }>();
 
 const route = useRoute();
-const showAnyways = ref(route.query.super_secret_scanlines !== undefined || Math.random() < 0.01);
+const showAnyways = ref(route.query.super_secret_scanlines !== undefined || Math.random() < 0.001);
 watch(() => route.query.super_secret_scanlines, () => {
     showAnyways.value = route.query.super_secret_scanlines !== undefined || showAnyways.value;
 });

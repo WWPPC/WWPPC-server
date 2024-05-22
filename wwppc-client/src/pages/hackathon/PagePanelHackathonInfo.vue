@@ -1,56 +1,48 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
-import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer, CenteredContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
-    <div class="centered hackathonTitle">
-        <ShowOnscreenContainer>
-            <GlitchText text="WWPHacks" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
-        </ShowOnscreenContainer>
-    </div>
     <div class="fullBlock stretchBlock">
-        <!-- spacer -->
-        <div style="height: calc(1.25 * var(--font-title))"></div>
+        <GlitchText text="WWPHacks" class="hackathonTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         <div class="hacksInfoBlock">
-                <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
-                    <TitledDoubleCutCornerContainer title="Come hack with us!" height="100%" align="center" hover-animation="lift">
-                        <p>
-                            WWPHacks is a hackathon where programmers compete to develop technological solutions to real-world problems within 24 hours. Teams will build projects, attend workshops, and compete for prizes. Judges will evaluate the projects, with winners receiving interesting awards. At the end of the day, participants will leave the hackathon with technical experience, new friends, and fulfillment.
-                        </p>
-                    </TitledDoubleCutCornerContainer>
-                </AnimateInContainer>
-                <AnimateInContainer type="slideUp" show-on-screen :delay=200>
-                    <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift" flipped>
-                        <div class="centered">
-                            <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                        </div>
-                    </TitledDoubleCutCornerContainer>
-                </AnimateInContainer>
-                <AnimateInContainer type="slideUp" show-on-screen :delay=300>
-                    <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
-                        <CenteredContainer>
-                            <span style="font-size: var(--font-20);">
-                                <br>
-                                <div class="centered" style="margin: 4px;">
-                                    <UILinkButton text="Register" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
-                                </div>
-                                <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
-                            </span>
-                        </CenteredContainer>
-                    </CutCornerContainer>
-                </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Come hack with us!" height="100%" align="center" hover-animation="lift">
+                    <p>
+                        WWPHacks is a hackathon where programmers compete to develop technological solutions to real-world problems within 24 hours. Teams will build projects, attend workshops, and compete for prizes. Judges will evaluate the projects, with winners receiving interesting awards. At the end of the day, participants will leave the hackathon with technical experience, new friends, and fulfillment.
+                    </p>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200>
+                <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift" flipped>
+                    <div class="centered">
+                        <GlitchText text="??/??/????" font-size="min(5vh, calc(50vw / 10))" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                    </div>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=300>
+                <CutCornerContainer height="100%" hover-animation="lift" vertical-flipped>
+                    <CenteredContainer>
+                        <span style="font-size: var(--font-20);">
+                            <br>
+                            <div class="centered" style="margin: 4px;">
+                                <UILinkButton text="Register" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
+                            </div>
+                            <i style="font-size: var(--font-16)">Registrations are not open yet, check back later!</i>
+                        </span>
+                    </CenteredContainer>
+                </CutCornerContainer>
+            </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
     </div>
     <div class="fullBlock stretchBlock">
         <a name="pageHackathonScrollTo"></a>
         <CenteredContainer>
-            <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
@@ -88,12 +80,10 @@ import { GlitchText, UILinkButton } from '@/components/ui-defaults/UIDefaults';
 
 <style scoped>
 .hackathonTitle {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     transform-origin: top;
     transform: translate3D(0px, -20vh, -50px) scale(150%);
     z-index: -1;
+    text-align: center;
 }
 
 .stretchBlock {

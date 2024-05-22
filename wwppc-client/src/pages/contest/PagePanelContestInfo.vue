@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import ContactFooter from '@/components/common/ContactFooter.vue';
-import CountdownTimer from '@/components/common/CountdownTimer.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
-import { AnimateInContainer, CenteredContainer, ShowOnscreenContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, UILinkButton, UIIconButton } from '@/components/ui-defaults/UIDefaults';
+import { AnimateInContainer, CenteredContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { GlitchText, UILinkButton, UIIconButton, UITimer } from '@/components/ui-defaults/UIDefaults';
 import { nextContest, nextContestEnd } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 
@@ -12,14 +11,8 @@ const router = useRouter();
 </script>
 
 <template>
-    <div class="centered contestTitle">
-        <ShowOnscreenContainer>
-            <GlitchText text="WWPIT" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
-        </ShowOnscreenContainer>
-    </div>
     <div class="fullBlock stretchBlock">
-        <!-- spacer -->
-        <div style="height: calc(1.25 * var(--font-title))"></div>
+        <GlitchText text="WWPIT" class="contestTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         <div class="contestInfoBlock">
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
@@ -36,7 +29,7 @@ const router = useRouter();
                         <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                     </div>
                     <div class="centered">
-                        <CountdownTimer :to="nextContest" type="clock" font-size="var(--font-large)" color="lime" glow></CountdownTimer>
+                        <UITimer :to="nextContest" type="clock" font-size="var(--font-large)" color="lime" glow></UITimer>
                     </div>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
@@ -76,14 +69,12 @@ const router = useRouter();
                 </CutCornerContainer>
             </AnimateInContainer>
         </div>
-        <ScrollIndicator anchor="a[name=pageHackathonScrollTo]"></ScrollIndicator>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo]"></ScrollIndicator>
     </div>
     <div class="fullBlock stretchBlock">
-        <a name="pageHackathonScrollTo"></a>
+        <a name="pageContestScrollTo"></a>
         <CenteredContainer>
-            <ShowOnscreenContainer>
-                <GlitchText text="Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </CenteredContainer>
         <div class="scheduleBlock">
             <AnimateInContainer type="slideUp" show-on-screen>
@@ -228,14 +219,12 @@ const router = useRouter();
                 </CutCornerContainer>
             </AnimateInContainer>
         </div>
-        <ScrollIndicator anchor="a[name=pageHackathonScrollTo2]"></ScrollIndicator>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo2]"></ScrollIndicator>
     </div>
     <div class="fullBlock stretchBlock">
-        <a name="pageHackathonScrollTo2"></a>
+        <a name="pageContestScrollTo2"></a>
         <CenteredContainer>
-            <ShowOnscreenContainer>
-                <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
-            </ShowOnscreenContainer>
+            <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
         <br>
         <div class="faq">
@@ -297,12 +286,10 @@ const router = useRouter();
 
 <style scoped>
 .contestTitle {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     transform-origin: top;
     transform: translate3D(0px, -20vh, -50px) scale(150%);
     z-index: -1;
+    text-align: center;
 }
 
 .stretchBlock {

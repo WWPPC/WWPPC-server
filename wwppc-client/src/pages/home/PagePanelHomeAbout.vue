@@ -5,14 +5,8 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 </script>
 
 <template>
-    <div class="centered aboutTitle">
-        <ShowOnscreenContainer>
-            <GlitchText text="WWPPC Team" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
-        </ShowOnscreenContainer>
-    </div>
     <div class="fullBlock">
-        <!-- spacer -->
-        <div style="height: calc(1.25 * var(--font-title))"></div>
+        <GlitchText text="WWPPC Team" class="aboutTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         <div class="aboutCreditsTable">
             <HomeAboutCreditsCard name="Rishikesh Anabathula" roles="Project Lead<br>Outreach<br>Problemsetter" img="/img/rishikesh-anabathula.png" codeforces="CutSandstone" github="CutSandstone" discord="559131662143979534" bio="USACO Platinum, running enjoyer, AIME qualifier, leetcoder. Also likes short biographies, so I made this long sentence for him."></HomeAboutCreditsCard>
             <HomeAboutCreditsCard name="Jie Gao" roles="Development Lead<br>Website Developer" img="/img/jie-gao.jpg" github="spsquared" discord="587770060462882854" youtube="@sp-squared?sub_confirmation=1" bio="Full stack JavaScript main and robotics nerd. 2x WRO Future Engineers Internationals Top 4. Made most of the website frontend and servers."></HomeAboutCreditsCard>
@@ -27,12 +21,10 @@ import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 
 <style scoped>
 .aboutTitle {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     transform-origin: top;
     transform: translate3D(0px, -20vh, -50px) scale(150%);
     z-index: -1;
+    text-align: center;
 }
 
 .aboutCreditsTable {
