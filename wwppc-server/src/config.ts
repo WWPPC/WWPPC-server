@@ -12,7 +12,7 @@ const config: {
     readonly maxSignupPerMinute: number
     readonly defaultProfileImg: string
     readonly dbCacheTime: number
-    readonly graderAuthKeypairs
+    readonly graderAuthKeypairs: {username: string, password: string}[]
     readonly graderTimeout: number
     readonly logEmailActivity: boolean
     readonly debugMode: boolean
