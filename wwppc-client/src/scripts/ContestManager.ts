@@ -4,23 +4,23 @@ import { reactive } from 'vue';
 import { socket, useServerConnection } from './ServerConnection';
 
 export interface Contest {
-    id: string
+    readonly id: string
     rounds: ContestRound[]
     startTime: number
     endtime: number
 }
 export interface ContestRound {
-    contest: string
-    number: number
+    readonly contest: string
+    readonly number: number
     problems: ContestProblem[]
     startTime: number
     endTime: number
 }
 export interface ContestProblem {
-    id: string
-    contest: string
-    round: number
-    number: number
+    readonly id: string
+    readonly contest: string
+    readonly round: number
+    readonly number: number
     name: string
     author: string
     content: string
@@ -50,11 +50,8 @@ export interface ContestSubmission {
     status: ContestProblemCompletionState
 }
 export interface ContestScore {
-    /**Pass/fail status */
     state: ContestScoreState
-    /**Time taken in ms */
     time: number
-    /**Memory taken in MB */
     memory: number
 }
 export enum ContestScoreState {
@@ -101,11 +98,11 @@ export const useContestManager = defineStore('contestManager', {
             const res: string[] | null = await serverConnection.apiFetch('GET', '/contestList/');
             return res;
         },
-        getProblemData(round: number, number: number): ContestProblem | null {
-            return state.contest?.rounds[round]?.problems[number] ?? null;
+        async getProblemData(round: number, number: number): Promise<ContestProblem | null> {
+            return null;
         },
-        getProblemDataId(id: string): ContestProblem | null {
-            return state.contest?.rounds.flatMap((r) => r.problems).find((p) => p.id === id) ?? null;
+        async getProblemDataId(id: string): Promise<ContestProblem | null> {
+            return null;
         },
         // server-driven contest list
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {

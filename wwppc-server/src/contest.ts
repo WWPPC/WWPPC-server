@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Submission, TeamOpResult, UUID } from './database';
+import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Score, ScoreState, Submission, TeamOpResult, UUID } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -157,7 +157,7 @@ export class ContestManager {
                 socket.kick('attempt to view hidden problem');
                 return;
             }
-            if (!Array.from(this.#contests.values()).some((contest) => contest.containsActiveProblem(data.id))) {
+            if (!Array.from(this.#contests.values()).some((contest) => contest.problemSubmittable(data.id))) {
                 respond(false, 'problem currently not submittable');
                 return;
             }
@@ -199,14 +199,44 @@ export interface ContestRound {
     endTime: number
 }
 export interface ContestProblem {
-    id: string
-    contest: string
-    round: number
-    number: number
+    readonly id: string
+    readonly contest: string
+    readonly round: number
+    readonly number: number
     name: string
     author: string
     content: string
     constraints: { memory: number, time: number }
+}
+interface ClientContest {
+    readonly id: string
+    rounds: ClientRound[]
+    startTime: number
+    endtime: number
+}
+interface ClientRound {
+    readonly contest: string
+    readonly number: number
+    problems: ClientProblem[]
+    startTime: number
+    endTime: number
+}
+export interface ClientProblem {
+    readonly id: string
+    readonly contest: string
+    readonly round: number
+    readonly number: number
+    name: string
+    author: string
+    content: string
+    constraints: { memory: number, time: number }
+    submissions: ClientSubmission[]
+    status: ScoreState
+}
+export interface ClientSubmission {
+    time: number
+    scores: Score[]
+    status: ScoreState
 }
 
 class ContestHost {
@@ -269,13 +299,13 @@ class ContestHost {
             startTime: contest[0].startTime,
             endTime: contest[0].endTime
         };
-        // this.io.to(this.#sid).emit()
+        this.io.to(this.#sid).emit('contestData', this.#data);
     }
 
     get round(): number {
         return this.#index;
     }
-    get activeRound(): Round {
+    get currentRound(): Round {
         const r = this.#data.rounds[this.#index];
         return {
             id: r.id,
@@ -284,7 +314,7 @@ class ContestHost {
             endTime: r.endTime
         };
     }
-    containsActiveProblem(id: string): boolean {
+    problemSubmittable(id: string): boolean {
         return this.#data.rounds[this.#index].problems.includes(id);
     }
     get visibleData(): ContestContest {
@@ -303,9 +333,13 @@ class ContestHost {
         socket.on('timeout', () => this.removeSocket(socket));
         socket.on('error', () => this.removeSocket(socket));
 
+        // make sure no accidental duping
+        socket.removeAllListeners('updateSubmission');
+        socket.removeAllListeners('problemData');
         socket.on('updateSubmission', (data: { id: string, file: string, lang: string }, cb: (res: TeamOpResult) => any) => {
 
         });
+        // socket.on('problemData', ())
 
         // send contest data once
     }
