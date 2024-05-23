@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
+import { TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText } from '@/components/ui-defaults/UIDefaults';
 import UITimeDisplay from '@/components/ui-defaults/UITimeDisplay.vue';
 import { useContestManager } from '@/scripts/ContestManager';
@@ -73,7 +74,7 @@ onMounted(updateRoundTimes);
 <template>
     <div class="fullBlock stretchBlock">
         <div class="timerContainer">
-            <GlitchText :text="contestManager.contest?.id ?? 'Not in contest'" color="lime" font-size="var(--font-title)" shadow glow></GlitchText>
+            <GlitchText :text="contestManager.contest?.id ?? 'Not in contest'" class="timerTitle" color="lime" font-size="var(--font-title)" shadow glow></GlitchText>
             <ContestTimer big @next="updateRoundTimes"></ContestTimer>
         </div>
         <div style="flex-grow: 1"></div>
@@ -89,7 +90,7 @@ onMounted(updateRoundTimes);
     </div>
     <div class="fullBlock">
         <a name="pageContestContestScrollTo"></a>
-
+        <TitledCutCornerContainer title="Instructions"></TitledCutCornerContainer>
     </div>
     <!-- contest instructions -->
     <!-- important info, like discord and clarifications location -->
@@ -108,6 +109,11 @@ onMounted(updateRoundTimes);
     transform-style: preserve-3d;
     z-index: -1;
     text-align: center;
+}
+
+.timerTitle {
+    transform-origin: top;
+    transform: translate3D(0px, -10vh, -50px) scale(125%);
 }
 
 .blockScrollWrapper {

@@ -447,7 +447,7 @@ io.on('connection', async (s) => {
         // make sure won't violate restrictions
         const contests = await database.readContests(userData.registrations);
         if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
-        if (contests.some((c) => c.maxTeamSize <= teamData.members.length)) {
+        if (contests.some((c) => c.maxTeamSize < teamData.members.length)) {
             respond(TeamOpResult.CONTEST_MEMBER_LIMIT);
             await resetTeam();
             return;
