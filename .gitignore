@@ -32,3 +32,6 @@ node_modules/
 
 # stupid
 *.DS_STORE
+
+# idk what this is but it's not supposed to be here
+.idea/
