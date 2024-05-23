@@ -144,8 +144,9 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
             <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
         </div>
         <div class="sponsors">
+            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/aops-logo.png" url="https://artofproblemsolving.com/" height="16vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="16vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="8vh"></HomeHomeSponsorLogo>
