@@ -10,7 +10,7 @@ defineProps<{
 
 <template>
     <a :href="$props.url" target="_blank" class="sponsorImgWrapper">
-        <img :src=$props.src :class="'sponsorImg ' + (isMobileRef ? 'noFilter' : '')">
+        <img :src=$props.src :class="'sponsorImg ' + (isMobileRef ? 'noFilter' : '')" loading="lazy">
     </a>
 </template>
 
