@@ -63,7 +63,7 @@ export class Database {
                 this.logger.handleFatal('Could not connect to database:', err);
                 this.logger.fatal('Host: ' + this.#db.host);
                 this.logger.destroy();
-                process.exit(-1);
+                process.exit(1);
             }),
             setPublicKey()
         ]);
@@ -77,7 +77,7 @@ export class Database {
         this.#db.on('error', (err) => {
             this.logger.handleFatal('Fatal database error:', err);
             this.logger.destroy();
-            process.exit(-1);
+            process.exit(1);
         });
     }
 
@@ -1177,7 +1177,7 @@ export function reverse_enum(enumerator, v): string {
     return v;
 }
 
-/**The result of an operation involving account data */
+/**Response codes for operations involving account data */
 export enum AccountOpResult {
     /**The operation was completed successfully */
     SUCCESS = 0,
@@ -1191,7 +1191,7 @@ export enum AccountOpResult {
     ERROR = 4
 }
 
-/**The result of an operation involving team data */
+/**Response codes for operations involving team data */
 export enum TeamOpResult {
     /**The operation was completed successfully */
     SUCCESS = 0,

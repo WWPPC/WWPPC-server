@@ -10,9 +10,11 @@ import WaitCover from '@/components/common/WaitCover.vue';
 import latexify from '@/scripts/katexify';
 import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
 import AnimateInContainer from "@/components/ui-defaults/containers/AnimateInContainer.vue";
+import { useServerConnection } from '@/scripts/ServerConnection';
 
 const route = useRoute();
 const router = useRouter();
+const serverConnection = useServerConnection();
 const contestManager = useContestManager();
 const modal = globalModal();
 
@@ -106,7 +108,7 @@ const submit = ref<InstanceType<typeof UIButton>>();
 const handleUpload = () => {
     const file: File | undefined | null = fileUpload.value?.files?.item(0);
     if (fileUpload.value == undefined || file == undefined) return;
-    if (file.size > 10240) {
+    if (file.size > serverConnection.serverConfig.maxSubmissionSize) {
         fileUpload.value.resetFileList();
         modal.showModal({
             title: 'File size too large',
@@ -180,15 +182,7 @@ watch(problem, () => {
                         <span>Source code:</span>
                         <UIFileUpload ref="fileUpload" @input=handleUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
                         <span>Language:</span>
-                        <UIDropdown ref="languageDropdown" :items="[
-                            { text: 'Java 8', value: 'java8' },
-                            { text: 'Java 17', value: 'java17' },
-                            { text: 'Java 21', value: 'java21' },
-                            { text: 'C', value: 'c' },
-                            { text: 'C++ 11', value: 'cpp11' },
-                            { text: 'C++ 17', value: 'cpp17' },
-                            { text: 'Python 3.6.9', value: 'py369' }
-                        ]" required></UIDropdown>
+                        <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a}))" required></UIDropdown>
                     </div>
                     <!-- disable depending on contestManager state -->
                     <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload></UIButton>

@@ -4,10 +4,10 @@ import { Server as SocketIOServer } from 'socket.io';
 import config from './config';
 import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Score, ScoreState, Submission, TeamOpResult, UUID } from './database';
 import Grader from './grader';
+import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
-import WwppcGrader from './graders/wwppcGrader';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
@@ -129,54 +129,6 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-
-        // move to running contest
-        socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }) => {
-            // also need to check valid language, valid problem id
-            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || isUUID(data.id)) {
-                socket.kick('invalid updateSubmission payload');
-                return;
-            }
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + data.id);
-            const respond = (success: boolean, message: string) => {
-                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${success ? 'success' : 'fail'}: ${message}`);
-                socket.emit('submissionStatus', success);
-            };
-            if (data.file.length > 10240) {
-                respond(false, 'file too large');
-                return;
-            }
-            const problems = await this.db.readProblems({ id: data.id });
-            if (problems === null) {
-                respond(false, 'nonexistent problem');
-                return;
-            }
-            // const userData = await this.db.getAccountData(socket.username);
-            const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
-            if (problems[0].hidden && !canViewAllProblems) {
-                socket.kick('attempt to view hidden problem');
-                return;
-            }
-            if (!Array.from(this.#contests.values()).some((contest) => contest.problemSubmittable(data.id))) {
-                respond(false, 'problem currently not submittable');
-                return;
-            }
-            const submission: Submission = {
-                username: socket.username,
-                problemId: data.id,
-                file: data.file,
-                scores: [],
-                history: [],
-                lang: data.lang,
-                time: Date.now()
-            };
-            this.#grader.queueUngraded(submission);
-            if (!(await this.db.writeSubmission(submission))) {
-                respond(false, 'database error');
-                return;
-            }
-        });
-
         // get contest list
         // create contest hosts if not exists
         // add user to contest host if registered
@@ -239,18 +191,42 @@ export interface ClientSubmission {
     status: ScoreState
 }
 
+/**Response codes for submitting to a problem in contest */
+export enum ContestUpdateSubmissionResult {
+    /**The submission was accepted */
+    SUCCESS = 0,
+    /**The submission was rejected because the file size was exceeded */
+    FILE_TOO_LARGE = 1,
+    /**The submission was rejected because the submission language is not acceptable */
+    LANGUAGE_NOT_ACCEPTABLE = 2,
+    /**The submission was rejected because the target problem is not open to submissions */
+    PROBLEM_NOT_SUBMITTABLE = 3,
+    /**The submission was rejected because an error occured */
+    ERROR = 4
+}
+
+/**
+ * Subclass of `ContestManager` containing hosting for individual contests, including handling submissions.
+ */
 class ContestHost {
     readonly id: string;
     readonly io: SocketIOServer;
     readonly db: Database;
     readonly grader: Grader;
-    readonly logger: Logger;
+    readonly logger: NamedLogger;
     #data: ContestContest;
     #index: number = 0;
     readonly #sid: string;
 
     readonly #sockets: Set<ServerSocket> = new Set();
 
+    /**
+     * @param {string} id Contest id of contest
+     * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
+     * @param {Database} db Database connection
+     * @param {Grader} grader Grader management instance to use for grading
+     * @param {Logger} logger Logger instance
+     */
     constructor(id: string, io: SocketIOServer, db: Database, grader: Grader, logger: Logger) {
         this.id = id;
         this.io = io;
@@ -267,9 +243,15 @@ class ContestHost {
         this.reload();
     }
 
+    /**
+     * Get a copy of the internal data.
+     */
     get data(): ContestContest {
         return structuredClone(this.data);
     }
+    /**
+     * Reload the contest data from the database, also updating clients.
+     */
     async reload(): Promise<void> {
         this.logger.info(`Reloading contest data "${this.id}"`);
         const contest = await this.db.readContests(this.id);
@@ -299,12 +281,18 @@ class ContestHost {
             startTime: contest[0].startTime,
             endTime: contest[0].endTime
         };
-        this.io.to(this.#sid).emit('contestData', this.#data);
+        this.updateAllUsers();
     }
 
+    /**
+     * Index of the current round (zero-indexed).
+     */
     get round(): number {
         return this.#index;
     }
+    /**
+     * Data of the current round.
+     */
     get currentRound(): Round {
         const r = this.#data.rounds[this.#index];
         return {
@@ -314,18 +302,32 @@ class ContestHost {
             endTime: r.endTime
         };
     }
-    problemSubmittable(id: string): boolean {
+    /**
+     * Get if a particular problem ID is submittable.
+     * @param {UUID} id Problem ID
+     * @returns 
+     */
+    problemSubmittable(id: UUID): boolean {
         return this.#data.rounds[this.#index].problems.includes(id);
     }
-    get visibleData(): ContestContest {
-        return this.#data;
-        // remove problems from rounds that haven't started
+    /**
+     * Update all users in contest with latest contest data.
+     */
+    async updateAllUsers(): Promise<void> {
+
+    }
+    /**
+     * Only update users under a username with the latest contest data.
+     * @param {string} username Username
+     */
+    async updateUser(username: string): Promise<void> {
+
     }
 
-    async processSubmission(data: { id: string, file: string, lang: string }): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
-        return 0;
-    }
-
+    /**
+     * Add a username-linked SocketIO connection to the user list.
+     * @param {ServerSocket} socket SocketIO connection (with modifications)
+     */
     addSocket(socket: ServerSocket): void {
         this.#sockets.add(socket);
         socket.join(this.#sid);
@@ -335,13 +337,55 @@ class ContestHost {
 
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
-        socket.removeAllListeners('problemData');
-        socket.on('updateSubmission', (data: { id: string, file: string, lang: string }, cb: (res: TeamOpResult) => any) => {
-
+        socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
+            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || isUUID(data.id)) {
+                socket.kick('invalid updateSubmission payload');
+                return;
+            }
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + data.id);
+            const respond = (res: ContestUpdateSubmissionResult) => {
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
+                cb(res);
+            };
+            if (data.file.length > 10240) {
+                respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
+                return;
+            }
+            if (!config.acceptedLanguages.includes(data.lang)) {
+                respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
+                return;
+            }
+            const problems = await this.db.readProblems({ id: data.id });
+            if (problems === null) {
+                respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
+                return;
+            }
+            // const userData = await this.db.getAccountData(socket.username);
+            const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
+            if (problems[0].hidden && !canViewAllProblems) {
+                socket.kick('attempt to view hidden problem');
+                return;
+            }
+            if (!this.problemSubmittable(data.id)) {
+                respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
+                return;
+            }
+            const submission: Submission = {
+                username: socket.username,
+                problemId: data.id,
+                file: data.file,
+                scores: [],
+                history: [],
+                lang: data.lang,
+                time: Date.now()
+            };
+            // tell grader to grade
+            if (!(await this.db.writeSubmission(submission))) {
+                respond(ContestUpdateSubmissionResult.ERROR);
+                return;
+            }
+            respond(ContestUpdateSubmissionResult.SUCCESS);
         });
-        // socket.on('problemData', ())
-
-        // send contest data once
     }
     removeSocket(socket: ServerSocket): boolean {
         if (this.#sockets.has(socket)) {

@@ -1,6 +1,3 @@
-# dev stuff
-# nothing here for now
-
 # Vite
 *.vite
 vite.config.ts.timestamp*
@@ -11,18 +8,12 @@ build/
 *.cache
 
 # Logs
-logs
+logs/
 *.log
 *.log*
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Dependency directories
+# npm dependencies
 node_modules/
-
-# Output of 'npm pack'
-*.tgz
 
 # dotenv environment variable files
 .env

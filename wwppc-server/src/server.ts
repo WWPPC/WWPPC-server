@@ -14,9 +14,9 @@ if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_
 import { FileLogger } from './log';
 const logger = new FileLogger();
 logger.info('Starting server...');
-logger.debug('CONFIG_PATH: ' + process.env.CONFIG_PATH);
-logger.debug('EMAIL_TEMPLATE_PATH: ' + process.env.EMAIL_TEMPLATE_PATH);
-logger.debug('CLIENT_PATH: ' + process.env.CLIENT_PATH);
+logger.debug('CONFIG_PATH: ' + config.path);
+logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
+logger.debug('CLIENT_PATH: ' + config.clientPath);
 logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
 
 // set up networking
@@ -57,7 +57,7 @@ const mailer = new Mailer({
     port: Number(process.env.SMTP_PORT ?? 587), // another default
     username: process.env.SMTP_USER!,
     password: process.env.SMTP_PASS!,
-    templatePath: process.env.EMAIL_TEMPLATE_PATH!,
+    templatePath: config.emailTemplatePath,
     logger: logger
 });
 const database = new Database({
@@ -108,8 +108,8 @@ attachAdminPortal(database, app, contestManager, logger);
 // static hosting optional
 logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
 if (config.serveStatic) {
-    const indexDir = path.resolve(process.env.CLIENT_PATH!, 'index.html');
-    app.use('/', express.static(process.env.CLIENT_PATH!));
+    const indexDir = path.resolve(config.clientPath, 'index.html');
+    app.use('/', express.static(config.clientPath));
     app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => {
         if (!req.accepts('html')) res.sendStatus(406);
         else res.sendFile(indexDir);
@@ -340,12 +340,13 @@ io.on('connection', async (s) => {
 
     // only can reach this point after signing in
     if (config.debugMode) socket.logWithId(logger.debug, 'Authentication successful');
+    socket.join(socket.username);
 
     // add remaining listeners
     socket.on('setUserData', async (data: { firstName: string, lastName: string, displayName: string, profileImage: string, bio: string, school: string, grade: number, experience: number, languages: string[] }, cb: (res: AccountOpResult) => any) => {
         if (config.debugMode) socket.logWithId(logger.info, 'Updating user data');
         if (data == null || typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
-            || data.displayName.length > 32 || typeof data.profileImage != 'string' || data.profileImage.length > 65535 || typeof data.bio != 'string' || data.bio.length > 2048
+            || data.displayName.length > 32 || typeof data.profileImage != 'string' || data.profileImage.length > config.maxProfileImgSize || typeof data.bio != 'string' || data.bio.length > 2048
             || typeof data.school != 'string' || data.school.length > 64 || typeof data.grade != 'number' || typeof data.experience != 'number'
             || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined || typeof cb != 'function') {
             socket.kick('invalid setUserData payload');

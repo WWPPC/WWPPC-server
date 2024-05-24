@@ -1,20 +1,23 @@
 import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
+import fs from 'fs';
+import path from 'path';
 
 import config from '../config';
 import { Database, Submission } from '../database';
 import Grader from '../grader';
-import Logger from '../log';
+import Logger, { NamedLogger } from '../log';
 
 export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)
 
-    #judgehosts: Map<string, WwppcJudgehost> = new Map();
+    #nodes: Map<string, GraderNode> = new Map();
     //value stores the submission that is being graded
 
     #app: Express;
-    #logger: Logger;
+    #logger: NamedLogger;
     #db: Database;
+    #password: string;
 
     #ungradedSubmissions: Submission[] = [];
 
@@ -23,20 +26,21 @@ export class WwppcGrader extends Grader {
     constructor(app: Express, logger: Logger, db: Database) {
         super();
         this.#app = app;
-        this.#logger = logger;
+        this.#logger = new NamedLogger(logger, 'WwppcGrader');
         this.#db = db;
+        if (typeof process.env.GRADER_PASS != 'string') throw new Error('Missing WwppcGrader password');
+        this.#password = process.env.GRADER_PASS;
         app.use('/judge/*', bodyParser.json());
         app.use('/judge/*', bodyParser.urlencoded({ extended: true }));
         this.#app.get('/judge/get-work', async (req, res) => {
             //fetch work from the server
-            const creds = this.isValidJudgehostRequest(req);
-            if (creds == undefined) {
+            const username = this.isValidJudgehostRequest(req);
+            if (username == undefined) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
             }
 
-            const username = creds[0];
-            let user = this.#judgehosts.get(username);
+            let user = this.#nodes.get(username);
             if (user == undefined) {
                 user = {
                     username: username,
@@ -44,7 +48,7 @@ export class WwppcGrader extends Grader {
                     deadline: -1,
                     lastCommunication: Date.now()
                 }
-                this.#judgehosts.set(username, user);
+                this.#nodes.set(username, user);
             }
             if (user.grading == undefined) {
                 user.grading = this.#ungradedSubmissions.shift();
@@ -64,7 +68,7 @@ export class WwppcGrader extends Grader {
                 constraints: problems[0].constraints
             });
             user.lastCommunication = Date.now();
-            this.#judgehosts.set(username, user);
+            this.#nodes.set(username, user);
         });
         this.#app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
@@ -75,7 +79,7 @@ export class WwppcGrader extends Grader {
             }
 
             const username = creds[0];
-            let user = this.#judgehosts.get(username);
+            let user = this.#nodes.get(username);
             if (user == undefined || user.grading == undefined) {
                 res.sendStatus(400);
                 return;
@@ -84,7 +88,7 @@ export class WwppcGrader extends Grader {
             this.#ungradedSubmissions.unshift(user.grading);
             user.grading = undefined;
             user.lastCommunication = Date.now();
-            this.#judgehosts.set(username, user);
+            this.#nodes.set(username, user);
             res.sendStatus(200);
         });
         this.#app.post('/judge/finish-work', async (req, res) => {
@@ -98,7 +102,7 @@ export class WwppcGrader extends Grader {
             }
 
             const username = creds[0];
-            let user = this.#judgehosts.get(username);
+            let user = this.#nodes.get(username);
             if (user == undefined || user.grading == undefined) {
                 res.sendStatus(400);
                 return;
@@ -115,22 +119,22 @@ export class WwppcGrader extends Grader {
 
             user.grading = undefined;
             user.lastCommunication = Date.now();
-            this.#judgehosts.set(username, user);
+            this.#nodes.set(username, user);
             res.sendStatus(200);
         });
         app.use('/judge/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
-            this.#judgehosts.forEach(async (user, username) => {
+            this.#nodes.forEach(async (user, username) => {
                 //check if a submission has passed the deadline and return to queue
                 if (user == undefined) return;
                 if (user.grading != undefined && user.deadline < Date.now()) {
                     this.#ungradedSubmissions.unshift(user.grading);
                     user.grading = undefined;
-                    this.#judgehosts.set(username, user);
+                    this.#nodes.set(username, user);
                     //if they haven't talked to us in a while let's just assume they disconnected
                     if (user.lastCommunication + config.graderTimeout < Date.now()) {
-                        this.#judgehosts.delete(username);
+                        this.#nodes.delete(username);
                     }
                 }
             });
@@ -155,7 +159,7 @@ export class WwppcGrader extends Grader {
         this.#gradedSubmissions = [];
         return l;
     }
-    isValidJudgehostRequest(req: Request): string[] | undefined {
+    isValidJudgehostRequest(req: Request): string | undefined {
         const auth = req.get('Authorization');
         if (auth == null) {
             return;
@@ -169,15 +173,15 @@ export class WwppcGrader extends Grader {
         if (user == null || pass == null) {
             return;
         }
-        if (!config.graderAuthKeypairs.some((pair) => pair.username == user && pair.password == pass)) {
+        if (pass !== this.#password) {
             return;
         }
-        return [user, pass];
+        return user;
     }
 }
 
-/**Judgehost */
-export interface WwppcJudgehost {
+/**Represents a grader server */
+export interface GraderNode {
     /**Username */
     username: string
     /**Submission that is being graded */

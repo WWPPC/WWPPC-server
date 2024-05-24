@@ -61,6 +61,14 @@ export enum ContestScoreState {
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
 }
+export enum ContestUpdateSubmissionResult {
+    SUCCESS = 0,
+    FILE_TOO_LARGE = 1,
+    LANGUAGE_NOT_ACCEPTABLE = 2,
+    PROBLEM_NOT_SUBMITTABLE = 3,
+    ERROR = 4,
+    NOT_CONNECTED = 5
+}
 
 export interface ArchiveProblem {
     id: string
@@ -110,18 +118,10 @@ export const useContestManager = defineStore('contestManager', {
             const res: ArchiveProblem | null = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
             return res;
         },
-        async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestSubmission | null> {
+        async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestUpdateSubmissionResult> {
             const serverConnection = useServerConnection();
-            if (!serverConnection.loggedIn) return null;
-            return await new Promise((resolve) => {
-                serverConnection.emit('updateSubmission', { id: problemId, file, lang });
-                const handle = (id: string, status: ContestSubmission) => {
-                    if (id != problemId) return;
-                    resolve(status);
-                    serverConnection.off('submissionStatus', handle);
-                };
-                serverConnection.on('submissionStatus', handle);
-            });
+            if (!serverConnection.loggedIn) return ContestUpdateSubmissionResult.NOT_CONNECTED;
+            return await serverConnection.emitWithAck('updateSubmission', { id: problemId, file, lang });
         },
         // replace these with refs/reactive objects that can be watched for updates
         async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {

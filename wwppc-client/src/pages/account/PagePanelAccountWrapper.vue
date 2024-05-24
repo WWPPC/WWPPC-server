@@ -5,8 +5,10 @@ import UIButton from '@/components/ui-defaults/inputs/UIButton.vue';
 import { useAccountManager } from '@/scripts/AccountManager';
 import { ref } from 'vue';
 import { globalModal } from '@/components/ui-defaults/UIDefaults';
+import { useServerConnection } from '@/scripts/ServerConnection';
 
 const modal = globalModal();
+const serverConnection = useServerConnection();
 const accountManager = useAccountManager();
 
 const dispName = autoGlitchTextTransition(() => accountManager.displayName, 40, 1, 10);
@@ -20,7 +22,7 @@ const changeProfileImage = (event: any) => {
     reader.onload = () => {
         if (typeof reader.result != 'string') return; // idk should never happen
         if (/^data:image\/(png|jpeg)/.test(reader.result)) {
-            if (reader.result.length > 65535) {
+            if (reader.result.length > serverConnection.serverConfig.maxProfileImgSize) {
                 modal.showModal({ title: 'Image too large', content: 'Due to database restrictions, the maximum file size is an arbitrary small number.', color: 'red' });
                 if (fileUpload.value) fileUpload.value.value = '';
                 return;

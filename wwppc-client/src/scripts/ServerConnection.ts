@@ -38,7 +38,12 @@ const state = reactive<{
     loggedIn: boolean
     loginPromise: Promise<undefined>
     manualLogin: boolean,
-    encryptedPassword: ArrayBuffer | string | null
+    encryptedPassword: ArrayBuffer | string | null,
+    serverConfig: {
+        maxProfileImgSize: number,
+        acceptedLanguages: string[],
+        maxSubmissionSize: number
+    }
 }>({
     handshakeComplete: false,
     handshakePromise: new Promise((resolve) => handshakeResolve = resolve),
@@ -46,7 +51,21 @@ const state = reactive<{
     loggedIn: false,
     loginPromise: new Promise((resolve) => loginResolve = resolve),
     manualLogin: true,
-    encryptedPassword: null
+    encryptedPassword: null,
+    serverConfig: {
+        maxProfileImgSize: 65535,
+        acceptedLanguages: [
+            "java8",
+            "java17",
+            "java21",
+            "c",
+            "cpp11",
+            "cpp17",
+            "cpp20",
+            "py-3-6-9"
+        ],
+        maxSubmissionSize: 10240
+    }
 });
 const RSA: {
     publicKey: CryptoKey | null,
@@ -268,3 +287,7 @@ socket.on('connect_fail', () => onConnectError('failed'));
 socket.on('disconnect', (reason) => onDisconnected('Disconnected: ' + reason));
 socket.on('timeout', () => onDisconnected('Timed out'));
 socket.on('error', (err) => onDisconnected('Error: ' + err));
+
+socket.on('config', (config: { maxProfileImgSize: number, acceptedLanguages: string[], maxSubmissionSize: number }) => {
+    state.serverConfig = config;
+});

@@ -1,11 +1,11 @@
 import fs from 'fs';
+import { minify as htmlMinify } from 'html-minifier';
+import inlineCss from 'inline-css';
 import { createTransport, Transporter } from 'nodemailer';
 import path from 'path';
 
 import config from './config';
 import Logger, { NamedLogger } from './log';
-import inlineCss from 'inline-css';
-import { minify as htmlMinify } from 'html-minifier';
 
 interface MailerConstructorParams {
     /**Hostname of SMTP server */
@@ -84,10 +84,11 @@ export class Mailer {
             this.#logger.debug(`Connection time: ${performance.now() - startTime}ms`);
             this.#logger.debug('Current sending address: ' + config.emailAddress);
         }
+        this.#logger.info('Email activity logging is ' + config.logEmailActivity);
         this.#transporter.on('error', (err) => {
             this.#logger.handleFatal('Fatal SMTP error:', err);
             this.#logger.destroy();
-            process.exit(-1);
+            process.exit(1);
         });
     }
 
@@ -109,6 +110,7 @@ export class Mailer {
                 collapseBooleanAttributes: true,
                 collapseWhitespace: true
             });
+            if (config.logEmailActivity) this.#logger.info(`Sending email to ${recipients.join(', ')}`);
             await this.#transporter.sendMail({
                 from: {
                     name: 'WWPPC',
@@ -120,6 +122,7 @@ export class Mailer {
                 html: minified
             });
         } catch (err) {
+            this.#logger.handleError(`Email to ${recipients.join(',')} failed to send:`, err);
             return new Error('' + err);
         }
     }
@@ -149,6 +152,7 @@ export class Mailer {
                     collapseBooleanAttributes: true,
                     collapseWhitespace: true
                 });
+                if (config.logEmailActivity) this.#logger.info(`Sending email to ${recipients.join(', ')} (template: ${template})`);
                 await this.#transporter.sendMail({
                     from: {
                         name: 'WWPPC',
