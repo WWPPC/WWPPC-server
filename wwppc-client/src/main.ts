@@ -58,7 +58,7 @@ let handledRoute = false;
 router.beforeEach((to, from, next) => {
     // keep old queries unless cleared
     if (to.query.clearQuery !== undefined) {
-        next({ ...to, query: { ...to.query, clearQuery: undefined, ignore_server: from.query.ignore_server || to.query.ignore_server } });
+        next({ ...to, query: { ...to.query, clearQuery: undefined, ignore_server: (from.query.ignore_server !== undefined || to.query.ignore_server !== undefined) ? null : undefined } });
     } else if (handledRoute) {
         next();
     } else {

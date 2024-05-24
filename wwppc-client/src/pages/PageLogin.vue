@@ -127,7 +127,7 @@ watch(usernameInput, () => {
             <PanelBody name="default" title="Login" is-default>
                 <div class="loginNoScroll">
                     <Transition name="main">
-                        <div class="fullBlock" v-show="page == 0">
+                        <div class="fullBlock loginScroll" v-show="page == 0">
                             <div class="centered">
                                 <div class="loginVertical">
                                     <img src="/logo.svg" class="loginLogoFloater">
@@ -146,23 +146,23 @@ watch(usernameInput, () => {
                         </div>
                     </Transition>
                     <Transition name="second">
-                        <div class="fullBlock" v-show="page == 1">
+                        <div class="fullBlock loginScroll" v-show="page == 1">
                             <div class="centered">
                                 <div class="loginVertical">
                                     <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
                                     <h1 class="loginVerticalHeader2">Sign Up</h1>
                                     <form class="loginVertical" action="javascript:void(0)" @submit=attemptSignup>
-                                        <span style="margin-bottom: 8px;">
-                                            <UITextBox :value="usernameInput" width="208px" title="Username" disabled autocomplete="off"></UITextBox>
-                                            <UITextBox :value="passwordInput.replace(/./g, '•')" width="208px" title="Password" disabled autocomplete="off"></UITextBox>
+                                        <span style="margin-bottom: 8px;" class="nowrap">
+                                            <UITextBox :value="usernameInput" width="var(--hwidth)" title="Username" disabled autocomplete="off"></UITextBox>
+                                            <UITextBox :value="passwordInput.replace(/./g, '•')" width="var(--hwidth)" title="Password" disabled autocomplete="off"></UITextBox>
                                         </span>
-                                        <span style="margin-bottom: 8px;">
-                                            <UITextBox v-model="firstNameInput" width="208px" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name" required></UITextBox>
-                                            <UITextBox v-model="lastNameInput" width="208px" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name" required></UITextBox>
+                                        <span style="margin-bottom: 8px;" class="nowrap">
+                                            <UITextBox v-model="firstNameInput" width="var(--hwidth)" title="First name" placeholder="First name" maxlength="32" autocomplete="given-name" required></UITextBox>
+                                            <UITextBox v-model="lastNameInput" width="var(--hwidth)" title="Last Name" placeholder="Last name" maxlength="32" autocomplete="family-name" required></UITextBox>
                                         </span>
-                                        <UITextBox v-model="schoolInput" style="margin-bottom: 8px;" width="424px" title="Your school name" placeholder="School name" maxlength="64" required></UITextBox>
-                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin-bottom: 8px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
-                                        <PairedGridContainer width="424px" style="margin-bottom: 6px;">
+                                        <UITextBox v-model="schoolInput" style="margin-bottom: 8px;" width="var(--fwidth)" title="Your school name" placeholder="School name" maxlength="64" required></UITextBox>
+                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin-bottom: 8px;" width="var(--fwidth)" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <PairedGridContainer width="var(--fwidth)" style="margin-bottom: 6px;">
                                             <span>
                                                 Grade Level:
                                             </span>
@@ -176,14 +176,14 @@ watch(usernameInput, () => {
                                             </span>
                                             <UIDropdown v-model="languageInput" width="calc(100% - 4px)" :items="languageMaps" title="What programming languages have you used in contest?" height="80px" multiple></UIDropdown>
                                         </PairedGridContainer>
-                                        <UIButton text="Sign Up" type="submit" width="424px" glitchOnMount :disabled="showLoginWait"></UIButton>
+                                        <UIButton text="Sign Up" type="submit" width="var(--fwidth)" glitchOnMount :disabled="showLoginWait"></UIButton>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     </Transition>
                     <Transition name="second">
-                        <div class="fullBlock" v-show="page == 2">
+                        <div class="fullBlock loginScroll" v-show="page == 2">
                             <div class="centered">
                                 <div class="loginVertical">
                                     <UIButton @click="page = 0" text="Cancel" style="margin-top: 8px;" width="160px" color="red" title="Go back to login page"></UIButton>
@@ -194,9 +194,9 @@ watch(usernameInput, () => {
                                         We will send an account recovery email shortly.
                                     </p>
                                     <form class="loginVertical" action="javascript:void(0)" @submit=attemptRecovery>
-                                        <UITextBox :value="usernameInput" style="margin-top: 8px;" width="424px" title="Username" disabled autocomplete="off"></UITextBox>
-                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="424px" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
-                                        <UIButton text="Reset Password" type="submit" width="424px" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
+                                        <UITextBox :value="usernameInput" style="margin-top: 8px;" width="var(--fwidth)" title="Username" disabled autocomplete="off"></UITextBox>
+                                        <UITextBox v-model="emailInput" type="email" name="email" style="margin: 8px 0px;" width="var(--fwidth)" title="Email" placeholder="Email" maxlength="32" required highlight-invalid></UITextBox>
+                                        <UIButton text="Reset Password" type="submit" width="var(--fwidth)" glitchOnMount :disabled="attemptedRecovery || showLoginWait"></UIButton>
                                         <span v-if="attemptedRecovery"><i>Reload to try again</i></span>
                                     </form>
                                 </div>
@@ -206,7 +206,7 @@ watch(usernameInput, () => {
                 </div>
                 <WaitCover text="Signing in..." :show=showLoginWait></WaitCover>
                 <WaitCover text="Sending email..." :show=showRecoveryWait></WaitCover>
-                <LoadingCover text="Connecting..."></LoadingCover>
+                <LoadingCover text="Connecting..." ignore-server></LoadingCover>
             </PanelBody>
         </PanelMain>
     </PanelView>
@@ -219,6 +219,22 @@ watch(usernameInput, () => {
     margin: -16px 0px;
     padding: 16px 0px;
     overflow: hidden;
+}
+
+.loginScroll {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+* {
+    --fwidth: min(calc(100% - 8px), 424px);
+    --hwidth: min(calc(50% - 8px), 208px);
+}
+
+.nowrap {
+    width: 100%;
+    text-wrap: nowrap;
+    word-wrap: nowrap;
 }
 
 .loginLogoFloater {
@@ -242,7 +258,6 @@ watch(usernameInput, () => {
     justify-content: center;
     align-items: center;
     text-align: center;
-    width: max(300px, 40vw);
 }
 
 .loginForgotPassword {

@@ -294,7 +294,7 @@ io.on('connection', async (s) => {
                 return;
             }
             const res = await mailer.sendFromTemplate('password-reset', [creds.email], 'Reset Password', [
-                ['name', encodeURI(data.displayName)],
+                ['name', data.displayName],
                 ['user', encodeURI(creds.username)],
                 ['pass', encodeURI(recoveryPassword)]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}.\nNot you? You can ignore this email.`);
