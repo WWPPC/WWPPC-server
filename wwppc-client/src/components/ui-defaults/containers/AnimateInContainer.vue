@@ -27,7 +27,7 @@ export default {
                         }, this.$props.delay ?? 0);
                         observer.unobserve(this.$el);
                     }
-                }, { threshold: 0.2 });
+                }, { threshold: 0 });
                 observer.observe(this.$el);
             } else {
                 const observer = new IntersectionObserver(([entry]) => {
@@ -36,16 +36,12 @@ export default {
                             this.$el.classList.remove('animHidden');
                             this.$el.classList.add('animShow');
                         }, this.$props.delay ?? 0);
-                    }
-                }, { threshold: 0.2 });
-                observer.observe(this.$el);
-                const observer2 = new IntersectionObserver(([entry]) => {
-                    if (!entry.isIntersecting) {
+                    } else {
                         this.$el.classList.remove('animShow');
                         this.$el.classList.add('animHidden');
                     }
                 }, { threshold: 0 });
-                observer2.observe(this.$el);
+                observer.observe(this.$el);
             }
         } else {
             setTimeout(() => {

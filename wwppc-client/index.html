@@ -36,6 +36,11 @@
     <div style="position: absolute; top: 0px; left: 0px; font-size: 20px;">
         If you're seeing this, the page didn't load correctly. Try <a href="">reloading</a>!
     </div>
+    <script>
+        window.addEventListener('load', () => {
+            if (document.getElementById('root').children.length == 0) window.location.reload();
+        });
+    </script>
     <div id="root"></div>
     <div id="loadingCover">
         <div id="loadingCoverBar"></div>

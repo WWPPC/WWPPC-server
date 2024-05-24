@@ -445,6 +445,12 @@ io.on('connection', async (s) => {
             await resetTeam();
             return;
         }
+        // nonexistent teams
+        if (teamData.members.length == 1) {
+            respond(TeamOpResult.NOT_EXISTS);
+            await resetTeam();
+            return;
+        }
         // make sure won't violate restrictions
         const contests = await database.readContests(userData.registrations);
         if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
