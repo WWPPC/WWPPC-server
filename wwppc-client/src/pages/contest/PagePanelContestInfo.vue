@@ -102,14 +102,14 @@ const router = useRouter();
                             <div class="scheduleRow">
                                 <div>11:00-12:00</div>
                                 <div>|</div>
-                                <div>Round 1 (Novice)<br>Round 1 (Advanced)</div>
+                                <div>Round 1</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="round2">
                             <div class="scheduleRow">
                                 <div>12:10-1:10</div>
                                 <div>|</div>
-                                <div>Round 2 (Novice)<br>Round 2 (Advanced)</div>
+                                <div>Round 2</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="lunch">
@@ -123,14 +123,14 @@ const router = useRouter();
                             <div class="scheduleRow">
                                 <div>2:10-3:20</div>
                                 <div>|</div>
-                                <div>Round 3 (Novice)<br>Round 3 (Advanced)</div>
+                                <div>Round 3</div>
                             </div>
                         </MultipaneSelector>
-                        <MultipaneSelector for="round4">
+                        <MultipaneSelector for="sponsors">
                             <div class="scheduleRow">
                                 <div>3:30-4:40</div>
                                 <div>|</div>
-                                <div>Sponsor Event</div>
+                                <div>Sponsor Events</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="closingCeremonies">
@@ -172,13 +172,13 @@ const router = useRouter();
                         <MultipanePane for="round1">
                             <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 1 for Novice division is 60 minutes long with 4-6 problems.
+                                Round 1 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
                         </MultipanePane>
                         <MultipanePane for="round2">
                             <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 2 for Novice division is the same as round 1 for Advanced division. It is 60 minutes long with 3-4 problems.
+                                Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
                         </MultipanePane>
                         <MultipanePane for="lunch">
@@ -192,13 +192,15 @@ const router = useRouter();
                         <MultipanePane for="round3">
                             <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 3 for Novice division is the same as round 2 for Advanced division. It is 70 minutes long with 3-4 problems.
+                                Round 3 is 70 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
                         </MultipanePane>
-                        <MultipanePane for="round4">
+                        <MultipanePane for="sponsors">
                             <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 3 for Advanced division is 70 minutes long with 3-4 problems.
+                                We will be hosting some events by our sponsors!
+                                <br><br>
+                                During this time, we will also finalize scores and determine the standings.
                             </p>
                         </MultipanePane>
                         <MultipanePane for="closingCeremonies">

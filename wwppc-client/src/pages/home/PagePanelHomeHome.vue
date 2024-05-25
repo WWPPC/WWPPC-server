@@ -11,60 +11,56 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
     <div class="fullBlock homeBlock">
         <GlitchText text="WWPPC 2024" class="homeTitle" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 random on-visible></GlitchText>
         <div class="homeColumns">
-            <div>
-                <AnimateInContainer type="slideUp" height="100%" show-on-screen :delay=100>
-                    <DoubleCutCornerContainer height="100%" hover-animation="lift">
-                        <CenteredContainer height="100%">
-                            <div class="homeVertical">
-                                <div style="flex-grow: 1;">
-                                    <GlitchText text="WWPHacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
-                                    <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
-                                    <UIDivider color="#AAA"></UIDivider>
-                                    <p>
-                                        WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
-                                    </p>
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <GlowText text="" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
-                                    <div class="centered" style="margin-top: 0.5em;">
-                                        <AnimateInContainer type="fade" :delay=400>
-                                            <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-large)" color="lime"></UILinkButton>
-                                        </AnimateInContainer>
-                                    </div>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100>
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <CenteredContainer height="100%">
+                        <div class="homeVertical">
+                            <div style="flex-grow: 1;">
+                                <GlitchText text="WWPHacks" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
+                                <GlitchText text="??/??/????" font-size="var(--font-subsubtitle)" color="red" glow :steps=1 :delay=Infinity></GlitchText>
+                                <UIDivider color="#AAA"></UIDivider>
+                                <p>
+                                    WWPHacks is a hackathon - a collaborative programming competition where teams work against the clock to build innovative solutions to real-world problems.
+                                </p>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <GlowText text="" font-size="var(--font-28)" color="lime" glow flashing></GlowText>
+                                <div class="centered" style="margin-top: 0.5em;">
+                                    <AnimateInContainer type="fade" :delay=400>
+                                        <UILinkButton text="Contest Page" @click="$router.push('/hackathon');" font-size="var(--font-large)" color="lime"></UILinkButton>
+                                    </AnimateInContainer>
                                 </div>
                             </div>
-                        </CenteredContainer>
-                    </DoubleCutCornerContainer>
-                </AnimateInContainer>
-            </div>
-            <div>
-                <AnimateInContainer type="slideUp" height="100%" show-on-screen :delay=200>
-                    <DoubleCutCornerContainer height="100%" hover-animation="lift">
-                        <CenteredContainer height="100%">
-                            <div class="homeVertical">
-                                <div style="flex-grow: 1;">
-                                    <GlitchText text="WWPIT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
-                                    <GlitchText text="06/02/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :delay=10 start-glitched></GlitchText>
-                                    <UIDivider color="#AAA"></UIDivider>
-                                    <p>
-                                        WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
-                                    </p>
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <GlitchText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing random v-if="Date.now() < nextContest.getTime()"></GlitchText>
-                                    <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random v-else-if="Date.now() > nextContestEnd.getTime()"></GlitchText>
-                                    <GlitchText text="Contest started!" font-size="var(--font-28)" color="lime" glow flashing flash-color="red" random v-else></GlitchText>
-                                    <div class="centered" style="margin-top: 0.5em;">
-                                        <AnimateInContainer type="fade" :delay=400>
-                                            <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-large)" color="lime"></UILinkButton>
-                                        </AnimateInContainer>
-                                    </div>
+                        </div>
+                    </CenteredContainer>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200>
+                <DoubleCutCornerContainer height="100%" hover-animation="lift">
+                    <CenteredContainer height="100%">
+                        <div class="homeVertical">
+                            <div style="flex-grow: 1;">
+                                <GlitchText text="WWPIT" font-size="var(--font-subtitle)" color="lime" glow shadow :steps=3 :delay=10 random></GlitchText>
+                                <GlitchText text="06/02/2024" font-size="var(--font-subsubtitle)" color="red" glow random flashing :delay=10 start-glitched></GlitchText>
+                                <UIDivider color="#AAA"></UIDivider>
+                                <p>
+                                    WWPIT is a round-based informatics tournament with multiple divisions targeting competitive programmers of all skill levels.
+                                </p>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <GlitchText text="Registrations open!" font-size="var(--font-28)" color="lime" glow flashing random v-if="Date.now() < nextContest.getTime()"></GlitchText>
+                                <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random v-else-if="Date.now() > nextContestEnd.getTime()"></GlitchText>
+                                <GlitchText text="Contest started!" font-size="var(--font-28)" color="lime" glow flashing flash-color="red" random v-else></GlitchText>
+                                <div class="centered" style="margin-top: 0.5em;">
+                                    <AnimateInContainer type="fade" :delay=400>
+                                        <UILinkButton text="Contest Page" @click="$router.push('/contest');" font-size="var(--font-large)" color="lime"></UILinkButton>
+                                    </AnimateInContainer>
                                 </div>
                             </div>
-                        </CenteredContainer>
-                    </DoubleCutCornerContainer>
-                </AnimateInContainer>
-            </div>
+                        </div>
+                    </CenteredContainer>
+                </DoubleCutCornerContainer>
+            </AnimateInContainer>
         </div>
         <ScrollIndicator anchor="a[name=pageHomeScrollTo]"></ScrollIndicator>
     </div>
@@ -175,10 +171,6 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
     row-gap: 24px;
     column-gap: 24px;
     flex-grow: 1;
-}
-
-.homeColumns>div {
-    height: 100%;
 }
 
 @media (max-width: 100vh) {
