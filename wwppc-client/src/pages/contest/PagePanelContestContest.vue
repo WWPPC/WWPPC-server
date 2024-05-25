@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { GlitchText } from '@/components/ui-defaults/UIDefaults';
+import { AnimateInContainer, TitledCutCornerContainer, TitledDoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { GlitchText, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import UITimeDisplay from '@/components/ui-defaults/UITimeDisplay.vue';
 import { useContestManager } from '@/scripts/ContestManager';
 import { onMounted, ref, watch } from 'vue';
@@ -58,7 +58,7 @@ const updateRoundTimes = () => {
             time: contestManager.contest.rounds[i].endTime - contestManager.contest.rounds[i].startTime
         });
         if (now > contestManager.contest.rounds[i - 1].endTime && now < contestManager.contest.rounds[i].startTime) currentRound.value = i * 2;
-        else if (now > contestManager.contest.rounds[i].startTime && now <contestManager.contest.rounds[i].endTime) currentRound.value = i * 2 + 1;
+        else if (now > contestManager.contest.rounds[i].startTime && now < contestManager.contest.rounds[i].endTime) currentRound.value = i * 2 + 1;
     }
     times.push({
         label: 'Closing ceremonies',
@@ -90,7 +90,24 @@ onMounted(updateRoundTimes);
     </div>
     <div class="fullBlock">
         <a name="pageContestContestScrollTo"></a>
-        <TitledCutCornerContainer title="Instructions"></TitledCutCornerContainer>
+        <AnimateInContainer type="slideUp">
+            <TitledCutCornerContainer title="Instructions" align="center" hover-animation="lift">
+                <!-- instructions - someone fill out? -->
+            </TitledCutCornerContainer>
+        </AnimateInContainer>
+        <AnimateInContainer type="slideUp">
+            <TitledCutCornerContainer title="Important Info" align="center" hover-animation="lift">
+                <p>Clarifications will be on Discord!</p>
+                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none">
+                    <UIIconButton text="Join Discord" img="/img/discord-logo.svg" color="link" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                </a>
+            </TitledCutCornerContainer>
+        </AnimateInContainer>
+        <AnimateInContainer type="slideUp">
+            <TitledDoubleCutCornerContainer title="Good Luck!" align="center" hover-animation="lift">
+
+            </TitledDoubleCutCornerContainer>
+        </AnimateInContainer>
     </div>
     <!-- contest instructions -->
     <!-- important info, like discord and clarifications location -->

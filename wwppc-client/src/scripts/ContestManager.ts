@@ -28,22 +28,6 @@ export interface ContestProblem {
     submissions: ContestSubmission[]
     status: ContestProblemCompletionState
 }
-export enum ContestProblemCompletionState {
-    /**Not attempted */
-    NOT_UPLOADED = 0,
-    /**Uploaded but not graded, can still be changed */
-    UPLOADED = 1,
-    /**Submitted but not graded, submissions locked */
-    SUBMITTED = 2,
-    /**Submitted, graded, and passed all tests */
-    GRADED_PASS = 3,
-    /**Submitted, graded, and failed all tests */
-    GRADED_FAIL = 4,
-    /**Submitted, graded, and only passed some tests */
-    GRADED_PARTIAL = 5,
-    /**Error loading status */
-    ERROR = 6
-}
 export interface ContestSubmission {
     time: number
     scores: ContestScore[]
@@ -60,6 +44,22 @@ export enum ContestScoreState {
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
     RUNTIME_ERROR = 5
+}
+export enum ContestProblemCompletionState {
+    /**Not attempted */
+    NOT_UPLOADED = 0,
+    /**Uploaded but not graded, can still be changed */
+    UPLOADED = 1,
+    /**Submitted but not graded, submissions locked */
+    SUBMITTED = 2,
+    /**Submitted, graded, and passed all tests */
+    GRADED_PASS = 3,
+    /**Submitted, graded, and failed all tests */
+    GRADED_FAIL = 4,
+    /**Submitted, graded, and only passed some tests */
+    GRADED_PARTIAL = 5,
+    /**Error loading status */
+    ERROR = 6
 }
 export enum ContestUpdateSubmissionResult {
     SUCCESS = 0,

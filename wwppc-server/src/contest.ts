@@ -2,7 +2,10 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Score, ScoreState, Submission, TeamOpResult, UUID } from './database';
+import {
+    AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Score, ScoreState, Submission,
+    TeamOpResult, UUID
+} from './database';
 import Grader from './grader';
 import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
@@ -45,11 +48,6 @@ export class ContestManager {
         if (contests === null) return null;
         return contests.filter(c => c.startTime > Date.now()).map(c => c.id);
     }
-    async getContestData(participantView: boolean) {
-
-    }
-    // stuff to modify contest stuff too
-    // setting round start/end
 
     /**
      * Add a username-linked SocketIO connection to the user list.
@@ -64,6 +62,8 @@ export class ContestManager {
         if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return;
 
         // new event handlers
+        socket.removeAllListeners('registerContest');
+        socket.removeAllListeners('unregisterContest');
         socket.on('registerContest', async (data: { contest: string, token: string }, cb: (res: TeamOpResult) => any) => {
             if (data == null || typeof data.contest != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
                 socket.kick('invalid registerContest payload');
@@ -164,7 +164,7 @@ interface ClientContest {
     readonly id: string
     rounds: ClientRound[]
     startTime: number
-    endtime: number
+    endTime: number
 }
 interface ClientRound {
     readonly contest: string
@@ -173,7 +173,7 @@ interface ClientRound {
     startTime: number
     endTime: number
 }
-export interface ClientProblem {
+interface ClientProblem {
     readonly id: string
     readonly contest: string
     readonly round: number
@@ -183,12 +183,21 @@ export interface ClientProblem {
     content: string
     constraints: { memory: number, time: number }
     submissions: ClientSubmission[]
-    status: ScoreState
+    status: ClientProblemCompletionState
 }
-export interface ClientSubmission {
+interface ClientSubmission {
     time: number
     scores: Score[]
-    status: ScoreState
+    status: ClientProblemCompletionState
+}
+enum ClientProblemCompletionState {
+    NOT_UPLOADED = 0,
+    UPLOADED = 1,
+    SUBMITTED = 2,
+    GRADED_PASS = 3,
+    GRADED_FAIL = 4,
+    GRADED_PARTIAL = 5,
+    ERROR = 6
 }
 
 /**Response codes for submitting to a problem in contest */
@@ -218,7 +227,7 @@ class ContestHost {
     #index: number = 0;
     readonly #sid: string;
 
-    readonly #sockets: Set<ServerSocket> = new Set();
+    readonly #users: Map<string, Set<ServerSocket>> = new Map();
 
     /**
      * @param {string} id Contest id of contest
@@ -314,14 +323,72 @@ class ContestHost {
      * Update all users in contest with latest contest data.
      */
     async updateAllUsers(): Promise<void> {
-
+        await Promise.all(Array.from(this.#users.keys()).map((username) => this.updateUser(username)));
     }
     /**
      * Only update users under a username with the latest contest data.
      * @param {string} username Username
      */
     async updateUser(username: string): Promise<void> {
-
+        if (this.#users.has(username)) {
+            try {
+                const userRounds: ClientRound[] = await Promise.all(this.#data.rounds.map(async (round): Promise<ClientRound> => {
+                    const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
+                        const problemData = await this.db.readProblems({ id: id });
+                        const submissionData = await this.db.readSubmissions({ id: id, username: username });
+                        if (problemData == null || submissionData == null) throw new Error(`Database error (Round ${round.id} Problem ${id})`);
+                        if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
+                        // mapping submissions is messy, submissions empty of there are no past submissions
+                        // otherwise concatenate history behind most recent submission
+                        return {
+                            id: problemData[0].id,
+                            contest: this.#data.id,
+                            round: round.number,
+                            number: i,
+                            name: problemData[0].name,
+                            author: problemData[0].author,
+                            content: problemData[0].content,
+                            constraints: problemData[0].constraints,
+                            submissions: (submissionData.length > 0) ? [{
+                                time: submissionData[0].time,
+                                scores: submissionData[0].scores,
+                                status: this.#getCompletionState(round.number, submissionData[0].scores)
+                            }, ...submissionData[0].history.map((sub): ClientSubmission => ({
+                                time: sub.time,
+                                scores: sub.scores,
+                                status: this.#getCompletionState(round.number, sub.scores)
+                            }))] : [],
+                            status: this.#getCompletionState(round.number, submissionData[0]?.scores)
+                        };
+                    }));
+                    return {
+                        contest: round.contest,
+                        number: round.number,
+                        problems: userProblems,
+                        startTime: round.startTime,
+                        endTime: round.endTime
+                    };
+                }));
+                const userContest: ClientContest = {
+                    id: this.#data.id,
+                    rounds: userRounds,
+                    startTime: this.#data.startTime,
+                    endTime: this.#data.endTime
+                };
+                this.io.to(username).emit('contestData', userContest);
+            } catch (err) {
+                this.logger.handleError('Error while sending updated contest data to client', err);
+            }
+        }
+    }
+    #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
+        if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
+        if (scores.length == 0) return round < this.#index ? ClientProblemCompletionState.SUBMITTED : ClientProblemCompletionState.UPLOADED;
+        const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
+        const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
+        if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
+        if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
+        return ClientProblemCompletionState.GRADED_FAIL;
     }
 
     /**
@@ -329,7 +396,8 @@ class ContestHost {
      * @param {ServerSocket} socket SocketIO connection (with modifications)
      */
     addSocket(socket: ServerSocket): void {
-        this.#sockets.add(socket);
+        if (this.#users.has(socket.username)) this.#users.get(socket.username)!.add(socket);
+        else this.#users.set(socket.username, new Set([socket]));
         socket.join(this.#sid);
         socket.on('disconnect', () => this.removeSocket(socket));
         socket.on('timeout', () => this.removeSocket(socket));
@@ -388,15 +456,18 @@ class ContestHost {
         });
     }
     removeSocket(socket: ServerSocket): boolean {
-        if (this.#sockets.has(socket)) {
+        if (this.#users.has(socket.username) && this.#users.get(socket.username)!.has(socket)) {
             socket.leave(this.#sid);
             socket.removeAllListeners('updateSubmission');
+            this.#users.get(socket.username)!.delete(socket);
+            if (this.#users.get(socket.username)!.size == 0) this.#users.delete(socket.username);
+            return true;
         }
-        return this.#sockets.delete(socket);
+        return false;
     }
 
     end() {
-        this.#sockets.forEach((u) => this.removeSocket(u));
+        this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
     }
 }
 

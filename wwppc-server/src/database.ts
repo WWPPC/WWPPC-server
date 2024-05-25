@@ -1366,7 +1366,7 @@ export interface Submission {
     lang: string
     /**Resulting scores of the submission */
     scores: Score[]
-    /**Shortened list of previous submissions and their results, without content */
+    /**Shortened list of previous submissions and their results, without content (increasing chronologically) */
     history: {
         /**Time of submission, UNIX milliseconds */
         time: number,
