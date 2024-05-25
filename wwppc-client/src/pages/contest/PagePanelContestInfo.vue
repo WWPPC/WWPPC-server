@@ -102,14 +102,14 @@ const router = useRouter();
                             <div class="scheduleRow">
                                 <div>11:00-12:00</div>
                                 <div>|</div>
-                                <div>Round 1 (Novice)</div>
+                                <div>Round 1 (Novice)<br>Round 1 (Advanced)</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="round2">
                             <div class="scheduleRow">
                                 <div>12:10-1:10</div>
                                 <div>|</div>
-                                <div>Round 2 (Novice)<br>Round 1 (Advanced)</div>
+                                <div>Round 2 (Novice)<br>Round 2 (Advanced)</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="lunch">
@@ -123,14 +123,14 @@ const router = useRouter();
                             <div class="scheduleRow">
                                 <div>2:10-3:20</div>
                                 <div>|</div>
-                                <div>Round 3 (Novice)<br>Round 2 (Advanced)</div>
+                                <div>Round 3 (Novice)<br>Round 3 (Advanced)</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="round4">
                             <div class="scheduleRow">
                                 <div>3:30-4:40</div>
                                 <div>|</div>
-                                <div>Round 3 (Advanced)</div>
+                                <div>Sponsor Event</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="closingCeremonies">
@@ -259,7 +259,7 @@ const router = useRouter();
                     <p style="font-size: var(--font-20)">
                     <ul>
                         <li>There will be 3 separate timed rounds for each division, running at the same time</li>
-                        <li>Each round has 3-6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
+                        <li>Each round has 6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
                         <li>Submissions are only graded <i>after</i> the round ends</li>
                         <li>Teams of up to 4 will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
                         <li>Ties will be broken by time submitted</li>
