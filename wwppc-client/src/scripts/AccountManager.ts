@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
 
-import { AccountOpResult, type CredentialsSignupData, sendCredentials, socket, TeamOpResult, useServerConnection } from './ServerConnection';
+import {
+    AccountOpResult, apiFetch, type CredentialsSignupData, sendCredentials, socket, TeamOpResult,
+    useServerConnection
+} from './ServerConnection';
 
 export interface AccountData {
     username: string
@@ -151,13 +154,11 @@ export const useAccountManager = defineStore('accountManager', {
             window.location.replace('/home');
         },
         async getUserData(username: string): Promise<AccountData | null> {
-            const serverConnection = useServerConnection();
-            const res: AccountData | null = await serverConnection.apiFetch('GET', '/userData/' + username);
+            const res: AccountData | null = await apiFetch('GET', '/userData/' + username);
             return res;
         },
         async getTeamData(username: string): Promise<TeamData | null> {
-            const serverConnection = useServerConnection();
-            const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | null = await serverConnection.apiFetch('GET', '/teamData/' + username);
+            const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | null = await apiFetch('GET', '/teamData/' + username);
             return res == null ? null : { team: res.id, teamName: res.name, teamBio: res.bio, teamMembers: res.members, teamJoinCode: res.joinCode };
         },
         async writeUserData(): Promise<AccountOpResult> {

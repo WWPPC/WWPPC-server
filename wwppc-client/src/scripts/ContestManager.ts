@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 
-import { socket, useServerConnection } from './ServerConnection';
+import { apiFetch, socket, useServerConnection } from './ServerConnection';
 
 export interface Contest {
     readonly id: string
@@ -102,8 +102,7 @@ export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
         async getContestList(): Promise<string[] | null> {
-            const serverConnection = useServerConnection();
-            const res: string[] | null = await serverConnection.apiFetch('GET', '/contestList/');
+            const res: string[] | null = await apiFetch('GET', '/contestList/');
             return res;
         },
         async getProblemData(round: number, number: number): Promise<ContestProblem | null> {

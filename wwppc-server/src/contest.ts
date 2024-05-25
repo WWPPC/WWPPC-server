@@ -51,7 +51,7 @@ export class ContestManager {
 
     /**
      * Add a username-linked SocketIO connection to the user list.
-     * @param {ServerSocket} socket SocketIO connection (with modifications)
+     * @param {ServerSocket} s SocketIO connection (with modifications)
      * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(s: ServerSocket): Promise<void> {
@@ -217,7 +217,7 @@ export enum ContestUpdateSubmissionResult {
 /**
  * Subclass of `ContestManager` containing hosting for individual contests, including handling submissions.
  */
-class ContestHost {
+export class ContestHost {
     readonly id: string;
     readonly io: SocketIOServer;
     readonly db: Database;

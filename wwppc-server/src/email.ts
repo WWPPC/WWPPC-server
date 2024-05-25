@@ -7,7 +7,7 @@ import path from 'path';
 import config from './config';
 import Logger, { NamedLogger } from './log';
 
-interface MailerConstructorParams {
+export interface MailerConstructorParams {
     /**Hostname of SMTP server */
     host: string
     /**Port number of SMTP server (default 587) */

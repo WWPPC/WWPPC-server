@@ -4,6 +4,7 @@ import { reactive } from 'vue';
 
 import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
+import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
 // send HTTP wakeup request before trying socket.io
 export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : 'https://server.wwppc.tech';
@@ -20,6 +21,14 @@ const attemptConnect = () => {
     connectAttemptHandlers.forEach((h) => h());
     fetch(serverHostname + '/wakeup').then(() => {
         socket.connect();
+        apiFetch('GET', '/config').then((config: { maxProfileImgSize: number, acceptedLanguages: string[], maxSubmissionSize: number } | null) => {
+            if (config != null) state.serverConfig = config;
+            else {
+                console.error('Failed to fetch server config!');
+                const modal = globalModal();
+                modal.showModal({ title: 'Failed to fetch server config!', content: 'The server configuration could not be fetched! This may cause issues with the website!', color: 'red' });
+            }
+        });
     }, () => {
         console.info(`HTTP wakeup failed, retrying in ${10 * connectionAttempts} seconds...`);
         setTimeout(attemptConnect, 10000 * connectionAttempts);
@@ -27,7 +36,6 @@ const attemptConnect = () => {
         connectErrorHandlers.forEach((h) => h());
     });
 };
-attemptConnect();
 
 let handshakeResolve: (v: any) => void = () => { };
 let loginResolve: (v: any) => void = () => { };
@@ -184,6 +192,20 @@ export const sendCredentials = async (username: string, password: string | numbe
 };
 
 const apiPath = serverHostname + '/api';
+export const apiFetch = async (method: 'GET' | 'POST', path: string, body?: string): Promise<any> => {
+    try {
+        return await (await fetch(apiPath + (path.startsWith('/') ? path : ('/' + path)), {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: body != undefined ? JSON.stringify(body) : undefined
+        })).json();
+    } catch (err) {
+        return null;
+    }
+};
+
 export const useServerConnection = defineStore('serverconnection', {
     state: () => state,
     getters: {
@@ -192,6 +214,7 @@ export const useServerConnection = defineStore('serverconnection', {
     },
     actions: {
         RSAencrypt: RSA.encrypt,
+        apiFetch: apiFetch,
         // shorthands
         emit(event: string, ...data: any) {
             return socket.emit(event, ...data);
@@ -207,19 +230,6 @@ export const useServerConnection = defineStore('serverconnection', {
         },
         off(event: string, handler: (...args: any[]) => any) {
             return socket.off(event, handler);
-        },
-        async apiFetch(method: 'GET' | 'POST', path: string, body?: string): Promise<any> {
-            try {
-                return await (await fetch(apiPath + (path.startsWith('/') ? path : ('/' + path)), {
-                    method: method,
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: body != undefined ? JSON.stringify(body) : undefined
-                })).json();
-            } catch (err) {
-                return null;
-            }
         },
         removeAllListeners(event: string) {
             socket.removeAllListeners(event);
@@ -288,6 +298,4 @@ socket.on('disconnect', (reason) => onDisconnected('Disconnected: ' + reason));
 socket.on('timeout', () => onDisconnected('Timed out'));
 socket.on('error', (err) => onDisconnected('Error: ' + err));
 
-socket.on('config', (config: { maxProfileImgSize: number, acceptedLanguages: string[], maxSubmissionSize: number }) => {
-    state.serverConfig = config;
-});
+window.addEventListener('load', attemptConnect);

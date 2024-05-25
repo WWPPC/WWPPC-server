@@ -9,7 +9,7 @@ import Logger, { NamedLogger } from './log';
 
 const salt = 5;
 
-interface DatabaseConstructorParams {
+export interface DatabaseConstructorParams {
     /**Valid PostgreSQL connection URI (postgresql://username:password@host:port/database) */
     uri: string
     /**AES-256 GCM 32-byte key (base64 string) */
@@ -414,7 +414,7 @@ export class Database {
      * Change the password of an account using the alternative rotating password. Requires that the alternative rotating password is correct. **Does not validate credentials**.
      * If successful, the `recoverypass` field is rotated to a new random string.
      * @param {string} username Valid username
-     * @param {string} password Valid current password
+     * @param {string} token Alternative rotating password
      * @param {string} newPassword Valid new password
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
      */
@@ -1150,7 +1150,7 @@ export type UUID = string;
 export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
 /**Flexible comparison type for database filtering */
-// type FilterComparison<T> = {
+// export type FilterComparison<T> = {
 //     op: '<' | '>' | '>=' | '<='
 //     v: number & T
 // } | {
@@ -1164,7 +1164,7 @@ export type SqlValue = number | string | boolean | number[] | string[] | boolean
 //     op: '=' | '!'
 //     v: T[]
 // } | T | T[];
-type FilterComparison<T> = T | T[];
+export type FilterComparison<T> = T | T[];
 
 export function isUUID(id: string): id is UUID {
     return uuidValidate(id);
@@ -1392,7 +1392,7 @@ export enum ScoreState {
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-interface ReadRoundsCriteria {
+export interface ReadRoundsCriteria {
     /**Contest ID */
     contest?: string | string[]
     /**Zero-indexed round within the contest */
@@ -1405,7 +1405,7 @@ interface ReadRoundsCriteria {
     endTime?: FilterComparison<number>
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-interface ProblemRoundCriteria {
+export interface ProblemRoundCriteria {
     /**Contest ID */
     contest?: string | string[]
     /**Zero-indexed round within the contest */
@@ -1416,7 +1416,7 @@ interface ProblemRoundCriteria {
     roundId?: UUID | UUID[]
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-interface ReadProblemsCriteria {
+export interface ReadProblemsCriteria {
     /**UUID of problem */
     id?: UUID | UUID[]
     /**Display name of problem */
@@ -1427,7 +1427,7 @@ interface ReadProblemsCriteria {
     contest?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-interface ReadSubmissionsCriteria {
+export interface ReadSubmissionsCriteria {
     /**UUID of problem */
     id?: UUID | UUID[]
     /**Username of submitter */

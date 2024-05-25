@@ -73,7 +73,14 @@ const io = new SocketIOServer(server, {
 });
 const contestManager = new ContestManager(database, app, io, logger);
 
-// additional http version of socket.io requests
+// api endpoints
+app.get('/api/config', (req, res) => {
+    res.json({
+        maxProfileImgSize: config.maxProfileImgSize,
+        acceptedLanguages: config.acceptedLanguages,
+        maxSubmissionSize: config.maxSubmissionSize
+    });
+});
 app.get('/api/userData/:username', async (req, res) => {
     const data = await database.getAccountData(req.params.username);
     if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);

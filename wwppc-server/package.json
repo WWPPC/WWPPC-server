@@ -20,6 +20,8 @@
         "uuid": "^9.0.1"
     },
     "devDependencies": {
+        "typedoc": "^0.25.13",
+        "typedoc-plugin-markdown": "^4.0.2",
         "@types/express": "^4.17.21",
         "@types/nodemailer": "^6.4.14",
         "@types/pg": "^8.11.2"
@@ -29,6 +31,7 @@
         "build": "npx tsc && cd ../wwppc-client && npm run build",
         "compile": "npx tsc",
         "start": "node build/server.js",
-        "compilerun": "npx tsc && node build/server.js serve_static debug_mode"
+        "compilerun": "npx tsc && node build/server.js serve_static debug_mode",
+        "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown"
     }
 }
