@@ -99,6 +99,7 @@ app.get('/api/contestList', async (req, res) => {
     if (data === null) res.sendStatus(500);
     else res.json(data);
 });
+// reserve /api path
 app.use('/api/*', (req, res) => res.sendStatus(404));
 
 // admin portal

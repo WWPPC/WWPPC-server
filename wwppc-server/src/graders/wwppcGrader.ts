@@ -122,6 +122,8 @@ export class WwppcGrader extends Grader {
             this.#nodes.set(username, user);
             res.sendStatus(200);
         });
+
+        // reserve /judge path
         app.use('/judge/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
