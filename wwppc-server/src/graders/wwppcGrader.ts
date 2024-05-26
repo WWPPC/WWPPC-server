@@ -1,10 +1,8 @@
 import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
-import fs from 'fs';
-import path from 'path';
 
 import config from '../config';
-import { Database, Submission } from '../database';
+import { Database, is_in_enum, Score, ScoreState, Submission } from '../database';
 import Grader from '../grader';
 import Logger, { NamedLogger } from '../log';
 
@@ -30,96 +28,114 @@ export class WwppcGrader extends Grader {
         this.#db = db;
         if (typeof process.env.GRADER_PASS != 'string') throw new Error('Missing WwppcGrader password');
         this.#password = process.env.GRADER_PASS;
+        this.#logger.info('Creating WwppcGrader');
         app.use('/judge/*', bodyParser.json());
-        app.use('/judge/*', bodyParser.urlencoded({ extended: true }));
+        // see docs
         this.#app.get('/judge/get-work', async (req, res) => {
             //fetch work from the server
-            const username = this.isValidJudgehostRequest(req);
-            if (username == undefined) {
+            const username = this.#getAuth(req);
+            if (config.debugMode) this.#logger.debug(`get-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                return;
+            } else if (typeof username == 'number') {
+                res.sendStatus(username);
                 return;
             }
 
-            let user = this.#nodes.get(username);
-            if (user == undefined) {
-                user = {
-                    username: username,
-                    grading: undefined,
-                    deadline: -1,
-                    lastCommunication: Date.now()
-                }
-                this.#nodes.set(username, user);
-            }
-            if (user.grading == undefined) {
-                user.grading = this.#ungradedSubmissions.shift();
-                if (user.grading == undefined) {
-                    res.json();
+            const node: GraderNode = this.#nodes.get(username) ?? {
+                username: username,
+                grading: undefined,
+                deadline: -1,
+                lastCommunication: Date.now()
+            };
+            this.#nodes.set(username, node);
+            if (node.grading == undefined) {
+                node.grading = this.#ungradedSubmissions.shift();
+                if (node.grading == undefined) {
+                    res.json(null);
                     return;
                 }
+            } else {
+                res.sendStatus(409);
+                return;
             }
-            const problems = await this.#db.readProblems({ id: user.grading.problemId });
+            const problems = await this.#db.readProblems({ id: node.grading.problemId });
             if (problems == null || problems.length != 1) {
                 return;
             }
             res.json({
-                file: user.grading.file,
-                lang: user.grading.lang,
+                file: node.grading.file,
+                lang: node.grading.lang,
                 cases: problems[0].cases,
                 constraints: problems[0].constraints
             });
-            user.lastCommunication = Date.now();
-            this.#nodes.set(username, user);
+            node.lastCommunication = Date.now();
         });
         this.#app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
-            const creds = this.isValidJudgehostRequest(req);
-            if (creds == undefined) {
+            const username = this.#getAuth(req);
+            if (config.debugMode) this.#logger.debug(`return-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
-            }
-
-            const username = creds[0];
-            let user = this.#nodes.get(username);
-            if (user == undefined || user.grading == undefined) {
-                res.sendStatus(400);
+            } else if (typeof username == 'number') {
+                res.sendStatus(username);
                 return;
             }
 
-            this.#ungradedSubmissions.unshift(user.grading);
-            user.grading = undefined;
-            user.lastCommunication = Date.now();
-            this.#nodes.set(username, user);
+            const node = this.#nodes.get(username);
+            if (node == undefined || node.grading == undefined) {
+                res.sendStatus(409);
+                return;
+            }
+
+            this.#ungradedSubmissions.unshift(node.grading);
+            node.grading = undefined;
+            node.lastCommunication = Date.now();
             res.sendStatus(200);
         });
         this.#app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
-            const creds = this.isValidJudgehostRequest(req);
-            if (creds == undefined) {
+            const username = this.#getAuth(req);
+            if (config.debugMode) this.#logger.debug(`finish-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                return;
+            } else if (typeof username == 'number') {
+                res.sendStatus(username);
                 return;
             }
 
-            const username = creds[0];
-            let user = this.#nodes.get(username);
-            if (user == undefined || user.grading == undefined) {
-                res.sendStatus(400);
+            const node = this.#nodes.get(username);
+            if (node == undefined || node.grading == undefined) {
+                res.sendStatus(409);
                 return;
             }
 
             try {
-                user.grading.scores = req.body.scores;
+                if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
+                    return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number';
+                })) {
+                    res.sendStatus(400);
+                    return;
+                }
+                node.grading.scores = (req.body.scores as Score[]).map<Score>((s) => ({
+                    state: s.state,
+                    time: s.time,
+                    memory: s.memory
+                }));
             } catch {
                 res.sendStatus(400);
                 return;
             }
 
-            this.#gradedSubmissions.push(user.grading);
+            this.#gradedSubmissions.push(node.grading);
 
-            user.grading = undefined;
-            user.lastCommunication = Date.now();
-            this.#nodes.set(username, user);
+            node.grading = undefined;
+            node.lastCommunication = Date.now();
             res.sendStatus(200);
         });
 
@@ -161,24 +177,18 @@ export class WwppcGrader extends Grader {
         this.#gradedSubmissions = [];
         return l;
     }
-    isValidJudgehostRequest(req: Request): string | undefined {
+
+    #getAuth(req: Request): string | number {
         const auth = req.get('Authorization');
-        if (auth == null) {
-            return;
-        }
-        let user, pass;
+        if (auth == null) return 401;
         try {
-            [user, pass] = Buffer.from(auth, 'base64').toString().split(':');
+            const [user, pass] = Buffer.from(auth, 'base64').toString().split(':');
+            if (user == null || pass == null) return 400;
+            if (pass !== this.#password) return 403;
+            return user;
         } catch {
-            return;
+            return 400;
         }
-        if (user == null || pass == null) {
-            return;
-        }
-        if (pass !== this.#password) {
-            return;
-        }
-        return user;
     }
 }
 

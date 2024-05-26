@@ -74,7 +74,7 @@ onMounted(updateRoundTimes);
 <template>
     <div class="fullBlock stretchBlock">
         <div class="timerContainer">
-            <GlitchText :text="contestManager.contest?.id ?? 'Not in contest'" class="timerTitle" color="lime" font-size="var(--font-title)" shadow glow></GlitchText>
+            <GlitchText :text="contestManager.contest?.id ?? 'Not in contest'" class="timerTitle" color="lime" font-size="var(--font-title)" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
             <ContestTimer big @next="updateRoundTimes"></ContestTimer>
         </div>
         <div style="flex-grow: 1"></div>

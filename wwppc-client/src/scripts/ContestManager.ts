@@ -106,9 +106,13 @@ export const useContestManager = defineStore('contestManager', {
             return res;
         },
         async getProblemData(round: number, number: number): Promise<ContestProblem | null> {
-            return null;
+            return state.contest?.rounds[round]?.problems[number] ?? null;
         },
         async getProblemDataId(id: string): Promise<ContestProblem | null> {
+            for (const round of (state.contest?.rounds ?? [])) {
+                const p = round.problems.find((p) => p.id === id);
+                if (p != undefined) return p;
+            }
             return null;
         },
         // server-driven contest list

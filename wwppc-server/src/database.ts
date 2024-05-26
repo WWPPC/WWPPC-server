@@ -1176,6 +1176,10 @@ export function reverse_enum(enumerator, v): string {
     for (const k in enumerator) if (enumerator[k] === v) return k;
     return v;
 }
+export function is_in_enum(v, enumerator): boolean {
+    for (const t of enumerator) if (t === v) return true;
+    return false;
+}
 
 /**Response codes for operations involving account data */
 export enum AccountOpResult {
@@ -1350,7 +1354,9 @@ export interface TestCase {
     /**Input string */
     input: string
     /**Correct output string */
-    output: string
+    output: string,
+    /**Denotes which subtask to be part of */
+    subtask: number
 }
 /**Descriptor for a single submission */
 export interface Submission {

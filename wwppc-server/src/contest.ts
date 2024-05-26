@@ -129,6 +129,8 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
+        const contests = this.db.readContests();
+        
         // get contest list
         // create contest hosts if not exists
         // add user to contest host if registered
