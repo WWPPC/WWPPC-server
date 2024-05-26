@@ -97,7 +97,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
                 <DoubleCutCornerContainer height="100%" hover-animation="lift">
                     <p style="text-wrap: balance; font-size: var(--font-20);">
                         <span style="color: lime;">WWPPC</span>:
-                        West Windsor-Plainsboro Programming Contest
+                        West Windsor-Plainsboro Programming Contests
                     </p>
                     <p style="text-wrap: balance; font-size: var(--font-20);">
                         <span style="color: lime;">WWPIT</span>:
