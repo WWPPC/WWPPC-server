@@ -129,14 +129,22 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-        const contests = this.db.readContests();
+        // start any contests that haven't been started
+        const contests = await this.db.readContests();
         if (contests == null) {
             this.logger.error('Could not read contest list!');
+            return;
         }
-        // get contest list
-        // create contest hosts if not exists
-        // add user to contest host if registered
-        // basically handing off the work
+        for (const contest of contests) {
+            if (contest.startTime <= Date.now() && contest.endTime > Date.now()) {
+                if (!this.#contests.has(contest.id)) {
+                    const host = new ContestHost(contest.id, this.io, this.db, this.#grader, this.logger.logger);
+                    this.#contests.set(contest.id, host);
+                    host.onended(() => this.#contests.delete(contest.id));
+                }
+                if (userData.registrations.includes(contest.id)) this.#contests.get(contest.id)!.addSocket(socket);
+            }
+        }
     }
 }
 
@@ -230,6 +238,7 @@ export class ContestHost {
     #data: ContestContest;
     #index: number = 0;
     readonly #sid: string;
+    #updateLoop = undefined;
 
     readonly #users: Map<string, Set<ServerSocket>> = new Map();
 
@@ -264,6 +273,7 @@ export class ContestHost {
     }
     /**
      * Reload the contest data from the database, also updating clients.
+     * Will re-calculate the current round as well.
      */
     async reload(): Promise<void> {
         this.logger.info(`Reloading contest data "${this.id}"`);
@@ -295,6 +305,7 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
+
     }
 
     /**
@@ -470,8 +481,13 @@ export class ContestHost {
         return false;
     }
 
+    #endListeners: Set<() => any> = new Set();
     end() {
         this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
+        this.#endListeners.forEach((cb) => cb());
+    }
+    onended(cb: () => any) {
+        this.#endListeners.add(cb);
     }
 }
 

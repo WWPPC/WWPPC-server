@@ -272,6 +272,15 @@ const router = useRouter();
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="What languages can I use?" startCollapsed>
+                    <p style="font-size: var(--font-20)">
+                        Popular competitive programming languages like Java, C, and C++ will be allowed, as well as Python submissions.
+                        <br><br>
+                        Both Java and C++ will have version options (expect Java 8, 11, 17, or 21 and C++ 11, 17, or 20) while C submissions will have C 11 and Python submissions will be Python 3.12.3
+                    </p>
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How can I prepare?" startCollapsed>
                     <p style="font-size: var(--font-20)">
                         For those experienced in programming, helpful resources include <a href="https://usaco.guide" target="_blank">USACO Guide</a> and <a href="https://codeforces.com" target="_blank">Codeforces</a>.
