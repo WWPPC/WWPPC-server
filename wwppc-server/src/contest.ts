@@ -130,7 +130,9 @@ export class ContestManager {
         });
 
         const contests = this.db.readContests();
-        
+        if (contests == null) {
+            this.logger.error('Could not read contest list!');
+        }
         // get contest list
         // create contest hosts if not exists
         // add user to contest host if registered

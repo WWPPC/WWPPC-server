@@ -18,7 +18,6 @@
         "C++11",
         "C++17",
         "C++20",
-        "Python3.6.9",
         "Python3.12.3"
     ],
     "maxSubmissionSize": 10240,

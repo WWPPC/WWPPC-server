@@ -26,10 +26,12 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     const adminPanelIndex = path.resolve(process.env.ADMIN_PANEL_PATH!, 'index.html');
     const adminPanelProblemManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'problemManager/problemManager.html');
     const adminPanelContestManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestManager/contestManager.html');
+    const adminPanelContestRunner = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestRunner/contestRunner.html');
     const adminPanelAccountManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'accountManager/accountManager.html');
     app.get('/admin', (req, res) => res.sendFile(adminPanelIndex));
     app.get('/admin/problemManager', (req, res) => res.sendFile(adminPanelProblemManager));
     app.get('/admin/contestManager', (req, res) => res.sendFile(adminPanelContestManager));
+    app.get('/admin/contestRunner', (req, res) => res.sendFile(adminPanelContestRunner));
     app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
     app.get('/admin/login', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PANEL_PATH!, 'login.html')));
     app.post('/admin/login', bodyParser.urlencoded({ extended: false }), async (req, res) => {
