@@ -7,7 +7,7 @@ export interface Contest {
     readonly id: string
     rounds: ContestRound[]
     startTime: number
-    endtime: number
+    endTime: number
 }
 export interface ContestRound {
     readonly contest: string

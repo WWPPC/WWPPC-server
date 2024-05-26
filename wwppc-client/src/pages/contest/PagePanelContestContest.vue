@@ -9,29 +9,6 @@ import { onMounted, ref, watch } from 'vue';
 
 const contestManager = useContestManager();
 
-let buh = Date.now();
-contestManager.contest = {
-    id: 'WWPIT 2024',
-    startTime: buh,
-    endtime: buh + 50000,
-    rounds: [
-        {
-            contest: 'WWPIT 2024',
-            number: 1,
-            problems: [],
-            startTime: buh + 10000,
-            endTime: buh + 20000,
-        },
-        {
-            contest: 'WWPIT 2024',
-            number: 2,
-            problems: [],
-            startTime: buh + 30000,
-            endTime: buh + 40000,
-        }
-    ]
-};
-
 const currentRound = ref(0);
 const roundTimes = ref<{ label: string, time: number }[]>([]);
 const updateRoundTimes = () => {
@@ -62,7 +39,7 @@ const updateRoundTimes = () => {
     }
     times.push({
         label: 'Closing ceremonies',
-        time: contestManager.contest.endtime - contestManager.contest.rounds[contestManager.contest.rounds.length - 1].endTime
+        time: contestManager.contest.endTime - contestManager.contest.rounds[contestManager.contest.rounds.length - 1].endTime
     });
     if (currentRound.value == -1) currentRound.value = times.length - 1;
     roundTimes.value = times;
