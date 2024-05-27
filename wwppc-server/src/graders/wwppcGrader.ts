@@ -117,7 +117,7 @@ export class WwppcGrader extends Grader {
 
             try {
                 if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
-                    return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number';
+                    return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
                 })) {
                     res.sendStatus(400);
                     return;
