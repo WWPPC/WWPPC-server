@@ -5,24 +5,24 @@ import Database, { Score, ScoreState } from "./database";
  */
 export class Scorer {
 
-    readonly db: Database;
     readonly subtasks: Map<string, Subtask> = new Map();
 
     users: Map<string, Map<string, Boolean>> = new Map();
+    //leaderboard is cached, when a user is updated it is cleared
+    leaderboard: Map<string, number> | undefined = undefined;
 
-    constructor(db: Database, subtasks: Subtask[]) {
-        this.db = db;
+    constructor(subtasks: Subtask[]) {
         for (const s of subtasks) {
             this.subtasks.set(s.id, s);
         }
     }
     
     /**
-     * Add user (or team the scorer doesnt care) to leaderboard
+     * Add or edit user (or team the scorer doesnt care) to leaderboard
      * @param {string} username username (or team name the scorer doesnt care)
      * @param scores object with the scores. Not all of them have to be filled in because
      */
-    addUser(username: string, scores: {subtask: string, scores: Score[]}[]) {
+    editUser(username: string, scores: {subtask: string, scores: Score[]}[]) {
         const userScores = new Map<string, Boolean>();
         for (const score of scores) {
             userScores.set(score.subtask, !score.scores.some((s: Score) => s.state != ScoreState.CORRECT) && score.scores.length > 0);
@@ -33,6 +33,7 @@ export class Scorer {
             }
         });
         this.users.set(username, userScores);
+        this.leaderboard = undefined;
     }
 
     /**
@@ -40,26 +41,30 @@ export class Scorer {
      * @returns {Map<string, number> | undefined} mapping of username to score, undefined if error oof
      */
     getScores(): Map<string, number> {
-        const scores = new Map<string, number>();
-        this.users.forEach((value, key) => {
-            scores.set(key, 0);
-        });
-        this.subtasks.forEach((subtask, subtaskId) => {
-            let count = 0;
+        if (this.leaderboard == undefined) {
+            const scores = new Map<string, number>();
             this.users.forEach((value, key) => {
-                if (value.get(subtaskId)) {
-                    count++;
-                }
+                scores.set(key, 0);
             });
-            this.users.forEach((value, key) => {
-                if (value.get(subtaskId)) {
-                    const curValue = scores.get(key);
-                    if (curValue == undefined) return undefined;
-                    scores.set(key, curValue + Math.log(count+1)/count);
-                }
-            })
-        });
-        return scores;
+            this.subtasks.forEach((subtask, subtaskId) => {
+                let count = 0;
+                this.users.forEach((value, key) => {
+                    if (value.get(subtaskId)) {
+                        count++;
+                    }
+                });
+                this.users.forEach((value, key) => {
+                    if (value.get(subtaskId)) {
+                        const curValue = scores.get(key);
+                        if (curValue == undefined) return undefined;
+                        scores.set(key, curValue + subtask.weight*Math.log(count+1)/count);
+                    }
+                })
+            });
+            return this.leaderboard = scores;
+        } else {
+            return this.leaderboard;
+        }
     }
 }
 
