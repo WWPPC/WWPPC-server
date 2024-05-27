@@ -1112,7 +1112,7 @@ export class Database {
                     expiration: performance.now() + config.dbCacheTime
                 });
             } else {
-                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time) VALUES ($1, $2, $3, $4, $5, $6)', [
+                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time, history) VALUES ($1, $2, $3, $4, $5, $6, $7)', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), '[]'
                 ]);
                 this.#submissionCache.set(submission.problemId + ' ' + submission.username, {

@@ -128,7 +128,7 @@ const handleUpload = () => {
     }
 };
 const submitUpload = async () => {
-    if (typeof languageDropdown.value?.value !== 'string') {
+    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '') {
         modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
         return;
     }
@@ -141,7 +141,7 @@ const submitUpload = async () => {
         modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
         return;
     }
-    const status = await contestManager.updateSubmission(problem.value.id, languageDropdown.value.value, await file.text());
+    const status = await contestManager.updateSubmission(problem.value.id, (languageDropdown.value.value as string), await file.text());
     if (status == null) {
         modal.showModal({ title: 'Could not submit', content: 'A problem occured while uploading your submission. Try reloading and submitting again.', color: 'red' });
     }

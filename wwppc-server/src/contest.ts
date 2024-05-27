@@ -38,7 +38,6 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = new WwppcGrader(app, logger, db);
-        // start contests
         this.#updateLoop = setInterval(async () => {
             // start any contests that haven't been started
             const contests = await this.db.readContests();
@@ -332,7 +331,7 @@ export class ContestHost {
         for (let i = 0; i < this.#data.rounds.length; i++) {
             if (this.#data.rounds[i].startTime <= now) {
                 this.#index = i;
-                this.#active = this.#data.rounds[i].endTime <= now;
+                this.#active = this.#data.rounds[i].endTime > now;
             } else break;
         }
         this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`)
