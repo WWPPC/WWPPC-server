@@ -27,7 +27,7 @@ export class Scorer {
      * @param {Submission} submission the submission (with COMPLETE SCORES)
      * @returns {Boolean} whether it was successful
      */
-    async editUser(submission: Submission): Promise<Boolean> {
+    editUser(submission: Submission): Boolean {
         const userScores = new Map<string, Boolean>();
         const subtasks = new Set<number>();
         for (const score of submission.scores) {
