@@ -238,6 +238,7 @@ export class ContestHost {
     readonly logger: NamedLogger;
     #data: ContestContest;
     #index: number = 0;
+    #active: boolean = false;
     readonly #sid: string;
     #updateLoop: NodeJS.Timeout | undefined = undefined;
 
@@ -307,8 +308,33 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
+        // re-index the contest
+        this.#index = 0;
+        this.#active = false;
+        const now = Date.now();
+        if (this.#data.startTime > now || this.#data.endTime <= now) {
+            this.end();
+            return;
+        }
+        for (let i = 0; i < this.#data.rounds.length; i++) {
+            if (this.#data.rounds[i].startTime <= now) {
+                this.#index = i;
+                this.#active = this.#data.rounds[i].endTime <= now;
+            } else break;
+        }
         this.#updateLoop = setInterval(() => {
-            
+            const now = Date.now();
+            let updated = false;
+            if (this.#data.rounds[this.#index].endTime <= now) {
+                updated = true;
+                this.#active = false;
+            }
+            if (this.#data.rounds[this.#index + 1] != undefined && this.#data.rounds[this.#index + 1].startTime <= now) {
+                updated = true;
+                this.#index++;
+                this.#active = true;
+            }
+            if (updated) this.updateAllUsers();
         }, 50);
     }
 
@@ -336,7 +362,7 @@ export class ContestHost {
      * @returns 
      */
     problemSubmittable(id: UUID): boolean {
-        return this.#data.rounds[this.#index].problems.includes(id);
+        return this.#active && this.#data.rounds[this.#index].problems.includes(id);
     }
     /**
      * Update all users in contest with latest contest data.
@@ -352,41 +378,51 @@ export class ContestHost {
         if (this.#users.has(username)) {
             try {
                 const userRounds: ClientRound[] = await Promise.all(this.#data.rounds.map(async (round): Promise<ClientRound> => {
-                    const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
-                        const problemData = await this.db.readProblems({ id: id });
-                        const submissionData = await this.db.readSubmissions({ id: id, username: username });
-                        if (problemData == null || submissionData == null) throw new Error(`Database error (Round ${round.id} Problem ${id})`);
-                        if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
-                        // mapping submissions is messy, submissions empty of there are no past submissions
-                        // otherwise concatenate history behind most recent submission
+                    if (round.number <= this.#index) {
+                        const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
+                            const problemData = await this.db.readProblems({ id: id });
+                            const submissionData = await this.db.readSubmissions({ id: id, username: username });
+                            if (problemData == null || submissionData == null) throw new Error(`Database error (Round ${round.id} Problem ${id})`);
+                            if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
+                            // mapping submissions is messy, submissions empty of there are no past submissions
+                            // otherwise concatenate history behind most recent submission
+                            return {
+                                id: problemData[0].id,
+                                contest: this.#data.id,
+                                round: round.number,
+                                number: i,
+                                name: problemData[0].name,
+                                author: problemData[0].author,
+                                content: problemData[0].content,
+                                constraints: problemData[0].constraints,
+                                submissions: (submissionData.length > 0) ? [{
+                                    time: submissionData[0].time,
+                                    scores: submissionData[0].scores,
+                                    status: this.#getCompletionState(round.number, submissionData[0].scores)
+                                }, ...submissionData[0].history.map((sub): ClientSubmission => ({
+                                    time: sub.time,
+                                    scores: sub.scores,
+                                    status: this.#getCompletionState(round.number, sub.scores)
+                                }))] : [],
+                                status: this.#getCompletionState(round.number, submissionData[0]?.scores)
+                            };
+                        }));
                         return {
-                            id: problemData[0].id,
-                            contest: this.#data.id,
-                            round: round.number,
-                            number: i,
-                            name: problemData[0].name,
-                            author: problemData[0].author,
-                            content: problemData[0].content,
-                            constraints: problemData[0].constraints,
-                            submissions: (submissionData.length > 0) ? [{
-                                time: submissionData[0].time,
-                                scores: submissionData[0].scores,
-                                status: this.#getCompletionState(round.number, submissionData[0].scores)
-                            }, ...submissionData[0].history.map((sub): ClientSubmission => ({
-                                time: sub.time,
-                                scores: sub.scores,
-                                status: this.#getCompletionState(round.number, sub.scores)
-                            }))] : [],
-                            status: this.#getCompletionState(round.number, submissionData[0]?.scores)
+                            contest: round.contest,
+                            number: round.number,
+                            problems: userProblems,
+                            startTime: round.startTime,
+                            endTime: round.endTime
                         };
-                    }));
-                    return {
-                        contest: round.contest,
-                        number: round.number,
-                        problems: userProblems,
-                        startTime: round.startTime,
-                        endTime: round.endTime
-                    };
+                    } else {
+                        return {
+                            contest: round.contest,
+                            number: round.number,
+                            problems: [],
+                            startTime: round.startTime,
+                            endTime: round.endTime
+                        };
+                    }
                 }));
                 const userContest: ClientContest = {
                     id: this.#data.id,
