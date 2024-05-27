@@ -1076,7 +1076,6 @@ export class Database {
         const startTime = performance.now();
         try {
             const existing = await this.#db.query('SELECT time, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
-            console.log(existing)
             if (existing.rows.length > 0) {
                 const history: { time: number, scores: Score[] }[] = JSON.parse(existing.rows[0].history);
                 history.push({ time: existing.rows[0].time, scores: existing.rows[0].scores == null ? null : JSON.parse(existing.rows[0].scores) });
