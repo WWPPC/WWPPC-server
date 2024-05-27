@@ -11,6 +11,7 @@ import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
+import Scorer from './scorer';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
