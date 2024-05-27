@@ -74,6 +74,7 @@ export class WwppcGrader extends Grader {
                 constraints: problems[0].constraints
             });
             node.lastCommunication = Date.now();
+            if (config.debugMode) logger.debug('Sending task to grader ' + node.username, true);
         });
         this.app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
@@ -97,6 +98,7 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
+            if (config.debugMode) logger.debug('Returned work from grader ' + node.username, true);
         });
         this.app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
@@ -141,6 +143,7 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
+            if (config.debugMode) logger.debug('Finished work from grader ' + node.username, true);
         });
 
         // reserve /judge path
@@ -166,7 +169,7 @@ export class WwppcGrader extends Grader {
 
     queueUngraded(submission: Submission) {
         this.#ungradedSubmissions.push(submission); //pretend it's graded for testing purposes
-        if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`);
+        if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`, true);
     }
     cancelUngraded(username: string, problemId: string): Promise<void> {
         throw new Error('Method not implemented.');
@@ -181,6 +184,7 @@ export class WwppcGrader extends Grader {
     emptyGradedList(): Submission[] {
         const l = structuredClone(this.#gradedSubmissions);
         this.#gradedSubmissions = [];
+        if (config.debugMode) this.logger.debug('Emptied graded submission list', true);
         return l;
     }
 
