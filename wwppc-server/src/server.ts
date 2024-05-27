@@ -1,9 +1,9 @@
+import fs from 'fs';
+import path from 'path';
+
 import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
-
-import fs from 'fs';
-import path from 'path';
 
 // verify environment variables exist
 if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
