@@ -328,6 +328,7 @@ export class ContestHost {
             if (this.#data.rounds[this.#index].endTime <= now) {
                 updated = true;
                 this.#active = false;
+                this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} end`);
             }
             if (this.#data.rounds[this.#index + 1] != undefined && this.#data.rounds[this.#index + 1].startTime <= now) {
                 updated = true;
@@ -509,6 +510,8 @@ export class ContestHost {
             }
             respond(ContestUpdateSubmissionResult.SUCCESS);
         });
+
+        this.updateUser(socket.username);
     }
     removeSocket(socket: ServerSocket): boolean {
         if (this.#users.has(socket.username) && this.#users.get(socket.username)!.has(socket)) {
@@ -523,6 +526,7 @@ export class ContestHost {
 
     #endListeners: Set<() => any> = new Set();
     end() {
+        this.logger.info(`Ending contest "${this.id}"`);
         this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
         this.#endListeners.forEach((cb) => cb());
     }
