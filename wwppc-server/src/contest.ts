@@ -11,7 +11,6 @@ import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
-import Scorer from './scorer';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
@@ -20,6 +19,7 @@ export class ContestManager {
     readonly #grader: Grader;
 
     readonly #contests: Map<string, ContestHost> = new Map();
+    readonly #updateLoop: NodeJS.Timeout;
 
     readonly db: Database;
     readonly app: Express;
@@ -38,6 +38,22 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = new WwppcGrader(app, logger, db);
+        // start contests
+        this.#updateLoop = setInterval(async () => {
+            // start any contests that haven't been started
+            const contests = await this.db.readContests();
+            if (contests == null) {
+                this.logger.error('Could not read contest list!');
+                return;
+            }
+            for (const contest of contests) {
+                if (contest.startTime <= Date.now() && contest.endTime > Date.now() && !this.#contests.has(contest.id)) {
+                    const host = new ContestHost(contest.id, this.io, this.db, this.#grader, this.logger.logger);
+                    this.#contests.set(contest.id, host);
+                    host.onended(() => this.#contests.delete(contest.id));
+                }
+            }
+        }, 10000);
     }
 
     /**
@@ -130,22 +146,10 @@ export class ContestManager {
             if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
-        // start any contests that haven't been started
-        const contests = await this.db.readContests();
-        if (contests == null) {
-            this.logger.error('Could not read contest list!');
-            return;
-        }
-        for (const contest of contests) {
-            if (contest.startTime <= Date.now() && contest.endTime > Date.now()) {
-                if (!this.#contests.has(contest.id)) {
-                    const host = new ContestHost(contest.id, this.io, this.db, this.#grader, this.logger.logger);
-                    this.#contests.set(contest.id, host);
-                    host.onended(() => this.#contests.delete(contest.id));
-                }
-                if (userData.registrations.includes(contest.id)) this.#contests.get(contest.id)!.addSocket(socket);
-            }
-        }
+        // add to contests
+        this.#contests.forEach((host, id) => {
+            if (userData.registrations.includes(id)) host.addSocket(socket);
+        });
     }
 }
 
@@ -283,7 +287,7 @@ export class ContestHost {
         const contest = await this.db.readContests(this.id);
         if (contest == null || contest.length == 0) {
             if (contest == null) this.logger.error(`Database error`);
-            else this.logger.error(`Contest "${this.id}" does not exist`);
+            else this.logger.error(`Contest ${this.id} does not exist`);
             this.end();
             return;
         }
@@ -293,14 +297,23 @@ export class ContestHost {
             this.end();
             return;
         }
-        const mapped: ContestRound[] = rounds.map((r, i) => ({
-            id: r.id,
-            contest: this.id,
-            number: i,
-            problems: r.problems,
-            startTime: r.startTime,
-            endTime: r.endTime
-        }));
+        const mapped: ContestRound[] = [];
+        for (let i in contest[0].rounds) {
+            const round = rounds.find((r) => r.id === contest[0].rounds[i]);
+            if (round === undefined) {
+                this.logger.error(`Contest ${this.id} missing round: ${contest[0].rounds[i]}`);
+                this.end();
+                return;
+            }
+            mapped.push({
+                id: round.id,
+                contest: this.id,
+                number: Number(i),
+                problems: round.problems,
+                startTime: round.startTime,
+                endTime: round.endTime
+            });
+        }
         this.#data = {
             id: this.id,
             rounds: mapped,
@@ -309,7 +322,7 @@ export class ContestHost {
         };
         this.updateAllUsers();
         // re-index the contest
-        this.#index = 0;
+        this.#index = -1;
         this.#active = false;
         const now = Date.now();
         if (this.#data.startTime > now || this.#data.endTime <= now) {
@@ -322,10 +335,11 @@ export class ContestHost {
                 this.#active = this.#data.rounds[i].endTime <= now;
             } else break;
         }
+        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`)
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
-            if (this.#data.rounds[this.#index].endTime <= now && this.#active) {
+            if (this.#index >= 0 && this.#data.rounds[this.#index].endTime <= now && this.#active) {
                 updated = true;
                 this.#active = false;
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} end`);
@@ -345,18 +359,6 @@ export class ContestHost {
      */
     get round(): number {
         return this.#index;
-    }
-    /**
-     * Data of the current round.
-     */
-    get currentRound(): Round {
-        const r = this.#data.rounds[this.#index];
-        return {
-            id: r.id,
-            problems: r.problems,
-            startTime: r.startTime,
-            endTime: r.endTime
-        };
     }
     /**
      * Get if a particular problem ID is submittable.
@@ -433,6 +435,9 @@ export class ContestHost {
                     endTime: this.#data.endTime
                 };
                 this.io.to(username).emit('contestData', userContest);
+                try {
+                    if (global.gc) global.gc();
+                } catch { }
             } catch (err) {
                 this.logger.handleError('Error while sending updated contest data to client', err);
             }

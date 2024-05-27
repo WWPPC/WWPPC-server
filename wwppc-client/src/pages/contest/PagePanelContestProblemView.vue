@@ -145,7 +145,7 @@ const submitUpload = async () => {
     if (status == null) {
         modal.showModal({ title: 'Could not submit', content: 'A problem occured while uploading your submission. Try reloading and submitting again.', color: 'red' });
     }
-}
+};
 
 // thing for katex
 const problemContent = ref('');
@@ -260,12 +260,12 @@ watch(problem, () => {
     border-radius: 8px;
     background-color: #333;
     font-weight: normal;
+    font-family: 'Source Code Pro', Courier, monospace;
     font-size: var(--font-small);
 }
 
 .problemViewContent {
     font-size: var(--font-small);
-    text-align: justify;
 }
 
 .problemViewSubmitForm {

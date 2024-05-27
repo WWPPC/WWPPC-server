@@ -810,8 +810,8 @@ export class Database {
                         rounds: contest.rounds,
                         exclusions: contest.exclusions,
                         maxTeamSize: contest.maxteamsize,
-                        startTime: contest.starttime,
-                        endTime: contest.endtime
+                        startTime: Number(contest.starttime),
+                        endTime: Number(contest.endtime)
                     };
                     this.#contestCache.set(contest.id, {
                         contest: c,
@@ -891,8 +891,8 @@ export class Database {
                     const r = {
                         id: round.id,
                         problems: round.problems,
-                        startTime: round.starttime,
-                        endTime: round.endtime
+                        startTime: Number(round.starttime),
+                        endTime: Number(round.endtime)
                     };
                     this.#roundCache.set(round.id, {
                         round: r,
@@ -1070,7 +1070,7 @@ export class Database {
                     const s = {
                         username: submission.username,
                         problemId: submission.id,
-                        time: submission.time,
+                        time: Number(submission.time),
                         file: submission.file,
                         lang: submission.language,
                         scores: submission.scores,

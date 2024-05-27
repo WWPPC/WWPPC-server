@@ -580,3 +580,11 @@ const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) 
 };
 process.on('uncaughtException', handleUncaughtError);
 process.on('unhandledRejection', handleUncaughtError);
+
+// memory logger
+if (process.argv.includes('mem_logger')) {
+    setInterval(() => {
+        const mem = process.memoryUsage();
+        logger.debug(`Memory: ${Math.round(mem.heapUsed / 1048576 * 100) / 100}MB / ${Math.round(mem.heapTotal / 1048576 * 100) / 100}MB`);
+    }, 5000);
+}
