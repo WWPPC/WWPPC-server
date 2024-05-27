@@ -1,5 +1,5 @@
 import { configDotenv } from 'dotenv';
-configDotenv({ path: path.resolve(config.path, '.env') });
+configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
 
 import fs from 'fs';
