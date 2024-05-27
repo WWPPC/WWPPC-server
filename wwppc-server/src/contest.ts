@@ -325,7 +325,7 @@ export class ContestHost {
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
-            if (this.#data.rounds[this.#index].endTime <= now) {
+            if (this.#data.rounds[this.#index].endTime <= now && this.#active) {
                 updated = true;
                 this.#active = false;
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} end`);
@@ -334,6 +334,7 @@ export class ContestHost {
                 updated = true;
                 this.#index++;
                 this.#active = true;
+                this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
             }
             if (updated) this.updateAllUsers();
         }, 50);

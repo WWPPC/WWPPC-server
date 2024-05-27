@@ -988,7 +988,7 @@ export class Database {
                     };
                     this.#problemCache.set(problem.id, {
                         problem: p,
-                        expiration: performance.now() + config.dbCacheTime
+                        expiration: performance.now() + config.dbProblemCacheTime
                     });
                     problems.push(problem);
                 }
@@ -1015,7 +1015,7 @@ export class Database {
             if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
             this.#problemCache.set(problem.id, {
                 problem: problem,
-                expiration: performance.now() + config.dbCacheTime
+                expiration: performance.now() + config.dbProblemCacheTime
             });
             return true;
         } catch (err) {
