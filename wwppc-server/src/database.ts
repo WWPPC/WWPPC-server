@@ -860,7 +860,7 @@ export class Database {
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criteria
      * @returns {Round[] | null} Array of round data matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readRounds(c: ReadRoundsCriteria): Promise<Round[] | null> {
+    async readRounds(c: ReadRoundsCriteria = {}): Promise<Round[] | null> {
         const startTime = performance.now();
         try {
             const roundIdSet: Set<string> = new Set();
@@ -941,7 +941,7 @@ export class Database {
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Problem[] | null} Array of problems matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readProblems(c: ReadProblemsCriteria): Promise<Problem[] | null> {
+    async readProblems(c: ReadProblemsCriteria = {}): Promise<Problem[] | null> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
@@ -981,8 +981,8 @@ export class Database {
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        cases: JSON.parse(problem.cases),
-                        constraints: JSON.parse(problem.constraints),
+                        cases: problem.cases,
+                        constraints: problem.constraints,
                         hidden: problem.hidden,
                         archived: problem.archived
                     };
@@ -1033,7 +1033,7 @@ export class Database {
      * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criterion
      * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
-    async readSubmissions(c: ReadSubmissionsCriteria): Promise<Submission[] | null> {
+    async readSubmissions(c: ReadSubmissionsCriteria = {}): Promise<Submission[] | null> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
@@ -1073,7 +1073,7 @@ export class Database {
                         time: submission.time,
                         file: submission.file,
                         lang: submission.language,
-                        scores: JSON.parse(submission.scores),
+                        scores: submission.scores,
                         history: submission.history
                     };
                     this.#submissionCache.set(submission.id + ' ' + submission.username, {

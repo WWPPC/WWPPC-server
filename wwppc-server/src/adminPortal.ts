@@ -24,15 +24,15 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     });
     app.use('/admin/', express.static(process.env.ADMIN_PANEL_PATH!));
     const adminPanelIndex = path.resolve(process.env.ADMIN_PANEL_PATH!, 'index.html');
+    const adminPanelAccountManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'accountManager/accountManager.html');
     const adminPanelProblemManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'problemManager/problemManager.html');
     const adminPanelContestManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestManager/contestManager.html');
     const adminPanelContestRunner = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestRunner/contestRunner.html');
-    const adminPanelAccountManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'accountManager/accountManager.html');
     app.get('/admin', (req, res) => res.sendFile(adminPanelIndex));
+    app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
     app.get('/admin/problemManager', (req, res) => res.sendFile(adminPanelProblemManager));
     app.get('/admin/contestManager', (req, res) => res.sendFile(adminPanelContestManager));
     app.get('/admin/contestRunner', (req, res) => res.sendFile(adminPanelContestRunner));
-    app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
     app.get('/admin/login', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PANEL_PATH!, 'login.html')));
     app.post('/admin/login', bodyParser.urlencoded({ extended: false }), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
@@ -110,6 +110,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         }
         const stat = await database.setAccountTeam(req.body.username, req.body.team);
         defaultResponseMapping2(res, stat);
+    });
+    app.get('/admin/api/problemList', async (req, res) => {
+        const data = await database.readProblems();
+        if (data == null) res.sendStatus(500);
+        else res.json(data);
     });
 
     // reserve /admin path
