@@ -105,30 +105,30 @@ const router = useRouter();
                                 <div>Round 1</div>
                             </div>
                         </MultipaneSelector>
-                        <MultipaneSelector for="round2">
-                            <div class="scheduleRow">
-                                <div>12:10-1:10</div>
-                                <div>|</div>
-                                <div>Round 2</div>
-                            </div>
-                        </MultipaneSelector>
                         <MultipaneSelector for="lunch">
                             <div class="scheduleRow">
-                                <div>1:10-2:10</div>
+                                <div>12:00-1:00</div>
                                 <div>|</div>
                                 <div>Lunch break</div>
                             </div>
                         </MultipaneSelector>
+                        <MultipaneSelector for="round2">
+                            <div class="scheduleRow">
+                                <div>1:00-2:00</div>
+                                <div>|</div>
+                                <div>Round 2</div>
+                            </div>
+                        </MultipaneSelector>
                         <MultipaneSelector for="round3">
                             <div class="scheduleRow">
-                                <div>2:10-3:20</div>
+                                <div>2:10-3:30</div>
                                 <div>|</div>
                                 <div>Round 3</div>
                             </div>
                         </MultipaneSelector>
                         <MultipaneSelector for="sponsors">
                             <div class="scheduleRow">
-                                <div>3:30-4:40</div>
+                                <div>3:40-4:40</div>
                                 <div>|</div>
                                 <div>Sponsor Events</div>
                             </div>
@@ -184,15 +184,6 @@ const router = useRouter();
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
-                        <MultipanePane for="round2">
-                            <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
-                            <p>
-                                Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
-                            </p>
-                            <p style="font-size: var(--font-16)">
-                                <i>All times are in Eastern Standard Time (daylight savings)</i>
-                            </p>
-                        </MultipanePane>
                         <MultipanePane for="lunch">
                             <GlitchText text="Lunch Break" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
@@ -204,10 +195,19 @@ const router = useRouter();
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
+                        <MultipanePane for="round2">
+                            <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <p>
+                                Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                            </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
+                            </p>
+                        </MultipanePane>
                         <MultipanePane for="round3">
                             <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 3 is 70 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                                Round 3 is 80 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
                             <p style="font-size: var(--font-16)">
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
