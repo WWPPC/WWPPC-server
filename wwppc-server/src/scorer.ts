@@ -57,7 +57,7 @@ export class Scorer {
                     if (value.get(subtaskId)) {
                         const curValue = scores.get(key);
                         if (curValue == undefined) return undefined;
-                        scores.set(key, curValue + Math.log(count+1)/count);
+                        scores.set(key, curValue + subtask.weight*Math.log(count+1)/count);
                     }
                 })
             });
