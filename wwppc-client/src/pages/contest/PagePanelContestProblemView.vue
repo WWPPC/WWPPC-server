@@ -2,7 +2,7 @@
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { completionStateString, type ContestProblem, ContestProblemCompletionState, type ContestSubmission, useContestManager } from '@/scripts/ContestManager';
+import { completionStateString, type ContestProblem, ContestProblemCompletionState, type ContestSubmission, ContestUpdateSubmissionResult, getUpdateSubmissionMessage, useContestManager } from '@/scripts/ContestManager';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
@@ -142,8 +142,10 @@ const submitUpload = async () => {
         return;
     }
     const status = await contestManager.updateSubmission(problem.value.id, (languageDropdown.value.value as string), await file.text());
-    if (status == null) {
-        modal.showModal({ title: 'Could not submit', content: 'A problem occured while uploading your submission. Try reloading and submitting again.', color: 'red' });
+    if (status != ContestUpdateSubmissionResult.SUCCESS) {
+        modal.showModal({ title: 'Could not submit', content: getUpdateSubmissionMessage(status) })
+    } else {
+        modal.showModal({ title: 'Submission uploaded', content: 'Grading will happen soon' });
     }
 };
 

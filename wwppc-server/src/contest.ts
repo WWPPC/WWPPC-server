@@ -18,6 +18,7 @@ import { ServerSocket } from './socket';
 export class ContestManager {
     readonly #grader: Grader;
 
+    readonly #sockets: Set<ServerSocket> = new Set();
     readonly #contests: Map<string, ContestHost> = new Map();
     readonly #updateLoop: NodeJS.Timeout;
 
@@ -149,6 +150,20 @@ export class ContestManager {
         this.#contests.forEach((host, id) => {
             if (userData.registrations.includes(id)) host.addSocket(socket);
         });
+
+        this.#sockets.add(socket);
+    }
+
+    /**
+     * Stops all contests and closes the contest manager
+     */
+    close() {
+        this.#contests.forEach((contest) => contest.end());
+        this.#sockets.forEach((socket) => {
+            socket.removeAllListeners('registerContest');
+            socket.removeAllListeners('unregisterContest');
+        });
+        clearInterval(this.#updateLoop);
     }
 }
 

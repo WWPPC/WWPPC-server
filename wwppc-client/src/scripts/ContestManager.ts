@@ -69,6 +69,9 @@ export enum ContestUpdateSubmissionResult {
     ERROR = 4,
     NOT_CONNECTED = 5
 }
+export const getUpdateSubmissionMessage = (res: number): string => {
+    return res == ContestUpdateSubmissionResult.SUCCESS ? 'Success' : res == ContestUpdateSubmissionResult.FILE_TOO_LARGE ? 'File too large' : res == ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE ? 'Selected language not allowed' : res == ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE ? 'Problem not accepting submissions' : res == ContestUpdateSubmissionResult.ERROR ? 'Database error' : res == ContestUpdateSubmissionResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown response code (this is a bug?)';
+};
 
 export interface ArchiveProblem {
     id: string

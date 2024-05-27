@@ -561,6 +561,7 @@ const stopServer = async () => {
     process.on('SIGILL', actuallyStop);
     io.close();
     clearInterval(connectionKickDecrementer);
+    contestManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
     logger.destroy();
     process.exit();
