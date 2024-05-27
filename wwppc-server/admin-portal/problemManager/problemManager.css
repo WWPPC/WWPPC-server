@@ -1,7 +1,8 @@
 .problemTable {
-    border-collapse:collapse;
-    width:100%;
+    border-collapse: collapse;
+    width: 100%;
 }
+
 tr {
     /*border-bottom: 1px solid white;*/
     border: 1px solid white;
@@ -13,5 +14,5 @@ tr:hover {
 }
 
 .problemTableContainer {
-    margin:2%;
+    margin: 2%;
 }
