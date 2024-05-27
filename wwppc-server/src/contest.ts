@@ -287,7 +287,7 @@ export class ContestHost {
         const contest = await this.db.readContests(this.id);
         if (contest == null || contest.length == 0) {
             if (contest == null) this.logger.error(`Database error`);
-            else this.logger.error(`Contest ${this.id} does not exist`);
+            else this.logger.error(`Contest "${this.id}" does not exist`);
             this.end();
             return;
         }
@@ -301,7 +301,7 @@ export class ContestHost {
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
             if (round === undefined) {
-                this.logger.error(`Contest ${this.id} missing round: ${contest[0].rounds[i]}`);
+                this.logger.error(`Contest "${this.id}" missing round: ${contest[0].rounds[i]}`);
                 this.end();
                 return;
             }
@@ -468,7 +468,7 @@ export class ContestHost {
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
         socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
-            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || isUUID(data.id)) {
+            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id)) {
                 socket.kick('invalid updateSubmission payload');
                 return;
             }
