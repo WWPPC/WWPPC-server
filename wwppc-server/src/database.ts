@@ -1388,6 +1388,8 @@ export interface Score {
     time: number
     /**Memory used in megabytes */
     memory: number
+    /**Denotes which subtask to be part of */
+    subtask: number
 }
 export enum ScoreState {
     CORRECT = 1,

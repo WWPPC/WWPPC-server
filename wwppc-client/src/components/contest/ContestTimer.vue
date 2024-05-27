@@ -31,9 +31,9 @@ const updateTime = () => {
     inRound = false;
     color.value = 'white';
     round.value = contestManager.contest.id;
-    nextTime.value = new Date(contestManager.contest.endtime);
+    nextTime.value = new Date(contestManager.contest.endTime);
     const now = Date.now();
-    if (now > contestManager.contest.endtime) {
+    if (now > contestManager.contest.endTime) {
         if (props.big) round.value = 'Contest ended';
         else round.value = '---';
         nextTime.value = new Date();
@@ -59,7 +59,7 @@ const updateFlash = () => {
     if (inRound) {
         if (nextTime.value.getTime() - Date.now() <= 300000) flashColor.value = 'red';
         else flashColor.value = 'lime';
-    } else if (Date.now() > (contestManager.contest?.endtime ?? 0)) {
+    } else if (Date.now() > (contestManager.contest?.endTime ?? 0)) {
         flashColor.value = '';
     } else {
         if (nextTime.value.getTime() - Date.now() <= 60000) flashColor.value = 'yellow';

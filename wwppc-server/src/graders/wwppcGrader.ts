@@ -125,7 +125,8 @@ export class WwppcGrader extends Grader {
                 node.grading.scores = (req.body.scores as Score[]).map<Score>((s) => ({
                     state: s.state,
                     time: s.time,
-                    memory: s.memory
+                    memory: s.memory,
+                    subtask: s.subtask
                 }));
             } catch {
                 res.sendStatus(400);
