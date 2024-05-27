@@ -97,7 +97,7 @@ watch(() => problem.value.name, () => {
 const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
 const problemSubtitle1 = autoGlitchTextTransition(() => {
     if (problem.value.contest === undefined) return `By ${problem.value.author}`;
-    return `Problem ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;
+    return `${problem.value.contest} ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;
 }, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
@@ -162,7 +162,7 @@ watch(problem, () => {
         <div class="problemViewDouble">
             <TitledCutCornerContainer :title="problemName" style="grid-row: span 3;" vertical-flipped>
                 <div class="problemViewSubtitle">
-                    <span v-html="problemSubtitle1"></span>
+                    <span v-html="problemSubtitle1" style="font-weight: bold;"></span>
                     <span v-html="problemSubtitle2"></span>
                 </div>
                 <div class="problemViewContent" v-html="problemContent"></div>
@@ -254,7 +254,7 @@ watch(problem, () => {
 .problemViewSubtitle {
     display: flex;
     width: calc(100% - 16px);
-    justify-content: space-between;
+    flex-direction: column;
     padding: 8px 8px;
     margin-bottom: 8px;
     border-radius: 8px;
