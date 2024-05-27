@@ -44,6 +44,7 @@ watch(() => accountManager.displayName, () => {
 });
 serverConnection.ondisconnect(() => {
     name.value = 'Not signed in';
+    glitchTextTransition(buttonText.value, 'Sign in', (text) => { buttonText.value = text; }, 40, 1, 10, 2).promise;
 });
 </script>
 

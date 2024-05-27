@@ -221,8 +221,7 @@ export class Database {
             }
             return null;
         } catch (err) {
-            this.logger.error('Database error (getAccountList):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (getAccountList):', err);
             return null;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountList in ${performance.now() - startTime}ms`, true);
@@ -272,8 +271,7 @@ export class Database {
             this.logger.info(`Created account "${username}"`, true);
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (createAccount):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (createAccount):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`createAccount in ${performance.now() - startTime}ms`, true);
@@ -299,8 +297,7 @@ export class Database {
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (checkAccount):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (checkAccount):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`checkAccount in ${performance.now() - startTime}ms`, true);
@@ -350,8 +347,7 @@ export class Database {
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (getAccountData):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (getAccountData):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountData in ${performance.now() - startTime}ms`, true);
@@ -377,8 +373,7 @@ export class Database {
             });
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (updateAccountData):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (updateAccountData):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`updateAccountData in ${performance.now() - startTime}ms`, true);
@@ -403,8 +398,7 @@ export class Database {
             // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (changeAccountPassword):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (changeAccountPassword):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`changeAccountPassword in ${performance.now() - startTime}ms`, true);
@@ -433,8 +427,7 @@ export class Database {
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (changeAccountPassword):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (changeAccountPasswordToken):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
@@ -482,8 +475,7 @@ export class Database {
                 return AccountOpResult.SUCCESS;
             }
         } catch (err) {
-            this.logger.error('Database error (deleteAccount):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (deleteAccount):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteAccount in ${performance.now() - startTime}ms`, true);
@@ -504,8 +496,7 @@ export class Database {
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (getRecoveryPassword):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (getRecoveryPassword):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getRecoveryPassword in ${performance.now() - startTime}ms`, true);
@@ -524,8 +515,7 @@ export class Database {
             if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             return AccountOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (rotateRecoveryPassword):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (rotateRecoveryPassword):', err);
             return AccountOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
@@ -545,8 +535,7 @@ export class Database {
             if (data == AccountOpResult.ERROR) return TeamOpResult.ERROR;
             return data.team;
         } catch (err) {
-            this.logger.error('Database error (getAccountTeam):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (getAccountTeam):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountTeam in ${performance.now() - startTime}ms`, true);
@@ -586,8 +575,7 @@ export class Database {
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (setAccountTeam):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (setAccountTeam):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`setAccountTeam in ${performance.now() - startTime}ms`, true);
@@ -625,8 +613,7 @@ export class Database {
             }
             return TeamOpResult.NOT_EXISTS;
         } catch (err) {
-            this.logger.error('Database error (getTeamData):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (getTeamData):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getTeamData in ${performance.now() - startTime}ms`, true);
@@ -654,8 +641,7 @@ export class Database {
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (updateTeamData):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (updateTeamData):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`updateTeamData in ${performance.now() - startTime}ms`, true);
@@ -691,8 +677,7 @@ export class Database {
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (registerContest):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (registerContest):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`registerContest in ${performance.now() - startTime}ms`, true);
@@ -722,8 +707,7 @@ export class Database {
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (unregisterContest):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (unregisterContest):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`unregisterContest in ${performance.now() - startTime}ms`, true);
@@ -741,8 +725,7 @@ export class Database {
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             return TeamOpResult.SUCCESS;
         } catch (err) {
-            this.logger.error('Database error (unregisterAllContests):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (unregisterAllContests):', err);
             return TeamOpResult.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`unregisterAllContests in ${performance.now() - startTime}ms`, true);
@@ -768,8 +751,7 @@ export class Database {
             });
             return data.rows.length > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
-            this.logger.error('Database error (hasPerms):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (hasPerms):', err);
             return false;
         } finally {
             if (config.debugMode) this.logger.debug(`hasPerms in ${performance.now() - startTime}ms`, true);
@@ -822,8 +804,7 @@ export class Database {
             }
             return contests;
         } catch (err) {
-            this.logger.error('Database error (readContests):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (readContests):', err);
             return null;
         } finally {
             if (config.debugMode) this.logger.debug(`readContests in ${performance.now() - startTime}ms`, true);
@@ -846,8 +827,7 @@ export class Database {
             });
             return true;
         } catch (err) {
-            this.logger.error('Database error (writeContest):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (writeContest):', err);
             return false;
         } finally {
             if (config.debugMode) this.logger.debug(`writeContest in ${performance.now() - startTime}ms`, true);
@@ -903,8 +883,7 @@ export class Database {
             }
             return rounds;
         } catch (err) {
-            this.logger.error('Database error (readRounds):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (readRounds):', err);
             return null;
         } finally {
             if (config.debugMode) this.logger.debug(`readRounds in ${performance.now() - startTime}ms`, true);
@@ -927,8 +906,7 @@ export class Database {
             });
             return true;
         } catch (err) {
-            this.logger.error('Database error (writeRound):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (writeRound):', err);
             return false;
         } finally {
             if (config.debugMode) this.logger.debug(`writeRound in ${performance.now() - startTime}ms`, true);
@@ -995,8 +973,7 @@ export class Database {
             }
             return problems;
         } catch (err) {
-            this.logger.error('Database error (readProblems):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (readProblems):', err);
             return null;
         } finally {
             if (config.debugMode) this.logger.debug(`readProblems in ${performance.now() - startTime}ms`, true);
@@ -1019,8 +996,7 @@ export class Database {
             });
             return true;
         } catch (err) {
-            this.logger.error('Database error (writeProblem):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (writeProblem):', err);
             return false;
         } finally {
             if (config.debugMode) this.logger.debug(`writeProblem in ${performance.now() - startTime}ms`, true);
@@ -1085,8 +1061,7 @@ export class Database {
             }
             return submissions;
         } catch (err) {
-            this.logger.error('Database error (readSubmissions):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (readSubmissions):', err);
             return null;
         } finally {
             if (config.debugMode) this.logger.debug(`readSubmissions in ${performance.now() - startTime}ms`, true);
@@ -1100,10 +1075,11 @@ export class Database {
     async writeSubmission(submission: Submission): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const existing = await this.#db.query('SELECT time, history FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
+            const existing = await this.#db.query('SELECT time, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
+            console.log(existing)
             if (existing.rows.length > 0) {
                 const history: { time: number, scores: Score[] }[] = JSON.parse(existing.rows[0].history);
-                history.push({ time: existing.rows[0].time, scores: JSON.parse(existing.rows[0].scores) });
+                history.push({ time: existing.rows[0].time, scores: existing.rows[0].scores == null ? null : JSON.parse(existing.rows[0].scores) });
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);
@@ -1122,8 +1098,7 @@ export class Database {
             }
             return true;
         } catch (err) {
-            this.logger.error('Database error (writeSubmission):');
-            this.logger.error('' + err);
+            this.logger.handleError('Database error (writeSubmission):', err);
             return false;
         } finally {
             if (config.debugMode) this.logger.debug(`writeSubmission in ${performance.now() - startTime}ms`, true);

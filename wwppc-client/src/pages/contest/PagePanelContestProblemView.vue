@@ -143,9 +143,9 @@ const submitUpload = async () => {
     }
     const status = await contestManager.updateSubmission(problem.value.id, (languageDropdown.value.value as string), await file.text());
     if (status != ContestUpdateSubmissionResult.SUCCESS) {
-        modal.showModal({ title: 'Could not submit', content: getUpdateSubmissionMessage(status) })
+        modal.showModal({ title: 'Could not submit', content: getUpdateSubmissionMessage(status), color: 'red' })
     } else {
-        modal.showModal({ title: 'Submission uploaded', content: 'Grading will happen soon' });
+        modal.showModal({ title: 'Submission uploaded', content: 'Grading will happen soon', color: 'lime' });
     }
 };
 
