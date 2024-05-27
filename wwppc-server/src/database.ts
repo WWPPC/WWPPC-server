@@ -981,7 +981,7 @@ export class Database {
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        cases: problem.cases,
+                        cases: JSON.parse(problem.cases),
                         constraints: problem.constraints,
                         hidden: problem.hidden,
                         archived: problem.archived
