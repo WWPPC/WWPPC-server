@@ -37,7 +37,7 @@ const attemptConnect = () => {
     });
 };
 
-let handshakeResolve: (v: any) => void = () => { };1
+let handshakeResolve: (v: any) => void = () => { };
 let loginResolve: (v: any) => void = () => { };
 const state = reactive<{
     handshakeComplete: boolean
