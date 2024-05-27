@@ -154,6 +154,9 @@ const router = useRouter();
                             <p>
                                 The practice contest will be open all day. If you wish to enter the practice, you <b>MUST</b> <a href="/account/registrations" target="_blank">register</a> for the practice contest <b>1 day</b> before the actual contest!
                             </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
+                            </p>
                         </MultipanePane>
                         <MultipanePane for="openingCeremonies">
                             <GlitchText text="Opening Ceremonies" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
@@ -168,17 +171,26 @@ const router = useRouter();
                             <p>
                                 We'll give more details and instructions on the contest format there.
                             </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
+                            </p>
                         </MultipanePane>
                         <MultipanePane for="round1">
                             <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 1 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
+                            </p>
                         </MultipanePane>
                         <MultipanePane for="round2">
                             <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                            </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
                         <MultipanePane for="lunch">
@@ -188,11 +200,17 @@ const router = useRouter();
                                 <br><br>
                                 However, be ready to resume the contest <b>10 minutes</b> before the break ends! The contest will resume <b>IMMEDIATELY</b> after lunch!
                             </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
+                            </p>
                         </MultipanePane>
                         <MultipanePane for="round3">
                             <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 3 is 70 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                            </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
                         <MultipanePane for="sponsors">
@@ -201,6 +219,9 @@ const router = useRouter();
                                 We will be hosting some events by our sponsors!
                                 <br><br>
                                 During this time, we will also finalize scores and determine the standings.
+                            </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
                         <MultipanePane for="closingCeremonies">
@@ -215,6 +236,9 @@ const router = useRouter();
                             </div>
                             <p>
                                 We will announce the winners and prizes for each division before closing off the contest.
+                            </p>
+                            <p style="font-size: var(--font-16)">
+                                <i>All times are in Eastern Standard Time (daylight savings)</i>
                             </p>
                         </MultipanePane>
                     </MultipanePaneContainer>
