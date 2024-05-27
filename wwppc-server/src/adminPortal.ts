@@ -86,7 +86,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.json(data);
     });
     app.get('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
-        if (req.body.username == undefined) {
+        if (req.body == undefined || req.body.username == undefined) {
             res.sendStatus(400);
             return;
         }
@@ -96,7 +96,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.json(data);
     });
     app.post('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
-        if ([req.body.username, req.body.firstName, req.body.lastName, req.body.displayName, req.body.profileImage, req.body.school, req.body.grade, req.body.experience, req.body.languages, req.body.bio, req.body.registrations, req.body.team].some((v) => v == undefined)) {
+        if (req.body == undefined || [req.body.username, req.body.firstName, req.body.lastName, req.body.displayName, req.body.profileImage, req.body.school, req.body.grade, req.body.experience, req.body.languages, req.body.bio, req.body.registrations, req.body.team].some((v) => v == undefined)) {
             res.sendStatus(400);
             return;
         }
@@ -104,7 +104,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         defaultResponseMapping(res, stat);
     });
     app.post('/admin/api/accountTeam/', bodyParser.json(), async (req, res) => {
-        if (req.body.team == undefined) {
+        if (req.body == undefined || req.body.team == undefined) {
             res.sendStatus(400);
             return;
         }

@@ -238,7 +238,7 @@ export class ContestHost {
     #data: ContestContest;
     #index: number = 0;
     readonly #sid: string;
-    #updateLoop = undefined;
+    #updateLoop: NodeJS.Timeout | undefined = undefined;
 
     readonly #users: Map<string, Set<ServerSocket>> = new Map();
 
@@ -277,6 +277,7 @@ export class ContestHost {
      */
     async reload(): Promise<void> {
         this.logger.info(`Reloading contest data "${this.id}"`);
+        clearInterval(this.#updateLoop);
         const contest = await this.db.readContests(this.id);
         if (contest == null || contest.length == 0) {
             if (contest == null) this.logger.error(`Database error`);
@@ -305,7 +306,9 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
-
+        this.#updateLoop = setInterval(() => {
+            
+        }, 50);
     }
 
     /**
