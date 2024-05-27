@@ -142,7 +142,6 @@ export const useContestManager = defineStore('contestManager', {
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('contestData', (data: Contest) => {
         state.contest = data;
-        console.log(data)
     });
     const serverConnection = useServerConnection();
     serverConnection.ondisconnect(() => {
