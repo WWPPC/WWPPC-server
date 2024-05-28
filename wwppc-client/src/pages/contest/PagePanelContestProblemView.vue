@@ -175,9 +175,10 @@ watch(problem, () => {
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
                     <h3>Submit</h3>
-                    <div style="text-align: justify;">
+                    <p style="text-align: justify; font-size: var(--font-small);">
                         Submissions are not graded until the round is over, but you can update your submission at any time during a round.
-                    </div>
+                        <i>Java and Python submissions have double the stated time limit.</i>
+                    </p>
                 </div>
                 <br>
                 <form class="problemViewSubmitForm" action="javascript:void(0)">

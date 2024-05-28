@@ -127,24 +127,19 @@ export class WwppcGrader extends Grader {
                 return;
             }
 
-            try {
-                if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
-                    return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
-                })) {
-                    res.sendStatus(400);
-                    return;
-                }
-                node.grading.scores = (req.body.scores as Score[]).map<Score>((s) => ({
-                    state: s.state,
-                    time: s.time,
-                    memory: s.memory,
-                    subtask: s.subtask
-                }));
-            } catch {
+            if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
+                return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
+            })) {
                 res.sendStatus(400);
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
                 return;
             }
+            node.grading.scores = (req.body.scores as Score[]).map<Score>((s) => ({
+                state: s.state,
+                time: s.time,
+                memory: s.memory,
+                subtask: s.subtask
+            }));
 
             this.#gradedSubmissions.push(node.grading);
 
