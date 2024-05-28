@@ -47,6 +47,9 @@ async function load() {
         let updateButton = document.createElement("button");
         updateButton.className = "updateButton";
         updateButton.textContent = "UPDATE"
+        // on button click update everything
+        // updateButton.onclick = console.log('CLICKED')
+        updateButton.onclick = () => modify(problems.id, nameDiv.textContent, nameDiv2.textContent, textarea.textContent, problems.constraints);
         updateButtonData.appendChild(updateButton)
 
 
@@ -56,8 +59,6 @@ async function load() {
         row.appendChild(updateButtonData);
 
 
-
-
         problemRows.push(row);
     }
 
@@ -65,6 +66,34 @@ async function load() {
     for(const row of problemRows) {
         table.appendChild(row);
     }
+}
+
+function modify(id, name, author, content, constraints) {
+    // logging input
+    console.log('MODIFIED');
+    console.log(JSON.stringify({
+        id: id,
+        name: name,
+        author: author,
+        content: content,
+        constraints: constraints
+    }));
+
+    // post request
+    fetch('/admin/api/problemList', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: id,
+            name: name,
+            author: author,
+            content: content,
+            constraints: constraints
+        })
+    }).then((response) => response.json())
+        .then((json) => console.log(json))
 }
 
 window.addEventListener('load', load);
