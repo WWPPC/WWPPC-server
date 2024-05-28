@@ -549,11 +549,11 @@ Promise.all([database.connectPromise, mailer.ready]).then(() => {
     logger.info(`Listening to port ${config.port}`);
 });
 
-const stopServer = async () => {
+const stopServer = async (code: number) => {
     logger.info('Stopping server...');
     let actuallyStop = () => {
         logger.info('[!] Forced server close! Skipped waiting for shutdown! [!]');
-        process.exit();
+        process.exit(code);
     };
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
@@ -564,12 +564,11 @@ const stopServer = async () => {
     contestManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
     logger.destroy();
-    process.exit();
+    process.exit(code);
 };
-process.on('SIGTERM', stopServer);
-process.on('SIGQUIT', stopServer);
-process.on('SIGINT', stopServer);
-process.on('SIGILL', stopServer);
+process.on('SIGTERM', () => stopServer(0));
+process.on('SIGQUIT', () => stopServer(0));
+process.on('SIGINT', () => stopServer(0));
 
 const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) => {
     if (err instanceof Error) {
@@ -577,7 +576,7 @@ const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) 
         if (err.stack) logger.fatal(err.stack);
     } else if (err != undefined) logger.fatal(err);
     if (typeof origin == 'string') logger.fatal(origin);
-    stopServer();
+    stopServer(1);
 };
 process.on('uncaughtException', handleUncaughtError);
 process.on('unhandledRejection', handleUncaughtError);
