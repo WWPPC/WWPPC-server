@@ -34,12 +34,13 @@ export class WwppcGrader extends Grader {
         this.app.get('/judge/get-work', async (req, res) => {
             //fetch work from the server
             const username = this.#getAuth(req);
-            if (config.debugMode) this.logger.debug(`get-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                if (config.debugMode) this.logger.debug(`get-work: ${req.ip} - 401`, true);
                 return;
             } else if (typeof username == 'number') {
                 res.sendStatus(username);
+                if (config.debugMode) this.logger.debug(`get-work: ${req.ip} - ${username}`, true);
                 return;
             }
 
@@ -50,17 +51,19 @@ export class WwppcGrader extends Grader {
                     deadline: -1,
                     lastCommunication: Date.now()
                 });
-                this.logger.info('New grader connection: ' + username);
+                this.logger.info(`New grader connection: ${username} (${req.ip})`);
             }
             const node: GraderNode = this.#nodes.get(username)!;
             if (node.grading == undefined) {
                 node.grading = this.#ungradedSubmissions.shift();
                 if (node.grading == undefined) {
                     res.json(null);
+                    if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, no work`, true);
                     return;
                 }
             } else {
                 res.sendStatus(409);
+                if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 409, cannot get work with unfinished work`, true);
                 return;
             }
             const problems = await this.db.readProblems({ id: node.grading.problemId });
@@ -74,23 +77,25 @@ export class WwppcGrader extends Grader {
                 constraints: problems[0].constraints
             });
             node.lastCommunication = Date.now();
-            if (config.debugMode) logger.debug('Sending task to grader ' + node.username, true);
+            if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, work sent`, true);
         });
         this.app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
             const username = this.#getAuth(req);
-            if (config.debugMode) this.logger.debug(`return-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                if (config.debugMode) this.logger.debug(`return-work: ${req.ip} - 401`, true);
                 return;
             } else if (typeof username == 'number') {
                 res.sendStatus(username);
+                if (config.debugMode) this.logger.debug(`return-work: ${req.ip} - ${username}`, true);
                 return;
             }
 
             const node = this.#nodes.get(username);
             if (node == undefined || node.grading == undefined) {
                 res.sendStatus(409);
+                if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
             }
 
@@ -98,25 +103,27 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
-            if (config.debugMode) logger.debug('Returned work from grader ' + node.username, true);
+            if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 200, returned work`, true);
         });
         this.app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
             const username = this.#getAuth(req);
-            if (config.debugMode) this.logger.debug(`finish-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
+                if (config.debugMode) this.logger.debug(`finish-work: ${req.ip} - 401`, true);
                 return;
             } else if (typeof username == 'number') {
                 res.sendStatus(username);
+                if (config.debugMode) this.logger.debug(`finish-work: ${req.ip} - ${username}`, true);
                 return;
             }
 
             const node = this.#nodes.get(username);
             if (node == undefined || node.grading == undefined) {
                 res.sendStatus(409);
+                if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
             }
 
@@ -135,6 +142,7 @@ export class WwppcGrader extends Grader {
                 }));
             } catch {
                 res.sendStatus(400);
+                if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
                 return;
             }
 
@@ -143,7 +151,7 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
-            if (config.debugMode) logger.debug('Finished work from grader ' + node.username, true);
+            if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 200, finished work`, true);
         });
 
         // reserve /judge path

@@ -176,8 +176,7 @@ watch(problem, () => {
                 <div style="text-align: center;">
                     <h3>Submit</h3>
                     <div style="text-align: justify;">
-                        Submissions are not graded until the round is over, but you can update your submission at any
-                        time.
+                        Submissions are not graded until the round is over, but you can update your submission at any time during a round.
                     </div>
                 </div>
                 <br>

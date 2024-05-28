@@ -1370,7 +1370,8 @@ export enum ScoreState {
     INCORRECT = 2,
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
-    RUNTIME_ERROR = 5
+    RUNTIME_ERROR = 5,
+    COMPILE_ERROR = 6
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
