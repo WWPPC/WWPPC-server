@@ -19,7 +19,7 @@ const contestManager = useContestManager();
 const modal = globalModal();
 
 // placeholder data behind loading cover
-let problem = ref<ContestProblem>({
+const problem = ref<ContestProblem>({
     id: 'loading',
     contest: 'WWPIT Loading Contest',
     round: 0,
