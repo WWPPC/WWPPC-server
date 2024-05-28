@@ -21,7 +21,7 @@ watch(html, () => {
             <UITextArea v-model="html" resize="none" class="big"></UITextArea>
         </TitledCutCornerContainer>
         <TitledCutCornerContainer title="Rendered">
-            <div v-html="rendered"></div>
+            <div v-html="rendered" class="render"></div>
         </TitledCutCornerContainer>
     </div>
 </template>
@@ -40,5 +40,10 @@ watch(html, () => {
     height: calc(100% - 4px);
     margin: 0px 0px;
     border: none;
+}
+
+.render {
+    font-size: var(--font-small);
+    text-align: justify;
 }
 </style>

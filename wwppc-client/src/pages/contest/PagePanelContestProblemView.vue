@@ -266,6 +266,7 @@ watch(problem, () => {
 
 .problemViewContent {
     font-size: var(--font-small);
+    text-align: justify;
 }
 
 .problemViewSubmitForm {
