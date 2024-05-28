@@ -135,12 +135,7 @@ const handleUpload = () => {
     }
 };
 const submitUpload = async () => {
-    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '') {
-        modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
-        return;
-    }
-    if (fileUpload.value == null || fileUpload.value.files == null) {
-        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '' || fileUpload.value == null || fileUpload.value.files == null) {
         return;
     }
     const file = fileUpload.value.files.item(0);
@@ -193,7 +188,7 @@ watch(problem, () => {
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a }))" required></UIDropdown>
                     </div>
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null"></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null || contestManager.contest == null || contestManager.contest.rounds[problem.round].startTime > Date.now() || contestManager.contest.rounds[problem.round].endTime <= Date.now()"></UIButton>
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>

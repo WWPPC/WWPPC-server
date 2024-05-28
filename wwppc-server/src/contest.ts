@@ -523,7 +523,7 @@ export class ContestHost {
                 lang: data.lang,
                 time: Date.now()
             };
-            // tell grader to grade
+            this.grader.queueUngraded(submission);            
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
