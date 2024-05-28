@@ -67,13 +67,11 @@ export class WwppcGrader extends Grader {
                 return;
             }
             const problems = await this.db.readProblems({ id: node.grading.submission.problemId });
-            if (problems == null || problems.length != 1) {
-                return;
-            }
+            if (problems == null || problems.length != 1) return;
             res.json({
+                problemId: node.grading.submission.problemId,
                 file: node.grading.submission.file,
                 lang: node.grading.submission.lang,
-                cases: problems[0].cases,
                 constraints: problems[0].constraints
             });
             if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, work sent`, true);

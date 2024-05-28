@@ -39,7 +39,10 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = new WwppcGrader(app, logger, db);
+        let reading = false;
         this.#updateLoop = setInterval(async () => {
+            if (reading) return;
+            reading = true;
             // start any contests that haven't been started
             const contests = await this.db.readContests();
             if (contests == null) {
@@ -53,6 +56,7 @@ export class ContestManager {
                     host.onended(() => this.#contests.delete(contest.id));
                 }
             }
+            reading = false;
         }, 10000);
     }
 

@@ -92,7 +92,7 @@ export class Database {
             });
             if (global.gc) global.gc();
             if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
-        }, 60000);
+        }, 300000);
     }
 
     /**
@@ -755,8 +755,8 @@ export class Database {
      */
     async finishContest(contest: string): Promise<boolean> {
         const startTime = performance.now();
-        try {
-            // const teams = await
+        try { 
+            await this.#db.query('(SELECT username FROM )')
             return true;
         } catch (err) {
             this.logger.handleError('Database error (finishContest):', err);
@@ -993,7 +993,6 @@ export class Database {
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        cases: JSON.parse(problem.cases),
                         constraints: problem.constraints,
                         hidden: problem.hidden,
                         archived: problem.archived
@@ -1021,9 +1020,9 @@ export class Database {
     async writeProblem(problem: Problem): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.cases), JSON.stringify(problem.constraints), problem.hidden, problem.archived];
-            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
+            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.hidden, problem.archived];
+            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5, hidden=$6, archived=$7 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7)', data);
             this.#problemCache.set(problem.id, {
                 problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
@@ -1345,8 +1344,6 @@ export interface Problem {
     author: string
     /**HTML/KaTeX content of problem statement */
     content: string
-    /**List of test cases */
-    cases: TestCase[]
     /**Runtime constraints */
     constraints: {
         /**Time limit per test case in millseconds */
@@ -1358,15 +1355,6 @@ export interface Problem {
     hidden: boolean
     /**Archival status - can be fetched through API instead */
     archived: boolean
-}
-/**Descriptor for a single test case */
-export interface TestCase {
-    /**Input string */
-    input: string
-    /**Correct output string */
-    output: string,
-    /**Denotes which subtask to be part of */
-    subtask: number
 }
 /**Descriptor for a single submission */
 export interface Submission {

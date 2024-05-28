@@ -1,3 +1,5 @@
+const table = document.getElementById("pTable");
+
 async function load() {
     console.log('Loaded')
     const response = await fetch('/admin/api/problemList');
@@ -11,7 +13,8 @@ async function load() {
     const problemData = await response.json();
     console.log(problemData);
 
-    const problemRows = [];
+    // clear out the existing table and put some headers in
+    table.innerHTML = '<tr><th>UUID</th><th>Name</th><th>Author</th></tr>'
 
     for (const problems of problemData) {
         // table row
@@ -56,12 +59,6 @@ async function load() {
         row.appendChild(problemText);
         row.appendChild(updateButtonData);
 
-
-        problemRows.push(row);
-    }
-
-    const table = document.getElementById("pTable");
-    for(const row of problemRows) {
         table.appendChild(row);
     }
 }

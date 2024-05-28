@@ -18,11 +18,12 @@ export class Scorer {
 
     constructor(problems: Problem[], round: Round) {
         this.round = round;
-        for (const problem of problems) {
-            for (const testCase of problem.cases) {
-                this.subtasks.add(problem.id+testCase.subtask);
-            }
-        }
+        // GET SUBTASKS WHILE GRADING INSTEAD
+        // for (const problem of problems) {
+        //     for (const testCase of problem.cases) {
+        //         this.subtasks.add(problem.id+testCase.subtask);
+        //     }
+        // }
     }
     
     /**
