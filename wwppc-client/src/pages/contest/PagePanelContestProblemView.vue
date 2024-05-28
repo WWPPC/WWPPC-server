@@ -94,9 +94,6 @@ onMounted(async () => {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
 });
-contestManager.onSubmissionStatus(({ status }) => {
-    submissions.value = [status];
-});
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);

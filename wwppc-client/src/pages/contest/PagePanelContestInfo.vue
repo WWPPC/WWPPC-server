@@ -290,7 +290,7 @@ const router = useRouter();
                         <li>Teams of up to 4 will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
                         <li>Ties will be broken by time submitted</li>
                         <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
-                        <li>Any resource is allowed as long as it was made before the beginning of the contest</li>
+                        <li>Any resource is allowed as long as it was made before the contest (this <i>EXCLUDES</i> things like ChatGPT - textbooks, documentation, USACO.guide, etc. are allowed. PLEASE DO NOT plagiarize!!!)</li>
                     </ul>
                     </p>
                 </TitledCollapsible>

@@ -17,8 +17,7 @@ export class WwppcGrader extends Grader {
     readonly db: Database;
     #password: string;
 
-    #ungradedSubmissions: Submission[] = [];
-
+    #ungradedSubmissions: SubmissionWithCallback[] = [];
     #gradedSubmissions: Submission[] = [];
 
     constructor(app: Express, logger: Logger, db: Database) {
@@ -67,13 +66,13 @@ export class WwppcGrader extends Grader {
                 if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 409, cannot get work with unfinished work`, true);
                 return;
             }
-            const problems = await this.db.readProblems({ id: node.grading.problemId });
+            const problems = await this.db.readProblems({ id: node.grading.submission.problemId });
             if (problems == null || problems.length != 1) {
                 return;
             }
             res.json({
-                file: node.grading.file,
-                lang: node.grading.lang,
+                file: node.grading.submission.file,
+                lang: node.grading.submission.lang,
                 cases: problems[0].cases,
                 constraints: problems[0].constraints
             });
@@ -135,14 +134,19 @@ export class WwppcGrader extends Grader {
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
                 return;
             }
-            node.grading.scores = (req.body.scores as Score[]).map<Score>((s) => ({
+            node.grading.submission.scores = (req.body.scores as Score[]).map<Score>((s) => ({
                 state: s.state,
                 time: s.time,
                 memory: s.memory,
                 subtask: s.subtask
             }));
 
-            this.#gradedSubmissions.push(node.grading);
+            this.#gradedSubmissions.push(node.grading.submission);
+            try {
+                if (node.grading.callback) node.grading.callback(node.grading.submission);
+            } catch (err) {
+                this.logger.handleError('Error occured in submission callback:', err);
+            }
 
             node.grading = undefined;
             res.sendStatus(200);
@@ -174,13 +178,33 @@ export class WwppcGrader extends Grader {
         }, 5000);
     }
 
-    queueUngraded(submission: Submission) {
-        this.#ungradedSubmissions.push(submission); //pretend it's graded for testing purposes
+    queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
+        this.#ungradedSubmissions.push({
+            submission,
+            callback: cb
+        });
         if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`, true);
     }
-    cancelUngraded(username: string, problemId: string): Promise<void> {
-        throw new Error('Method not implemented.');
-        //you also have to tell the judgehost running this submission to stop!
+    cancelUngraded(username: string, problemId: string): boolean {
+        let i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
+        if (i != -1) {
+            let canceled = 0;
+            while (i != -1) {
+                if (this.#ungradedSubmissions[i].callback) {
+                    try {
+                        this.#ungradedSubmissions[i].callback!(null);
+                    } catch (err) {
+                        this.logger.handleError('Error occured in submission callback:', err);
+                    }
+                }
+                this.#ungradedSubmissions.splice(i, 1);
+                i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
+                canceled++;
+            }
+            if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions by ${username} for ${problemId}`);
+            return true;
+        }
+        return false;
     }
     get gradedList(): Submission[] {
         return this.#gradedSubmissions;
@@ -209,12 +233,17 @@ export class WwppcGrader extends Grader {
     }
 }
 
+export interface SubmissionWithCallback {
+    submission: Submission
+    callback?: (graded: Submission | null) => any
+}
+
 /**Represents a grader server */
 export interface GraderNode {
     /**Username */
     username: string
     /**Submission that is being graded */
-    grading: Submission | undefined
+    grading: SubmissionWithCallback | undefined
     /**Deadline to return the submission (unix ms) */
     deadline: number
     /**Last time we communicated with this judgehost (unix ms) */

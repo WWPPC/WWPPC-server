@@ -471,7 +471,9 @@ export class ContestHost {
      * Add a username-linked SocketIO connection to the user list.
      * @param {ServerSocket} socket SocketIO connection (with modifications)
      */
-    addSocket(socket: ServerSocket): void {
+    addSocket(s: ServerSocket): void {
+        const socket = s;
+
         if (this.#users.has(socket.username)) this.#users.get(socket.username)!.add(socket);
         else this.#users.set(socket.username, new Set([socket]));
         socket.join(this.#sid);
@@ -523,12 +525,15 @@ export class ContestHost {
                 lang: data.lang,
                 time: Date.now()
             };
+            // make sure no grading spam
+            this.grader.cancelUngraded(socket.username, data.id);
             this.grader.queueUngraded(submission);            
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             respond(ContestUpdateSubmissionResult.SUCCESS);
+            this.updateUser(socket.username);
         });
 
         this.updateUser(socket.username);

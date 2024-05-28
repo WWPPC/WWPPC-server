@@ -24,7 +24,7 @@ export interface DatabaseConstructorParams {
 
 /**
  * PostgreSQL database connection for handling account operations and storage of contest data, including problems and submissions.
- * Very inefficient.
+ * Has a short-term cache to reduce repetitive database calls.
  */
 export class Database {
     /**
@@ -42,6 +42,7 @@ export class Database {
     #publicKey: webcrypto.JsonWebKey | undefined;
     readonly logger: NamedLogger;
     readonly mailer: Mailer;
+    readonly #cacheGarbageCollector: NodeJS.Timeout;
 
     /**
      * @param params Parameters
@@ -79,6 +80,18 @@ export class Database {
             this.logger.destroy();
             process.exit(1);
         });
+        this.#cacheGarbageCollector = setInterval(() => {
+            let emptied = 0;
+            [this.#userCache, this.#teamCache, this.#adminCache, this.#contestCache, this.#roundCache, this.#problemCache, this.#submissionCache].forEach((cache) => {
+                cache.forEach((item: { expiration: number }, key: string) => {
+                    if (item.expiration <= performance.now()) {
+                        cache.delete(key);
+                        emptied++;
+                    }
+                });
+            });
+            if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
+        }, 60000);
     }
 
     /**
@@ -137,6 +150,8 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
+        clearInterval(this.#cacheGarbageCollector);
+        this.clearCache();
         await this.#db.end();
     }
 
@@ -153,11 +168,11 @@ export class Database {
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
-            // } else if (typeof value == 'object' && value != null) {
-            //     if (value.op == '><' || value.op == '<>') {
-            //     } else {
-            //         value.v
-            //     }
+                // } else if (typeof value == 'object' && value != null) {
+                //     if (value.op == '><' || value.op == '<>') {
+                //     } else {
+                //         value.v
+                //     }
             } else if (value != null) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
@@ -589,6 +604,8 @@ export class Database {
     async getTeamData(username: string): Promise<TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
+            if (this.#teamCache.has(username) && this.#teamCache.get(username)!.expiration < performance.now()) this.#teamCache.delete(username);
+            if (this.#teamCache.has(username)) return this.#teamCache.get(username)!.data;
             const data = await this.#db.query(
                 'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
                 username
@@ -1115,6 +1132,7 @@ export class Database {
         this.#roundCache.clear();
         this.#problemCache.clear();
         this.#submissionCache.clear();
+        if (config.debugMode) this.logger.debug('Cache cleared');
     }
 }
 export default Database;

@@ -7,13 +7,13 @@ import Database, { Problem, Round, Score, ScoreState, Submission } from "./datab
  */
 export class Scorer {
 
-    //format: problemId.concat(subtask.toString())
-    //ex: "5d31e716-474b-4f7b-9a9a-bf43e444c79b" + "1"
+    // format: problemId.concat(subtask.toString())
+    // ex: "5d31e716-474b-4f7b-9a9a-bf43e444c79b" + "1"
     readonly subtasks: Set<string> = new Set();
     readonly round: Round;
 
     users: Map<string, Map<string, number>> = new Map();
-    //leaderboard is cached, when a user is updated it is cleared
+    // leaderboard is cached, when a user is updated it is cleared
     leaderboard: Map<string, number> | undefined = undefined;
 
     constructor(problems: Problem[], round: Round) {
@@ -31,7 +31,7 @@ export class Scorer {
      * @param {Submission} submission the submission (with COMPLETE SCORES)
      * @returns {Boolean} whether it was successful
      */
-    editUser(submission: Submission): Boolean {
+    updateUser(submission: Submission): Boolean {
         const userScores = new Map<string, number>();
         const subtasks = new Set<number>();
         for (const score of submission.scores) {
