@@ -47,7 +47,7 @@ async function load() {
         updateButton.textContent = "UPDATE"
         // on button click update everything
         // updateButton.onclick = console.log('CLICKED')
-        updateButton.onclick = () => modify(problems.id, nameDiv.textContent, nameDiv2.textContent, textarea.textContent, problems.constraints);
+        updateButton.onclick = () => modify(problems.id, nameDiv.textContent, nameDiv2.textContent, textarea.textContent, problems.cases, problems.constraints, problems.hidden, problems.archived);
         updateButtonData.appendChild(updateButton)
 
 
@@ -66,7 +66,7 @@ async function load() {
     }
 }
 
-function modify(id, name, author, content, constraints) {
+function modify(id, name, author, content, testCases, constraints, hidden, archived) {
     // logging input
     console.log('MODIFIED');
     console.log(JSON.stringify({
@@ -78,7 +78,7 @@ function modify(id, name, author, content, constraints) {
     }));
 
     // post request
-    fetch('/admin/api/problemList', {
+    fetch('/admin/api/problemData', {
         method: 'POST',
         headers: {
             "Content-Type": "application/json"
@@ -88,7 +88,10 @@ function modify(id, name, author, content, constraints) {
             name: name,
             author: author,
             content: content,
-            constraints: constraints
+            cases: testCases,
+            constraints: constraints,
+            hidden: hidden,
+            archived: archived
         })
     }).then((response) => response.json())
         .then((json) => console.log(json))
