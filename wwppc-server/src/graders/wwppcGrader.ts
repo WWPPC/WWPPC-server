@@ -54,6 +54,7 @@ export class WwppcGrader extends Grader {
                 this.logger.info(`New grader connection: ${username} (${req.ip})`);
             }
             const node: GraderNode = this.#nodes.get(username)!;
+            node.lastCommunication = Date.now();
             if (node.grading == undefined) {
                 node.grading = this.#ungradedSubmissions.shift();
                 if (node.grading == undefined) {
@@ -76,7 +77,6 @@ export class WwppcGrader extends Grader {
                 cases: problems[0].cases,
                 constraints: problems[0].constraints
             });
-            node.lastCommunication = Date.now();
             if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, work sent`, true);
         });
         this.app.post('/judge/return-work', async (req, res) => {
@@ -98,10 +98,10 @@ export class WwppcGrader extends Grader {
                 if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
             }
+            node.lastCommunication = Date.now();
 
             this.#ungradedSubmissions.unshift(node.grading);
             node.grading = undefined;
-            node.lastCommunication = Date.now();
             res.sendStatus(200);
             if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 200, returned work`, true);
         });
@@ -126,9 +126,10 @@ export class WwppcGrader extends Grader {
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
             }
+            node.lastCommunication = Date.now();
 
             if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
-                return v == undefined || !is_in_enum(v.status, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
+                return v == undefined || !is_in_enum(v.state, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
             })) {
                 res.sendStatus(400);
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
@@ -144,7 +145,6 @@ export class WwppcGrader extends Grader {
             this.#gradedSubmissions.push(node.grading);
 
             node.grading = undefined;
-            node.lastCommunication = Date.now();
             res.sendStatus(200);
             if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 200, finished work`, true);
         });
@@ -153,17 +153,21 @@ export class WwppcGrader extends Grader {
         app.use('/judge/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
-            this.#nodes.forEach(async (user, username) => {
+            this.#nodes.forEach(async (node, username) => {
                 //check if a submission has passed the deadline and return to queue
-                if (user == undefined) return;
-                if (user.grading != undefined && user.deadline < Date.now()) {
-                    this.#ungradedSubmissions.unshift(user.grading);
-                    user.grading = undefined;
-                    this.#nodes.set(username, user);
-                    //if they haven't talked to us in a while let's just assume they disconnected
-                    if (user.lastCommunication + config.graderTimeout < Date.now()) {
-                        this.logger.info('Grader timed out: ' + user.username);
-                        this.#nodes.delete(username);
+                if (node.grading != undefined && node.deadline < Date.now()) {
+                    this.#ungradedSubmissions.unshift(node.grading);
+                    node.grading = undefined;
+                    this.logger.info('Grader timed out (returning to queue): ' + node.username);
+                }
+                //if they haven't talked to us in a while let's just assume they disconnected
+                if (node.lastCommunication + config.graderTimeout < Date.now()) {
+                    this.#nodes.delete(username);
+                    // also return to queue
+                    if (node.grading != undefined) {
+                        this.#ungradedSubmissions.unshift(node.grading);
+                        node.grading = undefined;
+                        this.logger.info('Grader timed out (returning to queue): ' + node.username);
                     }
                 }
             });

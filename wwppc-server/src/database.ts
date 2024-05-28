@@ -1151,7 +1151,7 @@ export function reverse_enum(enumerator, v): string {
     return v;
 }
 export function is_in_enum(v, enumerator): boolean {
-    for (const t of enumerator) if (t === v) return true;
+    for (const k in enumerator) if (enumerator[k] === v) return true;
     return false;
 }
 
