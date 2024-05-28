@@ -139,8 +139,19 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
             <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="16vh"></HomeHomeSponsorLogo>
             <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
         </div>
+        <br>
+        <div class="centered">
+            <GlitchText text="Silver" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
+        </div>
         <div class="sponsors">
-            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="15vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="15vh"></HomeHomeSponsorLogo>
+        </div>
+        <br>
+        <div class="centered">
+            <GlitchText text="Bronze" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
+        </div>
+        <div class="sponsors">
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="8vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="16vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="12vh"></HomeHomeSponsorLogo>
