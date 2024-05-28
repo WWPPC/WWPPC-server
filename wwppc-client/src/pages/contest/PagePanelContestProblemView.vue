@@ -65,6 +65,13 @@ const loadErrorModal = (title: string, content: string) => {
 };
 onMounted(async () => {
     if (route.query.ignore_server !== undefined) return;
+    if (contestManager.contest == null) {
+        await new Promise<void>((resolve) => {
+            watch(() => contestManager.contest, () => {
+                if (contestManager.contest != null) resolve();
+            });
+        });
+    }
     if (route.params.problemId !== undefined) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
@@ -184,7 +191,7 @@ watch(problem, () => {
                         <span>Source code:</span>
                         <UIFileUpload ref="fileUpload" @input=handleUpload accept=".c,.cpp,.py,.java"></UIFileUpload>
                         <span>Language:</span>
-                        <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a}))" required></UIDropdown>
+                        <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a }))" required></UIDropdown>
                     </div>
                     <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null"></UIButton>
                 </form>
