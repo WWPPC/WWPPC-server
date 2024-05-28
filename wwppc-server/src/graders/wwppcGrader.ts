@@ -9,12 +9,12 @@ import Logger, { NamedLogger } from '../log';
 export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)
 
-    #nodes: Map<string, GraderNode> = new Map();
+    readonly #nodes: Map<string, GraderNode> = new Map();
     //value stores the submission that is being graded
 
-    #app: Express;
-    #logger: NamedLogger;
-    #db: Database;
+    readonly app: Express;
+    readonly logger: NamedLogger;
+    readonly db: Database;
     #password: string;
 
     #ungradedSubmissions: Submission[] = [];
@@ -23,18 +23,18 @@ export class WwppcGrader extends Grader {
 
     constructor(app: Express, logger: Logger, db: Database) {
         super();
-        this.#app = app;
-        this.#logger = new NamedLogger(logger, 'WwppcGrader');
-        this.#db = db;
+        this.app = app;
+        this.logger = new NamedLogger(logger, 'WwppcGrader');
+        this.db = db;
         if (typeof process.env.GRADER_PASS != 'string') throw new Error('Missing WwppcGrader password');
         this.#password = process.env.GRADER_PASS;
-        this.#logger.info('Creating WwppcGrader');
+        this.logger.info('Creating WwppcGrader');
         app.use('/judge/*', bodyParser.json());
         // see docs
-        this.#app.get('/judge/get-work', async (req, res) => {
+        this.app.get('/judge/get-work', async (req, res) => {
             //fetch work from the server
             const username = this.#getAuth(req);
-            if (config.debugMode) this.#logger.debug(`get-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (config.debugMode) this.logger.debug(`get-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
@@ -43,13 +43,16 @@ export class WwppcGrader extends Grader {
                 return;
             }
 
-            const node: GraderNode = this.#nodes.get(username) ?? {
-                username: username,
-                grading: undefined,
-                deadline: -1,
-                lastCommunication: Date.now()
-            };
-            this.#nodes.set(username, node);
+            if (!this.#nodes.has(username)) {
+                this.#nodes.set(username, {
+                    username: username,
+                    grading: undefined,
+                    deadline: -1,
+                    lastCommunication: Date.now()
+                });
+                this.logger.info('New grader connection: ' + username);
+            }
+            const node: GraderNode = this.#nodes.get(username)!;
             if (node.grading == undefined) {
                 node.grading = this.#ungradedSubmissions.shift();
                 if (node.grading == undefined) {
@@ -60,7 +63,7 @@ export class WwppcGrader extends Grader {
                 res.sendStatus(409);
                 return;
             }
-            const problems = await this.#db.readProblems({ id: node.grading.problemId });
+            const problems = await this.db.readProblems({ id: node.grading.problemId });
             if (problems == null || problems.length != 1) {
                 return;
             }
@@ -71,11 +74,12 @@ export class WwppcGrader extends Grader {
                 constraints: problems[0].constraints
             });
             node.lastCommunication = Date.now();
+            if (config.debugMode) logger.debug('Sending task to grader ' + node.username, true);
         });
-        this.#app.post('/judge/return-work', async (req, res) => {
+        this.app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
             const username = this.#getAuth(req);
-            if (config.debugMode) this.#logger.debug(`return-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (config.debugMode) this.logger.debug(`return-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
@@ -94,13 +98,14 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
+            if (config.debugMode) logger.debug('Returned work from grader ' + node.username, true);
         });
-        this.#app.post('/judge/finish-work', async (req, res) => {
+        this.app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
             const username = this.#getAuth(req);
-            if (config.debugMode) this.#logger.debug(`finish-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
+            if (config.debugMode) this.logger.debug(`finish-work: ${username}${typeof username == 'string' ? ' (success)': ''}`, true);
             if (username == 401) {
                 res.set('WWW-Authenticate', 'Basic').sendStatus(401);
                 return;
@@ -138,6 +143,7 @@ export class WwppcGrader extends Grader {
             node.grading = undefined;
             node.lastCommunication = Date.now();
             res.sendStatus(200);
+            if (config.debugMode) logger.debug('Finished work from grader ' + node.username, true);
         });
 
         // reserve /judge path
@@ -153,6 +159,7 @@ export class WwppcGrader extends Grader {
                     this.#nodes.set(username, user);
                     //if they haven't talked to us in a while let's just assume they disconnected
                     if (user.lastCommunication + config.graderTimeout < Date.now()) {
+                        this.logger.info('Grader timed out: ' + user.username);
                         this.#nodes.delete(username);
                     }
                 }
@@ -162,6 +169,7 @@ export class WwppcGrader extends Grader {
 
     queueUngraded(submission: Submission) {
         this.#ungradedSubmissions.push(submission); //pretend it's graded for testing purposes
+        if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`, true);
     }
     cancelUngraded(username: string, problemId: string): Promise<void> {
         throw new Error('Method not implemented.');
@@ -176,6 +184,7 @@ export class WwppcGrader extends Grader {
     emptyGradedList(): Submission[] {
         const l = structuredClone(this.#gradedSubmissions);
         this.#gradedSubmissions = [];
+        if (config.debugMode) this.logger.debug('Emptied graded submission list', true);
         return l;
     }
 

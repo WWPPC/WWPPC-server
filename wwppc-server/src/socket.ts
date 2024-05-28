@@ -15,7 +15,7 @@ export interface ServerSocket extends Socket {
 export function createServerSocket(socket: Socket, ip: string, logger: Logger): ServerSocket {
     const s2 = socket as ServerSocket;
     s2.kick = function (reason) {
-        logger.warn(`${this.ip} was kicked for violating restrictions; ${reason}`);
+        this.logWithId(logger.warn, 'Kicked for violating restrictions: ' + reason);
         socket.removeAllListeners();
         socket.disconnect();
     };

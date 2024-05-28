@@ -2,7 +2,7 @@
 import { setTitlePanel } from '@/scripts/title';
 import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { completionStateString, type ContestProblem, ContestProblemCompletionState, type ContestSubmission, useContestManager } from '@/scripts/ContestManager';
+import { completionStateString, type ContestProblem, ContestProblemCompletionState, type ContestSubmission, ContestUpdateSubmissionResult, getUpdateSubmissionMessage, useContestManager } from '@/scripts/ContestManager';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
@@ -19,7 +19,7 @@ const contestManager = useContestManager();
 const modal = globalModal();
 
 // placeholder data behind loading cover
-const problem = ref<ContestProblem>({
+let problem = ref<ContestProblem>({
     id: 'loading',
     contest: 'WWPIT Loading Contest',
     round: 0,
@@ -50,7 +50,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 </codeblock>
     `,
     constraints: { memory: 1, time: -1 },
-    submissions: [],
+    submissions: [], //not used buh
     status: ContestProblemCompletionState.ERROR,
 });
 const submissions = ref<ContestSubmission[]>([]);
@@ -63,43 +63,9 @@ const loadErrorModal = (title: string, content: string) => {
         router.push(`/contest/problemList`);
     });
 };
-onMounted(async () => {
-    if (route.query.ignore_server !== undefined) return;
-    if (route.params.problemId !== undefined) {
-        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
-            loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
-            return;
-        }
-        const p = await contestManager.getProblemDataId(route.params.problemId.toString());
-        if (p === null) {
-            loadErrorModal('Problem not found', 'The requested problem does not exist!');
-            return;
-        }
-        problem.value = p;
-    } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
-        const p = await contestManager.getProblemData(Number(route.params.problemRound.toString()), Number(route.params.problemNumber.toString()));
-        if (p === null) {
-            loadErrorModal('Problem not found', 'The requested problem does not exist!');
-            return;
-        }
-        problem.value = p;
-    } else if (route.query.ignore_server === undefined) {
-        loadErrorModal('No problem ID', 'No problem ID was supplied!');
-    }
-});
 contestManager.onSubmissionStatus(({ status }) => {
     submissions.value = [status];
 });
-
-watch(() => problem.value.name, () => {
-    setTitlePanel(problem.value.name);
-});
-const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
-const problemSubtitle1 = autoGlitchTextTransition(() => {
-    if (problem.value.contest === undefined) return `By ${problem.value.author}`;
-    return `${problem.value.contest} ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;
-}, 40, 1, 20);
-const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 
 // uploads
 const fileUpload = ref<InstanceType<typeof UIFileUpload>>();
@@ -128,7 +94,7 @@ const handleUpload = () => {
     }
 };
 const submitUpload = async () => {
-    if (typeof languageDropdown.value?.value !== 'string') {
+    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '') {
         modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
         return;
     }
@@ -141,13 +107,40 @@ const submitUpload = async () => {
         modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
         return;
     }
-    const status = await contestManager.updateSubmission(problem.value.id, languageDropdown.value.value, await file.text());
-    if (status == null) {
-        modal.showModal({ title: 'Could not submit', content: 'A problem occured while uploading your submission. Try reloading and submitting again.', color: 'red' });
+    const status = await contestManager.updateSubmission(problem.value.id, (languageDropdown.value.value as string), await file.text());
+    if (status != ContestUpdateSubmissionResult.SUCCESS) {
+        modal.showModal({ title: 'Could not submit', content: getUpdateSubmissionMessage(status), color: 'red' })
+    } else {
+        modal.showModal({ title: 'Submission uploaded', content: 'Grading will happen soon', color: 'lime' });
     }
-}
+};
 
-// thing for katex
+// update problem content
+const updateProblem = () => {
+    if (route.params.problemId !== undefined) {
+
+    } else if (route.params.problemRound !== undefined && route.params.problemNumber !== undefined) {
+        if (contestManager.$state.contest?.rounds[Number(route.params.problemRound.toString())].problems[Number(route.params.problemNumber.toString())] != null) {
+            problem.value = contestManager.$state.contest.rounds[Number(route.params.problemRound.toString())].problems[Number(route.params.problemNumber.toString())];
+        }
+    } else if (route.query.ignore_server === undefined) {
+        loadErrorModal('No problem ID', 'No problem ID was supplied!');
+    }
+};
+watch(contestManager.$state, updateProblem);
+onMounted(updateProblem);
+
+watch(() => problem.value.name, () => {
+    setTitlePanel(problem.value.name);
+});
+
+const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
+const problemSubtitle1 = autoGlitchTextTransition(() => {
+    if (problem.value.contest === undefined) return `By ${problem.value.author}`;
+    return `${problem.value.contest} ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;
+}, 40, 1, 20);
+const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
+
 const problemContent = ref('');
 watch(problem, () => {
     latexify(problem.value.content).then((html) => problemContent.value = html);
@@ -260,12 +253,12 @@ watch(problem, () => {
     border-radius: 8px;
     background-color: #333;
     font-weight: normal;
+    font-family: 'Source Code Pro', Courier, monospace;
     font-size: var(--font-small);
 }
 
 .problemViewContent {
     font-size: var(--font-small);
-    text-align: justify;
 }
 
 .problemViewSubmitForm {

@@ -30,8 +30,8 @@
         "install": "cd ../wwppc-client && npm install",
         "build": "npx tsc && cd ../wwppc-client && npm run build",
         "compile": "npx tsc",
-        "start": "node build/server.js",
-        "compilerun": "npx tsc && node build/server.js serve_static debug_mode",
+        "start": "node build/server.js --expose-gc",
+        "compilerun": "npx tsc && node build/server.js --expose-gc serve_static debug_mode",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown"
     }
 }

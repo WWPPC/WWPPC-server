@@ -15,6 +15,7 @@ const config: {
     readonly defaultProfileImg: string
     readonly maxProfileImgSize: number
     readonly dbCacheTime: number
+    readonly dbProblemCacheTime: number
     readonly graderTimeout: number
     readonly acceptedLanguages: string[]
     readonly maxSubmissionSize: number
