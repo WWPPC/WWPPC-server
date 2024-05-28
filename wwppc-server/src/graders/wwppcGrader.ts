@@ -68,8 +68,11 @@ export class WwppcGrader extends Grader {
             }
             const problems = await this.db.readProblems({ id: node.grading.submission.problemId });
             if (problems == null || problems.length != 1) {
+                res.sendStatus(500);
+                if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 500, database error`, true);
                 return;
             }
+            node.deadline = Date.now() + config.graderTimeout + 180000;
             res.json({
                 file: node.grading.submission.file,
                 lang: node.grading.submission.lang,
