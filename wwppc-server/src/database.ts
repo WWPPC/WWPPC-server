@@ -24,7 +24,7 @@ export interface DatabaseConstructorParams {
 
 /**
  * PostgreSQL database connection for handling account operations and storage of contest data, including problems and submissions.
- * Very inefficient.
+ * Has a short-term cache to reduce repetitive database calls.
  */
 export class Database {
     /**
@@ -42,6 +42,7 @@ export class Database {
     #publicKey: webcrypto.JsonWebKey | undefined;
     readonly logger: NamedLogger;
     readonly mailer: Mailer;
+    readonly #cacheGarbageCollector: NodeJS.Timeout;
 
     /**
      * @param params Parameters
@@ -79,6 +80,19 @@ export class Database {
             this.logger.destroy();
             process.exit(1);
         });
+        this.#cacheGarbageCollector = setInterval(() => {
+            let emptied = 0;
+            [this.#userCache, this.#teamCache, this.#adminCache, this.#contestCache, this.#roundCache, this.#problemCache, this.#submissionCache].forEach((cache) => {
+                cache.forEach((item: { expiration: number }, key: string) => {
+                    if (item.expiration <= performance.now()) {
+                        cache.delete(key);
+                        emptied++;
+                    }
+                });
+            });
+            if (global.gc) global.gc();
+            if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
+        }, 60000);
     }
 
     /**
@@ -137,6 +151,8 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
+        clearInterval(this.#cacheGarbageCollector);
+        this.clearCache();
         await this.#db.end();
     }
 
@@ -153,11 +169,11 @@ export class Database {
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
-            // } else if (typeof value == 'object' && value != null) {
-            //     if (value.op == '><' || value.op == '<>') {
-            //     } else {
-            //         value.v
-            //     }
+                // } else if (typeof value == 'object' && value != null) {
+                //     if (value.op == '><' || value.op == '<>') {
+                //     } else {
+                //         value.v
+                //     }
             } else if (value != null) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
@@ -212,7 +228,7 @@ export class Database {
                         team: row.team
                     };
                     this.#userCache.set(row.username, {
-                        data: userData,
+                        data: structuredClone(userData),
                         expiration: performance.now() + config.dbCacheTime
                     });
                     ret.push(userData);
@@ -312,7 +328,7 @@ export class Database {
         const startTime = performance.now();
         try {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
-            if (this.#userCache.has(username)) return this.#userCache.get(username)!.data;
+            if (this.#userCache.has(username)) return structuredClone(this.#userCache.get(username)!.data);;
             // update query to alias future registrations.
             const data = await this.#db.query(`
                 SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
@@ -340,7 +356,7 @@ export class Database {
                     team: data.rows[0].team
                 };
                 this.#userCache.set(username, {
-                    data: userData,
+                    data: structuredClone(userData),
                     expiration: performance.now() + config.dbCacheTime
                 });
                 return userData;
@@ -368,7 +384,7 @@ export class Database {
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             this.#userCache.set(username, {
-                data: userData,
+                data: structuredClone(userData),
                 expiration: performance.now() + config.dbCacheTime
             });
             return AccountOpResult.SUCCESS;
@@ -589,6 +605,8 @@ export class Database {
     async getTeamData(username: string): Promise<TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
+            if (this.#teamCache.has(username) && this.#teamCache.get(username)!.expiration < performance.now()) this.#teamCache.delete(username);
+            if (this.#teamCache.has(username)) return structuredClone(this.#teamCache.get(username)!.data);
             const data = await this.#db.query(
                 'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
                 username
@@ -606,7 +624,7 @@ export class Database {
                     joinCode: data.rows[0].joincode
                 };
                 this.#teamCache.set(username, {
-                    data: teamDat,
+                    data: structuredClone(teamDat),
                     expiration: performance.now() + config.dbCacheTime
                 });
                 return teamDat;
@@ -731,6 +749,22 @@ export class Database {
             if (config.debugMode) this.logger.debug(`unregisterAllContests in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Moves all instances of a contest from upcoming registrations to the past registrations of every team.
+     * @param contest 
+     */
+    async finishContest(contest: string): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            // const teams = await
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (finishContest):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`finishContest in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
@@ -777,7 +811,7 @@ export class Database {
                 if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
                 if (this.#contestCache.has(id)) {
                     contestIdSet.delete(id);
-                    contests.push(this.#contestCache.get(id)!.contest);
+                    contests.push(structuredClone(this.#contestCache.get(id)!.contest));
                 }
             });
             const contestIdList = Array.from(contestIdSet.values());
@@ -796,7 +830,7 @@ export class Database {
                         endTime: Number(contest.endtime)
                     };
                     this.#contestCache.set(contest.id, {
-                        contest: c,
+                        contest: structuredClone(c),
                         expiration: performance.now() + config.dbCacheTime
                     });
                     contests.push(c);
@@ -822,7 +856,7 @@ export class Database {
             const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4 WHERE id=$1 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize) VALUES ($1, $2, $3, $4)', data);
             this.#contestCache.set(contest.id, {
-                contest: contest,
+                contest: structuredClone(contest),
                 expiration: performance.now() + config.dbCacheTime
             });
             return true;
@@ -858,7 +892,7 @@ export class Database {
                 if (this.#roundCache.has(id) && this.#roundCache.get(id)!.expiration < performance.now()) this.#roundCache.delete(id);
                 if (this.#roundCache.has(id)) {
                     roundIdSet.delete(id);
-                    rounds.push(this.#roundCache.get(id)!.round);
+                    rounds.push(structuredClone(this.#roundCache.get(id)!.round));
                 }
             });
             const roundIdList = Array.from(roundIdSet.values());
@@ -875,7 +909,7 @@ export class Database {
                         endTime: Number(round.endtime)
                     };
                     this.#roundCache.set(round.id, {
-                        round: r,
+                        round: structuredClone(r),
                         expiration: performance.now() + config.dbCacheTime
                     });
                     rounds.push(r);
@@ -901,7 +935,7 @@ export class Database {
             const update = await this.#db.query('UPDATE rounds SET problems=$2, starttime=$3, endtime=$4 WHERE id=$1 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO rounds (id, problems, starttime, endtime) VALUES ($1, $2, $3, $4)', data);
             this.#roundCache.set(round.id, {
-                round: round,
+                round: structuredClone(round),
                 expiration: performance.now() + config.dbCacheTime
             });
             return true;
@@ -942,7 +976,7 @@ export class Database {
                 if (this.#problemCache.has(id) && this.#problemCache.get(id)!.expiration < performance.now()) this.#problemCache.delete(id);
                 if (this.#problemCache.has(id)) {
                     problemIdSet.delete(id);
-                    problems.push(this.#problemCache.get(id)!.problem);
+                    problems.push(structuredClone(this.#problemCache.get(id)!.problem));
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
@@ -965,7 +999,7 @@ export class Database {
                         archived: problem.archived
                     };
                     this.#problemCache.set(problem.id, {
-                        problem: p,
+                        problem: structuredClone(p),
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
                     problems.push(problem);
@@ -991,7 +1025,7 @@ export class Database {
             const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, cases=$5, constraints=$6, hidden=$7, archived=$8 WHERE id=$1 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, cases, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
             this.#problemCache.set(problem.id, {
-                problem: problem,
+                problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
             });
             return true;
@@ -1032,7 +1066,7 @@ export class Database {
                 if (this.#submissionCache.has(id) && this.#submissionCache.get(id)!.expiration < performance.now()) this.#submissionCache.delete(id);
                 if (this.#submissionCache.has(id)) {
                     problemIdSet.delete(id);
-                    submissions.push(this.#submissionCache.get(id)!.submission);
+                    submissions.push(structuredClone(this.#submissionCache.get(id)!.submission));
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
@@ -1053,7 +1087,7 @@ export class Database {
                         history: submission.history
                     };
                     this.#submissionCache.set(submission.id + ' ' + submission.username, {
-                        submission: s,
+                        submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
                     submissions.push(s);
@@ -1091,7 +1125,7 @@ export class Database {
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([])
                 ]);
                 this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
-                    submission: submission,
+                    submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
             }
@@ -1115,6 +1149,8 @@ export class Database {
         this.#roundCache.clear();
         this.#problemCache.clear();
         this.#submissionCache.clear();
+        if (global.gc) global.gc();
+        if (config.debugMode) this.logger.debug('Cache cleared');
     }
 }
 export default Database;
@@ -1151,7 +1187,7 @@ export function reverse_enum(enumerator, v): string {
     return v;
 }
 export function is_in_enum(v, enumerator): boolean {
-    for (const t of enumerator) if (t === v) return true;
+    for (const k in enumerator) if (enumerator[k] === v) return true;
     return false;
 }
 
@@ -1370,7 +1406,8 @@ export enum ScoreState {
     INCORRECT = 2,
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
-    RUNTIME_ERROR = 5
+    RUNTIME_ERROR = 5,
+    COMPILE_ERROR = 6
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */

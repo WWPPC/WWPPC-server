@@ -42,8 +42,9 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasPerms(req.body.username, AdminPerms.ADMIN)) {
             const token = uuidV4();
             // session cookie expires when tab/browser is closed
-            res.cookie('token', token);
+            res.cookie('token', token, { expires: new Date(Date.now() + 3600000) });
             sessionTokens.set(token, req.body.username);
+            setTimeout(() => sessionTokens.delete(token), 3600000);
             res.redirect('/admin');
             log.info('[ADMIN] Admin login by ' + req.body.username);
         } else {

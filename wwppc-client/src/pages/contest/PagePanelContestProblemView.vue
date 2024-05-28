@@ -94,9 +94,6 @@ onMounted(async () => {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
 });
-contestManager.onSubmissionStatus(({ status }) => {
-    submissions.value = [status];
-});
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
@@ -135,12 +132,7 @@ const handleUpload = () => {
     }
 };
 const submitUpload = async () => {
-    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '') {
-        modal.showModal({ title: 'No language selected', content: 'No language was selected!', color: 'red' });
-        return;
-    }
-    if (fileUpload.value == null || fileUpload.value.files == null) {
-        modal.showModal({ title: 'No file selected', content: 'No file was selected!', color: 'red' });
+    if (languageDropdown.value?.value == undefined || languageDropdown.value?.value == '' || fileUpload.value == null || fileUpload.value.files == null) {
         return;
     }
     const file = fileUpload.value.files.item(0);
@@ -180,10 +172,10 @@ watch(problem, () => {
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
                     <h3>Submit</h3>
-                    <div style="text-align: justify;">
-                        Submissions are not graded until the round is over, but you can update your submission at any
-                        time.
-                    </div>
+                    <p style="text-align: justify; font-size: var(--font-small);">
+                        Submissions are not graded until the round is over, but you can update your submission at any time during a round.
+                        <i>Java and Python submissions have double the stated time limit.</i>
+                    </p>
                 </div>
                 <br>
                 <form class="problemViewSubmitForm" action="javascript:void(0)">
@@ -193,7 +185,7 @@ watch(problem, () => {
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a }))" required></UIDropdown>
                     </div>
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null"></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null || contestManager.contest == null || contestManager.contest.rounds[problem.round].startTime > Date.now() || contestManager.contest.rounds[problem.round].endTime <= Date.now()"></UIButton>
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
@@ -274,6 +266,7 @@ watch(problem, () => {
 
 .problemViewContent {
     font-size: var(--font-small);
+    text-align: justify;
 }
 
 .problemViewSubmitForm {

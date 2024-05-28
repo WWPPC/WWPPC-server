@@ -128,15 +128,6 @@ export const useContestManager = defineStore('contestManager', {
             const serverConnection = useServerConnection();
             if (!serverConnection.loggedIn) return ContestUpdateSubmissionResult.NOT_CONNECTED;
             return await serverConnection.emitWithAck('updateSubmission', { id: problemId, file, lang });
-        },
-        // replace these with refs/reactive objects that can be watched for updates
-        async onSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
-            const serverConnection = useServerConnection();
-            serverConnection.on('submissionStatus', cb);
-        },
-        async offSubmissionStatus(cb: ({ status }: { status: ContestSubmission }) => any) {
-            const serverConnection = useServerConnection();
-            serverConnection.off('submissionStatus', cb);
         }
     }
 });

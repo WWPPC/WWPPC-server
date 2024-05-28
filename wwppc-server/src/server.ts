@@ -18,6 +18,7 @@ logger.debug('CONFIG_PATH: ' + config.path);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
 logger.debug('CLIENT_PATH: ' + config.clientPath);
 logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
+if (global.gc) logger.info('Manual garbage collector cleanup is enabled');
 
 // set up networking
 import express from 'express';
