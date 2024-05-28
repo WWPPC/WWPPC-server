@@ -57,7 +57,7 @@ const attemptRecovery = async () => {
                         <form class="recoveryVertical" action="javascript:void(0)" @submit="attemptRecovery">
                             <input type="password" autocomplete="off" disabled :value="recoveryPassword" style="display: none;">
                             <UITextBox :value="usernameInput" id="username" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="off" autocapitalize="off" required disabled></UITextBox>
-                            <UITextBox v-model="passwordInput" id="password" placeholder="New Password" type="password" style="margin-bottom: 8px;" width="208px" title="New password" maxlength="1024" autocomplete="new-password" autocapitalize="off" required></UITextBox>
+                            <UITextBox v-model="passwordInput" id="password" placeholder="New password" type="password" style="margin-bottom: 8px;" width="208px" title="New password" maxlength="1024" autocomplete="new-password" autocapitalize="off" required></UITextBox>
                             <UITextBox v-model="passwordInput2" placeholder="Repeat password" type="password" style="margin-bottom: 8px;" width="208px" title="New password" maxlength="1024" autocomplete="off" autocapitalize="off" required></UITextBox>
                             <UIButton text="Reset password" type="submit" width="208px" title="Log in" glitchOnMount :disabled="attemptedRecovery || showRecoveryWait || usernameInput.trim() == '' || recoveryPassword == '' || passwordInput == '' || passwordInput2 == '' || passwordInput != passwordInput2"></UIButton>
                         </form>

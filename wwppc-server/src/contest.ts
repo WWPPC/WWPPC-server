@@ -527,13 +527,14 @@ export class ContestHost {
             };
             // make sure no grading spam
             this.grader.cancelUngraded(socket.username, data.id);
-            this.grader.queueUngraded(submission);            
+            this.grader.queueUngraded(submission);
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             respond(ContestUpdateSubmissionResult.SUCCESS);
             this.updateUser(socket.username);
+            this.logger.info(`Accepted submission for ${data.id} by ${socket.username}`);
         });
 
         this.updateUser(socket.username);

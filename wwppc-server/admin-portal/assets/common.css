@@ -13,6 +13,7 @@ body {
 
 input {
     border: 4px solid black;
+    background-color: white;
     margin-bottom: 8px;
     font-family: inherit;
     background-color: transparent;

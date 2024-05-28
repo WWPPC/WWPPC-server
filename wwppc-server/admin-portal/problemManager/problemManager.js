@@ -1,14 +1,12 @@
 async function load() {
-    console.log("Loaded")
+    console.log('Loaded')
     const response = await fetch('/admin/api/problemList');
-    console.log("alsdkfj")
     // make sure to check status BEFORE parsing body
     if (response.status != 200) {
         // the request went wrong and processing should stop
         console.error('Response code ' + response.status);
         return;
     }
-    console.log("bruh")
     // parsing body of non-json will throw error, breaking error messages
     const problemData = await response.json();
     console.log(problemData);

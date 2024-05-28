@@ -13,7 +13,7 @@ cron job:
 
 ```
 [Service]
-WorkingDirectory=/root/WWPPC
+WorkingDirectory=/root/WWPPC/wwppc-server
 ExecStart=/usr/local/bin/npm run start
 Restart=always
 

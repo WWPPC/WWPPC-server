@@ -3,33 +3,24 @@
     width: 100%;
 }
 
-tr {
-    /*border-bottom: 1px solid white;*/
-    border: 1px solid white;
+td, th {
     text-align: center;
-    width:100%;
-}
-
-td {
-    text-align: center;
-    color:white;
-    border: 1px solid white;
+    color: white;
+    border: 2px solid white;
 }
 
 .pTextArea {
-    color:white;
+    color: white;
     background-color: green;
-    width:100%;
+    width: 100%;
     text-align: center;
     /*display:flex;*/
     /*justify-content: center;*/
     align-items: center;
 }
 
-.updateButton {
+/* .updateButton {
     box-sizing: border-box;
-    width: min-content;
-    height: min-content;
     border: 4px solid white;
     margin: 0px 4px;
     padding: 0.125em 0.2em;
@@ -41,7 +32,7 @@ td {
     transition: 50ms ease background-position, 50ms ease background-color, 50ms ease transform, 50ms ease border-color;
     cursor: pointer;
     user-select: none;
-}
+} */
 
 .updateButton:hover {
     transform: translateY(-2px);
@@ -50,21 +41,21 @@ td {
 
 .problemText {
     /*width:33%*/
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
     background-color: green;
     margin-left: 40%;
     margin-right: 40%;
     width: 30%;
-    height:70px;
+    height: 70px;
     /*border-radius: 10px;*/
 
 }
 
-tr:hover {
+/* tr:hover {
     transform: translateY(-2px);
-}
+} */
 
 .problemTableContainer {
     margin: 2%;
