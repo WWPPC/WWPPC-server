@@ -177,8 +177,7 @@ watch(problem, () => {
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a}))" required></UIDropdown>
                     </div>
-                    <!-- disable depending on contestManager state -->
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files.item(0) == null"></UIButton>
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
