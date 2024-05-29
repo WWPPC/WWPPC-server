@@ -2,7 +2,7 @@ import Database, { Problem, Round, Score, ScoreState, Submission } from "./datab
 
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
- * Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who solved the problem
+ * Using the function score = Math.log(cnt+e)/(cnt+e) where cnt is number of people who solved the problem
  * very small time penalty going from 1 to 0.9999
  */
 export class Scorer {
@@ -74,7 +74,7 @@ export class Scorer {
                     if (val != undefined && val > 0) {
                         const curValue = scores.get(key);
                         if (curValue == undefined) return undefined;
-                        scores.set(key, curValue + Math.log(count + 1) / (count + 1) * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
+                        scores.set(key, curValue + Math.log(count + Math.E) / (count + Math.E) * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
                     }
                 })
             }
