@@ -2,7 +2,7 @@
 import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
-import { AnimateInContainer, CenteredContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer, CenteredContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible, HeaderedTable } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UILinkButton, UIIconButton, UITimer } from '@/components/ui-defaults/UIDefaults';
 import { nextContest, nextContestEnd } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
@@ -255,16 +255,42 @@ const router = useRouter();
             <GlitchText text="Format & Prizes" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
         <div class="contestInfoBlock">
-            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-row: span 2;">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
-
+                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28);" :content="{
+                        headers: ['Novice', 'Advanced'],
+                        data: [
+                            [
+                                '🥇 $30 + T-shirt',
+                                '🥇 $150 + T-shirt'
+                            ],
+                            [
+                                '🥈 $10 + T-shirt',
+                                '🥈 $100 + T-shirt'
+                            ],
+                            [
+                                '🥉 $10 + T-shirt',
+                                '🥉 $50 + T-shirt'
+                            ],
+                        ]
+                    }"></HeaderedTable>
+                    <br>
+                    <p style="font-size: var(--font-small)">
+                        <i>Note: Only HIGH SCHOOL STUDENTS within the US (legal reasons) are eligible to recieve prize money. Other people CAN COMPETE and earn standings, but cannot recieve prizes.</i>
+                    </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
-            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Contest Format" height="100%" align="center" hover-animation="lift" flipped>
                     <p>
-                        WWPIT is a round-based team contest, where problems are revealed as time progresses
+                        WWPIT is a round-based team contest, where problems are revealed as time progresses.
                     </p>
+                    <ul style="font-size: var(--font-medium);">
+                        <li>There <b>SEPARATE</b> timed rounds of 6 problems</li>
+                        <li>Problems submittable <b>ONLY DURING</b> rounds</li>
+                        <li>Final verdicts not revealed <b>UNTIL AFTER</b> round end</li>
+                        <li>Scores based on problems solved, with <b>subtasks</b></li>
+                    </ul>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
         </div>
@@ -303,24 +329,9 @@ const router = useRouter();
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="What's the contest format?" startCollapsed>
+                <TitledCollapsible title="What resources are allowed?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                    <ul>
-                        <li>There will be 3 separate timed rounds for each division, running at the same time</li>
-                        <li>Each round has 6 problems, only visible <i>after</i> round start and only submittable <i>during</i> rounds</li>
-                        <li>Submissions are only graded <i>after</i> the round ends</li>
-                        <li>Teams of up to 4 will be ranked by the total amount of problems solved, <i>with partial credit</i></li>
-                        <li>Ties will be broken by time submitted</li>
-                        <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
-                        <li>Any resource is allowed as long as it was made before the contest (this <i>EXCLUDES</i> things like ChatGPT - textbooks, documentation, USACO.guide, etc. are allowed. PLEASE DO NOT plagiarize!!!)</li>
-                    </ul>
-                    </p>
-                </TitledCollapsible>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" show-on-screen>
-                <TitledCollapsible title="What are the prizes?" startCollapsed>
-                    <p style="font-size: var(--font-20)">
-                        <i>Note: Only HIGH SCHOOL STUDENTS within the US (tax reasons) are eligible to recieve prize money. Other people CAN COMPETE and earn standings, but cannot recieve prizes.</i>
+                        WWPIT will allow programming textbooks and documentation, including data structures and algorithms textbooks, as well as usaco.guide. <b>CHATGPT IS NOT ALLOWED.</b>
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
