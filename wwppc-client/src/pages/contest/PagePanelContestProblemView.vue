@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
-import { DoubleCutCornerContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import { completionStateString, type ContestProblem, ContestProblemCompletionState, ContestUpdateSubmissionResult, getUpdateSubmissionMessage, useContestManager } from '@/scripts/ContestManager';
 import { onMounted, ref, watch } from 'vue';

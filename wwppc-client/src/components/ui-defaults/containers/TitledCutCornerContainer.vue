@@ -51,6 +51,7 @@ defineProps<{
 
 .titledCutCornerContainerTitle>h2 {
     margin: 0px 0px;
+    white-space-collapse: preserve-spaces;
 }
 
 .titledCutCornerContainerBody {

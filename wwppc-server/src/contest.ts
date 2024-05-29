@@ -463,8 +463,10 @@ export class ContestHost {
         }
     }
     #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
+        // will not reveal verdict until round ends!
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
-        if (scores.length == 0) return round < this.#index ? ClientProblemCompletionState.SUBMITTED : ClientProblemCompletionState.UPLOADED;
+        if (round == this.#index) return ClientProblemCompletionState.UPLOADED;
+        if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
@@ -530,7 +532,13 @@ export class ContestHost {
             };
             // make sure no grading spam
             this.grader.cancelUngraded(socket.username, data.id);
-            this.grader.queueUngraded(submission);
+            this.grader.queueUngraded(submission, async (graded) => {
+                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
+                if (graded != null) {
+                    await this.db.writeSubmission(graded);
+                    this.updateUser(socket.username);
+                }
+            });
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;

@@ -136,27 +136,17 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
         </div>
         <div class="cpi-partner">
             <GlowText text="Partnered with" font-size="var(--font-huge)" color="lime" shadow></GlowText>
-            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="16vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
             <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
         </div>
-        <br>
-        <div class="centered">
-            <GlitchText text="Silver" font-size="var(--font-subtitle)" color="#EEE" glow shadow random :steps=2 on-visible></GlitchText>
-        </div>
         <div class="sponsors">
-            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="12vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="12vh"></HomeHomeSponsorLogo>
-        </div>
-        <br>
-        <div class="centered">
-            <GlitchText text="Bronze" font-size="var(--font-subtitle)" color="#EA0" glow shadow random :steps=2 on-visible></GlitchText>
-        </div>
-        <div class="sponsors">
+            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="6vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="14vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="15vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="10vh"></HomeHomeSponsorLogo>
             <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="6vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="6vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="7vh"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>

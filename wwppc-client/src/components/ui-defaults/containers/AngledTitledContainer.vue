@@ -49,6 +49,10 @@ defineProps<{
     font-size: v-bind("$props.fontSize ?? 'initial'");
 }
 
+.titledAngleContainerTitle>h2 {
+    white-space-collapse: preserve-spaces;
+}
+
 .titledAngleContainerHeader {
     display: block;
     position: absolute;
