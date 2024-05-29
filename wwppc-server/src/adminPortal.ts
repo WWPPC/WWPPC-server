@@ -117,18 +117,14 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         if (data == null) res.sendStatus(500);
         else res.json(data);
     });
-
     app.post('/admin/api/problemData/', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || req.body.id == undefined) {
             res.sendStatus(400);
             return;
         }
         const stat = await database.writeProblem(req.body);
-        if (!stat) {
-            res.sendStatus(500);
-        } else {
-            res.sendStatus(200)
-        }
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
     });
 
     // reserve /admin path

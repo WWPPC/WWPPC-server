@@ -25,7 +25,7 @@ export class Scorer {
         //     }
         // }
     }
-    
+
     /**
      * Add or edit user (or team the scorer doesnt care) to leaderboard
      * Note that we only care about submission.scores so you can change the params to make it more convenient
@@ -39,7 +39,7 @@ export class Scorer {
             subtasks.add(score.subtask);
         }
         for (const i of subtasks) {
-            userScores.set(submission.problemId+i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i) ? -1 : submission.time);
+            userScores.set(submission.problemId + i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i) ? -1 : submission.time);
         }
         for (const s of this.subtasks) {
             if (userScores.get(s) == undefined) {
@@ -74,7 +74,7 @@ export class Scorer {
                     if (val != undefined && val > 0) {
                         const curValue = scores.get(key);
                         if (curValue == undefined) return undefined;
-                        scores.set(key, curValue + Math.log(count+1)/(count+1) * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
+                        scores.set(key, curValue + Math.log(count + 1) / (count + 1) * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
                     }
                 })
             }
