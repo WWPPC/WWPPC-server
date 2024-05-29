@@ -8,13 +8,14 @@ import ContestManager from './contest';
 import Database, { AccountOpResult, AdminPerms, reverse_enum, TeamOpResult } from './database';
 import Logger from './log';
 
-process.env.ADMIN_PANEL_PATH ??= path.resolve(__dirname, '../admin-portal');
+process.env.ADMIN_PORTAL_PATH ??= path.resolve(__dirname, '../admin-portal');
 export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {
     const database = db;
     const app = expressApp;
     const contest = contestManager;
     const logger = log;
     const sessionTokens = new Map<string, string>();
+    logger.info(`Attaching admin portal to /admin/ (served from ${process.env.ADMIN_PORTAL_PATH})`);
 
     app.use('/admin/*', (req, res, next) => {
         // require authentication for everything except the login screen
@@ -22,18 +23,18 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect('/admin/login');
         else next();
     });
-    app.use('/admin/', express.static(process.env.ADMIN_PANEL_PATH!));
-    const adminPanelIndex = path.resolve(process.env.ADMIN_PANEL_PATH!, 'index.html');
-    const adminPanelAccountManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'accountManager/accountManager.html');
-    const adminPanelProblemManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'problemManager/problemManager.html');
-    const adminPanelContestManager = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestManager/contestManager.html');
-    const adminPanelContestRunner = path.resolve(process.env.ADMIN_PANEL_PATH!, 'contestRunner/contestRunner.html');
+    app.use('/admin/', express.static(process.env.ADMIN_PORTAL_PATH!));
+    const adminPanelIndex = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'index.html');
+    const adminPanelAccountManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'accountManager/accountManager.html');
+    const adminPanelProblemManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'problemManager/problemManager.html');
+    const adminPanelContestManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'contestManager/contestManager.html');
+    const adminPanelContestRunner = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'contestRunner/contestRunner.html');
     app.get('/admin', (req, res) => res.sendFile(adminPanelIndex));
     app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
     app.get('/admin/problemManager', (req, res) => res.sendFile(adminPanelProblemManager));
     app.get('/admin/contestManager', (req, res) => res.sendFile(adminPanelContestManager));
     app.get('/admin/contestRunner', (req, res) => res.sendFile(adminPanelContestRunner));
-    app.get('/admin/login', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PANEL_PATH!, 'login.html')));
+    app.get('/admin/login', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PORTAL_PATH!, 'login.html')));
     app.post('/admin/login', bodyParser.urlencoded({ extended: false }), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
             res.sendStatus(400);
@@ -53,12 +54,12 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     });
     if (!config.serveStatic) {
         // make sure fonts and borrowed assets load
-        app.use('/assets/*', express.static(path.resolve(process.env.CLIENT_PATH!, 'assets/')));
-        const favicon = path.resolve(process.env.CLIENT_PATH!, 'favicon.png');
-        const logo = path.resolve(process.env.CLIENT_PATH!, 'logo.svg');
-        const icon = path.resolve(process.env.CLIENT_PATH!, 'icon.svg');
-        const icon2 = path.resolve(process.env.CLIENT_PATH!, 'icon2.png');
-        const icon2Small = path.resolve(process.env.CLIENT_PATH!, 'icon2-small.png');
+        app.use('/assets/*', express.static(path.resolve(config.clientPath, 'assets/')));
+        const favicon = path.resolve(config.clientPath, 'favicon.png');
+        const logo = path.resolve(config.clientPath, 'logo.svg');
+        const icon = path.resolve(config.clientPath, 'icon.svg');
+        const icon2 = path.resolve(config.clientPath, 'icon2.png');
+        const icon2Small = path.resolve(config.clientPath, 'icon2-small.png');
         app.get('/favicon.png', (req, res) => res.sendFile(favicon));
         app.get('/logo.svg', (req, res) => res.sendFile(logo));
         app.get('/icon.svg', (req, res) => res.sendFile(icon));
