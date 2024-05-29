@@ -13,7 +13,7 @@ async function load() {
     console.log(problemData);
 
     // clear out the existing table and put some headers in
-    table.innerHTML = '<tr><th width="360px">UUID</th><th width="300px">Name</th><th width="200px">Author</th><th width="150px">Constraints</th><th width="600px">Problem Statement</th><th>Hidden</th><th>Archived</th></tr>';
+    table.innerHTML = '<tr><th width="360px">UUID</th><th width="300px">Name</th><th width="200px">Author</th><th width="150px">Constraints</th><th width="600px">Problem Statement</th><th width="100px">Hidden</th><th width="100px">Archived</th><th width="150px">Save</th></tr>';
 
     for (const problem of problemData) {
         // table row
@@ -93,8 +93,8 @@ async function load() {
         updateButtonCell.appendChild(updateButton);
         const updateErrorMessage = document.createElement('div');
         updateButtonCell.appendChild(updateErrorMessage);
-        updateButton.onclick = () => {
-            const res = modify(id.value, name.value, author.value, content.value, { time: constraintsTime.value, memory: constraintsMemory.value }, hidden.checked, archived.checked);
+        updateButton.onclick = async () => {
+            const res = await modify(id.value, name.value, author.value, content.value, { time: constraintsTime.value, memory: constraintsMemory.value }, hidden.checked, archived.checked);
             if (res == 200) {
                 row.classList.remove('edited');
             } else {
@@ -126,6 +126,7 @@ async function modify(id, name, author, content, constraints, hidden, archived) 
             archived: archived
         })
     });
+    console.log(res.status)
     return res.status;
 }
 
