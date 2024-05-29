@@ -57,28 +57,81 @@ export class Scorer {
      */
     getScores(): Map<string, number> {
         if (this.leaderboard == undefined) {
-            const scores = new Map<string, number>();
-            this.users.forEach((value, key) => {
-                scores.set(key, 0);
+            const subtaskCount = new Map<string,number>();
+            for(const s of this.subtasks){
+                const id = s.substring(0,36);
+                if(subtaskCount.has(id)){
+                    const c = subtaskCount.get(id);
+                    if(c !== undefined){
+                        subtaskCount.set(id,c+1);
+                    }
+                }else{
+                    subtaskCount.set(id,1);
+                }
+            }
+            const subtaskSolved = new Map<string,number>();
+            this.subtasks.forEach((id) => {
+                subtaskSolved.set(id,0);
             });
-            for (const s of this.subtasks) {
-                let count = 0;
-                this.users.forEach((value, key) => {
-                    const val = value.get(s);
-                    if (val != undefined && val > 0) {
-                        count++;
+            this.users.forEach((value,key) => {
+                value.forEach((solved,subtask) => {
+                    if(solved !== -1){
+                        const c = subtaskSolved.get(subtask);
+                        if(c !== undefined){
+                            subtaskSolved.set(subtask,c+1);
+                        }
                     }
                 });
-                this.users.forEach((value, key) => {
-                    const val = value.get(s);
-                    if (val != undefined && val > 0) {
-                        const curValue = scores.get(key);
-                        if (curValue == undefined) return undefined;
-                        scores.set(key, curValue + Math.log(count + 1) / count * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
+            });
+            let maxScore = 0;
+            this.subtasks.forEach((id) => {
+                const s = subtaskSolved.get(id);
+                const c = subtaskCount.get(id);
+                if(s !== undefined && c !== undefined){
+                    if(s == 0) maxScore+=1/c;
+                    else maxScore+=Math.log(s+1)/(s*c);
+                }
+            });
+            const scores = new Map<string, number>();
+            this.users.forEach((value,key) => {
+                let score = 0;
+                let last = this.round.startTime;
+                value.forEach((solved,subtask) => {
+                    if(solved !== -1){
+                        last = Math.max(last,solved);
+                        const s = subtaskSolved.get(subtask);
+                        const c = subtaskCount.get(subtask);
+                        if(s !== undefined && c !== undefined){
+                            if(s == 0) score+=1/c;
+                            else score+=Math.log(s+1)/(s*c);
+                        }
                     }
-                })
-            }
+                });
+                scores.set(key,score/maxScore*1000-0.001*(last-this.round.startTime)/(this.round.endTime-this.round.startTime));
+            });
             return this.leaderboard = scores;
+            // const scores = new Map<string, number>();
+            // this.users.forEach((value, key) => {
+            //     scores.set(key, 0);
+            // });
+            // for (const s of this.subtasks) {
+            //     let count = 0;
+            //     this.users.forEach((value, key) => {
+            //         const val = value.get(s);
+            //         if (val != undefined && val > 0) {
+            //             count++;
+            //         }
+            //     });
+            //     this.users.forEach((value, key) => {
+            //         const val = value.get(s);
+            //         if (val != undefined && val > 0) {
+            //             const curValue = scores.get(key);
+            //             if (curValue == undefined) return undefined;
+            //             scores.set(key, curValue + Math.log(count + 1) / count * ((val - this.round.startTime) / (this.round.endTime - this.round.startTime) * -0.0001 + 1));
+            //         }
+            //     })
+            // }
+            // return this.leaderboard = scores;
         } else {
             return this.leaderboard;
         }
