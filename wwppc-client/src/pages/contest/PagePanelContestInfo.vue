@@ -275,8 +275,8 @@ const router = useRouter();
                         ]
                     }"></HeaderedTable>
                     <br>
-                    <p style="font-size: var(--font-small)">
-                        <i>Note: Only HIGH SCHOOL STUDENTS within the US (legal reasons) are eligible to recieve prize money. Other people CAN COMPETE and earn standings, but cannot recieve prizes.</i>
+                    <p style="font-size: var(--font-tiny)">
+                        <i>Note: We can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
