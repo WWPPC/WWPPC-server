@@ -369,6 +369,7 @@ export class ContestHost {
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
             }
             if (updated) this.updateAllUsers();
+            if (this.#data.endTime <= Date.now()) this.end(true);
         }, 50);
     }
 
@@ -555,9 +556,11 @@ export class ContestHost {
     }
 
     #endListeners: Set<() => any> = new Set();
-    end() {
-        this.logger.info(`Ending contest "${this.id}"`);
-        this.db.finishContest(this.id);
+    end(complete?: boolean) {
+        if (complete) {
+            this.logger.info(`Ending contest "${this.id}"`);
+            this.db.finishContest(this.id);
+        }
         this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
         this.#endListeners.forEach((cb) => cb());
     }

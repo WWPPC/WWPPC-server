@@ -89,11 +89,17 @@ table textarea {
     box-sizing: border-box;
 }
 
+table input[type=checkbox] {
+    width: 100%;
+    height: 20px;
+    margin: 0px;
+}
+
 .edited>td {
     border-color: red;
 }
 
-table input:hover {
+table input[type=text]:hover {
     background-color: #333;
 }
 
