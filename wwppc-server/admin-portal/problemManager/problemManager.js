@@ -43,10 +43,10 @@ async function load() {
         // constraints are fancy
         const constraintsCell = document.createElement('td');
         const constraintsTime = document.createElement('input');
-        constraintsTime.type = 'text';
+        constraintsTime.type = 'number';
         constraintsTime.value = problem.constraints.time;
         const constraintsMemory = document.createElement('input');
-        constraintsMemory.type = 'text';
+        constraintsMemory.type = 'number';
         constraintsMemory.value = problem.constraints.memory;
         const constraintsTimeLabel = document.createElement('label');
         constraintsTimeLabel.innerText = 'Time (ms):';
@@ -94,7 +94,7 @@ async function load() {
         const updateErrorMessage = document.createElement('div');
         updateButtonCell.appendChild(updateErrorMessage);
         updateButton.onclick = async () => {
-            const res = await modify(id.value, name.value, author.value, content.value, { time: constraintsTime.value, memory: constraintsMemory.value }, hidden.checked, archived.checked);
+            const res = await modify(id.value, name.value, author.value, content.value, { time: Number(constraintsTime.value), memory: Number(constraintsMemory.value) }, hidden.checked, archived.checked);
             if (res == 200) {
                 row.classList.remove('edited');
             } else {

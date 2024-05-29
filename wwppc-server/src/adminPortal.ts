@@ -118,7 +118,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.json(data);
     });
     app.post('/admin/api/problemData/', bodyParser.json(), async (req, res) => {
-        if (req.body == undefined || req.body.id == undefined) {
+        if (req.body == undefined || [req.body.id, req.body.name, req.body.author, req.body.content, req.body.constraints, req.body.hidden, req.body.archived].some((v) => v == undefined)) {
             res.sendStatus(400);
             return;
         }
