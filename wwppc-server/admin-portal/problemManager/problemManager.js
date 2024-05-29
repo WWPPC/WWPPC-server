@@ -2,15 +2,12 @@ const table = document.getElementById("pTable");
 
 async function load() {
     const response = await fetch('/admin/api/problemList');
-    console.log('LOADED');
-    // make sure to check status BEFORE parsing body
     if (response.status != 200) {
         // the request went wrong and processing should stop
-        console.error('Response code ' + response.status);
+        console.error('/admin/api/problemList code ' + response.status);
         return;
     }
     const problemData = await response.json();
-    console.log(problemData);
 
     // clear out the existing table and put some headers in
     table.innerHTML = '<tr><th width="360px">UUID</th><th width="300px">Name</th><th width="200px">Author</th><th width="150px">Constraints</th><th width="600px">Problem Statement</th><th width="100px">Hidden</th><th width="100px">Archived</th><th width="150px">Save</th></tr>';
@@ -90,6 +87,7 @@ async function load() {
         const updateButton = document.createElement('input');
         updateButton.type = 'button';
         updateButton.value = 'SAVE';
+        updateButton.style.width = '100%';
         updateButtonCell.appendChild(updateButton);
         const updateErrorMessage = document.createElement('div');
         updateButtonCell.appendChild(updateErrorMessage);
@@ -107,10 +105,6 @@ async function load() {
 }
 
 async function modify(id, name, author, content, constraints, hidden, archived) {
-    // logging input
-    console.log('MODIFIED');
-
-    // post request
     const res = await fetch('/admin/api/problemData', {
         method: 'POST',
         headers: {
@@ -126,7 +120,7 @@ async function modify(id, name, author, content, constraints, hidden, archived) 
             archived: archived
         })
     });
-    console.log(res.status)
+    if (res.status != 200) console.error('/admin/api/problemData code ' + res.status);
     return res.status;
 }
 

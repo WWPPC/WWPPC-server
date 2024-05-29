@@ -42,7 +42,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         }
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasPerms(req.body.username, AdminPerms.ADMIN)) {
             const token = uuidV4();
-            // session cookie expires when tab/browser is closed
             res.cookie('token', token, { expires: new Date(Date.now() + 3600000) });
             sessionTokens.set(token, req.body.username);
             setTimeout(() => sessionTokens.delete(token), 3600000);
@@ -80,8 +79,16 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (stat == TeamOpResult.CONTEST_CONFLICT || stat == TeamOpResult.CONTEST_MEMBER_LIMIT || stat == TeamOpResult.CONTEST_ALREADY_EXISTS || stat == TeamOpResult.NOT_ALLOWED) res.status(409).json(reverse_enum(TeamOpResult, stat));
         else if (stat == TeamOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
         else res.sendStatus(500);
-    }
+    };
+
     // functions
+    app.get('/admin/api/logs', async (req, res) => {
+        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.VIEW_LOGS))) {
+            res.sendStatus(403);
+            return;
+        }
+        res.sendFile(path.resolve('./log.log'));
+    });
     app.get('/admin/api/accountList', async (req, res) => {
         if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_ACCOUNTS))) {
             res.sendStatus(403);
@@ -105,6 +112,20 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (data == AccountOpResult.ERROR) res.sendStatus(500);
         else res.json(data);
     });
+    app.get('/admin/api/teamData/', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.username == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_ACCOUNTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const data = await database.getTeamData(req.body.username);
+        if (data == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
+        else if (data == TeamOpResult.ERROR) res.sendStatus(500);
+        else res.json(data);
+    });
     app.post('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || [req.body.username, req.body.firstName, req.body.lastName, req.body.displayName, req.body.profileImage, req.body.school, req.body.grade, req.body.experience, req.body.languages, req.body.bio, req.body.registrations, req.body.team].some((v) => v == undefined)) {
             res.sendStatus(400);
@@ -126,7 +147,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         defaultResponseMapping2(res, stat);
     });
     app.get('/admin/api/problemList', async (req, res) => {
-        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.VIEW_PROBLEMS))) {
+        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
             res.sendStatus(403);
             return;
         }
@@ -139,7 +160,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             res.sendStatus(400);
             return;
         }
-        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.EDIT_PROBLEMS))) {
+        if (!(await db.hasPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
             res.sendStatus(403);
             return;
         }

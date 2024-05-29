@@ -511,10 +511,8 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
-            // const userData = await this.db.getAccountData(socket.username);
-            const canViewAllProblems = await this.db.hasPerms(socket.username, AdminPerms.VIEW_PROBLEMS);
-            if (problems[0].hidden && !canViewAllProblems) {
-                socket.kick('attempt to view hidden problem');
+            if (problems[0].hidden) {
+                socket.kick('cannot submit to hidden problem');
                 return;
             }
             if (!this.problemSubmittable(data.id)) {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { setTitlePanel } from '@/scripts/title';
-import { DoubleCutCornerContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { DoubleCutCornerContainer, TitledCollapsible, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { globalModal, UIButton, UIDropdown, UIFileUpload, UIIconButton } from '@/components/ui-defaults/UIDefaults';
-import { completionStateString, type ContestProblem, ContestProblemCompletionState, type ContestSubmission, ContestUpdateSubmissionResult, getUpdateSubmissionMessage, useContestManager } from '@/scripts/ContestManager';
+import { completionStateString, type ContestProblem, ContestProblemCompletionState, ContestUpdateSubmissionResult, getUpdateSubmissionMessage, useContestManager } from '@/scripts/ContestManager';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
@@ -53,7 +53,6 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
     submissions: [],
     status: ContestProblemCompletionState.ERROR,
 });
-const submissions = ref<ContestSubmission[]>([]);
 const loadErrorModal = (title: string, content: string) => {
     modal.showModal({
         title: title,
@@ -63,15 +62,9 @@ const loadErrorModal = (title: string, content: string) => {
         router.push(`/contest/problemList`);
     });
 };
-onMounted(async () => {
+const loadProblem = async () => {
     if (route.query.ignore_server !== undefined) return;
-    if (contestManager.contest == null) {
-        await new Promise<void>((resolve) => {
-            watch(() => contestManager.contest, () => {
-                if (contestManager.contest != null) resolve();
-            });
-        });
-    }
+    await contestManager.waitForContestLoad();
     if (route.params.problemId !== undefined) {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.exec(route.params.problemId.toString())) {
             loadErrorModal('Malformed problem ID', 'The supplied problem ID is invalid!');
@@ -93,7 +86,9 @@ onMounted(async () => {
     } else if (route.query.ignore_server === undefined) {
         loadErrorModal('No problem ID', 'No problem ID was supplied!');
     }
-});
+};
+onMounted(loadProblem);
+watch(() => contestManager.contest, loadProblem);
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
@@ -163,8 +158,9 @@ watch(problem, () => {
         <div class="problemViewDouble">
             <TitledCutCornerContainer :title="problemName" style="grid-row: span 3;" vertical-flipped>
                 <div class="problemViewSubtitle">
-                    <span v-html="problemSubtitle1" style="font-weight: bold;"></span>
-                    <span v-html="problemSubtitle2"></span>
+                    <span v-html="problemSubtitle1" style="font-weight: bold; grid-row: 1;"></span>
+                    <span v-html="problemSubtitle2" style="grid-row: 2;"></span>
+                    <ContestProblemStatusCircle :status="problem.status" style="grid-row: span 2;"></ContestProblemStatusCircle>
                 </div>
                 <div class="problemViewContent" v-html="problemContent"></div>
                 <WaitCover text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
@@ -189,18 +185,19 @@ watch(problem, () => {
                 </form>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
-                <h3 style="text-align: center;">Previous submissions</h3>
-                <AnimateInContainer type="fade" v-for="(item, index) in submissions" :key="index" :delay="index * 100">
-                    <div class="contestProblemListProblem">
-                        <span class="previousProblemStatusCircle">
-                            <ContestProblemStatusCircle :status="item.status"></ContestProblemStatusCircle>
-                        </span>
-                        <span class="problemStatus">{{ completionStateString(item.status) }}</span>
-                        <span class="contestProblemListProblemButton">
-                        </span>
+                <h3 class="submissionsHeader">Previous submissions</h3>
+                <AnimateInContainer type="fade" v-for="(item, index) in problem.submissions" :key="index" :delay="index * 100">
+                    <div class="submissionContainer">
+                        <div class="submissionTitle">
+                            <span class="previousProblemStatusCircle">
+                                <ContestProblemStatusCircle :status="item.status"></ContestProblemStatusCircle>
+                            </span>
+                            <span class="problemStatus">{{ completionStateString(item.status) }}</span>
+                        </div>
+                        <div class="submissionInfo"></div>
                     </div>
                 </AnimateInContainer>
-                <div v-if="submissions.length == 0" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
+                <div v-if="problem.submissions.length == 0" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
             </DoubleCutCornerContainer>
         </div>
     </div>
@@ -233,8 +230,8 @@ watch(problem, () => {
 
 .problemViewDouble {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, min-content);
-    grid-template-rows: minmax(0, min-content) minmax(0, min-content) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 35vw);
+    grid-template-rows: min-content minmax(200px, min-content) minmax(0, 1fr);
     row-gap: 16px;
     column-gap: 16px;
     height: 100%;
@@ -252,16 +249,19 @@ watch(problem, () => {
 }
 
 .problemViewSubtitle {
-    display: flex;
-    width: calc(100% - 16px);
-    flex-direction: column;
-    padding: 8px 8px;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: 1fr 1fr;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 12px;
     margin-bottom: 8px;
     border-radius: 8px;
     background-color: #333;
     font-weight: normal;
     font-family: 'Source Code Pro', Courier, monospace;
     font-size: var(--font-small);
+    align-items: center;
 }
 
 .problemViewContent {
@@ -285,5 +285,25 @@ watch(problem, () => {
 
 .problemViewSubmitFormInner>*:nth-child(odd) {
     justify-self: right;
+}
+
+.submissionsHeader {
+    position: sticky;
+    top: 6px;
+    text-align: center;
+    background-color: black;
+    box-shadow: 0px 0px 8px 4px black;
+    margin-bottom: 12px;
+    z-index: 1;
+}
+
+.submissionsHeader::after {
+    content: ' ';
+    position: absolute;
+    top: -20px;
+    left: 0px;
+    width: 100%;
+    height: 20px;
+    background-color: black;
 }
 </style>

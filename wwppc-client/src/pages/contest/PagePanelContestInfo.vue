@@ -20,6 +20,8 @@ const router = useRouter();
                         WWP Informatics Tournament (WWPIT) is a USACO / Codeforces-style programming contest in which teams of up to 4 compete in 3 rounds of problems across 2 divisions, ranging from AP CSA to USACO Platinum.
                         <br><br>
                         The contest will be held online, on this website, between two divisions: Novice and Advanced.
+                        <br><br>
+                        <i>Scroll down for more information.</i>
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
@@ -176,7 +178,7 @@ const router = useRouter();
                             </p>
                         </MultipanePane>
                         <MultipanePane for="round1">
-                            <GlitchText text="Round 1 Novice" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <GlitchText text="Round 1" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 1 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
@@ -196,7 +198,7 @@ const router = useRouter();
                             </p>
                         </MultipanePane>
                         <MultipanePane for="round2">
-                            <GlitchText text="Round 2 Novice / Round 1 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <GlitchText text="Round 2" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
@@ -205,7 +207,7 @@ const router = useRouter();
                             </p>
                         </MultipanePane>
                         <MultipanePane for="round3">
-                            <GlitchText text="Round 3 Novice / Round 2 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <GlitchText text="Round 3" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 Round 3 is 80 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
                             </p>
@@ -214,7 +216,7 @@ const router = useRouter();
                             </p>
                         </MultipanePane>
                         <MultipanePane for="sponsors">
-                            <GlitchText text="Round 3 Advanced" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
+                            <GlitchText text="Sponsor Events" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
                                 We will be hosting some events by our sponsors!
                                 <br><br>
@@ -235,7 +237,7 @@ const router = useRouter();
                                 </a>
                             </div>
                             <p>
-                                We will announce the winners and prizes for each division before closing off the contest.
+                                We will announce the winners for each division before closing off the contest.
                             </p>
                             <p style="font-size: var(--font-16)">
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
@@ -250,9 +252,29 @@ const router = useRouter();
     <div class="fullBlock stretchBlock">
         <a name="pageContestScrollTo2"></a>
         <CenteredContainer>
+            <GlitchText text="Format & Prizes" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
+        </CenteredContainer>
+        <div class="contestInfoBlock">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
+
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Contest Format" height="100%" align="center" hover-animation="lift" flipped>
+                    <p>
+                        WWPIT is a round-based team contest, where problems are revealed as time progresses
+                    </p>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+        </div>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo3]"></ScrollIndicator>
+    </div>
+    <div class="fullBlock stretchBlock">
+        <a name="pageContestScrollTo3"></a>
+        <CenteredContainer>
             <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
-        <br>
         <div class="faq">
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
@@ -292,6 +314,13 @@ const router = useRouter();
                         <li>Popular CP languages, like Java, C, C++, and Python are supported</li>
                         <li>Any resource is allowed as long as it was made before the contest (this <i>EXCLUDES</i> things like ChatGPT - textbooks, documentation, USACO.guide, etc. are allowed. PLEASE DO NOT plagiarize!!!)</li>
                     </ul>
+                    </p>
+                </TitledCollapsible>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen>
+                <TitledCollapsible title="What are the prizes?" startCollapsed>
+                    <p style="font-size: var(--font-20)">
+                        <i>Note: Only HIGH SCHOOL STUDENTS within the US (tax reasons) are eligible to recieve prize money. Other people CAN COMPETE and earn standings, but cannot recieve prizes.</i>
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>

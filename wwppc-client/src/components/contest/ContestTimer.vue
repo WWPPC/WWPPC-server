@@ -45,9 +45,8 @@ const updateTime = () => {
             nextTime.value = new Date(r.startTime);
             color.value = 'white';
         } else if (now < r.endTime) {
-            round.value = `Round ${r.number}`;
-            if (props.big) round.value = `Round ${r.number}`;
-            else round.value = `Round ${r.number}`;
+            if (props.big) round.value = `Round ${r.number + 1}`;
+            else round.value = `Round ${r.number + 1}`;
             nextTime.value = new Date(r.endTime);
             color.value = 'lime';
             inRound = true;

@@ -151,6 +151,7 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
+        this.logger.info('Disconnected');
         clearInterval(this.#cacheGarbageCollector);
         this.clearCache();
         await this.#db.end();
@@ -794,6 +795,7 @@ export class Database {
             if (config.debugMode) this.logger.debug(`hasPerms in ${performance.now() - startTime}ms`, true);
         }
     }
+    // add write admin perms, delete if there are no perms
 
     #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
@@ -1064,11 +1066,12 @@ export class Database {
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const submissions: Submission[] = [];
-            problemIdSet.forEach((id) => {
-                if (this.#submissionCache.has(id) && this.#submissionCache.get(id)!.expiration < performance.now()) this.#submissionCache.delete(id);
-                if (this.#submissionCache.has(id)) {
+            if (c.username != undefined) problemIdSet.forEach((id) => {
+                const realId = id + ':' + c.username;
+                if (this.#submissionCache.has(realId) && this.#submissionCache.get(realId)!.expiration < performance.now()) this.#submissionCache.delete(realId);
+                if (this.#submissionCache.has(realId)) {
                     problemIdSet.delete(id);
-                    submissions.push(structuredClone(this.#submissionCache.get(id)!.submission));
+                    submissions.push(structuredClone(this.#submissionCache.get(realId)!.submission));
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
@@ -1088,7 +1091,7 @@ export class Database {
                         scores: submission.scores,
                         history: submission.history
                     };
-                    this.#submissionCache.set(submission.id + ' ' + submission.username, {
+                    this.#submissionCache.set(submission.id + ':' + submission.username, {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
@@ -1118,7 +1121,7 @@ export class Database {
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);
-                this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
+                this.#submissionCache.set(submission.problemId + ':' + submission.username, {
                     submission: { ...submission, history: history },
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -1126,7 +1129,7 @@ export class Database {
                 await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time, history) VALUES ($1, $2, $3, $4, $5, $6, $7)', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([])
                 ]);
-                this.#submissionCache.set(submission.problemId + ' ' + submission.username, {
+                this.#submissionCache.set(submission.problemId + ':' + submission.username, {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -1230,14 +1233,18 @@ export enum TeamOpResult {
 /**Admin permission level bit flags */
 export enum AdminPerms {
     ADMIN = 1,
-    /**View all problems, rounds, and contests, including hidden ones */
-    VIEW_PROBLEMS = 1 << 1,
-    /**Edit all problems, including hidden ones */
-    EDIT_PROBLEMS = 1 << 2,
+    /**View recent server logs */
+    VIEW_LOGS = 1 << 1,
     /**Create, delete, and modify accounts */
-    MANAGE_ACCOUNTS = 1 << 3,
-    /**Create, modify, start, stop contests and reload ContestHost */
-    CONTROL_CONTESTS = 1 << 4,
+    MANAGE_ACCOUNTS = 1 << 2,
+    /**Edit all problems, including hidden ones */
+    MANAGE_PROBLEMS = 1 << 3,
+    /**Edit all non-running contests */
+    MANAGE_CONTESTS = 1 << 4,
+    /**Control and override ContestHost functions */
+    CONTROL_CONTESTS = 1 << 5,
+    /**View and disqualify submissions */
+    MANAGE_SUBMISSIONS = 1 << 6,
     /**Manage admin permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }

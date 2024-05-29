@@ -68,6 +68,13 @@ a {
     text-wrap: nowrap;
 }
 
+.tableContainer {
+    margin: 16px 16px;
+    border: 2px solid white;
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+
 table {
     border-collapse: collapse;
     width: max-content;
@@ -86,6 +93,7 @@ th:last-child {
 }
 
 table input[type=text],
+table input[type=number],
 table textarea {
     display: block;
     margin: 0px 0px;
@@ -105,7 +113,8 @@ table input[type=checkbox] {
     border-color: red;
 }
 
-table input[type=text]:hover {
+table input[type=text]:hover,
+table input[type=number]:hover {
     background-color: #333;
 }
 
@@ -192,7 +201,8 @@ table input[type=text]:hover {
         color: white;
     }
 
-    input {
+    input,
+    textarea {
         border-color: white;
     }
 

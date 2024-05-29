@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
 
 import { apiFetch, socket, useServerConnection } from './ServerConnection';
 
@@ -108,6 +108,12 @@ export const useContestManager = defineStore('contestManager', {
             const res: string[] | null = await apiFetch('GET', '/contestList/');
             return res;
         },
+        async waitForContestLoad() {
+            if (state.contest != null) return;
+            await new Promise((resolve) => watch(() => state.contest, () => {
+                if (state.contest != null) resolve;
+            }));
+        },
         async getProblemData(round: number, number: number): Promise<ContestProblem | null> {
             return state.contest?.rounds[round]?.problems[number] ?? null;
         },
@@ -118,7 +124,6 @@ export const useContestManager = defineStore('contestManager', {
             }
             return null;
         },
-        // server-driven contest list
         async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
             const serverConnection = useServerConnection();
             const res: ArchiveProblem | null = await serverConnection.apiFetch('GET', '/problemArchive/' + id);

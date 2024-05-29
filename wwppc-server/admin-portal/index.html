@@ -24,14 +24,19 @@
 
 <body>
     <nav id="nav">
-        <a href="/admin">Index</a>
-        <a href="/admin/accountManager">Account Manager</a>
-        <a href="/admin/problemManager">WWPIT Problem Manager</a>
-        <a href="/admin/contestManager">WWPIT Contest Manager</a>
+        <a href="/admin">Server Home</a>
+        <a href="/admin/accountManager">Accounts</a>
+        <a href="/admin/problemManager">WWPIT Problems</a>
+        <a href="/admin/contestManager">WWPIT Contests</a>
         <a href="/admin/contestRunner">WWPIT Control Center</a>
     </nav>
     <main>
-
+        <!-- add logs so i can see logs -->
+        <div id="logsContainer">
+            <textarea id="logs" disabled>
+            </textarea>
+            <input type="button" id="refreshLogsButton" value="Refresh">
+        </div>
     </main>
 </body>
 
