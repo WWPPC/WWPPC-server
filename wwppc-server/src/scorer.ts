@@ -57,28 +57,28 @@ export class Scorer {
      */
     getScores(): Map<string, number> {
         if (this.leaderboard == undefined) {
-            const subtaskCount = new Map<string,number>();
-            for(const s of this.subtasks){
-                const id = s.substring(0,36);
-                if(subtaskCount.has(id)){
+            const subtaskCount = new Map<string, number>();
+            for (const s of this.subtasks) {
+                const id = s.substring(0, 36);
+                if (subtaskCount.has(id)) {
                     const c = subtaskCount.get(id);
-                    if(c !== undefined){
-                        subtaskCount.set(id,c+1);
+                    if (c !== undefined) {
+                        subtaskCount.set(id, c + 1);
                     }
-                }else{
-                    subtaskCount.set(id,1);
+                } else {
+                    subtaskCount.set(id, 1);
                 }
             }
-            const subtaskSolved = new Map<string,number>();
+            const subtaskSolved = new Map<string, number>();
             this.subtasks.forEach((id) => {
-                subtaskSolved.set(id,0);
+                subtaskSolved.set(id, 0);
             });
-            this.users.forEach((value,key) => {
-                value.forEach((solved,subtask) => {
-                    if(solved !== -1){
+            this.users.forEach((value, key) => {
+                value.forEach((solved, subtask) => {
+                    if (solved !== -1) {
                         const c = subtaskSolved.get(subtask);
-                        if(c !== undefined){
-                            subtaskSolved.set(subtask,c+1);
+                        if (c !== undefined) {
+                            subtaskSolved.set(subtask, c + 1);
                         }
                     }
                 });
@@ -87,27 +87,27 @@ export class Scorer {
             this.subtasks.forEach((id) => {
                 const s = subtaskSolved.get(id);
                 const c = subtaskCount.get(id);
-                if(s !== undefined && c !== undefined){
-                    if(s == 0) maxScore+=1/c;
-                    else maxScore+=Math.log(s+1)/(s*c);
+                if (s !== undefined && c !== undefined) {
+                    if (s == 0) maxScore += 1 / c;
+                    else maxScore += Math.log(s + 1) / (s * c);
                 }
             });
             const scores = new Map<string, number>();
-            this.users.forEach((value,key) => {
+            this.users.forEach((value, key) => {
                 let score = 0;
                 let last = this.round.startTime;
-                value.forEach((solved,subtask) => {
-                    if(solved !== -1){
-                        last = Math.max(last,solved);
+                value.forEach((solved, subtask) => {
+                    if (solved !== -1) {
+                        last = Math.max(last, solved);
                         const s = subtaskSolved.get(subtask);
                         const c = subtaskCount.get(subtask);
-                        if(s !== undefined && c !== undefined){
-                            if(s == 0) score+=1/c;
-                            else score+=Math.log(s+1)/(s*c);
+                        if (s !== undefined && c !== undefined) {
+                            if (s == 0) score += 1 / c;
+                            else score += Math.log(s + 1) / (s * c);
                         }
                     }
                 });
-                scores.set(key,score/maxScore*1000-0.001*(last-this.round.startTime)/(this.round.endTime-this.round.startTime));
+                scores.set(key, score / maxScore * 1000 - 0.001 * (last - this.round.startTime) / (this.round.endTime - this.round.startTime));
             });
             return this.leaderboard = scores;
             // const scores = new Map<string, number>();
