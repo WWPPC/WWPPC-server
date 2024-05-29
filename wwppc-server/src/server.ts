@@ -559,7 +559,6 @@ const stopServer = async (code: number) => {
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
     process.on('SIGINT', actuallyStop);
-    process.on('SIGILL', actuallyStop);
     io.close();
     clearInterval(connectionKickDecrementer);
     contestManager.close();
