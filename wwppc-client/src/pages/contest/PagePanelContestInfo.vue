@@ -78,7 +78,7 @@ const router = useRouter();
         </CenteredContainer>
         <div class="scheduleBlock">
             <AnimateInContainer type="slideUp" show-on-screen>
-                <CutCornerContainer height="100%" flipped no-padding>
+                <CutCornerContainer height="100%" flipped no-padding hover-animation="lift">
                     <MultipaneSelectorContainer for="contestSchedule">
                         <div class="scheduleHeader">
                             June 1
@@ -144,7 +144,7 @@ const router = useRouter();
                 </CutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="min-width: 0px; min-height: 15em;">
-                <CutCornerContainer height="100%" vertical-flipped no-padding no-scroll style="font-size: var(--font-medium);">
+                <CutCornerContainer height="100%" vertical-flipped no-padding no-scroll style="font-size: var(--font-medium);" hover-animation="lift">
                     <MultipanePaneContainer for="contestSchedule" default="precontest">
                         <MultipanePane for="precontest">
                             <GlitchText text="Pre-contest Practice & Testing" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
