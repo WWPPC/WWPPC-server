@@ -18,7 +18,8 @@ logs/
 # npm dependencies
 node_modules/
 
-# dotenv environment variable files
+# configuration files
+config.json
 .env
 *.pem
 *.crt
