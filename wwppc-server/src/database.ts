@@ -681,10 +681,8 @@ export class Database {
             if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return TeamOpResult.CONTEST_ALREADY_EXISTS;
             const res = await this.#db.query(`
-                UPDATE teams SET registrations=(
-                    (SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1))
-                    || $2
-                ) WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
+                UPDATE teams SET teams.registrations=(teams.registrations || $2)
+                WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
                 RETURNING teams.username
                 `, [
                 username, [contest]
@@ -755,8 +753,13 @@ export class Database {
      */
     async finishContest(contest: string): Promise<boolean> {
         const startTime = performance.now();
-        try { 
-            await this.#db.query('(SELECT username FROM )')
+        try {
+            await this.#db.query(`
+                UPDATE users SET users.pastRegistrations=(users.pastRegistrations || $1)
+                WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))
+                `, [
+                contest
+            ]);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (finishContest):', err);

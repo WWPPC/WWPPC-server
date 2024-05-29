@@ -11,7 +11,8 @@ body {
     align-items: center;
 }
 
-input {
+input,
+textarea {
     border: 4px solid black;
     background-color: white;
     margin-bottom: 8px;
@@ -25,12 +26,14 @@ input:invalid {
     border-color: yellow;
 }
 
-input:hover {
+input:hover,
+textarea:hover {
     border-color: lime;
 }
 
 input:focus,
-input:active {
+input:active,
+textarea:focus {
     border-color: red;
 }
 
@@ -55,12 +58,43 @@ a {
 }
 
 #nav {
+    position: sticky;
+    top: 0px;
     background-color: #EEE;
     border-bottom: 4px solid white;
     padding: 8px 8px;
     font-size: 20px;
     overflow-x: scroll;
     text-wrap: nowrap;
+}
+
+table {
+    border-collapse: collapse;
+    overflow-x: scroll;
+    width: max-content;
+}
+
+td,
+th {
+    border: 2px solid black;
+}
+
+table input[type=text],
+table textarea {
+    display: block;
+    margin: 0px 0px;
+    border: none;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.edited>td {
+    border-color: red;
+}
+
+table input:hover {
+    background-color: #333;
 }
 
 @supports selector(::-webkit-scrollbar) {
@@ -140,7 +174,7 @@ a {
     }
 }
 
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     body {
         background-color: #222;
         color: white;
@@ -156,6 +190,11 @@ a {
 
     #nav {
         background-color: black;
+    }
+
+    td,
+    th {
+        border-color: white;
     }
 
     @supports selector(::-webkit-scrollbar) {
@@ -197,4 +236,4 @@ a {
             scrollbar-color: #555 #222;
         }
     }
-} */
+}
