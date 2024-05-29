@@ -71,7 +71,10 @@ function modify(id, name, author, content, testCases, constraints, hidden, archi
         name: name,
         author: author,
         content: content,
-        constraints: constraints
+        cases: testCases,
+        constraints: constraints,
+        hidden: hidden,
+        archived: archived
     }));
 
     // post request

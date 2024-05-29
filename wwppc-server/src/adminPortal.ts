@@ -124,6 +124,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             return;
         }
         const stat = await database.writeProblem(req.body);
+        if (!stat) {
+            res.sendStatus(500);
+        } else {
+            res.sendStatus(200)
+        }
     });
 
     // reserve /admin path
