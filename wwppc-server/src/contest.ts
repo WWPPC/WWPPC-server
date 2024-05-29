@@ -557,6 +557,7 @@ export class ContestHost {
     #endListeners: Set<() => any> = new Set();
     end() {
         this.logger.info(`Ending contest "${this.id}"`);
+        this.db.finishContest(this.id);
         this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
         this.#endListeners.forEach((cb) => cb());
     }
