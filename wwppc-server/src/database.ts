@@ -1236,7 +1236,7 @@ export enum AdminPerms {
     EDIT_PROBLEMS = 1 << 2,
     /**Create, delete, and modify accounts */
     MANAGE_ACCOUNTS = 1 << 3,
-    /**Create, modify, start, stop contest, and override contestManager */
+    /**Create, modify, start, stop contests and reload ContestHost */
     CONTROL_CONTESTS = 1 << 4,
     /**Manage admin permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
