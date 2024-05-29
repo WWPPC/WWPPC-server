@@ -1,5 +1,6 @@
 .problemTableContainer {
     margin: 16px 16px;
     border: 2px solid white;
+    overflow-y: hidden;
     overflow-x: scroll;
 }

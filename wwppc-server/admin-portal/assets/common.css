@@ -70,13 +70,19 @@ a {
 
 table {
     border-collapse: collapse;
-    overflow-x: scroll;
     width: max-content;
+    margin: -2px -2px;
+    overflow: hidden;
 }
 
 td,
 th {
     border: 2px solid black;
+}
+
+td:last-child,
+th:last-child {
+    border-right: none;
 }
 
 table input[type=text],

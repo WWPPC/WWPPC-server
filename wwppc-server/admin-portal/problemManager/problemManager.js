@@ -63,7 +63,7 @@ async function load() {
         content.style.resize = 'vertical';
         content.value = problem.content;
         content.style.width = '100%';
-        content.rows = 20;
+        content.rows = 10;
         contentCell.appendChild(content);
         row.appendChild(contentCell);
         // checkboxes
