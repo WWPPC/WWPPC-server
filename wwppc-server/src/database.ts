@@ -151,10 +151,10 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
-        this.logger.info('Disconnected');
         clearInterval(this.#cacheGarbageCollector);
         this.clearCache();
         await this.#db.end();
+        this.logger.info('Disconnected');
     }
 
     /**
