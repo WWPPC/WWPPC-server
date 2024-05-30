@@ -7,8 +7,10 @@ async function loadLogs() {
     if (response.status != 200) {
         // not good
         console.error('/admin/api/logs code ' + response.status);
+        document.getElementById('lastRefresh').innerHTML = 'Could not fetch ' + response.status;
         return;
     }
+    document.getElementById('lastRefresh').innerHTML = 'Last refresh ' + new Date();
     const logs = await response.text();
     logsBlock.value = logs;
     logsBlock.scrollTop = logsBlock.scrollHeight;
