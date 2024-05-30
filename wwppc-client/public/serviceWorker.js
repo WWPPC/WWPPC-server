@@ -28,11 +28,10 @@ let getCached = async (request, preloadResponse) => {
         // serve from cache while also updating the cache if possible
         const cached = await cache.match(request);
         if (cached !== undefined) {
-            await preloadResponse;
-            updateCache(cache, request, undefined);
+            updateCache(cache, request);
             return cached;
         } else {
-            return await updateCache(cache, request, preloadResponse);
+            return await updateCache(cache, request, await preloadResponse);
         }
     } catch (err) {
         console.error(err);
@@ -42,17 +41,10 @@ let getCached = async (request, preloadResponse) => {
         });
     }
 };
-let updateCache = async (cache, request, preloadResponse) => {
-    if (preloadResponse != undefined) {
-        try {
-            const preloaded = await preloadResponse;
-            if (preloaded !== undefined && preloaded.ok) {
-                cache.put(request.url, preloaded.clone());
-                return preloaded;
-            }
-        } catch { 
-            // oh well
-        }
+let updateCache = async (cache, request, preloaded) => {
+    if (preloaded !== undefined && preloaded.ok) {
+        cache.put(request.url, preloaded.clone());
+        return preloaded;
     }
     try {
         const networked = await fetch(request);
@@ -60,8 +52,8 @@ let updateCache = async (cache, request, preloadResponse) => {
         return networked;
     } catch (err) {
         console.error(err);
-        return new Response('timed out', {
-            status: 408,
+        return new Response('offline', {
+            status: 502,
             headers: { "Content-Type": "text/plain" }
         });
     }
@@ -71,5 +63,3 @@ self.addEventListener("fetch", (e) => {
         e.respondWith(getCached(e.request, e.preloadResponse));
     }
 });
-
-// notification system?
