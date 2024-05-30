@@ -1,10 +1,10 @@
 #logsContainer {
-    width: 50vw;
+    width: 60vw;
     margin: 16px 16px;
 }
 
 #logs {
-    width: 50vw;
+    width: 60vw;
     height: calc(100vh - 140px);
     margin: 0px 0px;
     overflow-y: scroll;
@@ -12,6 +12,6 @@
 }
 
 #refreshLogsButton {
-    width: calc(50vw + 12px);
+    width: calc(60vw + 12px);
     margin: 0px 0px;
 }
