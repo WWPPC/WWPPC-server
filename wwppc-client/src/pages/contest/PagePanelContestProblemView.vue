@@ -308,4 +308,10 @@ watch(problem, () => {
     height: 20px;
     background-color: black;
 }
+
+.submissionTitle {
+    padding: 4px 4px;
+    background-color: #333;
+    border-radius: 8px;
+}
 </style>

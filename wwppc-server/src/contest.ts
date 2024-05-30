@@ -469,7 +469,7 @@ export class ContestHost {
     #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
         // will not reveal verdict until round ends!
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
-        if (config.showVerdictAfterRoundEnd && round == this.#index) return ClientProblemCompletionState.UPLOADED;
+        if (config.gradeAtRoundEnd && round == this.#index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
@@ -539,7 +539,7 @@ export class ContestHost {
                 lang: data.lang,
                 time: Date.now()
             };
-            if (!(await this.db.writeSubmission(submission))) {
+            if (!(await this.db.writeSubmission(submission, config.gradeAtRoundEnd))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
@@ -548,7 +548,7 @@ export class ContestHost {
             this.grader.queueUngraded(submission, async (graded) => {
                 if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
                 if (graded != null) {
-                    await this.db.writeSubmission(graded);
+                    await this.db.writeSubmission(graded, config.gradeAtRoundEnd);
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
