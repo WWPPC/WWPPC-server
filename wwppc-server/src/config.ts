@@ -23,6 +23,7 @@ const config: {
     readonly graderTimeout: number
     readonly acceptedLanguages: string[]
     readonly maxSubmissionSize: number
+    readonly showVerdictAfterRoundEnd: boolean
     readonly logEmailActivity: boolean
     readonly debugMode: boolean
     readonly superSecretSecret: boolean
@@ -53,6 +54,7 @@ const config: {
         'Python3.12.3'
     ],
     maxSubmissionSize: fileConfig.maxSubmissionSize ?? 10240,
+    showVerdictAfterRoundEnd: fileConfig.showVerdictAfterRoundEnd ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
     debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,

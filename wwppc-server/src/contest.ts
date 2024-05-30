@@ -265,6 +265,7 @@ export class ContestHost {
     #updateLoop: NodeJS.Timeout | undefined = undefined;
 
     readonly #users: Map<string, Set<ServerSocket>> = new Map();
+    readonly #submissionQueue: Map<string, Submission> = new Map();
 
     /**
      * @param {string} id Contest id of contest
@@ -394,18 +395,21 @@ export class ContestHost {
         await Promise.all(Array.from(this.#users.keys()).map((username) => this.updateUser(username)));
     }
     /**
-     * Only update users under a username with the latest contest data.
+     * Only update users under a team with the latest contest data.
      * @param {string} username Username
      */
     async updateUser(username: string): Promise<void> {
         if (this.#users.has(username)) {
             try {
+                const team = await this.db.getAccountTeam(username);
+                if (typeof team != 'string') throw new Error(`Database error while reading team data (${username})`);
                 const userRounds: ClientRound[] = await Promise.all(this.#data.rounds.map(async (round): Promise<ClientRound> => {
                     if (round.number <= this.#index) {
                         const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
+                            // submissions go under team names
                             const problemData = await this.db.readProblems({ id: id });
-                            const submissionData = await this.db.readSubmissions({ id: id, username: username });
-                            if (problemData == null || submissionData == null) throw new Error(`Database error (Round ${round.id} Problem ${id})`);
+                            const submissionData = await this.db.readSubmissions({ id: id, username: team });
+                            if (problemData == null || submissionData == null) throw new Error(`Database error while reading problems and submissions (Round ${round.id} Problem ${id})`);
                             if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
                             // mapping submissions is messy, submissions empty of there are no past submissions
                             // otherwise concatenate history behind most recent submission
@@ -465,7 +469,7 @@ export class ContestHost {
     #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
         // will not reveal verdict until round ends!
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
-        if (round == this.#index) return ClientProblemCompletionState.UPLOADED;
+        if (config.showVerdictAfterRoundEnd && round == this.#index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
@@ -521,8 +525,13 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
+            const teamData = await this.db.getTeamData(socket.username);
+            if (typeof teamData != 'object') {
+                respond(ContestUpdateSubmissionResult.ERROR);
+                return;
+            }
             const submission: Submission = {
-                username: socket.username,
+                username: teamData.id,
                 problemId: data.id,
                 file: data.file,
                 scores: [],
@@ -530,21 +539,24 @@ export class ContestHost {
                 lang: data.lang,
                 time: Date.now()
             };
-            // make sure no grading spam
-            this.grader.cancelUngraded(socket.username, data.id);
-            this.grader.queueUngraded(submission, async (graded) => {
-                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
-                if (graded != null) {
-                    await this.db.writeSubmission(graded);
-                    this.updateUser(socket.username);
-                }
-            });
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
+            // submissions are stored under the team
+            this.grader.cancelUngraded(teamData.id, data.id);
+            this.grader.queueUngraded(submission, async (graded) => {
+                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
+                if (graded != null) {
+                    await this.db.writeSubmission(graded);
+                    // make sure it gets to all the team
+                    const teamData = await this.db.getTeamData(socket.username);
+                    if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
+                }
+            });
             respond(ContestUpdateSubmissionResult.SUCCESS);
-            this.updateUser(socket.username);
+            // update whole team
+            teamData.members.forEach((username) => this.updateUser(username));
             this.logger.info(`Accepted submission for ${data.id} by ${socket.username}`);
         });
 
