@@ -1108,6 +1108,7 @@ export class Database {
     }
     /**
      * Write a submission to the submissions table. The `history` field is ignored.
+     * If the most recent submission has an empty `scores` field, the submission will be overwritten instead of appended to history.
      * @param {Submission} submission Submission to write
      * @returns {boolean} If the write was successful
      */
@@ -1117,7 +1118,7 @@ export class Database {
             const existing = await this.#db.query('SELECT time, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
             if (existing.rows.length > 0) {
                 const history: { time: number, scores: Score[] }[] = existing.rows[0].history;
-                history.push({ time: existing.rows[0].time, scores: existing.rows[0].scores });
+                if (existing.rows[0].scores.length > 0) history.push({ time: existing.rows[0].time, scores: existing.rows[0].scores });
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);
@@ -1437,9 +1438,9 @@ export interface ReadProblemsCriteria {
     /**UUID of problem */
     id?: UUID | UUID[]
     /**Display name of problem */
-    name?: string
+    name?: string | string[]
     /**Author username of problem */
-    author?: string
+    author?: string | string[]
     /**Round based filter for problems */
     contest?: ProblemRoundCriteria
 }
@@ -1448,7 +1449,7 @@ export interface ReadSubmissionsCriteria {
     /**UUID of problem */
     id?: UUID | UUID[]
     /**Username of submitter */
-    username?: string
+    username?: string | string[]
     /**Round-based filter for problems */
     contest?: ProblemRoundCriteria
 }

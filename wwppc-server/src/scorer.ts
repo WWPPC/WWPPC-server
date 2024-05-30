@@ -16,14 +16,8 @@ export class Scorer {
     // leaderboard is cached, when a user is updated it is cleared
     leaderboard: Map<string, number> | undefined = undefined;
 
-    constructor(problems: Problem[], round: Round) {
+    constructor(round: Round) {
         this.round = round;
-        // GET SUBTASKS WHILE GRADING INSTEAD
-        // for (const problem of problems) {
-        //     for (const testCase of problem.cases) {
-        //         this.subtasks.add(problem.id+testCase.subtask);
-        //     }
-        // }
     }
 
     /**
