@@ -165,7 +165,7 @@ export class WwppcGrader extends Grader {
                 if (node.grading != undefined && node.deadline < Date.now()) {
                     this.#ungradedSubmissions.unshift(node.grading);
                     node.grading = undefined;
-                    this.logger.info('Grader timed out (returning to queue): ' + node.username);
+                    this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
                 }
                 //if they haven't talked to us in a while let's just assume they disconnected
                 if (node.lastCommunication + config.graderTimeout < Date.now()) {
@@ -174,7 +174,9 @@ export class WwppcGrader extends Grader {
                     if (node.grading != undefined) {
                         this.#ungradedSubmissions.unshift(node.grading);
                         node.grading = undefined;
-                        this.logger.info('Grader timed out (returning to queue): ' + node.username);
+                        this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
+                    } else {
+                        this.logger.info('Grader timed out: ' + node.username);
                     }
                 }
             });
