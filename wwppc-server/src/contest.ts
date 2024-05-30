@@ -539,6 +539,11 @@ export class ContestHost {
                 lang: data.lang,
                 time: Date.now()
             };
+            const teamData = await this.db.getTeamData(socket.username);
+            if (typeof teamData != 'object') {
+                respond(ContestUpdateSubmissionResult.ERROR);
+                return;
+            }
             if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
