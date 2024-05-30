@@ -682,7 +682,7 @@ export class Database {
             if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return TeamOpResult.CONTEST_ALREADY_EXISTS;
             const res = await this.#db.query(`
-                UPDATE teams SET teams.registrations=(teams.registrations || $2)
+                UPDATE teams SET registrations=(teams.registrations || $2)
                 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
                 RETURNING teams.username
                 `, [
