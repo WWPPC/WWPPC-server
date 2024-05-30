@@ -588,3 +588,19 @@ if (process.argv.includes('mem_logger')) {
         logger.debug(`Memory: ${Math.round(mem.heapUsed / 1048576 * 100) / 100}MB / ${Math.round(mem.heapTotal / 1048576 * 100) / 100}MB`);
     }, 5000);
 }
+
+let writeProblem_ = async (id: string, name: string, author: string, division: string, round: number, number: number) => {
+    const cases = './problems-temp/jsons';
+    const problems = './problems-temp/problems';
+    console.log("writing "+name);
+    await database.writeProblem({
+        id: id,
+        name: name,
+        author: author,
+        content: fs.readFileSync(problems + '/'+division+'/Round '+round+'/Problem '+number+'/problem.html', 'utf8'),
+        // cases: JSON.parse(fs.readFileSync(cases + '/'+division+'-'+round+'-'+number+'.json', 'utf8')),
+        constraints: { time: 4000, memory: 256 },
+        hidden: false,
+        archived: false
+    });
+}
