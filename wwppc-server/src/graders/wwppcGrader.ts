@@ -102,7 +102,7 @@ export class WwppcGrader extends Grader {
             }
             node.lastCommunication = Date.now();
 
-            this.#ungradedSubmissions.unshift(node.grading);
+            if (!node.grading.cancelled) this.#ungradedSubmissions.unshift(node.grading);
             node.grading = undefined;
             res.sendStatus(200);
             if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 200, returned work`, true);
@@ -144,7 +144,7 @@ export class WwppcGrader extends Grader {
                 subtask: s.subtask
             }));
 
-            this.#gradedSubmissions.push(node.grading.submission);
+            if (!node.grading.cancelled) this.#gradedSubmissions.push(node.grading.submission);
             try {
                 if (node.grading.callback) node.grading.callback(node.grading.submission);
             } catch (err) {
@@ -183,15 +183,22 @@ export class WwppcGrader extends Grader {
 
     queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
         this.#ungradedSubmissions.push({
-            submission,
-            callback: cb
+            submission: submission,
+            callback: cb,
+            cancelled: false
         });
         if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`, true);
     }
     cancelUngraded(username: string, problemId: string): boolean {
+        let canceled = 0;
+        this.#nodes.forEach((node) => {
+            if (node.grading != undefined && node.grading.submission.username == username && node.grading.submission.problemId == problemId) {
+                node.grading.cancelled = true;
+                canceled++;
+            }
+        });
         let i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
         if (i != -1) {
-            let canceled = 0;
             while (i != -1) {
                 if (this.#ungradedSubmissions[i].callback) {
                     try {
@@ -205,9 +212,8 @@ export class WwppcGrader extends Grader {
                 canceled++;
             }
             if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions by ${username} for ${problemId}`);
-            return true;
         }
-        return false;
+        return canceled > 0;
     }
     get gradedList(): Submission[] {
         return this.#gradedSubmissions;
@@ -238,7 +244,8 @@ export class WwppcGrader extends Grader {
 
 export interface SubmissionWithCallback {
     submission: Submission
-    callback?: (graded: Submission | null) => any
+    callback?: (graded: Submission | null) => any,
+    cancelled: boolean
 }
 
 /**Represents a grader server */

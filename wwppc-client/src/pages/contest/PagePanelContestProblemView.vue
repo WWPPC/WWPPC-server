@@ -141,6 +141,8 @@ const submitUpload = async () => {
     } else {
         modal.showModal({ title: 'Submission uploaded', content: 'Grading will happen soon', color: 'lime' });
     }
+    fileUpload.value.resetFileList();
+    languageDropdown.value.value = '';
 };
 
 // thing for katex
