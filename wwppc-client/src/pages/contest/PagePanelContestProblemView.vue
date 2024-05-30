@@ -11,6 +11,7 @@ import latexify from '@/scripts/katexify';
 import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
 import AnimateInContainer from "@/components/ui-defaults/containers/AnimateInContainer.vue";
 import { useServerConnection } from '@/scripts/ServerConnection';
+import ProblemSubmissionCase from '@/components/contest/ProblemSubmissionCase.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -150,6 +151,9 @@ const problemContent = ref('');
 watch(problem, () => {
     latexify(problem.value.content).then((html) => problemContent.value = html);
 });
+onMounted(() => {
+    latexify(problem.value.content).then((html) => problemContent.value = html);
+});
 </script>
 
 <template>
@@ -188,15 +192,18 @@ watch(problem, () => {
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
                 <h3 class="submissionsHeader">Previous submissions</h3>
-                <AnimateInContainer type="fade" v-for="(item, index) in problem.submissions" :key="index" :delay="index * 100">
+                <AnimateInContainer type="fade" v-for="(submission, index) in problem.submissions" :key="index" :delay="index * 100">
                     <div class="submissionContainer">
-                        <div class="submissionTitle">
-                            <span class="previousProblemStatusCircle">
-                                <ContestProblemStatusCircle :status="item.status"></ContestProblemStatusCircle>
-                            </span>
-                            <span class="problemStatus">{{ completionStateString(item.status) }}</span>
+                        <label class="submissionTitle" :for="'submissionCheckbox' + index">
+                            <ContestProblemStatusCircle :status="submission.status"></ContestProblemStatusCircle>
+                            <span>{{ completionStateString(submission.status) }}</span>
+                        </label>
+                        <input type="checkbox" class="submissionCheckbox" :id="'submissionCheckbox' + index">
+                        <div class="submissionDetailsWrapper">
+                            <div class="submissionDetails">
+                                <ProblemSubmissionCase v-for="(testCase, index2) in submission.scores" :key="index2" :case="testCase" :number="index2"></ProblemSubmissionCase>
+                            </div>
                         </div>
-                        <div class="submissionInfo"></div>
                     </div>
                 </AnimateInContainer>
                 <div v-if="problem.submissions.length == 0" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
@@ -309,9 +316,55 @@ watch(problem, () => {
     background-color: black;
 }
 
-.submissionTitle {
-    padding: 4px 4px;
-    background-color: #333;
+.submissionContainer {
+    display: flex;
+    flex-direction: column;
+    background-color: #222;
     border-radius: 8px;
+}
+
+.submissionTitle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 4px;
+    column-gap: 16px;
+    border-radius: 8px;
+    background-color: #333;
+    transition: 50ms linear background-color;
+    cursor: pointer;
+}
+
+.submissionTitle:hover {
+    background-color: #444;
+}
+
+.submissionCheckbox {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    visibility: hidden;
+}
+
+.submissionDetailsWrapper {
+    position: relative;
+    box-sizing: border-box;
+    transition: 200ms ease min-height, 200ms ease max-height;
+    min-height: 0px;
+    max-height: 0px;
+    overflow: hidden;
+}
+
+.submissionCheckbox:checked~.submissionDetailsWrapper {
+    min-height: 76px;
+    max-height: 76px;
+}
+
+.submissionDetails {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 4px 4px;
+    column-gap: 4px;
 }
 </style>

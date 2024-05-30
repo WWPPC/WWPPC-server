@@ -79,7 +79,7 @@ export class WwppcGrader extends Grader {
                 lang: node.grading.submission.lang,
                 constraints: problems[0].constraints
             });
-            if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, work sent`, true);
+            this.logger.info(`get-work: ${username}@${req.ip} - 200, work sent`);
         });
         this.app.post('/judge/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
@@ -105,7 +105,7 @@ export class WwppcGrader extends Grader {
             if (!node.grading.cancelled) this.#ungradedSubmissions.unshift(node.grading);
             node.grading = undefined;
             res.sendStatus(200);
-            if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 200, returned work`, true);
+            this.logger.info(`return-work: ${username}@${req.ip} - 200, returned work`);
         });
         this.app.post('/judge/finish-work', async (req, res) => {
             //return finished batch
@@ -153,7 +153,7 @@ export class WwppcGrader extends Grader {
 
             node.grading = undefined;
             res.sendStatus(200);
-            if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 200, finished work`, true);
+            this.logger.info(`finish-work: ${username}@${req.ip} - 200, finished work`);
         });
 
         // reserve /judge path

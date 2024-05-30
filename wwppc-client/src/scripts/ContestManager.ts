@@ -37,13 +37,15 @@ export interface ContestScore {
     state: ContestScoreState
     time: number
     memory: number
+    subtask: number
 }
 export enum ContestScoreState {
     CORRECT = 1,
     INCORRECT = 2,
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
-    RUNTIME_ERROR = 5
+    RUNTIME_ERROR = 5,
+    COMPILE_ERROR = 6
 }
 export enum ContestProblemCompletionState {
     /**Not attempted */

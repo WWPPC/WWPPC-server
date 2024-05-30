@@ -32,8 +32,10 @@ systemctl enable /etc/systemd/system/wwppc.service
 
 ## Cron job of grader
 
+Add 5 to the time because cron jobs are UTC
+
 ```
-0 0 * * * systemctl stop wwppc.service; cd /root/WWPPC-grader && git pull && npm install && npm run compile; cd /root/WWPPC-grader/problems && git pull; systemctl start wwppc.service
+0 7 * * * systemctl stop wwppc.service; cd /root/WWPPC-grader && git pull && npm install && npm run compile; cd /root/WWPPC-grader/problems && git pull; systemctl start wwppc.service
 ```
 
 The actual command we're using because its not root lol
