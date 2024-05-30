@@ -1,17 +1,29 @@
+#mainContainer {
+    display: grid;
+    grid-template-columns: 60vw 1fr;
+}
+
 #logsContainer {
+    box-sizing: border-box;
     width: 60vw;
-    margin: 16px 16px;
+    padding: 16px 16px;
 }
 
 #logs {
-    width: 60vw;
-    height: calc(100vh - 140px);
+    width: 100%;
+    height: calc(100vh - 160px);
     margin: 0px 0px;
+    text-wrap: nowrap;
     overflow-y: scroll;
     resize: none;
 }
 
 #refreshLogsButton {
-    width: calc(60vw + 12px);
+    width: calc(100% + 12px);
     margin: 0px 0px;
+}
+
+#lastRefresh {
+    height: 20px;
+    margin: 0px;
 }

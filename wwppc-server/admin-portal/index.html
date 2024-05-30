@@ -31,12 +31,26 @@
         <a href="/admin/contestRunner">WWPIT Control Center</a>
     </nav>
     <main>
-        <!-- add logs so i can see logs -->
-        <div id="logsContainer">
-            <textarea id="logs" disabled>
-            </textarea>
-            <input type="button" id="refreshLogsButton" value="Refresh">
-            <p id="lastRefresh"></p>
+        <div id="mainContainer">
+            <div id="logsContainer">
+                <textarea id="logs" disabled>
+                </textarea>
+                <input type="button" id="refreshLogsButton" value="Refresh">
+                <p id="lastRefresh"></p>
+            </div>
+            <div class="tableContainer">
+                <table id="aTable">
+                    <tr>
+                        <th width="200px">Username</th>
+                        <th width="100px">Admin</th>
+                        <th width="100px">Manage Accounts</th>
+                        <th width="100px">Manage Problems</th>
+                        <th width="100px">Manage Contests</th>
+                        <th width="100px">Manage Submissions</th>
+                        <th width="100px">Manage Admins</th>
+                    </tr>
+                </table>
+            </div>
         </div>
     </main>
 </body>

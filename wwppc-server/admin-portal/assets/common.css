@@ -221,7 +221,7 @@ table input[type=number]:hover {
 
     @supports selector(::-webkit-scrollbar) {
         *::-webkit-scrollbar {
-            background-color: #222;
+            background-color: #333;
         }
 
         *::-webkit-scrollbar-thumb {
@@ -237,7 +237,7 @@ table input[type=number]:hover {
         }
 
         *::-webkit-scrollbar-button {
-            background-color: #222;
+            background-color: #333;
         }
 
         *::-webkit-scrollbar-button:hover {
@@ -249,13 +249,13 @@ table input[type=number]:hover {
         }
 
         *::-webkit-scrollbar-corner {
-            background-color: #222;
+            background-color: #333;
         }
     }
 
     @supports (not (selector(::-webkit-scrollbar))) {
         * {
-            scrollbar-color: #555 #222;
+            scrollbar-color: #555 #333;
         }
     }
 }

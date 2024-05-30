@@ -464,7 +464,7 @@ export class Database {
                 this.logger.warn(`"${adminUsername}" is trying to delete account "${username}"!`);
                 const res = await this.checkAccount(adminUsername, password);
                 if (res != AccountOpResult.SUCCESS) return res;
-                if (!await this.hasPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
+                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
                 const users = await this.#db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
@@ -750,7 +750,7 @@ export class Database {
     }
     /**
      * Moves all instances of a contest from upcoming registrations to the past registrations of every team.
-     * @param contest 
+     * @param {string} contest Contest ID to mark as completed
      */
     async finishContest(contest: string): Promise<boolean> {
         const startTime = performance.now();
@@ -773,11 +773,11 @@ export class Database {
     #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
      * Check if an administrator has a certain permission.
-     * @param username Valid administrator username
-     * @param flag Permission flag to check against
+     * @param {string} username Valid administrator username
+     * @param {AdminPerms} flag Permission flag to check against
      * @returns {boolean} If the administrator has the permission. Also false if the user is not an administrator.
      */
-    async hasPerms(username: string, flag: AdminPerms): Promise<boolean> {
+    async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean> {
         const startTime = performance.now();
         try {
             if (this.#adminCache.has(username) && this.#adminCache.get(username)!.expiration < performance.now()) this.#adminCache.delete(username);
@@ -789,13 +789,63 @@ export class Database {
             });
             return data.rows.length > 0 && (data.rows[0].permissions & flag) != 0;
         } catch (err) {
-            this.logger.handleError('Database error (hasPerms):', err);
+            this.logger.handleError('Database error (hasAdminPerms):', err);
             return false;
         } finally {
-            if (config.debugMode) this.logger.debug(`hasPerms in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`hasAdminPerms in ${performance.now() - startTime}ms`, true);
         }
     }
-    // add write admin perms, delete if there are no perms
+    /**
+     * Get a list of all administrators and their boolean permission flags.
+     * @returns {{ username: string, permissions: number }[] | null} Paired usernames and permissions, or null if an error cocured.
+     */
+    async getAdminList(): Promise<{ username: string, permissions: number }[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT username, permissions FROM admins');
+            for (const row of data.rows) {
+                this.#adminCache.set(row.username, {
+                    permissions: row.permissions,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+            }
+            return data.rows;
+        } catch (err) {
+            this.logger.handleError('Database error (getAdminList):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getAdminList in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Set the permission bit flags of an administrator, or add a new administrator. If permissions bit 0 is false (not admin), the administrator is removed.
+     * @param {string} username Valid username
+     * @param {number} permissions Permission flags, as a number (boolean OR)
+     * @returns {boolean} If writing was successful.
+     */
+    async setAdminPerms(username: string, permissions: number): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            if ((permissions & AdminPerms.ADMIN) == 0) {
+                // delete instead
+                await this.#db.query('DELETE FROM admins WHERE username=$1', [username]);
+                this.#adminCache.delete(username);
+            } else {
+                const existing = await this.#db.query('UPDATE admins SET permissions=$2 WHERE username=$1 RETURNING username', [username, permissions]);
+                if (existing.rows.length == 0) await this.#db.query('INSERT INTO admins (username, permissions) VALUES ($1, $2)', [username, permissions]);
+                this.#adminCache.set(username, {
+                    permissions: permissions,
+                    expiration: performance.now() + config.dbCacheTime
+                });
+            }
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (setAdminPerms):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`setAdminPerms in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
@@ -1235,18 +1285,14 @@ export enum TeamOpResult {
 /**Admin permission level bit flags */
 export enum AdminPerms {
     ADMIN = 1,
-    /**View recent server logs */
-    VIEW_LOGS = 1 << 1,
     /**Create, delete, and modify accounts */
-    MANAGE_ACCOUNTS = 1 << 2,
+    MANAGE_ACCOUNTS = 1 << 1,
     /**Edit all problems, including hidden ones */
-    MANAGE_PROBLEMS = 1 << 3,
-    /**Edit all non-running contests */
-    MANAGE_CONTESTS = 1 << 4,
-    /**Control and override ContestHost functions */
-    CONTROL_CONTESTS = 1 << 5,
+    MANAGE_PROBLEMS = 1 << 2,
+    /**Edit contests and control ContestHost functions */
+    MANAGE_CONTESTS = 1 << 3,
     /**View and disqualify submissions */
-    MANAGE_SUBMISSIONS = 1 << 6,
+    MANAGE_SUBMISSIONS = 1 << 4,
     /**Manage admin permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }

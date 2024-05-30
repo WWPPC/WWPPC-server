@@ -5,6 +5,7 @@ async function load() {
     if (response.status != 200) {
         // the request went wrong and processing should stop
         console.error('/admin/api/accountList code ' + response.status);
+        table.innerHTML = 'Cannot view accounts';
         return;
     }
     const accounts = await response.json();
@@ -63,6 +64,7 @@ async function load() {
             }
         };
         row.appendChild(updateButtonCell);
+
         table.appendChild(row);
     }
 }
@@ -78,6 +80,9 @@ async function modify(id) {
         })
     });
     if (res.status != 200) console.error('/admin/api/asdf code ' + res.status);
+
+    load();
+
     return res.status;
 }
 
