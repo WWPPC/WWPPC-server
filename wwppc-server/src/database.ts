@@ -756,7 +756,7 @@ export class Database {
         const startTime = performance.now();
         try {
             await this.#db.query(`
-                UPDATE users SET users.pastRegistrations=(users.pastRegistrations || $1)
+                UPDATE users SET pastRegistrations=(users.pastRegistrations || $1)
                 WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))
                 `, [
                 contest
