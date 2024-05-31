@@ -26,6 +26,16 @@ sudo chmod 664 /etc/systemd/system/wwppc.service
 systemctl enable /etc/systemd/system/wwppc.service
 ```
 
+## Schroot config
+
+`sudo vim /etc/schroot/chroot.d/focal-wwppc`
+
+```
+[focal-wwppc]
+aliases=wwppc
+directory=/root/WWPPC-grader/grading
+```
+
 ## View logs
 
 `journalctl -u wwppc.service -n 50`

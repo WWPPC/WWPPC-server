@@ -134,19 +134,27 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
             <a name="pageHomeScrollTo2"></a>
             <GlitchText text="Sponsors" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </div>
-        <div class="cpi-partner">
-            <GlowText text="Partnered with" font-size="var(--font-huge)" color="lime" shadow></GlowText>
-            <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="14vh"></HomeHomeSponsorLogo>
-            <GlowText text="CPI" font-size="var(--font-huge)" color="lime" shadow></GlowText>
+        <div class="sponsorColumns">
+            <div>
+                <GlowText text="PARTNERS" font-size="var(--font-huge)" color="lime" shadow></GlowText>
+                <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="12vh"></HomeHomeSponsorLogo>
+            </div>
+            <div>
+                <GlowText text="GOLD" font-size="var(--font-huge)" color="#FE0" shadow></GlowText>
+                <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></HomeHomeSponsorLogo>
+            </div>
+            <div>
+                <GlowText text="SILVER" font-size="var(--font-huge)" color="#CCC" shadow></GlowText>
+                <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
+            </div>
         </div>
+        <UIDivider color="#AAA"></UIDivider>
         <div class="sponsors">
-            <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="6vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="15vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="10vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="6vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="7vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="5.5vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="12vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="9vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="5.5vh"></HomeHomeSponsorLogo>
+            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="6vh"></HomeHomeSponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
@@ -201,13 +209,18 @@ p {
     column-gap: 24px;
 }
 
-.cpi-partner {
+.sponsorColumns {
     display: flex;
     flex-direction: row;
-    width: 100%;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 0px 5%;
+}
+
+.sponsorColumns>div {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    column-gap: 24px;
 }
 
 .sponsors {
@@ -217,12 +230,6 @@ p {
     justify-content: center;
     row-gap: 25px;
     column-gap: 50px;
-    padding: 2% 10%;
-}
-
-@media (max-width: 100vh) {
-    .cpi-partner {
-        flex-direction: column;
-    }
+    padding: 0px 5%;
 }
 </style>
