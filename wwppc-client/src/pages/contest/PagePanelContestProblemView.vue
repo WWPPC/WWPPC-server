@@ -203,7 +203,7 @@ onMounted(() => {
                             <div class="submissionDetails">
                                 <ProblemSubmissionCase v-for="(testCase, index2) in submission.scores" :key="index2" :case="testCase" :number="index2"></ProblemSubmissionCase>
                                 <div style="text-align: center; font-size: var(--font-tiny);" v-if="submission.scores.length == 0">
-                                    <i>Please wait while the grading system judges your submission...</i>
+                                    <i>Please wait while the grading system runs your submission...</i>
                                 </div>
                             </div>
                         </div>
@@ -302,10 +302,13 @@ onMounted(() => {
 .submissionsHeader {
     position: sticky;
     top: 6px;
+    width: 100%;
+    padding: 0px 4px;
     text-align: center;
     background-color: black;
     box-shadow: 0px 0px 8px 4px black;
     margin-bottom: 12px;
+    transform: translateX(-4px);
     z-index: 1;
 }
 
@@ -325,6 +328,7 @@ onMounted(() => {
     background-color: #222;
     border: 2px solid white;
     border-radius: 8px;
+    margin-bottom: 8px;
 }
 
 .submissionTitle {

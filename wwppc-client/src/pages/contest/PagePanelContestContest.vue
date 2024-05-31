@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import ContestTimer from '@/components/contest/ContestTimer.vue';
-import { AnimateInContainer, TitledCutCornerContainer, TitledDoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { AnimateInContainer, TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import { GlitchText, UIIconButton } from '@/components/ui-defaults/UIDefaults';
 import UITimeDisplay from '@/components/ui-defaults/UITimeDisplay.vue';
 import { useContestManager } from '@/scripts/ContestManager';
@@ -65,30 +65,57 @@ onMounted(updateRoundTimes);
         </div>
         <ScrollIndicator anchor="a[name=pageContestContestScrollTo]"></ScrollIndicator>
     </div>
-    <div class="fullBlock">
+    <div class="fullBlock stretchBlock">
         <a name="pageContestContestScrollTo"></a>
-        <AnimateInContainer type="slideUp">
-            <TitledCutCornerContainer title="Instructions" align="center" hover-animation="lift">
-                <!-- instructions - someone fill out? -->
-            </TitledCutCornerContainer>
-        </AnimateInContainer>
-        <AnimateInContainer type="slideUp">
-            <TitledCutCornerContainer title="Important Info" align="center" hover-animation="lift">
-                <p>Clarifications will be on Discord!</p>
-                <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none">
-                    <UIIconButton text="Join Discord" img="/img/discord-logo.svg" color="link" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
-                </a>
-            </TitledCutCornerContainer>
-        </AnimateInContainer>
-        <AnimateInContainer type="slideUp">
-            <TitledDoubleCutCornerContainer title="Good Luck!" align="center" hover-animation="lift">
-
-            </TitledDoubleCutCornerContainer>
-        </AnimateInContainer>
+        <div class="contestInstructionBlock">
+            <AnimateInContainer type="slideUp" style="grid-column: span 2;">
+                <TitledCutCornerContainer title="Instructions" height="100%" align="center" hover-animation="lift">
+                    <div class="centered">
+                        <div>
+                            <h3>General Instructions</h3>
+                            <p style="font-size: var(--font-20);">
+                            <ul>
+                                <li>Problems are submittable <b>ONLY during</b> rounds</li>
+                                <li>Work quickly, scores are based on the <b>number</b> of problems solved</li>
+                                <li>Subtasks are weighted <b>WITHIN</b> each problem (subtasks add up to 1 point)</li>
+                                <li><b>All</b> cases per subtask must pass for subtask points to be earned</li>
+                                <li>Submissions are across your <b>ENTIRE TEAM</b></li>
+                                <li>Not all problems are meant to be solved within the time limit</li>
+                                <li>Time penalties are small - they are meant to be tiebreakers</li>
+                            </ul>
+                            </p>
+                            <h3>Technical Details</h3>
+                            <p style="font-size: var(--font-20);">
+                            <ul>
+                                <li>All: Input is fed through <code>stdin</code>, output is read from <code>stdout</code></li>
+                                <li>All: Exiting with a non-zero code will result in a <b>runtime error</b></li>
+                                <li>Java: Class name must be <code>Main</code></li>
+                                <li>C/C++: Programs are compiled with the gcc/g++ <code>-O2</code> flag</li>
+                            </ul>
+                            </p>
+                        </div>
+                    </div>
+                </TitledCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp">
+                <TitledCutCornerContainer title="Important Info" height="100%" align="center" hover-animation="lift" flipped vertical-flipped>
+                    <p style="text-align: center;">
+                        <b>Important updates and clarifications will be on Discord!</b>
+                    </p>
+                    <div class="centered">
+                        <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none; text-align: center;">
+                            <UIIconButton text="Join Discord" img="/img/discord-logo.svg" color="link" font-size="var(--font-medium)" img-hover-color="#5865F2"></UIIconButton>
+                        </a>
+                    </div>
+                </TitledCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp">
+                <TitledCutCornerContainer title="Good Luck!" height="100%" align="center" hover-animation="lift" vertical-flipped>
+                    wait what do i write here
+                </TitledCutCornerContainer>
+            </AnimateInContainer>
+        </div>
     </div>
-    <!-- contest instructions -->
-    <!-- important info, like discord and clarifications location -->
-    <!-- OK GLHF -->
 </template>
 
 <style scoped>
@@ -172,5 +199,14 @@ onMounted(updateRoundTimes);
         text-align: center;
         text-wrap: nowrap;
     }
+}
+
+.contestInstructionBlock {
+    display: grid;
+    row-gap: 16px;
+    column-gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr min-content;
+    flex-grow: 1;
 }
 </style>

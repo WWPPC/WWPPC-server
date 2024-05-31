@@ -46,7 +46,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             sessionTokens.set(token, req.body.username);
             setTimeout(() => sessionTokens.delete(token), 3600000);
             res.redirect('/admin');
-            log.info('[ADMIN] Admin login by ' + req.body.username);
+            log.info('[Admin] Admin login by ' + req.body.username);
         } else {
             res.redirect(403, '/admin/login');
         }
@@ -169,6 +169,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             }
         }
         res.sendStatus(200);
+        logger.info(`[Admin] Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
     });
     app.get('/admin/api/problemList', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
