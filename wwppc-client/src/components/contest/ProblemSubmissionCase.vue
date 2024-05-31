@@ -35,6 +35,7 @@ const showModal = () => {
     justify-content: center;
     align-items: center;
     width: 64px;
+    min-width: 64px;
     height: 64px;
     border-radius: 4px;
     background-color: v-bind("$props.case.state == ContestScoreState.CORRECT ? '#0A0' : '#A00'");

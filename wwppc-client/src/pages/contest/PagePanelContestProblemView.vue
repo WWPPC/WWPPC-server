@@ -216,7 +216,8 @@ onMounted(() => {
 .problemViewPanel {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 32px);
+    height: calc(100% - 48px);
+    margin-top: 16px;
 }
 
 .previousProblemStatusCircle {
@@ -244,7 +245,6 @@ onMounted(() => {
     row-gap: 16px;
     column-gap: 16px;
     height: 100%;
-    margin-top: 16px;
 }
 
 @media (max-width: 800px) {
@@ -320,6 +320,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background-color: #222;
+    border: 2px solid white;
     border-radius: 8px;
 }
 
@@ -328,8 +329,10 @@ onMounted(() => {
     flex-direction: row;
     align-items: center;
     padding: 4px 4px;
-    column-gap: 16px;
+    border: 2px solid white;
+    margin: -2px -2px;
     border-radius: 8px;
+    column-gap: 16px;
     background-color: #333;
     transition: 50ms linear background-color;
     cursor: pointer;
@@ -352,7 +355,8 @@ onMounted(() => {
     transition: 200ms ease min-height, 200ms ease max-height;
     min-height: 0px;
     max-height: 0px;
-    overflow: hidden;
+    overflow-x: scroll;
+    overflow-y: hidden;
 }
 
 .submissionCheckbox:checked~.submissionDetailsWrapper {
@@ -360,11 +364,16 @@ onMounted(() => {
     max-height: 76px;
 }
 
+.submissionDetailsWrapper::-webkit-scrollbar {
+    height: 0px;
+}
+
 .submissionDetails {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    padding: 4px 4px;
+    padding: 5px 4px;
+    min-width: min-content;
     column-gap: 4px;
 }
 </style>

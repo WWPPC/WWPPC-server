@@ -54,6 +54,11 @@ export class ContestManager {
                     const host = new ContestHost(contest.id, this.io, this.db, this.#grader, this.logger.logger);
                     this.#contests.set(contest.id, host);
                     host.onended(() => this.#contests.delete(contest.id));
+                    this.#sockets.forEach(async (socket) => {
+                        const userData = await this.db.getAccountData(socket.username);
+                        if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return;
+                        if (userData.registrations.includes(contest.id)) host.addSocket(socket);
+                    });
                 }
             }
             reading = false;
@@ -155,7 +160,15 @@ export class ContestManager {
             if (userData.registrations.includes(id)) host.addSocket(socket);
         });
 
+        const removeSocket = () => {
+            socket.removeAllListeners('registerContest');
+            socket.removeAllListeners('unregisterContest');
+            this.#sockets.delete(socket);
+        };
         this.#sockets.add(socket);
+        socket.on('disconnect', removeSocket);
+        socket.on('timeout', removeSocket);
+        socket.on('error', removeSocket);
     }
 
     /**
