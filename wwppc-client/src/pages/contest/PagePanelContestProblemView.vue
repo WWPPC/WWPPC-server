@@ -202,6 +202,9 @@ onMounted(() => {
                         <div class="submissionDetailsWrapper">
                             <div class="submissionDetails">
                                 <ProblemSubmissionCase v-for="(testCase, index2) in submission.scores" :key="index2" :case="testCase" :number="index2"></ProblemSubmissionCase>
+                                <div style="text-align: center; font-size: var(--font-tiny);" v-if="submission.scores.length == 0">
+                                    <i>Please wait while the grading system judges your submission...</i>
+                                </div>
                             </div>
                         </div>
                     </div>
