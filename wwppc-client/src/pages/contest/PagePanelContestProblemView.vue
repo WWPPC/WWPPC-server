@@ -175,7 +175,7 @@ onMounted(() => {
                 <div style="text-align: center;">
                     <h3>Submit</h3>
                     <p style="text-align: justify; font-size: var(--font-small);">
-                        Submissions are not graded until the round is over, but you can update your submission at any time during a round.
+                        You can submit and test anytime, but only the last submission is scored. You cannot submit after a round ends.
                         <i>Java and Python submissions have double the stated time limit.</i>
                     </p>
                 </div>
