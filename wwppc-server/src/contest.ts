@@ -11,6 +11,7 @@ import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
+import Scorer from './scorer';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
@@ -271,6 +272,7 @@ export class ContestHost {
     readonly io: SocketIOServer;
     readonly db: Database;
     readonly grader: Grader;
+    readonly scorer: Scorer;
     readonly logger: NamedLogger;
     #data: ContestContest;
     #index: number = 0;
@@ -293,6 +295,7 @@ export class ContestHost {
         this.io = io;
         this.db = db;
         this.grader = grader;
+        this.scorer = new Scorer([], logger);
         this.logger = new NamedLogger(logger, 'ContestHost');
         this.#data = {
             id: id,
@@ -330,6 +333,7 @@ export class ContestHost {
             this.end();
             return;
         }
+        this.scorer.setContest(rounds);
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
@@ -368,7 +372,9 @@ export class ContestHost {
                 this.#active = this.#data.rounds[i].endTime > now;
             } else break;
         }
-        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`)
+        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`);
+        this.scorer.setRound(Math.max(0, this.#index));
+        let scorerUpdateModulo = 0;
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
@@ -382,9 +388,16 @@ export class ContestHost {
                 this.#index++;
                 this.#active = true;
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
+                this.scorer.setRound(this.#index);
             }
             if (updated) this.updateAllUsers();
             if (this.#data.endTime <= Date.now()) this.end(true);
+            // also updating the scorer occasionally
+            scorerUpdateModulo++;
+            if (scorerUpdateModulo % 200) {
+                const scores = this.scorer.getScores();
+                this.io.to(this.#sid).emit('scoreboard', Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+            }
         }, 50);
     }
 

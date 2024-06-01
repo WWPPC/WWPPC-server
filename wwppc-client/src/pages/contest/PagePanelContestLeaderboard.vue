@@ -1,16 +1,47 @@
 <script setup lang="ts">
+import { GlitchText } from '@/components/ui-defaults/UIDefaults';
+import { useContestManager } from '@/scripts/ContestManager';
+import { useRouter } from 'vue-router';
+
+const contestManager = useContestManager();
+
+const router = useRouter();
 </script>
 
 <template>
-    Hey! This page isn't finished. Check back later for updates!
-    <br><br>
-    1. the-real-tianmu - 573736472056375629219566527959683966273843 xp
-    <br>
-    2. sp - 2057277575 xp
-    <br>
-    e. Sampleprovider(sp) - 882646562 xp
-    <br>
-    &pi;. SampIeprovider(sp) - -5 xp
+    <GlitchText text="Leaderboards" class="leaderboardTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
+    <div class="centered">
+        <div class="leaderboard">
+            <div class="leaderboardItem" v-for="(item, i) of contestManager.scoreboard" :key="i">
+                {{ i + 1 }}. <span class="leaderboardLink" @click="router.push('/user/@' + item.username)">@{{ item.username }}</span> - {{ item.score }} points
+            </div>
+        </div>
+    </div>
+    <!-- future - make display display name instead of username -->
+    <!-- future - instead of just a link, show user summary in sidebar? -->
 </template>
 
-<style scoped></style>
+<style scoped>
+.leaderboardTitle {
+    text-align: center;
+}
+
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+}
+
+.leaderboardItem {
+    background-color: #333;
+    font-size: var(--font-large);
+    border-radius: 8px;
+    padding: 4px 8px;
+}
+
+.leaderboardLink {
+    color: lime;
+    text-decoration: underline;
+    cursor: pointer;
+}
+</style>
