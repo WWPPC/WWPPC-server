@@ -2,17 +2,21 @@
 import { AnimateInContainer, DoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
 import HomeAboutCreditsCardIcon from './HomeAboutCreditsCardIcon.vue';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 defineProps<{
-    name: string,
-    roles: string,
-    codeforces?: string,
-    github?: string,
-    discord?: string,
-    youtube?: string,
+    name: string
+    username: string
+    roles: string
+    codeforces?: string
+    github?: string
+    discord?: string
+    youtube?: string
     bio: string
     img: string
 }>();
+
+const router = useRouter();
 
 const funAnimation = ref(Math.random() < 0.01);
 </script>
@@ -25,6 +29,8 @@ const funAnimation = ref(Math.random() < 0.01);
                     <DoubleCutCornerContainer flipped class="cardFaceContainer">
                         <div class="cardContent2">
                             <div class="cardBio">
+                                <span class="cardUserLink" @click="router.push('/user/@' + $props.username)">@{{ $props.username }}</span>
+                                <br>
                                 {{ $props.bio }}
                             </div>
                             <div class="cardIcons">
@@ -215,5 +221,11 @@ const funAnimation = ref(Math.random() < 0.01);
     display: flex;
     width: 100%;
     justify-content: space-evenly;
+}
+
+.cardUserLink {
+    color: lime;
+    line-height: 1.5em;
+    cursor: pointer;
 }
 </style>
