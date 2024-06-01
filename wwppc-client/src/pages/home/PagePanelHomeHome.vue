@@ -140,7 +140,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
                 <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="12vh"></HomeHomeSponsorLogo>
             </div>
             <div>
-                <GlowText text="GOLD" font-size="var(--font-huge)" color="#FE0" shadow></GlowText>
+                <GlowText text="GOLD" font-size="var(--font-huge)" color="#FD0" shadow></GlowText>
                 <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></HomeHomeSponsorLogo>
             </div>
             <div>

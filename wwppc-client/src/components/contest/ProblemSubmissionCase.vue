@@ -22,9 +22,9 @@ const showModal = () => {
 </script>
 
 <template>
-    <div class="submissionCase" @click=showModal>
+    <div class="submissionCase" @click=showModal :title="submissionVerdictLong()">
         <span class="submissionVerdict">{{ submissionVerdict() }}</span>
-        <span class="submissionSubtask">T{{ props.number }} S{{ props.case.subtask }}</span>
+        <span class="submissionSubtask">T{{ props.number + 1 }} S{{ props.case.subtask }}</span>
     </div>
 </template>
 

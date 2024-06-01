@@ -72,7 +72,7 @@ export class WwppcGrader extends Grader {
                 if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 500, database error`, true);
                 return;
             }
-            node.deadline = Date.now() + config.graderTimeout + 180000;
+            node.deadline = Date.now() + config.graderTimeout;
             res.json({
                 problemId: node.grading.submission.problemId,
                 file: node.grading.submission.file,
