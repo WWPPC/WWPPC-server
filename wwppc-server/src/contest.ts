@@ -275,6 +275,7 @@ export class ContestHost {
     #data: ContestContest;
     #index: number = 0;
     #active: boolean = false;
+    #ended: boolean = false;
     readonly #sid: string;
     #updateLoop: NodeJS.Timeout | undefined = undefined;
 
@@ -590,6 +591,8 @@ export class ContestHost {
 
     #endListeners: Set<() => any> = new Set();
     end(complete?: boolean) {
+        if (this.#ended) return;
+        this.#ended = true;
         if (complete) {
             this.logger.info(`Ending contest "${this.id}"`);
             this.db.finishContest(this.id);

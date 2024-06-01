@@ -758,6 +758,7 @@ export class Database {
             await this.#db.query(`
                 UPDATE users SET pastRegistrations=(users.pastRegistrations || $1)
                 WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))
+                AND NOT $1=ANY(users.pastRegistrations)
                 `, [
                 contest
             ]);
