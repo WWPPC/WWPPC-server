@@ -1168,8 +1168,8 @@ export class Database {
         try {
             const existing = await this.#db.query('SELECT time, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
             if (existing.rows.length > 0) {
-                const history: { time: number, scores: Score[] }[] = existing.rows[0].history;
-                if (existing.rows[0].scores.length > 0 && !overwrite) history.push({ time: existing.rows[0].time, scores: existing.rows[0].scores });
+                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history;
+                if (existing.rows[0].scores.length > 0 && !overwrite) history.push({ time: existing.rows[0].time, lang: existing.rows[0].lang, scores: existing.rows[0].scores });
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);
@@ -1431,7 +1431,9 @@ export interface Submission {
     /**Shortened list of previous submissions and their results, without content (increasing chronologically) */
     history: {
         /**Time of submission, UNIX milliseconds */
-        time: number,
+        time: number
+        /**Submission language */
+        lang: string
         /**Resulting scores of the submission */
         scores: Score[]
     }[]

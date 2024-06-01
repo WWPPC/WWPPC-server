@@ -235,6 +235,7 @@ interface ClientProblem {
 }
 interface ClientSubmission {
     time: number
+    lang: string
     scores: Score[]
     status: ClientProblemCompletionState
 }
@@ -278,7 +279,6 @@ export class ContestHost {
     #updateLoop: NodeJS.Timeout | undefined = undefined;
 
     readonly #users: Map<string, Set<ServerSocket>> = new Map();
-    readonly #submissionQueue: Map<string, Submission> = new Map();
 
     /**
      * @param {string} id Contest id of contest
@@ -437,10 +437,12 @@ export class ContestHost {
                                 constraints: problemData[0].constraints,
                                 submissions: (submissionData.length > 0) ? [{
                                     time: submissionData[0].time,
+                                    lang: submissionData[0].lang,
                                     scores: submissionData[0].scores,
                                     status: this.#getCompletionState(round.number, submissionData[0].scores)
-                                }, ...submissionData[0].history.map((sub): ClientSubmission => ({
+                                }, ...submissionData[0].history.reverse().map((sub): ClientSubmission => ({
                                     time: sub.time,
+                                    lang: sub.lang,
                                     scores: sub.scores,
                                     status: this.#getCompletionState(round.number, sub.scores)
                                 }))] : [],

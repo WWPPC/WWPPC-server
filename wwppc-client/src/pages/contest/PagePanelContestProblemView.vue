@@ -196,7 +196,7 @@ onMounted(() => {
                     <div class="submissionContainer">
                         <label class="submissionTitle" :for="'submissionCheckbox' + index">
                             <ContestProblemStatusCircle :status="submission.status"></ContestProblemStatusCircle>
-                            <span>{{ completionStateString(submission.status) }}</span>
+                            <span>{{ completionStateString(submission.status) }} ({{ submission.lang }} - {{ new Date(submission.time).toLocaleString() }})</span>
                         </label>
                         <input type="checkbox" class="submissionCheckbox" :id="'submissionCheckbox' + index">
                         <div class="submissionDetailsWrapper">
