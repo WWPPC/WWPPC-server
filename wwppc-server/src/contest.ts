@@ -358,6 +358,14 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
+        // reload the scoreboard too
+        /**
+         * RELOAD SCOREBOARD
+         * RELOAD SCOREBOARD
+         * RELOAD SCOREBOARD
+         * RELOAD SCOREBOARD
+         * RELOAD SCOREBOARD
+         */
         // re-index the contest
         this.#index = -1;
         this.#active = false;
@@ -439,7 +447,7 @@ export class ContestHost {
                             if (problemData == null || submissionData == null) throw new Error(`Database error while reading problems and submissions (Round ${round.id} Problem ${id})`);
                             if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
                             // mapping submissions is messy, submissions empty of there are no past submissions
-                            // otherwise concatenate history behind most recent submission
+                            // otherwise concatenate with reverse history array
                             return {
                                 id: problemData[0].id,
                                 contest: this.#data.id,

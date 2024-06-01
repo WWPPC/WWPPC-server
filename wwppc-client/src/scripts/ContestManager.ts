@@ -151,7 +151,7 @@ export const useContestManager = defineStore('contestManager', {
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('contestData', (data: Contest) => {
         state.contest = data;
-        console.log(data.rounds[1])
+        console.log(data.rounds[1]?.problems)
     });
     socket.on('scoreboard', (data: ScoreboardEntry[]) => {
         state.scoreboard = data;
