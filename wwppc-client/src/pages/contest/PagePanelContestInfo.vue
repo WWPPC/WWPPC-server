@@ -286,10 +286,10 @@ const router = useRouter();
                         WWPIT is a round-based team contest, where problems are revealed as time progresses.
                     </p>
                     <ul style="font-size: var(--font-medium);">
-                        <li>There <b>SEPARATE</b> timed rounds of 6 problems</li>
+                        <li>There are 3 <b>SEPARATE</b> timed rounds of 6 problems</li>
                         <li>Problems submittable <b>ONLY DURING</b> rounds</li>
-                        <li>Final verdicts not revealed <b>UNTIL AFTER</b> round end</li>
                         <li>Scores based on problems solved, with <b>subtasks</b></li>
+                        <li>Subtask scores are weighted by the number of people who solved</li>
                     </ul>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
