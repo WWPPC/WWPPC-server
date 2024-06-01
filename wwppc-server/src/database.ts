@@ -762,6 +762,11 @@ export class Database {
                 `, [
                 contest
             ]);
+            await this.#db.query(`
+                UPDATE teams SET registrations=ARRAY_REMOVE(registrations, $1)
+            `, [
+                contest
+            ]);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (finishContest):', err);
