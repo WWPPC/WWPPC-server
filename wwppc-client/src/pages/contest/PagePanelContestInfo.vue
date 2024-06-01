@@ -180,7 +180,7 @@ const router = useRouter();
                         <MultipanePane for="round1">
                             <GlitchText text="Round 1" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 1 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                                Round 1 is 60 minutes long with 6 problems. Novice and Advanced divisions may or may not share problems.
                             </p>
                             <p style="font-size: var(--font-16)">
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
@@ -200,7 +200,7 @@ const router = useRouter();
                         <MultipanePane for="round2">
                             <GlitchText text="Round 2" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                                Round 2 is 60 minutes long with 6 problems. Novice and Advanced divisions may or may not share problems.
                             </p>
                             <p style="font-size: var(--font-16)">
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
@@ -209,7 +209,7 @@ const router = useRouter();
                         <MultipanePane for="round3">
                             <GlitchText text="Round 3" font-size="var(--font-28)" color="lime" on-visible></GlitchText>
                             <p>
-                                Round 3 is 80 minutes long with 6 problems. Novice and Advanced divisions will not share problems.
+                                Round 3 is 80 minutes long with 6 problems. Novice and Advanced divisions may or may not share problems.
                             </p>
                             <p style="font-size: var(--font-16)">
                                 <i>All times are in Eastern Standard Time (daylight savings)</i>
@@ -282,7 +282,7 @@ const router = useRouter();
                         data: []
                     }"></HeaderedTable>
                     <p style="font-size: var(--font-tiny)">
-                        <i>Note: We can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
+                        <i>Note: Currently, we can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
                         <br>
                         <i>X-Camp Prizes are in the form of X-Camp giftcards</i>
                     </p>
@@ -294,9 +294,9 @@ const router = useRouter();
                         WWPIT is a round-based team contest, where problems are revealed as time progresses.
                     </p>
                     <ul style="font-size: var(--font-medium);">
-                        <li>There are 3 <b>SEPARATE</b> timed rounds of 6 problems</li>
-                        <li>Problems submittable <b>ONLY DURING</b> rounds</li>
-                        <li>Scores based on problems solved, with <b>subtasks</b></li>
+                        <li>Three separate timed rounds of 6 problems</li>
+                        <li>Instant feedback on submissions</li>
+                        <li>Scores based on problems solved, with subtasks</li>
                         <li>Subtask scores are weighted by the number of people who solved</li>
                     </ul>
                 </TitledDoubleCutCornerContainer>
@@ -313,8 +313,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="When is it?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT 2024 will be on <b>June 2</b>, starting at 10:15 AM EST.
-                        It will run until 5:30 PM, with the latest time being 6:00 PM in case of unexpected slowdowns.
+                        WWPIT 2024 will be on <b>Sunday, June 2</b>, from 10:15 AM - 5:30 PM EST.
                         <br><br>
                         <i>Scroll up to see contest schedule</i>
                     </p>
@@ -323,7 +322,7 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="How do I compete?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        You can sign up <b><i><span style="text-decoration: underline;">NOW</span></i></b> by <b>creating an account and registering <i><a href="/account/registrations" target="_blank">RIGHT HERE</a></i></b>, NO prerequisites needed!
+                        You can sign up by <b>creating an account and registering <a href="/account/registrations" target="_blank">HERE</a></b>, NO prerequisites needed!
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
@@ -339,16 +338,14 @@ const router = useRouter();
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What resources are allowed?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        WWPIT will allow programming textbooks and documentation, including data structures and algorithms textbooks, as well as usaco.guide.
+                        You can use any resource as long as it was published before the beginning of the contest.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen>
                 <TitledCollapsible title="What languages can I use?" startCollapsed>
                     <p style="font-size: var(--font-20)">
-                        Popular competitive programming languages like Java, C, and C++ will be allowed, as well as Python submissions.
-                        <br><br>
-                        Both Java and C++ will have version options (expect Java 8, 11, 17, or 21 and C++ 11, 17, or 20) while C submissions will have C 11 and Python submissions will be Python 3.12.3
+                        Allowed languages include Java 8, Java 11, Java 17, Java 21, C11, C++11, C++17, C++20, and Python3.12.3.
                     </p>
                 </TitledCollapsible>
             </AnimateInContainer>
