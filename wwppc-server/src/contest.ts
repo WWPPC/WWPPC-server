@@ -589,6 +589,8 @@ export class ContestHost {
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
+                    // score it too (after grading)
+                    this.scorer.updateUser(graded);
                 }
             });
             respond(ContestUpdateSubmissionResult.SUCCESS);

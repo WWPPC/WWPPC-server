@@ -56,7 +56,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #05F;
+        background-color: #08F;
     }
 }
 
