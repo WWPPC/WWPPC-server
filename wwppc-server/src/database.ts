@@ -1139,7 +1139,7 @@ export class Database {
                         file: submission.file,
                         lang: submission.language,
                         scores: submission.scores,
-                        history: submission.history
+                        history: submission.history.map((h) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }))
                     };
                     this.#submissionCache.set(submission.id + ':' + submission.username, {
                         submission: structuredClone(s),

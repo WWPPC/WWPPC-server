@@ -1,15 +1,20 @@
+# Server stuff
+
 Use github (or git) to clone to `/root/WWPPC`
 
 ## Setup of cron job
 
 cron job:
+
 ```
 0 0 * * * systemctl stop wwppc.service; cd /root/WWPPC && git pull && npm install && npm run build; systemctl start wwppc.service
 ```
 
 ## Startup script
 
-`sudo vim /etc/systemd/system/wwppc.service`
+```
+sudo vim /etc/systemd/system/wwppc.service
+```
 
 ```
 [Service]
@@ -26,19 +31,47 @@ sudo chmod 664 /etc/systemd/system/wwppc.service
 systemctl enable /etc/systemd/system/wwppc.service
 ```
 
-## Schroot config
+# Grader stuff
 
-`sudo vim /etc/schroot/chroot.d/focal-wwppc`
+Again use git to clone to `/root/WWPPC-grader`
+
+Update the submodules and stuff
 
 ```
-[focal-wwppc]
-aliases=wwppc
-directory=/root/WWPPC-grader/grading
+git submodule update
+git pull
+```
+
+## chroot
+
+```
+chmod +x ./setup.sh
+sudo ./setup.sh
+```
+
+The user and java install stuff doesn't work right now, do it manually:
+
+```
+adduser user
+
+```
+
+Mash enter to skip through prompts
+
+```
+schroot -c wwppc -d /
+adduser user
+mount -t proc proc /proc
+apt update
+apt install openjdk-21-jre-headless
+exit
 ```
 
 ## View logs
 
-`journalctl -u wwppc.service -n 50`
+```
+journalctl -u wwppc.service -n 50
+```
 
 ## Cron job of grader
 
