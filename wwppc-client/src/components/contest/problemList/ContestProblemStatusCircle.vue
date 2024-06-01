@@ -56,7 +56,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #FD0;
+        background-color: #05F;
     }
 }
 
@@ -77,28 +77,10 @@ const showModal = () => {
 }
 
 @keyframes pstatus-graded-partial {
-    0% {
-        background-color: hsl(60deg, 100%, 50%);
-    }
 
-    20% {
-        background-color: hsl(72deg, 100%, 50%);
-    }
-
-    40% {
-        background-color: hsl(84deg, 100%, 50%);
-    }
-
-    60% {
-        background-color: hsl(96deg, 100%, 50%);
-    }
-
-    80% {
-        background-color: hsl(108deg, 100%, 50%);
-    }
-
-    100% {
-        background-color: hsl(120deg, 100%, 50%);
+    from,
+    to {
+        background-color: hsl(60, 100%, 50%);
     }
 }
 
