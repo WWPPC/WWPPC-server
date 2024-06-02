@@ -411,7 +411,6 @@ export class ContestHost {
             if (scorerUpdateModulo % 200 == 0) {
                 if (!config.freezeScoresLastRound || this.#index != this.#data.rounds.length - 1 || lastScores == undefined) lastScores = this.scorer.getScores();
                 if (lastScores != undefined) this.io.to(this.#sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
-                console.log(lastScores)
             }
         }, 50);
     }
