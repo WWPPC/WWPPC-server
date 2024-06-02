@@ -404,7 +404,7 @@ export class ContestHost {
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
                 const scores = this.scorer.getScores();
-                this.logger.debug(JSON.stringify(Array.from(scores.keys())) + ' ' + JSON.stringify(Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score)));
+                this.logger.debug(JSON.stringify(Array.from(scores.entries())) + ' ' + JSON.stringify(Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score)));
                 this.io.to(this.#sid).emit('scoreboard', Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
