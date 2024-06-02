@@ -257,26 +257,34 @@ const router = useRouter();
         <div class="contestInfoBlock">
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
-                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28);" :content="{
+                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28); line-height: 0.9em;" :content="{
                         headers: ['Novice', 'Advanced'],
                         data: [
                             [
-                                '🥇 $30 + T-shirt',
-                                '🥇 $150 + T-shirt'
+                                '🥇 $30 + T-shirts',
+                                '🥇 $150 + T-shirts'
                             ],
                             [
-                                '🥈 $10 + T-shirt',
-                                '🥈 $100 + T-shirt'
+                                '🥈 $10 + T-shirts',
+                                '🥈 $100 + T-shirts'
                             ],
                             [
-                                '🥉 $10 + T-shirt',
-                                '🥉 $50 + T-shirt'
-                            ],
+                                '🥉 $10 + T-shirts',
+                                '🥉 $50 + T-shirts'
+                            ]
                         ]
                     }"></HeaderedTable>
-                    <br>
+                    <p style="font-size: var(--font-28); text-align: center; color: lime; margin: 0px;">
+                        X-Camp Prizes (per-person)
+                    </p>
+                    <HeaderedTable width="100%" border-color="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
+                        headers: ['🥇 - $200', '🥈 - $100', '🥉 - $50'],
+                        data: []
+                    }"></HeaderedTable>
                     <p style="font-size: var(--font-tiny)">
                         <i>Note: Currently, we can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
+                        <br>
+                        <i>X-Camp Prizes are in the form of X-Camp giftcards</i>
                     </p>
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>

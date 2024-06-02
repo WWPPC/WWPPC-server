@@ -18,7 +18,6 @@ export class WwppcGrader extends Grader {
     #password: string;
 
     #ungradedSubmissions: SubmissionWithCallback[] = [];
-    #gradedSubmissions: Submission[] = [];
 
     constructor(app: Express, logger: Logger, db: Database) {
         super();
@@ -144,9 +143,11 @@ export class WwppcGrader extends Grader {
                 subtask: s.subtask
             }));
 
-            if (!node.grading.cancelled) this.#gradedSubmissions.push(node.grading.submission);
             try {
-                if (node.grading.callback) node.grading.callback(node.grading.submission);
+                if (node.grading.callback) {
+                    if (node.grading.cancelled) node.grading.callback(null);
+                    else node.grading.callback(node.grading.submission);
+                }
             } catch (err) {
                 this.logger.handleError('Error occured in submission callback:', err);
             }
@@ -216,18 +217,6 @@ export class WwppcGrader extends Grader {
             if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions by ${username} for ${problemId}`);
         }
         return canceled > 0;
-    }
-    get gradedList(): Submission[] {
-        return this.#gradedSubmissions;
-    }
-    get hasGradedSubmissions(): boolean {
-        return this.#gradedSubmissions.length > 0;
-    }
-    emptyGradedList(): Submission[] {
-        const l = structuredClone(this.#gradedSubmissions);
-        this.#gradedSubmissions = [];
-        if (config.debugMode) this.logger.debug('Emptied graded submission list', true);
-        return l;
     }
 
     #getAuth(req: Request): string | number {

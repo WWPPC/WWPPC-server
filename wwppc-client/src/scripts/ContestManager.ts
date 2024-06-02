@@ -76,6 +76,11 @@ export const getUpdateSubmissionMessage = (res: number): string => {
     return res == ContestUpdateSubmissionResult.SUCCESS ? 'Success' : res == ContestUpdateSubmissionResult.FILE_TOO_LARGE ? 'File too large' : res == ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE ? 'Selected language not allowed' : res == ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE ? 'Problem not accepting submissions' : res == ContestUpdateSubmissionResult.ERROR ? 'Database error' : res == ContestUpdateSubmissionResult.NOT_CONNECTED ? 'Not connected to server' : 'Unknown response code (this is a bug?)';
 };
 
+export interface ScoreboardEntry {
+    username: string
+    score: number
+}
+
 export interface ArchiveProblem {
     id: string
     name: string
@@ -100,8 +105,10 @@ export const nextContestEnd = new Date('6/2/2024 5:00 PM EST');
 // replace with new state variable that is just Contest
 const state = reactive<{
     contest: Contest | null
+    scoreboard: ScoreboardEntry[] | null
 }>({
-    contest: null
+    contest: null,
+    scoreboard: null
 });
 
 export const useContestManager = defineStore('contestManager', {
@@ -144,10 +151,15 @@ export const useContestManager = defineStore('contestManager', {
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('contestData', (data: Contest) => {
         state.contest = data;
+        console.log(data.rounds[1].problems)
+    });
+    socket.on('scoreboard', (data: ScoreboardEntry[]) => {
+        state.scoreboard = data;
         console.log(data)
     });
     const serverConnection = useServerConnection();
     serverConnection.ondisconnect(() => {
         state.contest = null;
+        state.scoreboard = null;
     });
 });

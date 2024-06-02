@@ -11,6 +11,7 @@ import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import { ServerSocket } from './socket';
+import Scorer from './scorer';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
@@ -271,6 +272,7 @@ export class ContestHost {
     readonly io: SocketIOServer;
     readonly db: Database;
     readonly grader: Grader;
+    readonly scorer: Scorer;
     readonly logger: NamedLogger;
     #data: ContestContest;
     #index: number = 0;
@@ -293,6 +295,7 @@ export class ContestHost {
         this.io = io;
         this.db = db;
         this.grader = grader;
+        this.scorer = new Scorer([], logger);
         this.logger = new NamedLogger(logger, 'ContestHost');
         this.#data = {
             id: id,
@@ -330,6 +333,7 @@ export class ContestHost {
             this.end();
             return;
         }
+        this.scorer.setContest(rounds);
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
@@ -354,6 +358,19 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
+        // reload the scoreboard too
+        for (let i = 0; i < rounds.length; i++) {
+            this.scorer.setRound(i);
+            const submissions = await this.db.readSubmissions({ id: rounds[i].problems });
+            if (submissions === null) {
+                this.logger.error(`Database error`);
+                this.end();
+                return;
+            }
+            for (const sub of submissions) {
+                this.scorer.updateUser(sub);
+            }
+        }
         // re-index the contest
         this.#index = -1;
         this.#active = false;
@@ -368,7 +385,9 @@ export class ContestHost {
                 this.#active = this.#data.rounds[i].endTime > now;
             } else break;
         }
-        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`)
+        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`);
+        this.scorer.setRound(Math.max(0, this.#index));
+        let scorerUpdateModulo = 0;
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
@@ -382,9 +401,16 @@ export class ContestHost {
                 this.#index++;
                 this.#active = true;
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
+                this.scorer.setRound(this.#index);
             }
             if (updated) this.updateAllUsers();
             if (this.#data.endTime <= Date.now()) this.end(true);
+            // also updating the scorer occasionally
+            scorerUpdateModulo++;
+            if (scorerUpdateModulo % 200 == 0) {
+                const scores = this.scorer.getScores();
+                this.io.to(this.#sid).emit('scoreboard', Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+            }
         }, 50);
     }
 
@@ -426,7 +452,7 @@ export class ContestHost {
                             if (problemData == null || submissionData == null) throw new Error(`Database error while reading problems and submissions (Round ${round.id} Problem ${id})`);
                             if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
                             // mapping submissions is messy, submissions empty of there are no past submissions
-                            // otherwise concatenate history behind most recent submission
+                            // otherwise concatenate with reverse history array
                             return {
                                 id: problemData[0].id,
                                 contest: this.#data.id,
@@ -568,6 +594,8 @@ export class ContestHost {
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
+                    // score it too (after grading)
+                    this.scorer.updateUser(graded);
                 }
             });
             respond(ContestUpdateSubmissionResult.SUCCESS);
