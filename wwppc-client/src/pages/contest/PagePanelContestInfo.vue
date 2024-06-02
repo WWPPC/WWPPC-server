@@ -3,7 +3,7 @@ import ContactFooter from '@/components/common/ContactFooter.vue';
 import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
 import { MultipaneSelectorContainer, MultipaneSelector, MultipanePaneContainer, MultipanePane } from '@/components/multipane/Multipane';
 import { AnimateInContainer, CenteredContainer, TitledDoubleCutCornerContainer, CutCornerContainer, TitledCollapsible, HeaderedTable } from '@/components/ui-defaults/UIContainers';
-import { GlitchText, UILinkButton, UIIconButton, UITimer } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, GlowText, UILinkButton, UIIconButton, UITimer } from '@/components/ui-defaults/UIDefaults';
 import { nextContest, nextContestEnd } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 
@@ -26,7 +26,7 @@ const router = useRouter();
                 </TitledDoubleCutCornerContainer>
             </AnimateInContainer>
             <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-column: 1;">
-                <TitledDoubleCutCornerContainer title="2024 Season" height="100%" align="center" hover-animation="lift">
+                <TitledDoubleCutCornerContainer title="Spring 2024" height="100%" align="center" hover-animation="lift">
                     <div class="centered">
                         <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                     </div>
@@ -52,7 +52,7 @@ const router = useRouter();
                             <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
                         </div>
                         <p style="text-align: center">
-                            Thanks to all who participated! We hope to see you next year (and in smaller tournaments in-between)!
+                            Thanks to all who participated! We hope to see you in the WWPIT Fall 2024!
                         </p>
                     </CenteredContainer>
                     <CenteredContainer style="font-size: var(--font-20);" v-else>
@@ -75,6 +75,108 @@ const router = useRouter();
     </div>
     <div class="fullBlock stretchBlock">
         <a name="pageContestScrollTo"></a>
+        <CenteredContainer>
+            <GlitchText text="2024 Winners" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
+        </CenteredContainer>
+        <div class="contestInfoBlock winnersBlock">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200>
+                <TitledDoubleCutCornerContainer title="Novice" height="100%" align="center" hover-animation="lift" flipped>
+                    <div class="centered">
+                        <div class="contestWinnerTable">
+                            <span>🥇</span>
+                            <span @click="router.push('/user/@ommehta16')">PHS CPT Amogus</span>
+                            <span>🥈</span>
+                            <span @click="router.push('/user/@litvinas')">BinaryThree</span>
+                            <span>🥉</span>
+                            <span @click="router.push('/user/@natnuo')">PuppyImpression</span>
+                        </div>
+                    </div>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100>
+                <TitledDoubleCutCornerContainer title="Advanced" height="100%" align="center" hover-animation="lift">
+                    <div class="centered">
+                        <div class="contestWinnerTable">
+                            <span>🥇</span>
+                            <span @click="router.push('/user/@liympanda')">liympanda</span>
+                            <span>🥈</span>
+                            <span @click="router.push('/user/@oursaco')">oursaco</span>
+                            <span>🥉</span>
+                            <span @click="router.push('/user/@tristansun')">tfg</span>
+                        </div>
+                    </div>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=400>
+                <CutCornerContainer title="" height="100%" align="center" hover-animation="lift" flipped vertical-flipped>
+                    <div class="centered">
+                        <GlowText text="Congratulations to our winners!" color="lime" font-size="var(--font-large)" glow shadow></GlowText>
+                    </div>
+                    <p style="text-align: center;">
+                        Also thanks to everyone for sticking through our first contest with us! We are taking feedback and are making lots of changes for our fall contest!
+                    </p>
+                </CutCornerContainer>
+            </AnimateInContainer>
+        </div>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo2]"></ScrollIndicator>
+    </div>
+    <div class="fullBlock stretchBlock">
+        <a name="pageContestScrollTo2"></a>
+        <CenteredContainer>
+            <GlitchText text="Format & Prizes" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
+        </CenteredContainer>
+        <div class="contestInfoBlock">
+            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
+                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28); line-height: 0.9em;" :content="{
+                        headers: ['Novice', 'Advanced'],
+                        data: [
+                            [
+                                '🥇 $30 + T-shirts',
+                                '🥇 $150 + T-shirts'
+                            ],
+                            [
+                                '🥈 $10 + T-shirts',
+                                '🥈 $100 + T-shirts'
+                            ],
+                            [
+                                '🥉 $10 + T-shirts',
+                                '🥉 $50 + T-shirts'
+                            ]
+                        ]
+                    }"></HeaderedTable>
+                    <p style="font-size: var(--font-28); text-align: center; color: lime; margin: 0px;">
+                        X-Camp Prizes (per-person)
+                    </p>
+                    <HeaderedTable width="100%" border-color="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
+                        headers: ['🥇 - $200', '🥈 - $150', '🥉 - $100'],
+                        data: []
+                    }"></HeaderedTable>
+                    <p style="font-size: var(--font-tiny)">
+                        <i>Note: Currently, we can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
+                        <br>
+                        <i>X-Camp Prizes are in the form of X-Camp giftcards</i>
+                    </p>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-row: span 2;">
+                <TitledDoubleCutCornerContainer title="Contest Format" height="100%" align="center" hover-animation="lift" flipped>
+                    <p>
+                        WWPIT is a round-based team contest, where problems are revealed as time progresses.
+                    </p>
+                    <ul style="font-size: var(--font-medium);">
+                        <li>Three separate timed rounds of 6 problems</li>
+                        <li>Instant feedback on submissions</li>
+                        <li>Scores based on problems solved, with subtasks</li>
+                        <li>Subtask scores are weighted by the number of people who solved</li>
+                    </ul>
+                </TitledDoubleCutCornerContainer>
+            </AnimateInContainer>
+        </div>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo3]"></ScrollIndicator>
+    </div>
+    <div class="fullBlock stretchBlock">
+        <a name="pageContestScrollTo3"></a>
         <CenteredContainer>
             <GlitchText text="Schedule" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 on-visible></GlitchText>
         </CenteredContainer>
@@ -247,65 +349,10 @@ const router = useRouter();
                 </CutCornerContainer>
             </AnimateInContainer>
         </div>
-        <ScrollIndicator anchor="a[name=pageContestScrollTo2]"></ScrollIndicator>
+        <ScrollIndicator anchor="a[name=pageContestScrollTo4]"></ScrollIndicator>
     </div>
     <div class="fullBlock stretchBlock">
-        <a name="pageContestScrollTo2"></a>
-        <CenteredContainer>
-            <GlitchText text="Format & Prizes" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
-        </CenteredContainer>
-        <div class="contestInfoBlock">
-            <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
-                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28); line-height: 0.9em;" :content="{
-                        headers: ['Novice', 'Advanced'],
-                        data: [
-                            [
-                                '🥇 $30 + T-shirts',
-                                '🥇 $150 + T-shirts'
-                            ],
-                            [
-                                '🥈 $10 + T-shirts',
-                                '🥈 $100 + T-shirts'
-                            ],
-                            [
-                                '🥉 $10 + T-shirts',
-                                '🥉 $50 + T-shirts'
-                            ]
-                        ]
-                    }"></HeaderedTable>
-                    <p style="font-size: var(--font-28); text-align: center; color: lime; margin: 0px;">
-                        X-Camp Prizes (per-person)
-                    </p>
-                    <HeaderedTable width="100%" border-color="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
-                        headers: ['🥇 - $200', '🥈 - $150', '🥉 - $100'],
-                        data: []
-                    }"></HeaderedTable>
-                    <p style="font-size: var(--font-tiny)">
-                        <i>Note: Currently, we can only guarantee prizes to high school students within the US. International transactions are subject to federal law. Other people may compete but may not be able to recieve prizes.</i>
-                        <br>
-                        <i>X-Camp Prizes are in the form of X-Camp giftcards</i>
-                    </p>
-                </TitledDoubleCutCornerContainer>
-            </AnimateInContainer>
-            <AnimateInContainer type="slideUp" show-on-screen :delay=200 style="grid-row: span 2;">
-                <TitledDoubleCutCornerContainer title="Contest Format" height="100%" align="center" hover-animation="lift" flipped>
-                    <p>
-                        WWPIT is a round-based team contest, where problems are revealed as time progresses.
-                    </p>
-                    <ul style="font-size: var(--font-medium);">
-                        <li>Three separate timed rounds of 6 problems</li>
-                        <li>Instant feedback on submissions</li>
-                        <li>Scores based on problems solved, with subtasks</li>
-                        <li>Subtask scores are weighted by the number of people who solved</li>
-                    </ul>
-                </TitledDoubleCutCornerContainer>
-            </AnimateInContainer>
-        </div>
-        <ScrollIndicator anchor="a[name=pageContestScrollTo3]"></ScrollIndicator>
-    </div>
-    <div class="fullBlock stretchBlock">
-        <a name="pageContestScrollTo3"></a>
+        <a name="pageContestScrollTo4"></a>
         <CenteredContainer>
             <GlitchText text="FAQ" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
@@ -412,6 +459,33 @@ const router = useRouter();
     .scheduleBlock {
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: min-content min-content;
+    }
+}
+
+.contestWinnerTable {
+    display: grid;
+    grid-template-columns: 2em 1fr;
+    font-size: var(--font-40);
+}
+
+.contestWinnerTable>span:nth-child(even) {
+    color: lime;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.winnersBlock {
+    grid-auto-flow: row dense;
+    grid-template-rows: minmax(0, 1fr) min-content;
+}
+
+.winnersBlock>div:nth-child(3) {
+    grid-column: span 2;
+}
+
+@media (max-width: 100vh) {
+    .winnersBlock>div:nth-child(3) {
+        grid-column: 1;
     }
 }
 

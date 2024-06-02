@@ -57,6 +57,7 @@ onMounted(update);
     display: flex;
     flex-direction: column;
     row-gap: 16px;
+    margin-bottom: 16px;
 }
 
 .leaderboardItem {
