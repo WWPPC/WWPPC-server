@@ -52,10 +52,10 @@ export class Scorer {
         // sort into subtasks
         const userScores = new Map<string, number>();
         for (const score of submission.scores) {
-            this.subtasks.add(submission.problemId + score.subtask.toString());
+            this.#subtasks.add(submission.problemId + score.subtask.toString());
         }
-        for (const i of this.subtasks) {
-            userScores.set(submission.problemId + i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i) ? -1 : submission.time);
+        for (const i of this.#subtasks) {
+            userScores.set(submission.problemId + i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && submission.problemId+s.subtask.toString() === i) ? -1 : submission.time);
         }
         for (const s of this.#subtasks) {
             if (userScores.get(s) == undefined) {
