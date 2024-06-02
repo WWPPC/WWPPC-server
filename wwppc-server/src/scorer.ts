@@ -12,9 +12,11 @@ export class Scorer {
     #rounds: Round[];
     #round: number
     //key = round id
-    //value: map username to scores
+    //value: map of username to scores
     readonly #scores: Map<number, Map<string, number>> = new Map();
 
+    //key = username
+    //value: map of subtask to solve time (or -1)
     #users: Map<string, Map<Subtask, number>> = new Map();
 
     constructor(rounds: Round[], logger: Logger) {
@@ -51,14 +53,22 @@ export class Scorer {
         // sort into subtasks
         const userScores = this.#users.get(submission.username) ?? new Map<Subtask, number>();
         for (const score of submission.scores) {
-            this.#subtasks.add({
-                id: submission.problemId,
-                number: score.subtask
-            });
+            let works = true;
+            for (const i of this.#subtasks) {
+                if (i.id === submission.problemId && i.number == score.subtask) works = false;
+            }
+            if (works) {
+                this.#subtasks.add({
+                    id: submission.problemId,
+                    number: score.subtask
+                });
+            }
         }
         for (const i of this.#subtasks) {
-            userScores.set(i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && submission.problemId === i.id && s.subtask === i.number) ? -1 : submission.time);
-        }
+            if (i.id === submission.problemId) {
+                userScores.set(i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && submission.problemId === i.id && s.subtask === i.number) ? -1 : submission.time);
+            }
+        }   
         for (const s of this.#subtasks) {
             if (userScores.get(s) == undefined) {
                 userScores.set(s, -1);
@@ -87,7 +97,7 @@ export class Scorer {
         });
 
         //find how many users solved each subtask
-        this.#users.forEach((scores) => {
+        this.#users.forEach((scores, username) => {
             scores.forEach((solved, subtask) => {
                 if (solved >= 0) {
                     const c = subtaskSolved.get(subtask);
@@ -111,27 +121,9 @@ export class Scorer {
                 problemSubtasks.set(subtask.id, problem);
             }
         });
-        //weight subtasks so that the sum of all subtasks for a problem is 10
+        //weight subtasks so that problems with more subtasks aren't weighted too high
         problemSubtasks.forEach((subtasks, problem) => {
-            let total = 0;
-            subtasks.forEach((subtask) => {
-                const solved = subtaskSolved.get(subtask);
-                if (solved === undefined) {
-                    this.logger.warn('Subtask disappeared (1)');
-                } else if (solved == 0) {
-                    total++; // the log function converges to (0,1)
-                } else {
-                    total += Math.log(solved+1) / solved;
-                }
-            });
-            //at this point, the total should equal the number of (raw) points gained if EVERY subtask in this problem was solved
-            //this way the sum will always add up to 10 for each problem
-            if (total === 0) {
-                this.logger.warn(`Total score for problem ${problem} is 0!`);
-                problemWeight.set(problem, 0);
-            } else {
-                problemWeight.set(problem, 10/total);
-            }
+            problemWeight.set(problem, 1/subtasks.length);
         });
 
         //calculate actual scores for each user
