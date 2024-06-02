@@ -359,13 +359,18 @@ export class ContestHost {
         };
         this.updateAllUsers();
         // reload the scoreboard too
-        /**
-         * RELOAD SCOREBOARD
-         * RELOAD SCOREBOARD
-         * RELOAD SCOREBOARD
-         * RELOAD SCOREBOARD
-         * RELOAD SCOREBOARD
-         */
+        for (let i = 0; i < rounds.length; i++) {
+            this.scorer.setRound(i);
+            const submissions = await this.db.readSubmissions({ id: rounds[i].problems });
+            if (submissions === null) {
+                this.logger.error(`Database error`);
+                this.end();
+                return;
+            }
+            for (const sub of submissions) {
+                this.scorer.updateUser(sub);
+            }
+        }
         // re-index the contest
         this.#index = -1;
         this.#active = false;
