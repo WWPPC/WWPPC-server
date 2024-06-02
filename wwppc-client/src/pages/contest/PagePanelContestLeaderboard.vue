@@ -1,20 +1,41 @@
 <script setup lang="ts">
-import { GlitchText } from '@/components/ui-defaults/UIDefaults';
+import { GlitchText, UILoadingSpinner } from '@/components/ui-defaults/UIDefaults';
+import { useAccountManager } from '@/scripts/AccountManager';
 import { useContestManager } from '@/scripts/ContestManager';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
+const accountManager = useAccountManager();
 const contestManager = useContestManager();
 
 const router = useRouter();
+
+const scoreboard = ref<{ username: string, displayName: string, score: number }[]>([]);
+watch(() => contestManager.scoreboard, async () => {
+    if (contestManager.scoreboard == null) scoreboard.value = [];
+    else scoreboard.value = await Promise.all(contestManager.scoreboard.map(async (s) => ({
+        username: s.username,
+        displayName: (await accountManager.getTeamData(s.username))?.teamName ?? s.username,
+        score: s.score
+    })));
+});
 </script>
 
 <template>
     <GlitchText text="Leaderboards" class="leaderboardTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
     <div class="centered">
         <div class="leaderboard">
-            <div class="leaderboardItem" v-for="(item, i) of contestManager.scoreboard" :key="i">
-                {{ i + 1 }}. <span class="leaderboardLink" @click="router.push('/user/@' + item.username)">@{{ item.username }}</span> - {{ item.score }} points
+            <div class="leaderboardItem" v-for="(item, i) of scoreboard" :key="i">
+                {{ i + 1 }}. <span class="leaderboardLink" @click="router.push('/user/@' + item.username)">{{ item.displayName }}</span> - {{ item.score }} points
             </div>
+        </div>
+        <div v-if="contestManager.scoreboard == null" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 10vw; height: 10vw">
+                <UILoadingSpinner></UILoadingSpinner>
+            </div>
+            <p style="margin-top: 2vw;">
+                Please wait...
+            </p>
         </div>
     </div>
     <!-- future - make display display name instead of username -->
@@ -23,10 +44,14 @@ const router = useRouter();
 
 <style scoped>
 .leaderboardTitle {
+    transform-origin: top;
+    transform: translate3D(0px, -20vh, -50px) scale(150%);
+    z-index: -1;
     text-align: center;
 }
 
 .leaderboard {
+    position: absolute;
     display: flex;
     flex-direction: column;
     row-gap: 16px;
