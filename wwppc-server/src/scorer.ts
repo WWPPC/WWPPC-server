@@ -140,6 +140,7 @@ export class Scorer {
         this.getRoundScores();
         const sums: Map<string, number> = new Map();
         this.#scores.forEach((roundMap) => {
+            this.logger.debug(JSON.stringify(Array.from(roundMap.entries())))
             roundMap.forEach((score, username) => {
                 if (sums.has(username)) sums.set(username, sums.get(username)! + score);
                 else sums.set(username, score);
