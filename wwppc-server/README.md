@@ -13,7 +13,7 @@ cron job:
 ## Startup script
 
 ```
-sudo vim /etc/systemd/system/wwppc.service
+vim /etc/systemd/system/wwppc.service
 ```
 
 ```
@@ -27,7 +27,7 @@ WantedBy=multi-user.target
 ```
 
 ```
-sudo chmod 664 /etc/systemd/system/wwppc.service
+chmod 664 /etc/systemd/system/wwppc.service
 systemctl enable /etc/systemd/system/wwppc.service
 ```
 
@@ -46,7 +46,7 @@ git pull
 
 ```
 chmod +x ./setup.sh
-sudo ./setup.sh
+./setup.sh
 ```
 
 The user and java install stuff doesn't work right now, do it manually:
