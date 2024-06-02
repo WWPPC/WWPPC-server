@@ -359,9 +359,15 @@ export class ContestHost {
         };
         this.updateAllUsers();
         // reload the scoreboard too
+        const users = await this.db.getAllRegisteredUsers(this.id);
+        if (users == null) {
+            this.logger.error(`Database error`);
+            this.end();
+            return;
+        }
         for (let i = 0; i < rounds.length; i++) {
             this.scorer.setRound(i);
-            const submissions = await this.db.readSubmissions({ id: rounds[i].problems });
+            const submissions = await this.db.readSubmissions({ id: rounds[i].problems, username: users });
             if (submissions === null) {
                 this.logger.error(`Database error`);
                 this.end();

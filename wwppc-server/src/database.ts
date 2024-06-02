@@ -775,6 +775,25 @@ export class Database {
             if (config.debugMode) this.logger.debug(`finishContest in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Get a list of all users that are registered for a contest.
+     * @param {string} contest Contest id
+     * @return {string[]}
+     */
+    async getAllRegisteredUsers(contest: string): Promise<string[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))', [
+                contest
+            ]);
+            return data.rows.map((row) => row.username);
+        } catch (err) {
+            this.logger.handleError('Database error (finishContest):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`finishContest in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
