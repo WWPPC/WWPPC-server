@@ -50,7 +50,7 @@ export class Scorer {
      */
     updateUser(submission: Submission): Boolean {
         // sort into subtasks
-        const userScores = new Map<string, number>();
+        const userScores = this.#users.get(submission.username) ?? new Map<string, number>();
         for (const score of submission.scores) {
             this.#subtasks.add(submission.problemId + score.subtask.toString());
         }
