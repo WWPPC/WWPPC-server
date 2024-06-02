@@ -12,7 +12,7 @@ const props = defineProps<{
 const roundText = ref<string>('');
 onMounted(() => {
     setTimeout(() => {
-        glitchTextTransition('', 'Round ' + props.data.number, (t) => { roundText.value = t; }, 40, 1, 10, 2);
+        glitchTextTransition('', 'Round ' + (props.data.number + 1), (t) => { roundText.value = t; }, 40, 1, 10, 2);
     }, props.data.number * 200);
 })
 </script>

@@ -97,7 +97,7 @@ watch(() => problem.value.name, () => {
 const problemName = autoGlitchTextTransition(() => problem.value.name, 40, 1, 20);
 const problemSubtitle1 = autoGlitchTextTransition(() => {
     if (problem.value.contest === undefined) return `By ${problem.value.author}`;
-    return `${problem.value.contest} ${problem.value.round}-${problem.value.number}; by ${problem.value.author}`;
+    return `${problem.value.contest} ${problem.value.round + 1}-${problem.value.number + 1}; by ${problem.value.author}`;
 }, 40, 1, 20);
 const problemSubtitle2 = autoGlitchTextTransition(() => `${problem.value.constraints.memory}MB, ${problem.value.constraints.time}ms&emsp;|&emsp;${completionStateString(problem.value.status)}`, 40, 1, 20);
 

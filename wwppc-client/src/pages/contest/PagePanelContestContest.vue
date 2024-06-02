@@ -111,6 +111,11 @@ onMounted(updateRoundTimes);
             </AnimateInContainer>
             <AnimateInContainer type="slideUp">
                 <TitledCutCornerContainer title="Good Luck!" height="100%" align="center" hover-animation="lift" vertical-flipped>
+                    <p style="text-align: center;">
+                        The WWPPC Team wishes you good luck!
+                        <br>
+                        Also, have fun!!!!!
+                    </p>
                 </TitledCutCornerContainer>
             </AnimateInContainer>
         </div>

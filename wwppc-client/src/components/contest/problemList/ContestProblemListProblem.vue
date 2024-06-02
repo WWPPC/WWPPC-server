@@ -25,7 +25,7 @@ onMounted(() => {
 <template>
     <div class="contestProblemListProblem">
         <span class="contestProblemListProblemId">
-            {{ props.data.round }}-{{ props.data.number }}
+            {{ props.data.round + 1 }}-{{ props.data.number + 1 }}
         </span>
         <span class="problemListCircle">
             <ContestProblemStatusCircle :status="props.data.status"></ContestProblemStatusCircle>
