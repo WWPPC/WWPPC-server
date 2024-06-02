@@ -365,17 +365,19 @@ export class ContestHost {
             this.end();
             return;
         }
+        const submissions: Submission[][] = [];
         for (let i = 0; i < rounds.length; i++) {
             this.scorer.setRound(i);
-            const submissions = await this.db.readSubmissions({ id: rounds[i].problems, username: users });
-            if (submissions === null) {
+            const subs = await this.db.readSubmissions({ id: rounds[i].problems, username: users });
+            if (subs === null) {
                 this.logger.error(`Database error`);
                 this.end();
                 return;
             }
-            for (const sub of submissions) {
+            for (const sub of subs) {
                 this.scorer.updateUser(sub);
             }
+            submissions[i] = subs;
             this.scorer.getRoundScores();
         }
         // re-index the contest
@@ -394,6 +396,9 @@ export class ContestHost {
         }
         this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`);
         this.scorer.setRound(Math.max(0, this.#index));
+        for (const sub of submissions[Math.max(0, this.#index)]) {
+            this.scorer.updateUser(sub);
+        }
         let scorerUpdateModulo = 0;
         let lastScores: Map<string, number> | undefined = undefined;
         this.#updateLoop = setInterval(() => {

@@ -101,7 +101,16 @@ export class WwppcGrader extends Grader {
             }
             node.lastCommunication = Date.now();
 
-            if (!node.grading.cancelled) this.#ungradedSubmissions.unshift(node.grading);
+            if (!node.grading.cancelled) {
+                node.grading.returnCount++;
+                if (node.grading.returnCount >= 5) {
+                    logger.warn(`Submission (${node.grading.submission.problemId} by ${node.grading.submission.username}) was returned 5 times, canceling grading!`);
+                    node.grading.cancelled = true;
+                    if (node.grading.callback) node.grading.callback(null);
+                } else {
+                    this.#ungradedSubmissions.unshift(node.grading);
+                }
+            }
             node.grading = undefined;
             res.sendStatus(200);
             this.logger.info(`return-work: ${username}@${req.ip} - 200, returned work`);
@@ -187,6 +196,7 @@ export class WwppcGrader extends Grader {
     queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
         this.#ungradedSubmissions.push({
             submission: submission,
+            returnCount: 0,
             callback: cb,
             cancelled: false
         });
@@ -235,7 +245,8 @@ export class WwppcGrader extends Grader {
 
 export interface SubmissionWithCallback {
     submission: Submission
-    callback?: (graded: Submission | null) => any,
+    callback?: (graded: Submission | null) => any
+    returnCount: number
     cancelled: boolean
 }
 
