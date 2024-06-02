@@ -365,6 +365,7 @@ export class ContestHost {
             this.end();
             return;
         }
+        // submissions will need to be used later
         const submissions: Submission[][] = [];
         for (let i = 0; i < rounds.length; i++) {
             this.scorer.setRound(i);

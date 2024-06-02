@@ -167,6 +167,7 @@ export class Database {
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
             if (value instanceof Array) {
+                if (value.length == 0) continue;
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
