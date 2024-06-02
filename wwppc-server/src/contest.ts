@@ -407,7 +407,7 @@ export class ContestHost {
             if (this.#data.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             scorerUpdateModulo++;
-            if (scorerUpdateModulo % 200 == 0) {
+            if (scorerUpdateModulo % 200 == 0 && (!config.freezeScoresLastRound || this.#index != this.#data.rounds.length - 1)) {
                 const scores = this.scorer.getScores();
                 this.io.to(this.#sid).emit('scoreboard', Array.from(scores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }

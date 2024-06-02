@@ -24,6 +24,7 @@ const config: {
     readonly acceptedLanguages: string[]
     readonly maxSubmissionSize: number
     readonly gradeAtRoundEnd: boolean
+    readonly freezeScoresLastRound: boolean
     readonly logEmailActivity: boolean
     readonly debugMode: boolean
     readonly superSecretSecret: boolean
@@ -55,6 +56,7 @@ const config: {
     ],
     maxSubmissionSize: fileConfig.maxSubmissionSize ?? 10240,
     gradeAtRoundEnd: fileConfig.gradeAtRoundEnd ?? true,
+    freezeScoresLastRound: fileConfig.freezeScoresLastRound ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
     debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,
