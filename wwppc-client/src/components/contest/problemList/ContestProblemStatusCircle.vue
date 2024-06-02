@@ -120,6 +120,8 @@ const showModal = () => {
 .contestProblemListProblemStatus {
     width: 32px;
     height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     animation: 2000ms linear v-bind("completionStateAnimation(props.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
     border-radius: 50%;
     background-color: currentColor;
