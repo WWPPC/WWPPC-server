@@ -99,8 +99,8 @@ onMounted(updateRoundTimes);
             </AnimateInContainer>
             <AnimateInContainer type="slideUp">
                 <TitledCutCornerContainer title="Important Info" height="100%" align="center" hover-animation="lift" flipped vertical-flipped>
-                    <p style="text-align: center;">
-                        <b>Important updates and clarifications will be on Discord!</b>
+                    <p style="text-align: center; font-size: var(--font-20); margin: 0px;">
+                        <b>Opening/closing ceremonies, updates, and clarifications will be on Discord!</b>
                     </p>
                     <div class="centered">
                         <a href="https://discord.wwppc.tech" target="_blank" style="text-decoration: none; text-align: center;">

@@ -2,7 +2,7 @@
 import { GlitchText, UILoadingSpinner } from '@/components/ui-defaults/UIDefaults';
 import { useAccountManager } from '@/scripts/AccountManager';
 import { useContestManager } from '@/scripts/ContestManager';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const accountManager = useAccountManager();
@@ -11,14 +11,16 @@ const contestManager = useContestManager();
 const router = useRouter();
 
 const scoreboard = ref<{ username: string, displayName: string, score: number }[]>([]);
-watch(() => contestManager.scoreboard, async () => {
+const update = async () => {
     if (contestManager.scoreboard == null) scoreboard.value = [];
     else scoreboard.value = await Promise.all(contestManager.scoreboard.map(async (s) => ({
         username: s.username,
         displayName: (await accountManager.getTeamData(s.username))?.teamName ?? s.username,
-        score: s.score
+        score: Math.round(s.score * 1000) / 1000
     })));
-});
+};
+watch(() => contestManager.scoreboard, update);
+onMounted(update);
 </script>
 
 <template>
