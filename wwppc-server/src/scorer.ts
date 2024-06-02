@@ -28,11 +28,10 @@ export class Scorer {
      */
     updateUser(submission: Submission): Boolean {
         const userScores = new Map<string, number>();
-        const subtasks = new Set<number>();
         for (const score of submission.scores) {
-            subtasks.add(score.subtask);
+            this.subtasks.add(submission.problemId + score.subtask.toString());
         }
-        for (const i of subtasks) {
+        for (const i of this.subtasks) {
             userScores.set(submission.problemId + i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i) ? -1 : submission.time);
         }
         for (const s of this.subtasks) {
