@@ -40,7 +40,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #FFF;
+        color: #FFF;
     }
 }
 
@@ -48,7 +48,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #0FF;
+        color: #0FF;
     }
 }
 
@@ -56,7 +56,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #08F;
+        color: #08F;
     }
 }
 
@@ -64,7 +64,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #0F0;
+        color: #0F0;
     }
 }
 
@@ -72,7 +72,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: #F00;
+        color: #F00;
     }
 }
 
@@ -80,7 +80,7 @@ const showModal = () => {
 
     from,
     to {
-        background-color: hsl(60, 100%, 50%);
+        color: #FF0;
     }
 }
 
@@ -88,31 +88,31 @@ const showModal = () => {
 
     0%,
     100% {
-        background-color: hsl(0deg, 100%, 50%);
+        color: hsl(0deg, 100%, 50%);
     }
 
     10%,
     90% {
-        background-color: hsl(12deg, 100%, 50%);
+        color: hsl(12deg, 100%, 50%);
     }
 
     20%,
     80% {
-        background-color: hsl(24deg, 100%, 50%);
+        color: hsl(24deg, 100%, 50%);
     }
 
     30%,
     70% {
-        background-color: hsl(36deg, 100%, 50%);
+        color: hsl(36deg, 100%, 50%);
     }
 
     40%,
     60% {
-        background-color: hsl(48deg, 100%, 50%);
+        color: hsl(48deg, 100%, 50%);
     }
 
     50% {
-        background-color: hsl(60deg, 100%, 50%);
+        color: hsl(60deg, 100%, 50%);
     }
 }
 </style>
@@ -122,6 +122,8 @@ const showModal = () => {
     height: 32px;
     animation: 2000ms linear v-bind("completionStateAnimation(props.status)") alternate infinite, 2000ms ease p-brightness-oscillation alternate infinite;
     border-radius: 50%;
+    background-color: currentColor;
+    box-shadow: 0px 0px 4px currentColor;
     cursor: help;
 }
 </style>
