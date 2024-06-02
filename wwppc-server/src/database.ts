@@ -1145,7 +1145,11 @@ export class Database {
                         file: submission.file,
                         lang: submission.language,
                         scores: submission.scores,
-                        history: submission.history.map((h) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }))
+                        history: submission.history.map((h) => ({
+                            time: Number(h.time),
+                            lang: h.lang,
+                            scores: h.scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
+                        }))
                     };
                     this.#submissionCache.set(submission.id + ':' + submission.username, {
                         submission: structuredClone(s),
@@ -1174,8 +1178,12 @@ export class Database {
         try {
             const existing = await this.#db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
             if (existing.rows.length > 0) {
-                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history;
-                if (existing.rows[0].scores.length > 0 && !overwrite) history.push({ time: existing.rows[0].time, lang: existing.rows[0].language, scores: existing.rows[0].scores });
+                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
+                if (existing.rows[0].scores.length > 0 && !overwrite) history.push({
+                    time: Number(existing.rows[0].time),
+                    lang: existing.rows[0].language,
+                    scores: existing.rows[0].scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
+                });
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);
