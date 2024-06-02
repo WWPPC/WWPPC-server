@@ -111,7 +111,6 @@ onMounted(updateRoundTimes);
             </AnimateInContainer>
             <AnimateInContainer type="slideUp">
                 <TitledCutCornerContainer title="Good Luck!" height="100%" align="center" hover-animation="lift" vertical-flipped>
-                    wait what do i write here
                 </TitledCutCornerContainer>
             </AnimateInContainer>
         </div>

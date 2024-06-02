@@ -20,6 +20,7 @@ import GlitchText from './text/GlitchText.vue';
 import UICopyButton from './UICopyButton.vue';
 import UITimer from './UITimer.vue';
 import UITimeDisplay from './UITimeDisplay.vue';
+import UISponsorLogo from './UISponsorLogo.vue';
 
 export {
     UIButton,
@@ -41,7 +42,8 @@ export {
     GlitchText,
     UICopyButton,
     UITimer,
-    UITimeDisplay
+    UITimeDisplay,
+    UISponsorLogo
 }
 
 const modal = ref<InstanceType<typeof FullscreenModal>>();

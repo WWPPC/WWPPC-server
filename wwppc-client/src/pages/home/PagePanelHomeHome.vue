@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import ScrollIndicator from "@/components/common/ScrollIndicator.vue";
 import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
-import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton } from "@/components/ui-defaults/UIDefaults";
+import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton, UISponsorLogo } from "@/components/ui-defaults/UIDefaults";
 import ContactFooter from '@/components/common/ContactFooter.vue';
-import HomeHomeSponsorLogo from "@/components/home/home/HomeHomeSponsorLogo.vue";
 import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
 </script>
 
@@ -137,24 +136,24 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
         <div class="sponsorColumns">
             <div>
                 <GlowText text="PARTNERS" font-size="var(--font-huge)" color="lime" shadow></GlowText>
-                <HomeHomeSponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="12vh"></HomeHomeSponsorLogo>
+                <UISponsorLogo src="/img/cpi-logo.svg" url="https://joincpi.org/" height="12vh"></UISponsorLogo>
             </div>
             <div>
                 <GlowText text="GOLD" font-size="var(--font-huge)" color="#FD0" shadow></GlowText>
-                <HomeHomeSponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></HomeHomeSponsorLogo>
+                <UISponsorLogo src="/img/x-camp-logo.png" url="https://x-camp.academy/" height="10vh"></UISponsorLogo>
             </div>
             <div>
                 <GlowText text="SILVER" font-size="var(--font-huge)" color="#CCC" shadow></GlowText>
-                <HomeHomeSponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></HomeHomeSponsorLogo>
+                <UISponsorLogo src="/img/icode-logo.png" url="https://icodeschool.com/" height="10vh"></UISponsorLogo>
             </div>
         </div>
         <UIDivider color="#AAA"></UIDivider>
         <div class="sponsors">
-            <HomeHomeSponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="5.5vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="12vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="9vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="5.5vh"></HomeHomeSponsorLogo>
-            <HomeHomeSponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="6vh"></HomeHomeSponsorLogo>
+            <UISponsorLogo src="/img/desmos-logo.svg" url="https://desmos.com/" height="5.5vh"></UISponsorLogo>
+            <UISponsorLogo src="/img/aops-logo.svg" url="https://artofproblemsolving.com/" height="12vh"></UISponsorLogo>
+            <UISponsorLogo src="/img/xyz-logo.svg" url="https://gen.xyz" height="9vh"></UISponsorLogo>
+            <UISponsorLogo src="/img/echo3d-logo.png" url="https://www.echo3d.com/" height="5.5vh"></UISponsorLogo>
+            <UISponsorLogo src="/img/axure-logo.svg" url="https://axure.com/" height="6vh"></UISponsorLogo>
         </div>
         <div style="flex-grow: 1;"></div>
         <ContactFooter></ContactFooter>
