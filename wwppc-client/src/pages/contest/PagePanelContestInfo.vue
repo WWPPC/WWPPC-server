@@ -278,7 +278,7 @@ const router = useRouter();
                         X-Camp Prizes (per-person)
                     </p>
                     <HeaderedTable width="100%" border-color="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
-                        headers: ['🥇 - $200', '🥈 - $100', '🥉 - $50'],
+                        headers: ['🥇 - $200', '🥈 - $150', '🥉 - $100'],
                         data: []
                     }"></HeaderedTable>
                     <p style="font-size: var(--font-tiny)">
