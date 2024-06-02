@@ -126,6 +126,7 @@ export class Scorer {
                     }
                 }
             });
+            
             scores.set(username, score / maxScore * 1000 - 0.001 * (last - this.#rounds[this.#round].startTime) / (this.#rounds[this.#round].endTime - this.#rounds[this.#round].startTime));
         });
         this.#scores.set(this.#round, scores);
@@ -140,7 +141,6 @@ export class Scorer {
         this.getRoundScores();
         const sums: Map<string, number> = new Map();
         this.#scores.forEach((roundMap) => {
-            this.logger.debug(JSON.stringify(Array.from(roundMap.entries())))
             roundMap.forEach((score, username) => {
                 if (sums.has(username)) sums.set(username, sums.get(username)! + score);
                 else sums.set(username, score);
