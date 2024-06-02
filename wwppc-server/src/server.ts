@@ -34,7 +34,7 @@ const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.crea
 }, app) : http.createServer(app);
 const limiter = rateLimit({
     windowMs: 100,
-    max: 30,
+    max: 100,
     handler: (req, res, next) => {
         logger.warn('Rate limiting triggered by ' + req.ip ?? req.socket.remoteAddress);
     }

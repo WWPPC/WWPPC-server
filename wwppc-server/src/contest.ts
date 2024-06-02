@@ -376,6 +376,7 @@ export class ContestHost {
             for (const sub of submissions) {
                 this.scorer.updateUser(sub);
             }
+            this.scorer.getRoundScores();
         }
         // re-index the contest
         this.#index = -1;

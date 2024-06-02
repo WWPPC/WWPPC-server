@@ -96,7 +96,7 @@ watch(nextTime, () => emit('next', nextTime.value.getTime()));
 
 .timer {
     min-width: 150px;
-    max-width: 150px;
+    max-width: 300px;
     margin-right: 8px;
     padding-top: 12px;
     transition: 500ms min-width;
@@ -104,7 +104,7 @@ watch(nextTime, () => emit('next', nextTime.value.getTime()));
 
 .timerText {
     font-size: 24px;
-    text-wrap: nowrap;
+    max-width: 300px;
     transition: 500ms font-size;
 }
 

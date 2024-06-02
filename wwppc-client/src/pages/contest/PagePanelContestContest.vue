@@ -77,7 +77,7 @@ onMounted(updateRoundTimes);
                             <ul>
                                 <li>Problems are submittable <b>ONLY during</b> rounds</li>
                                 <li>Work quickly, scores are based on the <b>number</b> of problems solved</li>
-                                <li>Subtasks are weighted <b>WITHIN</b> each problem (subtasks add up to 1 point)</li>
+                                <li>Subtasks are weighted based on the number of people who solve them</li>
                                 <li><b>All</b> cases per subtask must pass for subtask points to be earned</li>
                                 <li>Submissions are across your <b>ENTIRE TEAM</b></li>
                                 <li>Not all problems are meant to be solved within the time limit</li>
