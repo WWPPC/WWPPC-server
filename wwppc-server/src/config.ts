@@ -80,6 +80,8 @@ config2.debugMode = fileConfig.debugMode ?? false;
 delete config2.path;
 delete config2.emailTemplatePath;
 delete config2.clientPath;
-fs.writeFileSync(configPath, JSON.stringify(config2, null, 4));
+try {
+    fs.writeFileSync(configPath, JSON.stringify(config2, null, 4));
+} catch { }
 
 export default config;

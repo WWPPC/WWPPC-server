@@ -97,7 +97,7 @@ const largeHeader = ref(true);
                                     {{ biography }}
                                 </p>
                             </TitledDoubleCutCornerContainer>
-                            <TitledCutCornerContainer title="Team" hover-animation="lift" align="center" height="100%" style="grid-row: span 2;">
+                            <TitledCutCornerContainer title="Team" hover-animation="lift" align="center" height="100%" style="grid-row: span 2; max-height: 80vh;">
                                 <div class="userViewTeamGrid">
                                     <div class="userViewTeamList">
                                         <AccountProfileTeamUser v-for="user in teamData?.teamMembers" :key="user" :user="user" :team="teamData!.team"></AccountProfileTeamUser>
@@ -266,7 +266,7 @@ const largeHeader = ref(true);
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(500px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
     grid-auto-flow: row dense;
     margin: 12px 8px;
     align-items: center;
