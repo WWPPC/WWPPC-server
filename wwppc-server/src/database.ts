@@ -1074,9 +1074,7 @@ export class Database {
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        constraints: problem.constraints,
-                        hidden: problem.hidden,
-                        archived: problem.archived
+                        constraints: problem.constraints
                     };
                     this.#problemCache.set(problem.id, {
                         problem: structuredClone(p),
@@ -1101,9 +1099,9 @@ export class Database {
     async writeProblem(problem: Problem): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.hidden, problem.archived];
-            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5, hidden=$6, archived=$7 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints, hidden, archived) VALUES ($1, $2, $3, $4, $5, $6, $7)', data);
+            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints)];
+            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints) VALUES ($1, $2, $3, $4, $5)', data);
             this.#problemCache.set(problem.id, {
                 problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
@@ -1444,10 +1442,6 @@ export interface Problem {
         /**Memory limit per test case in megabytes */
         memory: number
     }
-    /**Public visibility of problem */
-    hidden: boolean
-    /**Archival status - can be fetched through API instead */
-    archived: boolean
 }
 /**Descriptor for a single submission */
 export interface Submission {

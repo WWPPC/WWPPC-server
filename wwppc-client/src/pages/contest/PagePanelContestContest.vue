@@ -207,10 +207,10 @@ onMounted(updateRoundTimes);
 
 .contestInstructionBlock {
     display: grid;
-    row-gap: 16px;
-    column-gap: 16px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr min-content;
+    row-gap: 24px;
+    column-gap: 24px;
     flex-grow: 1;
 }
 </style>

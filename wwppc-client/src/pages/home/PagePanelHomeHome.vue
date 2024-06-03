@@ -8,7 +8,7 @@ import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
 
 <template>
     <div class="fullBlock homeBlock">
-        <GlitchText text="WWPPC 2024" class="homeTitle" font-size="var(--font-huge-title)" color="lime" glow shadow :steps=2 random on-visible></GlitchText>
+        <GlitchText text="WWPPC 2024" class="homeTitle" font-size="var(--font-huge-title)" color="lime" glow shadow :delay=10 :steps=2 random on-visible></GlitchText>
         <div class="homeColumns">
             <AnimateInContainer type="slideUp" show-on-screen :delay=100>
                 <DoubleCutCornerContainer height="100%" hover-animation="lift">
@@ -217,6 +217,7 @@ p {
 }
 
 .sponsorColumns>div {
+    width: 40vh;
     display: flex;
     flex-direction: column;
     align-items: center;

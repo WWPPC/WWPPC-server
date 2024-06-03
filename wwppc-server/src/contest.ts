@@ -573,10 +573,6 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
-            if (problems[0].hidden) {
-                socket.kick('cannot submit to hidden problem');
-                return;
-            }
             if (!this.problemSubmittable(data.id)) {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
