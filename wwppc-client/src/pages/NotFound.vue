@@ -3,11 +3,6 @@ import { UIButton } from '@/components/ui-defaults/UIDefaults';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
-const magicalFix = () => {
-    if (Math.random() < 0.01) window.location.replace('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-    else router.push('/home');
-};
 </script>
 
 <template>
@@ -18,7 +13,7 @@ const magicalFix = () => {
         <br>
         <br>
         <span>
-            <UIButton text="Magical Fix Button" color="lime" width="200px" @click="magicalFix"></UIButton>
+            <UIButton text="Magical Fix Button" color="lime" width="200px" @click="router.push('/home')"></UIButton>
         </span>
     </div>
 </template>

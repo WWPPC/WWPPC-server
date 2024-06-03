@@ -88,28 +88,27 @@ watch(nextTime, () => emit('next', nextTime.value.getTime()));
 <style scoped>
 .timer,
 .timer2 {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     align-items: center;
     text-align: center;
 }
 
 .timer {
-    min-width: 150px;
-    max-width: 300px;
-    margin-right: 8px;
-    padding-top: 12px;
+    min-width: 200px;
+    max-width: 200px;
+    grid-template-rows: 48px 48px;
     transition: 500ms min-width;
 }
 
 .timerText {
-    font-size: 24px;
-    max-width: 300px;
+    font-size: 20px;
+    max-width: 200px;
+    text-wrap: balance;
     transition: 500ms font-size;
 }
 
 .timerText2 {
-    font-size: var(--font-subtitle);
+    font-size: 48px;
     text-wrap: nowrap;
 }
 

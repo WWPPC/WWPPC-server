@@ -81,11 +81,6 @@ function createRow(problem) {
     content.rows = 10;
     contentCell.appendChild(content);
     row.appendChild(contentCell);
-    // checkboxes
-    const hidden = createField('checkbox');
-    hidden.checked = problem.hidden;
-    const archived = createField('checkbox');
-    archived.checked = problem.archived;
 
     // make the borders very obviously red when something is edited
     const onEdit = () => {
@@ -97,8 +92,6 @@ function createRow(problem) {
     constraintsTime.addEventListener('input', onEdit);
     constraintsMemory.addEventListener('input', onEdit);
     content.addEventListener('input', onEdit);
-    hidden.addEventListener('input', onEdit);
-    archived.addEventListener('input', onEdit);
 
     // write button
     const updateButtonCell = document.createElement('td');
@@ -110,7 +103,7 @@ function createRow(problem) {
     const updateErrorMessage = document.createElement('div');
     updateButtonCell.appendChild(updateErrorMessage);
     updateButton.onclick = async () => {
-        const res = await modify(id.value, name.value, author.value, content.value, { time: Number(constraintsTime.value), memory: Number(constraintsMemory.value) }, hidden.checked, archived.checked);
+        const res = await modify(id.value, name.value, author.value, content.value, { time: Number(constraintsTime.value), memory: Number(constraintsMemory.value) });
         if (res == 200) {
             row.classList.remove('edited');
         } else {
@@ -124,7 +117,7 @@ function createRow(problem) {
     return row;
 }
 
-async function modify(id, name, author, content, constraints, hidden, archived) {
+async function modify(id, name, author, content, constraints) {
     const res = await fetch('/admin/api/problemData', {
         method: 'POST',
         headers: {
@@ -135,9 +128,7 @@ async function modify(id, name, author, content, constraints, hidden, archived) 
             name: name,
             author: author,
             content: content,
-            constraints: constraints,
-            hidden: hidden,
-            archived: archived
+            constraints: constraints
         })
     });
     if (res.status != 200) console.error('/admin/api/problemData code ' + res.status);

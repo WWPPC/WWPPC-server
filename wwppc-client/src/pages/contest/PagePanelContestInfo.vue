@@ -12,7 +12,7 @@ const router = useRouter();
 
 <template>
     <div class="fullBlock stretchBlock">
-        <GlitchText text="WWPIT" class="contestTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
+        <GlitchText text="WWPIT 2024" class="contestTitle" font-size="var(--font-title)" color="lime" shadow glow :steps=2 :delay=10 random on-visible></GlitchText>
         <div class="contestInfoBlock">
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="General Information" height="100%" align="center" hover-animation="lift" flipped>
