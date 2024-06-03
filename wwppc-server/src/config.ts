@@ -8,7 +8,14 @@ const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
 const configPath = path.resolve(process.env.CONFIG_PATH, 'config.json');
 if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}', 'utf8');
-const fileConfig = require(configPath);
+function loadConfig() {
+    try {
+        return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch {
+        return {}
+    }
+}
+const fileConfig = loadConfig();
 const config: {
     readonly hostname: string
     readonly emailAddress: string
@@ -23,6 +30,7 @@ const config: {
     readonly graderTimeout: number
     readonly acceptedLanguages: string[]
     readonly maxSubmissionSize: number
+    readonly maxSubmissionHistory: number
     readonly gradeAtRoundEnd: boolean
     readonly freezeScoresLastRound: boolean
     readonly logEmailActivity: boolean
@@ -55,6 +63,7 @@ const config: {
         'Python3.12.3'
     ],
     maxSubmissionSize: fileConfig.maxSubmissionSize ?? 10240,
+    maxSubmissionHistory: fileConfig.maxSubmissionHistory ?? 24,
     gradeAtRoundEnd: fileConfig.gradeAtRoundEnd ?? true,
     freezeScoresLastRound: fileConfig.freezeScoresLastRound ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,

@@ -1204,6 +1204,7 @@ export class Database {
                     lang: existing.rows[0].language,
                     scores: existing.rows[0].scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
                 });
+                while (history.length > config.maxSubmissionHistory) history.shift();
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
                 ]);

@@ -29,7 +29,7 @@ const funAnimation = ref(Math.random() < 0.01);
                     <DoubleCutCornerContainer flipped class="cardFaceContainer">
                         <div class="cardContent2">
                             <div class="cardBio">
-                                <span class="cardUserLink" @click="router.push('/user/@' + $props.username)">@{{ $props.username }}</span>
+                                <span class="cardUserLink" @click="router.push('/user/@' + encodeURI($props.username))">@{{ $props.username }}</span>
                                 <br>
                                 {{ $props.bio }}
                             </div>

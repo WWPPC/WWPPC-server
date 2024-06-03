@@ -306,7 +306,7 @@ io.on('connection', async (s) => {
                 ['name', data.displayName],
                 ['user', encodeURI(creds.username)],
                 ['pass', encodeURI(recoveryPassword)]
-            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${creds.username}&pass=${recoveryPassword}.\nNot you? You can ignore this email.`);
+            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(creds.username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
             if (res instanceof Error) {
                 socket.logWithId(logger.info, `Account recovery email could not be sent due to error: ${res.message}`);
                 cb(AccountOpResult.ERROR);
