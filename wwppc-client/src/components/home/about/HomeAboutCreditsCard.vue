@@ -18,6 +18,7 @@ defineProps<{
 
 const router = useRouter();
 
+const slightlyFunAnimation = ref(true);
 const funAnimation = ref(Math.random() < 0.01);
 </script>
 
@@ -79,12 +80,12 @@ const funAnimation = ref(Math.random() < 0.01);
     position: relative;
     width: 312px;
     height: 412px;
-    transition: 500ms ease transform;
+    transition: v-bind("slightlyFunAnimation ? '10000ms cubic-bezier(1,0,.74,.28) transform' : '500ms ease transform'");
     transform-style: preserve-3d;
 }
 
 .cardContainer:hover>.card {
-    transform: rotateY(180deg);
+    transform: v-bind("slightlyFunAnimation ? 'rotateY(165deg)' : 'rotateY(180deg)'");
     animation-name: spinny-carrier;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
