@@ -7,12 +7,12 @@ process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
 const configPath = path.resolve(process.env.CONFIG_PATH, 'config.json');
-if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}', 'utf8');
 function loadConfig() {
     try {
+        if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}', 'utf8');
         return JSON.parse(fs.readFileSync(configPath, 'utf8'));
     } catch {
-        return {}
+        return {};
     }
 }
 const fileConfig = loadConfig();
