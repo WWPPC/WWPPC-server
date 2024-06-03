@@ -196,7 +196,7 @@ export class Database {
      * @returns {boolean} Validity
      */
     validate(username: string, password: string): boolean {
-        return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_=+]+$/.test(username);
+        return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_]+$/.test(username);
     }
     /**
      * Read a list of all accounts that exist. Bypasses cache.

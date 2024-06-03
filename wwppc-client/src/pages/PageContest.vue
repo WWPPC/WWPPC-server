@@ -8,6 +8,8 @@ import PagePanelContestContest from './contest/PagePanelContestContest.vue';
 import PagePanelContestProblemList from './contest/PagePanelContestProblemList.vue';
 import PagePanelContestProblemView from './contest/PagePanelContestProblemView.vue';
 import PagePanelContestLeaderboard from './contest/PagePanelContestLeaderboard.vue';
+import PagePanelArchiveList from './archive/PagePanelArchiveList.vue';
+import PagePanelArchiveProblem from './archive/PagePanelArchiveProblem.vue';
 import { ref, watch } from 'vue';
 import { useContestManager } from '@/scripts/ContestManager';
 import { useConnectionEnforcer } from '@/scripts/ConnectionEnforcer';
@@ -38,6 +40,9 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
+                <div v-if="serverConnection.loggedIn || ignoreServer" style="display: flex;">
+                    <PanelNavButton text="Archive" for="/contest/archive"></PanelNavButton>
+                </div>
                 <div v-if="contestManager.contest !== null || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                     <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
@@ -64,6 +69,12 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             </PanelBody>
             <PanelBody name="leaderboard" title="Leaderboard">
                 <PagePanelContestLeaderboard v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestLeaderboard>
+            </PanelBody>
+            <PanelBody name="archive" title="Archive">
+                <PagePanelArchiveList v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveList>
+            </PanelBody>
+            <PanelBody name="archiveProblem" title="Archive Problem">
+                <PagePanelArchiveProblem v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveProblem>
             </PanelBody>
         </PanelMain>
     </PanelView>

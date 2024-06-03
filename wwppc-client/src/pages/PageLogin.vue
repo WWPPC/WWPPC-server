@@ -48,7 +48,7 @@ const attemptedRecovery = ref(false);
 const attemptLogin = async () => {
     if (usernameInput.value.trim() == '' || passwordInput.value == '') return;
     if (!validateCredentials(usernameInput.value, passwordInput.value)) {
-        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-" and "_" characters.' });
         return;
     }
     showLoginWait.value = true;
@@ -61,7 +61,7 @@ const attemptLogin = async () => {
 const toSignUp = () => {
     if (usernameInput.value.trim() == '' || passwordInput.value == '') return;
     if (!validateCredentials(usernameInput.value, passwordInput.value)) {
-        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-", "+", "=", and "_" characters.' });
+        modal.showModal({ title: 'Invalid username or password', content: 'Username must be less than or equal to 16 characters and contain only lowercase alphanumeric (a-z, 0-9) and "-" and "_" characters.' });
         return;
     }
     firstNameInput.value = '';
@@ -133,7 +133,7 @@ watch(usernameInput, () => {
                                     <img src="/logo.svg" class="loginLogoFloater">
                                     <h1 class="loginVerticalHeader">Log In</h1>
                                     <form class="loginVertical" action="javascript:void(0)">
-                                        <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" pattern="[a-z0-9\-_=+]*" highlight-invalid required></UITextBox>
+                                        <UITextBox v-model="usernameInput" placeholder="Username" style="margin-bottom: 8px;" width="208px" title="Username" maxlength="16" autocomplete="username" autocapitalize="off" pattern="[a-z0-9\-_]*" highlight-invalid required></UITextBox>
                                         <UITextBox v-model="passwordInput" placeholder="Password" type="password" style="margin-bottom: 8px;" width="208px" title="Password" maxlength="1024" autocomplete="current-password" required></UITextBox>
                                         <span>
                                             <UIButton text="Log In" type="submit" @click="attemptLogin" width="100px" title="Log in" glitchOnMount :disabled=showLoginWait></UIButton>

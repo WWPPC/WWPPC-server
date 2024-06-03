@@ -27,7 +27,7 @@ onMounted(async () => {
 });
 
 const openUserView = () => {
-    router.push('/user/@' + encodeURI(props.user));
+    router.push('/user/@' + props.user);
 };
 
 const kick = async () => {
