@@ -2,16 +2,14 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import {
-    AccountOpResult, AdminPerms, Database, isUUID, reverse_enum, Round, Score, ScoreState, Submission,
-    TeamOpResult, UUID
-} from './database';
+import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
 import WwppcGrader from './graders/wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
-import { ServerSocket } from './socket';
 import Scorer from './scorer';
+import { ServerSocket } from './socket';
+import { isUUID, reverse_enum, UUID } from './util';
 
 /**
  * `ContestManager` handles all contest interfacing with clients.
@@ -110,7 +108,7 @@ export class ContestManager {
                 return;
             } else if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
             // check valid team size and exclusion lists
-            const contestData = await this.db.readContests(data.contest);
+            const contestData = await this.db.readContests({ id: data.contest });
             const teamData = await this.db.getTeamData(socket.username);
             const userData = await this.db.getAccountData(socket.username);
             if (contestData == null || contestData.length != 1) {
@@ -131,7 +129,7 @@ export class ContestManager {
             }
             // very long code to check for conflicts
             for (const r of userData.registrations) {
-                const contest = await this.db.readContests(r);
+                const contest = await this.db.readContests({ id: r });
                 if (contest == null || contest.length != 1) {
                     cb(TeamOpResult.ERROR);
                     return;
@@ -320,7 +318,7 @@ export class ContestHost {
     async reload(): Promise<void> {
         this.logger.info(`Reloading contest data "${this.id}"`);
         clearInterval(this.#updateLoop);
-        const contest = await this.db.readContests(this.id);
+        const contest = await this.db.readContests({ id: this.id });
         if (contest == null || contest.length == 0) {
             if (contest == null) this.logger.error(`Database error`);
             else this.logger.error(`Contest "${this.id}" does not exist`);

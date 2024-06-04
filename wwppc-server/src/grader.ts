@@ -1,4 +1,5 @@
-import { Score, Submission, UUID } from "./database"
+import { Submission } from './database';
+import { UUID } from './util';
 
 export abstract class Grader {
     /**

@@ -4,6 +4,7 @@ import path from 'path';
 import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
+import { reverse_enum } from './util';
 
 // verify environment variables exist
 if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
@@ -47,7 +48,7 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
-import Database, { AccountData, AccountOpResult, reverse_enum, RSAEncrypted, TeamData, TeamOpResult } from './database';
+import Database, { AccountData, AccountOpResult, RSAEncrypted, TeamData, TeamOpResult } from './database';
 import ContestManager from './contest';
 import Mailer from './email';
 import { validateRecaptcha } from './recaptcha';
@@ -461,7 +462,7 @@ io.on('connection', async (s) => {
             return;
         }
         // make sure won't violate restrictions
-        const contests = await database.readContests(userData.registrations);
+        const contests = await database.readContests({ id: userData.registrations });
         if (contests == null) { respond(TeamOpResult.ERROR); resetTeam(); return; }
         if (contests.some((c) => c.maxTeamSize < teamData.members.length)) {
             respond(TeamOpResult.CONTEST_MEMBER_LIMIT);

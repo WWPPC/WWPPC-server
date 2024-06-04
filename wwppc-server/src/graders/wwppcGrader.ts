@@ -2,9 +2,10 @@ import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
 
 import config from '../config';
-import { Database, is_in_enum, Score, ScoreState, Submission } from '../database';
+import { Database, Score, ScoreState, Submission } from '../database';
 import Grader from '../grader';
 import Logger, { NamedLogger } from '../log';
+import { is_in_enum } from '../util';
 
 export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)

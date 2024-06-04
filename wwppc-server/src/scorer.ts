@@ -1,5 +1,6 @@
-import { Round, Score, ScoreState, Submission, UUID } from "./database";
-import Logger, { NamedLogger } from "./log";
+import { Round, Score, ScoreState, Submission } from './database';
+import Logger, { NamedLogger } from './log';
+import { UUID } from './util';
 
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.

@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
 import { createCipheriv, createDecipheriv, randomBytes, subtle, webcrypto } from 'crypto';
 import { Client } from 'pg';
-import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
 import { Mailer } from './email';
 import Logger, { NamedLogger } from './log';
+import { filterCompare, FilterComparison, isUUID, UUID } from './util';
 
 const salt = 5;
 
@@ -171,11 +172,55 @@ export class Database {
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
-                // } else if (typeof value == 'object' && value != null) {
-                //     if (value.op == '><' || value.op == '<>') {
-                //     } else {
-                //         value.v
-                //     }
+            } else if (typeof value == 'object' && value != null) {
+                switch (value.op) {
+                    case '=':
+                    case '!':
+                    case '<':
+                    case '>':
+                    case '<=':
+                    case '>=':
+                        bindings.push(value.v);
+                        conditions.push(`${name}${value.op}$${bindings.length}`);
+                        break;
+                    case '><':
+                    case '<>':
+                    case '=><':
+                    case '><=':
+                    case '=><=':
+                    case '=<>':
+                    case '<>=':
+                    case '=<>=':
+                        bindings.push(value.v1, value.v2);
+                        switch (value.op) {
+                            case '><':
+                                conditions.push(`${name}>${bindings.length - 1} AND ${name}<${bindings.length}`);
+                                break;
+                            case '<>':
+                                conditions.push(`${name}<${bindings.length - 1} OR ${name}>${bindings.length}`);
+                                break;
+                            case '=><':
+                                conditions.push(`${name}>=${bindings.length - 1} AND ${name}<${bindings.length}`);
+                                break;
+                            case '><=':
+                                conditions.push(`${name}>${bindings.length - 1} AND ${name}<=${bindings.length}`);
+                                break;
+                            case '=><=':
+                                conditions.push(`${name}>=${bindings.length - 1} AND ${name}<=${bindings.length}`);
+                                break;
+                            case '=<>':
+                                conditions.push(`${name}<=${bindings.length - 1} OR ${name}>${bindings.length}`);
+                                break;
+                            case '<>=':
+                                conditions.push(`${name}<${bindings.length - 1} OR ${name}>=${bindings.length}`);
+                                break;
+                            case '=<>=':
+                                conditions.push(`${name}<=${bindings.length - 1} OR ${name}>=${bindings.length}`);
+                                break;
+                        }
+                        break;
+                }
+                // should never reach here
             } else if (value != null) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
@@ -879,13 +924,13 @@ export class Database {
      * @param {string | string[]} id Contest ID or list of contest ids. Leaving undefined removes the criteria 
      * @returns {Contest[] | null} Array of contest data matching the filter criteria
      */
-    async readContests(id?: string | string[]): Promise<Contest[] | null> {
+    async readContests(c: ReadContestsCriteria = {}): Promise<Contest[] | null> {
         const startTime = performance.now();
         try {
             const contestIdSet: Set<string> = new Set();
-            if (id != undefined) {
-                if (typeof id == 'string') contestIdSet.add(id);
-                else for (const contest of id) contestIdSet.add(contest);
+            if (c.id != undefined) {
+                if (typeof c.id == 'string') contestIdSet.add(c.id);
+                else if (Array.isArray(c.id)) for (const contest of c.id) contestIdSet.add(contest);
             }
             const contests: Contest[] = [];
             contestIdSet.forEach((id) => {
@@ -896,13 +941,13 @@ export class Database {
                 }
             });
             const contestIdList = Array.from(contestIdSet.values());
-            if (contestIdList.length > 0 || id == undefined) {
+            if (contestIdList.length > 0 || c.id == undefined) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
-                    { name: 'id', value: id != undefined ? contestIdList : undefined }
+                    { name: 'id', value: c.id != undefined ? contestIdList : undefined }
                 ]);
                 const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
                 for (const contest of data.rows) {
-                    const c = {
+                    const co = {
                         id: contest.id,
                         rounds: contest.rounds,
                         exclusions: contest.exclusions,
@@ -911,10 +956,10 @@ export class Database {
                         endTime: Number(contest.endtime)
                     };
                     this.#contestCache.set(contest.id, {
-                        contest: structuredClone(c),
+                        contest: structuredClone(co),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    contests.push(c);
+                    if (c.id == undefined || filterCompare<string>(co.id, c.id)) contests.push(co);
                 }
             }
             return contests;
@@ -961,10 +1006,10 @@ export class Database {
             const roundIdSet: Set<string> = new Set();
             if (c.id != undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) roundIdSet.add(c.id);
-                else for (const contest of c.id) if (isUUID(contest)) roundIdSet.add(contest);
+                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) roundIdSet.add(round);
             }
             if (c.contest != undefined) {
-                const contests = await this.readContests(c.contest);
+                const contests = await this.readContests({ id: c.contest });
                 if (contests === null) return null;
                 contests.flatMap((c) => c.rounds).forEach((v) => roundIdSet.add(v));
             }
@@ -993,7 +1038,7 @@ export class Database {
                         round: structuredClone(r),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    rounds.push(r);
+                    if (c.id == undefined || filterCompare<UUID>(r.id, c.id)) rounds.push(r);
                 }
             }
             return rounds;
@@ -1040,15 +1085,19 @@ export class Database {
             const problemIdSet: Set<string> = new Set();
             if (c.id != undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
-                else for (const contest of c.id) if (isUUID(contest)) problemIdSet.add(contest);
+                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) problemIdSet.add(round);
             }
             if (c.contest != undefined) {
-                const rounds = await this.readRounds(c.contest);
+                const rounds = await this.readRounds({
+                    contest: c.contest.contest,
+                    round: c.contest.round,
+                    id: c.contest.roundId
+                });
                 if (rounds === null) return null;
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => n.includes(i))).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => filterCompare<number>(i, n) && v != undefined)).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
@@ -1080,7 +1129,7 @@ export class Database {
                         problem: structuredClone(p),
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
-                    problems.push(problem);
+                    if (c.id == undefined || filterCompare<UUID>(p.id, c.id)) problems.push(p);
                 }
             }
             return problems;
@@ -1127,15 +1176,19 @@ export class Database {
             const problemIdSet: Set<string> = new Set();
             if (c.id != undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
-                else for (const contest of c.id) if (isUUID(contest)) problemIdSet.add(contest);
+                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) problemIdSet.add(round);
             }
             if (c.contest != undefined) {
-                const rounds = await this.readRounds(c.contest);
+                const rounds = await this.readRounds({
+                    contest: c.contest.contest,
+                    round: c.contest.round,
+                    id: c.contest.roundId
+                });
                 if (rounds === null) return null;
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => n.includes(i))).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
@@ -1173,7 +1226,7 @@ export class Database {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    submissions.push(s);
+                    if (c.id == undefined || filterCompare<UUID>(s.problemId, c.id)) submissions.push(s);
                 }
             }
             return submissions;
@@ -1245,41 +1298,9 @@ export class Database {
 }
 export default Database;
 
-export type UUID = string;
-
 export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
-/**Flexible comparison type for database filtering */
-// export type FilterComparison<T> = {
-//     op: '<' | '>' | '>=' | '<='
-//     v: number & T
-// } | {
-//     op: '><' | '<>'
-//     v1: number & T
-//     v2: number & T
-// } | {
-//     op: '=' | '!'
-//     v: T
-// } | {
-//     op: '=' | '!'
-//     v: T[]
-// } | T | T[];
-export type FilterComparison<T> = T | T[];
-
-export function isUUID(id: string): id is UUID {
-    return uuidValidate(id);
-}
-
 export type RSAEncrypted = Buffer | string;
-
-export function reverse_enum(enumerator, v): string {
-    for (const k in enumerator) if (enumerator[k] === v) return k;
-    return v;
-}
-export function is_in_enum(v, enumerator): boolean {
-    for (const k in enumerator) if (enumerator[k] === v) return true;
-    return false;
-}
 
 /**Response codes for operations involving account data */
 export enum AccountOpResult {
@@ -1488,13 +1509,19 @@ export enum ScoreState {
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
+export interface ReadContestsCriteria {
+    /**Contest ID */
+    id?: FilterComparison<string>
+}
+
+/**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadRoundsCriteria {
     /**Contest ID */
-    contest?: string | string[]
+    contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
     round?: FilterComparison<number>
     /**Round ID */
-    id?: UUID | UUID[]
+    id?: FilterComparison<UUID>
     /**Start of round, UNIX time */
     startTime?: FilterComparison<number>
     /**End of round, UNIX time */
@@ -1503,31 +1530,31 @@ export interface ReadRoundsCriteria {
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ProblemRoundCriteria {
     /**Contest ID */
-    contest?: string | string[]
+    contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
     round?: FilterComparison<number>
     /**Zero-indexed problem number within the round */
     number?: FilterComparison<number>
     /**Round ID */
-    roundId?: UUID | UUID[]
+    roundId?: FilterComparison<UUID>
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadProblemsCriteria {
     /**UUID of problem */
-    id?: UUID | UUID[]
+    id?: FilterComparison<UUID>
     /**Display name of problem */
-    name?: string | string[]
+    name?: FilterComparison<string>
     /**Author username of problem */
-    author?: string | string[]
+    author?: FilterComparison<string>
     /**Round based filter for problems */
     contest?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadSubmissionsCriteria {
     /**UUID of problem */
-    id?: UUID | UUID[]
+    id?: FilterComparison<UUID>
     /**Username of submitter */
-    username?: string | string[]
+    username?: FilterComparison<string>
     /**Round-based filter for problems */
     contest?: ProblemRoundCriteria
 }

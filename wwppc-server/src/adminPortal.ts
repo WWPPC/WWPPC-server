@@ -1,12 +1,13 @@
 import bodyParser from 'body-parser';
-import express, { Express, IRouterMatcher } from 'express';
+import express, { Express } from 'express';
 import path from 'path';
 import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
 import ContestManager from './contest';
-import Database, { AccountOpResult, AdminPerms, isUUID, reverse_enum, TeamOpResult } from './database';
+import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database';
 import Logger from './log';
+import { isUUID, reverse_enum } from './util';
 
 process.env.ADMIN_PORTAL_PATH ??= path.resolve(__dirname, '../admin-portal');
 export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {

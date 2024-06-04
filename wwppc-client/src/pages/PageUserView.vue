@@ -170,7 +170,7 @@ const largeHeader = ref(true);
 .userViewProfileHeader {
     display: grid;
     --image-size: v-bind("largeHeader ? 'min(25vw, 25vh)' : 'min(15vw, 15vh)'");
-    grid-template-columns: 1fr min-content max-content 2fr 1fr;
+    grid-template-columns: 1fr min-content min-content minmax(20vw, 2fr) 1fr;
     grid-template-rows: 1fr 4fr 4fr 1fr;
     column-gap: 16px;
     position: absolute;
@@ -179,7 +179,6 @@ const largeHeader = ref(true);
     width: calc(100% + 32px);
     min-height: v-bind("largeHeader ? '30vh' : '20vh'");
     max-height: v-bind("largeHeader ? '30vh' : '20vh'");
-    padding: auto;
     border-bottom: 4px solid white;
     background-color: black;
     transition: 500ms ease max-height, 500ms ease min-height;
@@ -201,16 +200,16 @@ const largeHeader = ref(true);
 .userViewDisplayName {
     grid-row: 2;
     grid-column: 3;
-    font-size: var(--font-40);
+    min-width: 0px;
+    font-size: min(6vw, 5vh);
     align-self: end;
-    white-space: pre;
     font-family: 'Source Code Pro', Courier, monospace;
 }
 
 .userViewUsername {
     grid-row: 3;
     grid-column: 3;
-    font-size: var(--font-28);
+    font-size: min(5vw, 4vh);
     font-family: 'Source Code Pro', Courier, monospace;
 }
 
@@ -257,6 +256,18 @@ const largeHeader = ref(true);
 
 .registrationStatusDotCompleted {
     background-color: lime;
+}
+
+@media (max-width: 700px) {
+    .userViewProfileHeader {
+        grid-template-columns: 1fr min-content min-content 1fr;
+        grid-template-rows: 1fr 4fr 4fr 10fr 1fr;
+    }
+
+    .userViewProfileRegistrations {
+        grid-row: 4;
+        grid-column: 2 / 4;
+    }
 }
 
 .vStack {
