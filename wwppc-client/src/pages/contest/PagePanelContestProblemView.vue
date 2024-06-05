@@ -8,10 +8,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitions';
 import WaitCover from '@/components/common/WaitCover.vue';
 import latexify from '@/scripts/katexify';
-import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
-import AnimateInContainer from "@/components/ui-defaults/containers/AnimateInContainer.vue";
+import ContestProblemStatusCircle from '@/components/contest/ContestProblemStatusCircle.vue';
+import AnimateInContainer from '@/components/ui-defaults/containers/AnimateInContainer.vue';
 import { useServerConnection } from '@/scripts/ServerConnection';
-import ProblemSubmissionCase from '@/components/contest/ProblemSubmissionCase.vue';
+import ContestProblemSubmissionCase from '@/components/contest/ContestProblemSubmissionCase.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -50,7 +50,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 }
 </codeblock>
     `,
-    constraints: { memory: 1, time: -1 },
+    constraints: { memory: 0, time: 0 },
     submissions: [],
     status: ContestProblemCompletionState.ERROR,
 });
@@ -162,14 +162,14 @@ onMounted(() => {
     </div>
     <div class="problemViewPanel">
         <div class="problemViewDouble">
-            <TitledCutCornerContainer :title="problemName" style="grid-row: span 3;" vertical-flipped>
+            <TitledCutCornerContainer :title="problemName" style="grid-row: span 3;" vertical-flipped no-padding>
                 <div class="problemViewSubtitle">
                     <span v-html="problemSubtitle1" style="font-weight: bold; grid-row: 1;"></span>
                     <span v-html="problemSubtitle2" style="grid-row: 2;"></span>
                     <ContestProblemStatusCircle :status="problem.status" style="grid-row: span 2;"></ContestProblemStatusCircle>
                 </div>
                 <div class="problemViewContent" v-html="problemContent"></div>
-                <WaitCover text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
+                <WaitCover class="problemLoadingCover" text="Loading..." :show="problem.id == 'loading' && route.query.ignore_server === undefined"></WaitCover>
             </TitledCutCornerContainer>
             <DoubleCutCornerContainer>
                 <div style="text-align: center;">
@@ -201,7 +201,7 @@ onMounted(() => {
                         <input type="checkbox" class="submissionCheckbox" :id="'submissionCheckbox' + index">
                         <div class="submissionDetailsWrapper">
                             <div class="submissionDetails">
-                                <ProblemSubmissionCase v-for="(testCase, index2) in submission.scores" :key="index2" :case="testCase" :number="index2"></ProblemSubmissionCase>
+                                <ContestProblemSubmissionCase v-for="(testCase, index2) in submission.scores" :key="index2" :case="testCase" :number="index2"></ContestProblemSubmissionCase>
                                 <div style="text-align: center; font-size: var(--font-tiny);" v-if="submission.scores.length == 0">
                                     <i>Please wait while the grading system runs your submission...</i>
                                 </div>
@@ -265,9 +265,9 @@ onMounted(() => {
     grid-template-columns: 1fr min-content;
     grid-template-rows: 1fr 1fr;
     box-sizing: border-box;
-    width: 100%;
+    width: calc(100% - 16px);
     padding: 8px 12px;
-    margin-bottom: 8px;
+    margin: 8px 8px;
     border-radius: 8px;
     background-color: #333;
     font-weight: normal;
@@ -277,8 +277,14 @@ onMounted(() => {
 }
 
 .problemViewContent {
+    margin: 0px 8px;
+    padding-bottom: 8px;
     font-size: var(--font-small);
     text-align: justify;
+}
+
+.problemLoadingCover {
+    position: sticky;
 }
 
 .problemViewSubmitForm {

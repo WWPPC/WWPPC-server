@@ -2,9 +2,10 @@ import { defineStore } from 'pinia';
 import { io } from 'socket.io-client';
 import { reactive } from 'vue';
 
+import { globalModal } from '@/components/ui-defaults/UIDefaults';
+
 import { useAccountManager } from './AccountManager';
 import recaptcha from './recaptcha';
-import { globalModal } from '@/components/ui-defaults/UIDefaults';
 
 // send HTTP wakeup request before trying socket.io
 export const serverHostname = process.env.NODE_ENV == 'development' ? 'https://localhost:8000' : 'https://server.wwppc.tech';
@@ -234,19 +235,19 @@ export const useServerConnection = defineStore('serverconnection', {
         removeAllListeners(event: string) {
             socket.removeAllListeners(event);
         },
-        onattemptconnect(handler: () => boolean | void) {
+        onattemptconnect(handler: () => boolean | void | Promise<boolean | void>) {
             const h = () => {
                 if (handler()) connectAttemptHandlers.delete(h);
             };
             connectAttemptHandlers.add(h);
         },
-        onconnect(handler: () => boolean | void) {
+        onconnect(handler: () => boolean | void | Promise<boolean | void>) {
             const h = () => {
                 if (handler()) socket.off('connect', h);
             };
             socket.on('connect', h);
         },
-        onconnecterror(handler: () => boolean | void) {
+        onconnecterror(handler: () => boolean | void | Promise<boolean | void>) {
             const h = () => {
                 if (handler()) {
                     socket.off('connect_error', h);
@@ -258,7 +259,7 @@ export const useServerConnection = defineStore('serverconnection', {
             socket.on('connect_fail', h);
             connectErrorHandlers.add(h);
         },
-        ondisconnect(handler: () => boolean | void) {
+        ondisconnect(handler: () => boolean | void | Promise<boolean | void>) {
             const h = () => {
                 if (handler()) {
                     socket.off('disconnect', h);

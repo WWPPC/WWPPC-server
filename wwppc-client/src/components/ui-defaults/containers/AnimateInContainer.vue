@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-    type: AnimateInType
+    type: 'fade' | 'slideUp'
     width?: string
     height?: string
     showOnScreen?: boolean
@@ -9,7 +9,6 @@ defineProps<{
 }>();
 </script>
 <script lang="ts">
-export type AnimateInType = 'fade' | 'slideUp';
 export default {
     data() {
         return { createdObserver: false }

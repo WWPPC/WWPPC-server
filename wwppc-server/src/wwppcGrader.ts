@@ -1,11 +1,11 @@
 import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
 
-import config from '../config';
-import { Database, Score, ScoreState, Submission } from '../database';
-import Grader from '../grader';
-import Logger, { NamedLogger } from '../log';
-import { is_in_enum } from '../util';
+import config from './config';
+import { Database, Score, ScoreState, Submission } from './database';
+import Grader from './grader';
+import Logger, { NamedLogger } from './log';
+import { is_in_enum } from './util';
 
 export class WwppcGrader extends Grader {
     //custom grader (hopefully this doeesn't bork)
@@ -16,21 +16,30 @@ export class WwppcGrader extends Grader {
     readonly app: Express;
     readonly logger: NamedLogger;
     readonly db: Database;
-    #password: string;
+    readonly #path: string;
+    readonly #password: string;
+    
+    #open = true;
 
     #ungradedSubmissions: SubmissionWithCallback[] = [];
 
-    constructor(app: Express, logger: Logger, db: Database) {
+    /**
+     * @param {Express} app Express app (HTTP server) to attach api to
+     * @param {string} path path of of API
+     * @param {Logger} logger Logger instance
+     * @param {Database} db Database connection
+     */
+    constructor(app: Express, path: string, password: string, logger: Logger, db: Database) {
         super();
         this.app = app;
         this.logger = new NamedLogger(logger, 'WwppcGrader');
         this.db = db;
-        if (typeof process.env.GRADER_PASS != 'string') throw new Error('Missing WwppcGrader password');
-        this.#password = process.env.GRADER_PASS;
+        this.#password = password;
         this.logger.info('Creating WwppcGrader');
-        app.use('/judge/*', bodyParser.json());
+        this.#path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
+        this.app.use(this.#path + '/*', bodyParser.json());
         // see docs
-        this.app.get('/judge/get-work', async (req, res) => {
+        this.app.get(this.#path + '/get-work', async (req, res) => {
             //fetch work from the server
             const username = this.#getAuth(req);
             if (username == 401) {
@@ -81,7 +90,7 @@ export class WwppcGrader extends Grader {
             });
             this.logger.info(`get-work: ${username}@${req.ip} - 200, work sent`);
         });
-        this.app.post('/judge/return-work', async (req, res) => {
+        this.app.post(this.#path + '/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
             const username = this.#getAuth(req);
             if (username == 401) {
@@ -116,7 +125,7 @@ export class WwppcGrader extends Grader {
             res.sendStatus(200);
             this.logger.info(`return-work: ${username}@${req.ip} - 200, returned work`);
         });
-        this.app.post('/judge/finish-work', async (req, res) => {
+        this.app.post(this.#path + '/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
@@ -167,8 +176,8 @@ export class WwppcGrader extends Grader {
             this.logger.info(`finish-work: ${username}@${req.ip} - 200, finished work`);
         });
 
-        // reserve /judge path
-        app.use('/judge/*', (req, res) => res.sendStatus(404));
+        // reserve path
+        this.app.use(this.#path + '/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
             this.#nodes.forEach(async (node, username) => {
@@ -195,6 +204,10 @@ export class WwppcGrader extends Grader {
     }
 
     queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
+        if (!this.#open) {
+            cb(null);
+            return;
+        }
         this.#ungradedSubmissions.push({
             submission: submission,
             returnCount: 0,
@@ -241,6 +254,18 @@ export class WwppcGrader extends Grader {
         } catch {
             return 400;
         }
+    }
+
+    close() {
+        this.#open = false;
+        this.app.removeAllListeners(this.#path + '/*');
+        this.app.removeAllListeners(this.#path + '/get-work');
+        this.app.removeAllListeners(this.#path + '/return-work');
+        this.app.removeAllListeners(this.#path + '/finish-work');
+        this.#ungradedSubmissions.forEach((sub) => {
+            sub.cancelled = true;
+            if (sub.callback != undefined) sub.callback(null);
+        });
     }
 }
 

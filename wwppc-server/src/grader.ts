@@ -13,6 +13,10 @@ export abstract class Grader {
      * @param problemId ID or problem
      */
     abstract cancelUngraded(username: string, problemId: UUID): boolean;
+    /**
+     * Cancels all submissions and stops accepting submissions to the queue
+     */
+    abstract close();
 }
 
 export default Grader;

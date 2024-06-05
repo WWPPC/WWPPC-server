@@ -30,7 +30,7 @@ const router = useRouter();
                     <div class="centered">
                         <GlitchText text="06/02/2024" font-size="var(--font-huge)" color="red" glow random flashing :steps=5 start-glitched></GlitchText>
                     </div>
-                    <div class="centered">
+                    <div class="centered" v-if="Date.now() < nextContest.getTime()">
                         <UITimer :to="nextContest" type="clock" font-size="var(--font-large)" color="lime" glow></UITimer>
                     </div>
                 </TitledDoubleCutCornerContainer>
@@ -76,7 +76,7 @@ const router = useRouter();
     <div class="fullBlock stretchBlock">
         <a name="pageContestScrollTo"></a>
         <CenteredContainer>
-            <GlitchText text="2024 Winners" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
+            <GlitchText text="S-2024 Winners" font-size="var(--font-title)" color="lime" glow shadow random :steps=2 :delay=10 on-visible></GlitchText>
         </CenteredContainer>
         <div class="contestInfoBlock winnersBlock">
             <AnimateInContainer type="slideUp" show-on-screen :delay=200>
@@ -128,7 +128,7 @@ const router = useRouter();
         <div class="contestInfoBlock">
             <AnimateInContainer type="slideUp" show-on-screen :delay=100 style="grid-row: span 2;">
                 <TitledDoubleCutCornerContainer title="Prizes" height="100%" align="center" hover-animation="lift">
-                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" style="font-size: var(--font-28); line-height: 0.9em;" :content="{
+                    <HeaderedTable width="100%" border-color="transparent" header-color="lime" header-background="transparent" style="font-size: var(--font-28); line-height: 0.9em;" :content="{
                         headers: ['Novice', 'Advanced'],
                         data: [
                             [
@@ -148,7 +148,7 @@ const router = useRouter();
                     <p style="font-size: var(--font-28); text-align: center; color: lime; margin: 0px;">
                         X-Camp Prizes (per-person)
                     </p>
-                    <HeaderedTable width="100%" border-color="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
+                    <HeaderedTable width="100%" border-color="transparent" header-background="transparent" style="font-size: var(--font-28); line-height: 0.7em;" :content="{
                         headers: ['🥇 - $200', '🥈 - $150', '🥉 - $100'],
                         data: []
                     }"></HeaderedTable>

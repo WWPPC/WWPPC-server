@@ -3,7 +3,8 @@ import { Socket } from 'socket.io';
 import Logger from './log';
 
 /**
- * just socket with kick function, ip, and username
+ * Socket.IO socket with username, IP, and kick function
+ * @ignore
  */
 export interface ServerSocket extends Socket {
     kick(reason: string): void

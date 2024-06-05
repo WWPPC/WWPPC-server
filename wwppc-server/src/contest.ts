@@ -4,7 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
-import WwppcGrader from './graders/wwppcGrader';
+import WwppcGrader from './wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
@@ -12,11 +12,10 @@ import { ServerSocket } from './socket';
 import { isUUID, reverse_enum, UUID } from './util';
 
 /**
- * `ContestManager` handles all contest interfacing with clients.
+ * `ContestManager` handles automatic contest running and interfacing with clients.
+ * It will automatically start and stop contests, advance rounds, and process submissions and leaderboards.
  */
 export class ContestManager {
-    readonly #grader: Grader;
-
     readonly #sockets: Set<ServerSocket> = new Set();
     readonly #contests: Map<string, ContestHost> = new Map();
     readonly #updateLoop: NodeJS.Timeout;
@@ -25,31 +24,38 @@ export class ContestManager {
     readonly app: Express;
     readonly io: SocketIOServer;
     readonly logger: NamedLogger;
+    readonly #grader: Grader;
+
+    #open = true;
 
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
-     * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
+     * @param {SocketIOServer} io Socket.IO server
      * @param {Logger} logger Logger instance
      */
     constructor(db: Database, app: Express, io: SocketIOServer, logger: Logger) {
+        if (process.env.GRADER_PASS == undefined) throw new Error('Missing grader password!');
         this.db = db;
         this.app = app;
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
-        this.#grader = new WwppcGrader(app, logger, db);
+        this.#grader = new WwppcGrader(app, '/judge', process.env.GRADER_PASS, logger, db);
         let reading = false;
         this.#updateLoop = setInterval(async () => {
             if (reading) return;
             reading = true;
             // start any contests that haven't been started
-            const contests = await this.db.readContests();
+            const contests = await this.db.readContests({
+                startTime: { op: '>=', v: Date.now() },
+                endTime: { op: '<', v: Date.now() }
+            });
             if (contests == null) {
                 this.logger.error('Could not read contest list!');
                 return;
             }
             for (const contest of contests) {
-                if (contest.startTime <= Date.now() && contest.endTime > Date.now() && !this.#contests.has(contest.id)) {
+                if (!this.#contests.has(contest.id)) {
                     const host = new ContestHost(contest.id, this.io, this.db, this.#grader, this.logger.logger);
                     this.#contests.set(contest.id, host);
                     host.onended(() => this.#contests.delete(contest.id));
@@ -65,21 +71,11 @@ export class ContestManager {
     }
 
     /**
-     * Fetch a list of upcoming contest IDs.
-     * @returns {string[] | null} List of unique contest IDs or null if an error occured
-     */
-    async getContestList(): Promise<string[] | null> {
-        const contests = await this.db.readContests();
-        if (contests === null) return null;
-        return contests.filter(c => c.startTime > Date.now()).map(c => c.id);
-    }
-
-    /**
      * Add a username-linked SocketIO connection to the user list.
      * @param {ServerSocket} s SocketIO connection (with modifications)
-     * @returns {number} The number of sockets linked to `username`. If 0, then adding the user was unsuccessful.
      */
     async addUser(s: ServerSocket): Promise<void> {
+        if (!this.#open) return;
         const socket = s;
 
         // make sure the user actually exists (otherwise bork)
@@ -174,7 +170,9 @@ export class ContestManager {
      * Stops all contests and closes the contest manager
      */
     close() {
+        this.#open = false;
         this.#contests.forEach((contest) => contest.end());
+        this.#grader.close();
         this.#sockets.forEach((socket) => {
             socket.removeAllListeners('registerContest');
             socket.removeAllListeners('unregisterContest');
@@ -183,6 +181,7 @@ export class ContestManager {
     }
 }
 
+// slightly modified versions of server interfaces, refer to those for documentation
 export interface ContestContest {
     readonly id: string
     rounds: ContestRound[]
@@ -238,7 +237,7 @@ interface ClientSubmission {
     scores: Score[]
     status: ClientProblemCompletionState
 }
-enum ClientProblemCompletionState {
+export enum ClientProblemCompletionState {
     NOT_UPLOADED = 0,
     UPLOADED = 1,
     SUBMITTED = 2,
@@ -263,7 +262,7 @@ export enum ContestUpdateSubmissionResult {
 }
 
 /**
- * Subclass of `ContestManager` containing hosting for individual contests, including handling submissions.
+ * Module of `ContestManager` containing hosting for individual contests, including handling submissions.
  */
 export class ContestHost {
     readonly id: string;
@@ -460,7 +459,7 @@ export class ContestHost {
                         const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
                             // submissions go under team names
                             const problemData = await this.db.readProblems({ id: id });
-                            const submissionData = await this.db.readSubmissions({ id: id, username: team });
+                            const submissionData = await this.db.readSubmissions({ id: id, username: team, analysis: false });
                             if (problemData == null || submissionData == null) throw new Error(`Database error while reading problems and submissions (Round ${round.id} Problem ${id})`);
                             if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
                             // mapping submissions is messy, submissions empty of there are no past submissions
@@ -534,7 +533,7 @@ export class ContestHost {
 
     /**
      * Add a username-linked SocketIO connection to the user list.
-     * @param {ServerSocket} socket SocketIO connection (with modifications)
+     * @param {ServerSocket} s SocketIO connection (with modifications)
      */
     addSocket(s: ServerSocket): void {
         const socket = s;
@@ -549,7 +548,7 @@ export class ContestHost {
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
         socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
-            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id)) {
+            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid updateSubmission payload');
                 return;
             }
@@ -587,7 +586,8 @@ export class ContestHost {
                 scores: [],
                 history: [],
                 lang: data.lang,
-                time: Date.now()
+                time: Date.now(),
+                analysis: false
             };
             if (!(await this.db.writeSubmission(submission, config.gradeAtRoundEnd))) {
                 respond(ContestUpdateSubmissionResult.ERROR);

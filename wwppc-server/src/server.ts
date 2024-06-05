@@ -48,9 +48,10 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import { Server as SocketIOServer } from 'socket.io';
+import Mailer from './email';
 import Database, { AccountData, AccountOpResult, RSAEncrypted, TeamData, TeamOpResult } from './database';
 import ContestManager from './contest';
-import Mailer from './email';
+import UpsolveManager from './upsolve';
 import { validateRecaptcha } from './recaptcha';
 import { createServerSocket } from './socket';
 
@@ -74,6 +75,7 @@ const io = new SocketIOServer(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 const contestManager = new ContestManager(database, app, io, logger);
+const upsolveManager = new UpsolveManager(database, app, logger);
 
 // api endpoints
 app.get('/api/config', (req, res) => {
@@ -104,7 +106,7 @@ app.get('/api/teamData/:username', async (req, res) => {
     }
 });
 app.get('/api/contestList', async (req, res) => {
-    const data = await contestManager.getContestList();
+    const data = await database.readContests({ startTime: { op: '>', v: Date.now() } });
     if (data === null) res.sendStatus(500);
     else res.json(data);
 });
@@ -532,6 +534,7 @@ io.on('connection', async (s) => {
     });
     // hand off to ContestManager
     contestManager.addUser(socket);
+    upsolveManager.addUser(socket);
 });
 let c = 0;
 const connectionKickDecrementer = setInterval(() => {
@@ -563,6 +566,7 @@ const stopServer = async (code: number) => {
     io.close();
     clearInterval(connectionKickDecrementer);
     contestManager.close();
+    upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
     logger.destroy();
     process.exit(code);

@@ -90,4 +90,12 @@ if ((route.params.page === undefined && props.isDefault && route.params.catchAll
 .v-leave-active {
     animation: panel-transition-out 500ms linear;
 }
+
+@media (prefers-reduced-motion) {
+
+    .v-enter-active,
+    .v-leave-active {
+        animation-duration: 0ms;
+    }
+}
 </style>

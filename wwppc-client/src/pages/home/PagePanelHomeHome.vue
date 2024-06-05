@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import ScrollIndicator from "@/components/common/ScrollIndicator.vue";
-import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from "@/components/ui-defaults/UIContainers";
-import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton, UISponsorLogo } from "@/components/ui-defaults/UIDefaults";
+import ScrollIndicator from '@/components/common/ScrollIndicator.vue';
+import { AnimateInContainer, CenteredContainer, DoubleCutCornerContainer } from '@/components/ui-defaults/UIContainers';
+import { GlowText, GlitchText, UIDivider, UILinkButton, UIIconButton, UISponsorLogo } from '@/components/ui-defaults/UIDefaults';
 import ContactFooter from '@/components/common/ContactFooter.vue';
-import { nextContest, nextContestEnd } from "@/scripts/ContestManager";
+import { nextContest, nextContestEnd } from '@/scripts/ContestManager';
 </script>
 
 <template>

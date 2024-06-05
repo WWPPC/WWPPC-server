@@ -14,7 +14,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <Transition>
+    <Transition name="loading-cover">
         <div class="loadingCoverContainer" v-if="$props.show || (!serverConnection.handshakeComplete && (route.query.ignore_server === undefined || !$props.ignoreServer))">
             <div class="loadingCoverSquareWrapper">
                 <UILoadingSquare></UILoadingSquare>
@@ -55,10 +55,8 @@ const route = useRoute();
 .loadingCoverText {
     font-size: 4vh;
 }
-</style>
 
-<style scoped>
-.v-leave-active {
+.loading-cover-leave-active {
     opacity: 0;
 }
 </style>

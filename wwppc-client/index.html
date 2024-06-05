@@ -36,11 +36,12 @@
     <div style="position: absolute; top: 0px; left: 0px; font-size: 20px;">
         If you're seeing this, the page didn't load correctly. Try <a href="">reloading</a>!
     </div>
-    <script>
-        window.addEventListener('load', () => {
-            if (document.getElementById('root').children.length == 0) window.location.reload();
-        });
-    </script>
+    <nav>
+        <a href="/home">Home</a>
+        <a href="/hackathon">WWPHacks</a>
+        <a href="/contest">WWPIT</a>
+        <a href="/login">Login</a>
+    </nav>
     <div id="root"></div>
     <div id="loadingCover">
         <div id="loadingCoverBar"></div>
@@ -121,6 +122,7 @@
             let canLoad = true;
             document.addEventListener('DOMContentLoaded', (e) => {
                 if (!canLoad) return;
+                if (document.getElementById('root').children.length == 0) window.location.reload();
                 document.getElementById('loadingCover').style.opacity = 0;
                 window.onerror = null;
                 setTimeout(() => {

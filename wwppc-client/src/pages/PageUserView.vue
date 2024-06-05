@@ -247,6 +247,8 @@ const largeHeader = ref(true);
 .registrationStatusDotCompleted {
     width: 1em;
     height: 1em;
+    min-width: 1em;
+    min-height: 1em;
     border-radius: 50%;
 }
 

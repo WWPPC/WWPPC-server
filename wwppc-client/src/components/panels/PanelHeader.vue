@@ -51,6 +51,7 @@
     height: 100%;
     background-color: #151515;
 }
+
 .v-enter-active,
 .v-leave-active {
     transition: 500ms;
@@ -67,5 +68,21 @@
 .v-enter-active .panelHeaderTransitionWipe,
 .v-leave-active .panelHeaderTransitionWipe {
     animation: panel-wipe 500ms ease;
+}
+
+@media (prefers-reduced-motion) {
+    .panelHeaderTransitionWipeContainer {
+        display: none;
+    }
+
+    .v-enter-active,
+    .v-leave-active {
+        transition: 0ms;
+    }
+
+    .v-enter-active .panelHeader,
+    .v-leave-active .panelHeader {
+        animation-duration: 0ms;
+    }
 }
 </style>

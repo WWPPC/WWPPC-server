@@ -1,10 +1,10 @@
-import { defineStore } from "pinia";
-import { reactive } from "vue";
+import { defineStore } from 'pinia';
+import { reactive } from 'vue';
 
-import MultipaneSelectorContainer from "./MultipaneSelectorContainer.vue";
-import MultipaneSelector from "./MultipaneSelector.vue";
-import MultipanePaneContainer from "./MultipanePaneContainer.vue";
-import MultipanePane from "./MultipanePane.vue";
+import MultipaneSelectorContainer from './MultipaneSelectorContainer.vue';
+import MultipaneSelector from './MultipaneSelector.vue';
+import MultipanePaneContainer from './MultipanePaneContainer.vue';
+import MultipanePane from './MultipanePane.vue';
 
 export class Multipane {
     selected: string = '';

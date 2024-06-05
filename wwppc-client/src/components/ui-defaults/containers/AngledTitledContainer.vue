@@ -59,7 +59,7 @@ defineProps<{
     top: 0px;
     left: calc(-50% - 4px);
     width: calc(100% / cos(3deg) + 2px);
-    height: 72px;
+    height: 80px;
     border-bottom: 4px solid;
     border-color: v-bind("$props.borderColor ?? 'white'");
     transform: rotate(-3deg) translateX(50%);
@@ -73,7 +73,7 @@ defineProps<{
     width: 100%;
     height: 100%;
     padding: 12px 12px;
-    padding-top: 76px;
+    padding-top: 88px;
     overflow-x: hidden;
     overflow-y: auto;
 }

@@ -30,7 +30,7 @@ export default {
 </script>
 
 <template>
-    <Transition>
+    <Transition name="wait-cover">
         <div class="waitCoverContainer" v-if=$props.show>
             <div class="waitCoverSpinnerWrapper">
                 <UILoadingSpinner></UILoadingSpinner>
@@ -69,21 +69,19 @@ export default {
 .waitCoverText {
     font-size: 4vh;
 }
-</style>
 
-<style scoped>
-.v-enter-active,
-.v-leave-active {
+.wait-cover-enter-active,
+.wait-cover-leave-active {
     transition: 100ms linear opacity;
 }
 
-.v-enter-to,
-.v-leave-from {
+.wait-cover-enter-to,
+.wait-cover-leave-from {
     opacity: 1;
 }
 
-.v-enter-from,
-.v-leave-to {
+.wait-cover-enter-from,
+.wait-cover-leave-to {
     opacity: 0;
 }
 </style>

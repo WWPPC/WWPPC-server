@@ -150,4 +150,20 @@ if ((route.params.panel === undefined && props.isDefault && route.params.catchAl
 .v-leave-active .panelBodyTransitionWipe {
     animation: panel-wipe 500ms ease;
 }
+
+@media (prefers-reduced-motion) {
+    .panelBodyTransitionWipeContainer {
+        display: none;
+    }
+
+    .v-enter-active,
+    .v-leave-active {
+        transition: 0ms;
+    }
+
+    .v-enter-active .panelBodySlotContainer,
+    .v-leave-active .panelBodySlotContainer {
+        animation-duration: 0ms;
+    }
+}
 </style>

@@ -9,10 +9,10 @@ const contestManager = useContestManager();
 </script>
 
 <template>
-    <div class="contestProblemListWrapperWrapper centered">
-        <div class="contestProblemListWrapper">
+    <div class="problemListWrapperWrapper centered">
+        <div class="problemListWrapper">
             <AngledTitledContainer title="Problems" height="100%">
-                <div class="contestProblemList">
+                <div class="problemList">
                     <AnimateInContainer v-for="(round, index) in contestManager.contest?.rounds.filter((r) => r.problems.length > 0)" :key=round.number type="slideUp" :delay="index * 200">
                         <ContestProblemListRound :data=round></ContestProblemListRound>
                     </AnimateInContainer>
@@ -24,16 +24,16 @@ const contestManager = useContestManager();
 </template>
 
 <style scoped>
-.contestProblemListWrapperWrapper {
+.problemListWrapperWrapper {
     height: 100%;
 }
 
-.contestProblemListWrapper {
+.problemListWrapper {
     width: 100%;
     max-width: 900px;
 }
 
-.contestProblemList {
+.problemList {
     display: flex;
     flex-direction: column;
 }

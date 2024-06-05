@@ -921,7 +921,7 @@ export class Database {
     #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
      * Filter and get a list of contest data from the contests table according to a criteria.
-     * @param {string | string[]} id Contest ID or list of contest ids. Leaving undefined removes the criteria 
+     * @param {ReadContestsCriteria} c Filter criteria. Leaving one undefined removes the criteria
      * @returns {Contest[] | null} Array of contest data matching the filter criteria
      */
     async readContests(c: ReadContestsCriteria = {}): Promise<Contest[] | null> {
@@ -937,23 +937,30 @@ export class Database {
                 if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
                 if (this.#contestCache.has(id)) {
                     contestIdSet.delete(id);
-                    contests.push(structuredClone(this.#contestCache.get(id)!.contest));
+                    const contest = this.#contestCache.get(id)!.contest;
+                    if ((c.startTime == undefined || filterCompare<number>(contest.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(contest.endTime, c.endTime)) && (c.public == undefined || contest.public === c.public)) {
+                        contests.push(structuredClone(contest));
+                    }
                 }
             });
             const contestIdList = Array.from(contestIdSet.values());
             if (contestIdList.length > 0 || c.id == undefined) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
-                    { name: 'id', value: c.id != undefined ? contestIdList : undefined }
+                    { name: 'id', value: c.id != undefined ? contestIdList : undefined },
+                    { name: 'starttime', value: c.startTime },
+                    { name: 'endtime', value: c.endTime },
+                    { name: 'public', value: c.public }
                 ]);
                 const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
                 for (const contest of data.rows) {
-                    const co = {
+                    const co: Contest = {
                         id: contest.id,
                         rounds: contest.rounds,
                         exclusions: contest.exclusions,
                         maxTeamSize: contest.maxteamsize,
                         startTime: Number(contest.starttime),
-                        endTime: Number(contest.endtime)
+                        endTime: Number(contest.endtime),
+                        public: contest.public
                     };
                     this.#contestCache.set(contest.id, {
                         contest: structuredClone(co),
@@ -1011,24 +1018,31 @@ export class Database {
             if (c.contest != undefined) {
                 const contests = await this.readContests({ id: c.contest });
                 if (contests === null) return null;
-                contests.flatMap((c) => c.rounds).forEach((v) => roundIdSet.add(v));
+                contests.flatMap((c) => c.rounds).forEach((v, i) => {
+                    if (c.round == undefined || filterCompare<number>(i, c.round)) roundIdSet.add(v);
+                });
             }
             const rounds: Round[] = [];
             roundIdSet.forEach((id) => {
                 if (this.#roundCache.has(id) && this.#roundCache.get(id)!.expiration < performance.now()) this.#roundCache.delete(id);
                 if (this.#roundCache.has(id)) {
                     roundIdSet.delete(id);
-                    rounds.push(structuredClone(this.#roundCache.get(id)!.round));
+                    const round = this.#roundCache.get(id)!.round;
+                    if ((c.startTime == undefined || filterCompare<number>(round.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(round.endTime, c.endTime))) {
+                        rounds.push(structuredClone(round));
+                    }
                 }
             });
             const roundIdList = Array.from(roundIdSet.values());
             if (roundIdList.length > 0 || (c.id == undefined && c.contest == undefined && c.round == undefined)) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
+                    { name: 'starttime', value: c.startTime },
+                    { name: 'endtime', value: c.endTime }
                 ]);
                 const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
                 for (const round of data.rows) {
-                    const r = {
+                    const r: Round = {
                         id: round.id,
                         problems: round.problems,
                         startTime: Number(round.starttime),
@@ -1106,7 +1120,10 @@ export class Database {
                 if (this.#problemCache.has(id) && this.#problemCache.get(id)!.expiration < performance.now()) this.#problemCache.delete(id);
                 if (this.#problemCache.has(id)) {
                     problemIdSet.delete(id);
-                    problems.push(structuredClone(this.#problemCache.get(id)!.problem));
+                    const problem = this.#problemCache.get(id)!.problem;
+                    if ((c.name == undefined || filterCompare<string>(problem.name, c.name)) && (c.author == undefined || filterCompare<string>(problem.author, c.author))) {
+                        problems.push(structuredClone(problem));
+                    }
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
@@ -1116,9 +1133,10 @@ export class Database {
                     { name: 'name', value: c.name },
                     { name: 'author', value: c.author }
                 ]);
+                if (bindings.length == 0) this.logger.warn('Reading all problems from database! This could cause high resource usage and result in a crash! Is this a bug?');
                 const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
                 for (const problem of data.rows) {
-                    const p = {
+                    const p: Problem = {
                         id: problem.id,
                         name: problem.name,
                         author: problem.author,
@@ -1129,7 +1147,7 @@ export class Database {
                         problem: structuredClone(p),
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
-                    if (c.id == undefined || filterCompare<UUID>(p.id, c.id)) problems.push(p);
+                    problems.push(p);
                 }
             }
             return problems;
@@ -1194,22 +1212,32 @@ export class Database {
             }
             const submissions: Submission[] = [];
             if (c.username != undefined) problemIdSet.forEach((id) => {
-                const realId = id + ':' + c.username;
-                if (this.#submissionCache.has(realId) && this.#submissionCache.get(realId)!.expiration < performance.now()) this.#submissionCache.delete(realId);
-                if (this.#submissionCache.has(realId)) {
-                    problemIdSet.delete(id);
-                    submissions.push(structuredClone(this.#submissionCache.get(realId)!.submission));
+                const ids: string[] = [];
+                if (c.analysis != undefined) ids.push(`${id}:${c.username}:${c.analysis}`);
+                else ids.push(`${id}:${c.username}:true`, `${id}:${c.username}:false`);
+                for (const realId of ids) {
+                    if (this.#submissionCache.has(realId) && this.#submissionCache.get(realId)!.expiration < performance.now()) this.#submissionCache.delete(realId);
+                    if (this.#submissionCache.has(realId)) {
+                        problemIdSet.delete(id);
+                        const submission = this.#submissionCache.get(realId)!.submission;
+                        if ((c.username == undefined || filterCompare<string>(submission.username, c.username)) && (c.time == undefined || filterCompare<number>(submission.time, c.time)) && (c.analysis == undefined || submission.analysis === c.analysis)) {
+                            submissions.push(structuredClone(submission));
+                        }
+                    }
                 }
             });
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
                 const { queryConditions, bindings } = this.#buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
-                    { name: 'username', value: c.username }
+                    { name: 'username', value: c.username },
+                    { name: 'time', value: c.time },
+                    { name: 'analysis', value: c.analysis }
                 ]);
+                if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
                 const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions}`, bindings);
                 for (const submission of data.rows) {
-                    const s = {
+                    const s: Submission = {
                         username: submission.username,
                         problemId: submission.id,
                         time: Number(submission.time),
@@ -1220,13 +1248,14 @@ export class Database {
                             time: Number(h.time),
                             lang: h.lang,
                             scores: h.scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
-                        }))
+                        })),
+                        analysis: submission.analysis
                     };
-                    this.#submissionCache.set(submission.id + ':' + submission.username, {
+                    this.#submissionCache.set(`${s.problemId}:${s.username}:${s.analysis}`, {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    if (c.id == undefined || filterCompare<UUID>(s.problemId, c.id)) submissions.push(s);
+                    submissions.push(s);
                 }
             }
             return submissions;
@@ -1247,7 +1276,7 @@ export class Database {
     async writeSubmission(submission: Submission, overwrite?: boolean): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const existing = await this.#db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2', [submission.username, submission.problemId]);
+            const existing = await this.#db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
             if (existing.rows.length > 0) {
                 const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
                 if (existing.rows[0].scores.length > 0 && !overwrite) history.push({
@@ -1256,18 +1285,18 @@ export class Database {
                     scores: existing.rows[0].scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
                 });
                 while (history.length > config.maxSubmissionHistory) history.shift();
-                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 RETURNING id', [
-                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history)
+                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [
+                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history), submission.analysis
                 ]);
                 this.#submissionCache.set(submission.problemId + ':' + submission.username, {
                     submission: { ...submission, history: history },
                     expiration: performance.now() + config.dbCacheTime
                 });
             } else {
-                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time, history) VALUES ($1, $2, $3, $4, $5, $6, $7)', [
-                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([])
+                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time, history, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [
+                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([]), submission.analysis
                 ]);
-                this.#submissionCache.set(submission.problemId + ':' + submission.username, {
+                this.#submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -1430,10 +1459,12 @@ export interface Contest {
     exclusions: string[]
     /**Maximum team size allowed to register */
     maxTeamSize: number
-    /**Time of round start, UNIX */
+    /**Time of contest start, UNIX */
     startTime: number
-    /**Time of round end, UNIX */
+    /**Time of contest end, UNIX */
     endTime: number
+    /**If the contest is publicly visible once archived */
+    public: boolean
 }
 /**Descriptor for a single round */
 export interface Round {
@@ -1487,6 +1518,8 @@ export interface Submission {
         /**Resulting scores of the submission */
         scores: Score[]
     }[]
+    /**If the submission was submitted through the upsolve system */
+    analysis: boolean
 }
 /**Descriptor for the score of a single test case */
 export interface Score {
@@ -1512,8 +1545,13 @@ export enum ScoreState {
 export interface ReadContestsCriteria {
     /**Contest ID */
     id?: FilterComparison<string>
+    /**Start of contest, UNIX time */
+    startTime?: FilterComparison<number>
+    /**End of contest, UNIX time */
+    endTime?: FilterComparison<number>
+    /**If the contest is publicly visible once archived */
+    public?: boolean
 }
-
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadRoundsCriteria {
     /**Contest ID */
@@ -1557,4 +1595,8 @@ export interface ReadSubmissionsCriteria {
     username?: FilterComparison<string>
     /**Round-based filter for problems */
     contest?: ProblemRoundCriteria
+    /**Time of submission */
+    time?: FilterComparison<number>
+    /**If the submission was submitted through the upsolve system */
+    analysis?: boolean
 }

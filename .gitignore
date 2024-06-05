@@ -7,9 +7,6 @@ dist/
 build/
 *.cache
 
-# Generated documentation
-docs/
-
 # Logs
 logs/
 *.log

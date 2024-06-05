@@ -58,8 +58,9 @@ let updateCache = async (cache, request, preloaded) => {
         });
     }
 };
+const noCacheList = ['/admin', '/api', '/web-socketio'];
 self.addEventListener("fetch", (e) => {
-    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin) && !e.request.url.startsWith(self.location.origin + '/admin') && !e.request.url.startsWith(self.location.origin + '/web/api') && !e.request.url.startsWith(self.location.origin + '/web/socket.io')) {
+    if (e.request.method == 'GET' && e.request.url.startsWith(self.location.origin) && !noCacheList.some((path) => e.request.url.startsWith(self.location.origin + path))) {
         e.respondWith(getCached(e.request, e.preloadResponse));
     }
 });

@@ -4,10 +4,11 @@ import { type ContestProblem } from '@/scripts/ContestManager';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { glitchTextTransition } from '@/components/ui-defaults/TextTransitions';
-import ContestProblemStatusCircle from "@/components/contest/problemList/ContestProblemStatusCircle.vue";
+import ContestProblemStatusCircle from '@/components/contest/ContestProblemStatusCircle.vue';
 
 const props = defineProps<{
     data: ContestProblem
+    archive?: boolean
 }>();
 
 const router = useRouter();
@@ -15,7 +16,10 @@ const router = useRouter();
 const nameText = ref<string>('');
 const authorText = ref<string>('');
 onMounted(() => {
-    setTimeout(() => {
+    if (props.archive) {
+        nameText.value = props.data.name;
+        authorText.value = 'Author: ' + props.data.author;
+    } else setTimeout(() => {
         glitchTextTransition('', props.data.name, (t) => { nameText.value = t; }, 40);
         glitchTextTransition('', 'Author: ' + props.data.author, (t) => { authorText.value = t; }, 40);
     }, (props.data.round ?? 0) * 200 + (props.data.number ?? 0) * 100);
@@ -33,7 +37,7 @@ onMounted(() => {
         <span class="contestProblemListProblemName"><b>{{ nameText }}</b></span>
         <span class="contestProblemListProblemAuthor"><i>{{ authorText }}</i></span>
         <span class="contestProblemListProblemButton">
-            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(`/contest/problemView/${props.data.round}_${props.data.number}`)"></UILinkButton>
+            <UILinkButton text="View" width="100px" height="36px" :border="true" @click="router.push(props.archive ? `/contest/archiveView/${props.data.contest}/${props.data.round}/${props.data.number}` : `/contest/problemView/${props.data.round}_${props.data.number}`)"></UILinkButton>
         </span>
     </div>
 </template>

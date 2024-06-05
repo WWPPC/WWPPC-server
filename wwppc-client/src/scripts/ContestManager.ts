@@ -81,15 +81,6 @@ export interface ScoreboardEntry {
     score: number
 }
 
-export interface ArchiveProblem {
-    id: string
-    name: string
-    author: string
-    content: string
-    cases: { input: string, output: string }[]
-    constraints: { memory: number, time: number }
-}
-
 export const completionStateString = (status: ContestProblemCompletionState) => {
     return status == ContestProblemCompletionState.NOT_UPLOADED ? 'Not uploaded' :
         status == ContestProblemCompletionState.UPLOADED ? 'Uploaded' :
@@ -102,7 +93,6 @@ export const completionStateString = (status: ContestProblemCompletionState) => 
 export const nextContest = new Date('6/2/2024 9:30 AM EST');
 export const nextContestEnd = new Date('6/2/2024 5:00 PM EST');
 
-// replace with new state variable that is just Contest
 const state = reactive<{
     contest: Contest | null
     scoreboard: ScoreboardEntry[] | null
@@ -115,8 +105,7 @@ export const useContestManager = defineStore('contestManager', {
     state: () => state,
     actions: {
         async getContestList(): Promise<string[] | null> {
-            const res: string[] | null = await apiFetch('GET', '/contestList/');
-            return res;
+            return await apiFetch('GET', '/contestList');
         },
         async waitForContestLoad() {
             if (state.contest != null) return;
@@ -133,11 +122,6 @@ export const useContestManager = defineStore('contestManager', {
                 if (p != undefined) return p;
             }
             return null;
-        },
-        async getArchiveProblemData(id: string): Promise<ArchiveProblem | null> {
-            const serverConnection = useServerConnection();
-            const res: ArchiveProblem | null = await serverConnection.apiFetch('GET', '/problemArchive/' + id);
-            return res;
         },
         async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestUpdateSubmissionResult> {
             const serverConnection = useServerConnection();

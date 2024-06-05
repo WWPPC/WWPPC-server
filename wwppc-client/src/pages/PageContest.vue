@@ -73,7 +73,7 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             <PanelBody name="archive" title="Archive">
                 <PagePanelArchiveList v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveList>
             </PanelBody>
-            <PanelBody name="archiveProblem" title="Archive Problem">
+            <PanelBody name="archiveView" title="Archive Problem">
                 <PagePanelArchiveProblem v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveProblem>
             </PanelBody>
         </PanelMain>

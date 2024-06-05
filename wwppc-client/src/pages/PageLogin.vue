@@ -111,7 +111,7 @@ const attemptRecovery = async () => {
 
 //definitely not rickroll
 watch(usernameInput, () => {
-    if (usernameInput.value.toLowerCase() == 'rick astley') location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    if (usernameInput.value.toLowerCase() == 'rick astley') window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 });
 </script>
 
