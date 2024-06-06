@@ -170,7 +170,7 @@ const largeHeader = ref(true);
 .userViewProfileHeader {
     display: grid;
     --image-size: v-bind("largeHeader ? 'min(25vw, 25vh)' : 'min(15vw, 15vh)'");
-    grid-template-columns: 1fr min-content min-content minmax(20vw, 2fr) 1fr;
+    grid-template-columns: 1fr min-content minmax(min-content, max-content) minmax(20vw, 2fr) 1fr;
     grid-template-rows: 1fr 4fr 4fr 1fr;
     column-gap: 16px;
     position: absolute;
@@ -201,7 +201,7 @@ const largeHeader = ref(true);
     grid-row: 2;
     grid-column: 3;
     min-width: 0px;
-    font-size: min(6vw, 5vh);
+    font-size: min(4vw, 5vh);
     align-self: end;
     font-family: 'Source Code Pro', Courier, monospace;
 }
@@ -209,7 +209,7 @@ const largeHeader = ref(true);
 .userViewUsername {
     grid-row: 3;
     grid-column: 3;
-    font-size: min(5vw, 4vh);
+    font-size: min(3.5vw, 4vh);
     font-family: 'Source Code Pro', Courier, monospace;
 }
 
