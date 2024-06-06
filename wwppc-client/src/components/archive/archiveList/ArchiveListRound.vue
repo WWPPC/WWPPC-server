@@ -17,7 +17,9 @@ const upsolveManager = useUpsolveManager();
 
 const titleText = autoGlitchTextTransition(() => 'Round ' + (props.data.number + 1), 40, 1, 10, 2);
 const problems = ref<ContestProblem[]>([]);
-onMounted(async () => {
+let loaded = false;
+const load = async () => {
+    if (loaded) return;
     problems.value = await Promise.all(props.data.problems.map(async (id, i): Promise<ContestProblem> => {
         const problem: UpsolveProblem | null = await upsolveManager.getProblemData(props.data.contest, props.data.number, i);
         if (problem == null) {
@@ -42,11 +44,15 @@ onMounted(async () => {
             status: submissions[0]?.status ?? ContestProblemCompletionState.NOT_UPLOADED
         };
     }));
+    loaded = true;
+};
+onMounted(async () => {
+    if (!props.minimized) load();
 });
 </script>
 
 <template>
-    <TitledCollapsible :title="titleText" class="archiveListRoundDropdown" :start-collapsed="$props.minimized">
+    <TitledCollapsible :title="titleText" class="archiveListRoundDropdown" :start-collapsed="$props.minimized" @open="load()">
         <AnimateInContainer type="fade" v-for="(problem, index) of problems" :key="index" :delay="index * 50">
             <ContestProblemListProblem :data="problem" archive></ContestProblemListProblem>
         </AnimateInContainer>

@@ -49,7 +49,7 @@ const router = useRouter();
                     <CenteredContainer style="font-size: var(--font-20);" v-else-if="Date.now() > nextContestEnd.getTime()">
                         <GlitchText text="Contest ended!" font-size="var(--font-28)" color="red" glow random></GlitchText>
                         <div class="centered" style="margin: 8px;">
-                            <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" disabled></UILinkButton>
+                            <UILinkButton text="Archive" color="lime" font-size="var(--font-large)" @click="router.push('/contest/archive')"></UILinkButton>
                         </div>
                         <p style="text-align: center">
                             Thanks to all who participated! We hope to see you in the WWPIT Fall 2024!

@@ -37,8 +37,8 @@ const loadUserData = async () => {
             accountManager.getUserData(route.params.userView.toString()).then((v) => userData.value = v),
             accountManager.getTeamData(route.params.userView.toString()).then((v) => teamData.value = v)
         ]);
-        showLoading.value = false;
     }
+    showLoading.value = false;
 };
 watch(() => route.params, () => {
     if (route.params.page != 'user' || route.query.ignore_server !== undefined) return;
