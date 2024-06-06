@@ -5,7 +5,7 @@ import { useUpsolveManager, type UpsolveProblem, type UpsolveRound, type Upsolve
 import ContestProblemListProblem from '@/components/contest/problemList/ContestProblemListProblem.vue';
 import { onMounted, ref } from 'vue';
 import { type ContestProblem, ContestProblemCompletionState } from '@/scripts/ContestManager';
-import { globalModal } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, UILoadingBar } from '@/components/ui-defaults/UIDefaults';
 
 const props = defineProps<{
     data: UpsolveRound
@@ -16,7 +16,7 @@ const modal = globalModal();
 const upsolveManager = useUpsolveManager();
 
 const titleText = autoGlitchTextTransition(() => 'Round ' + (props.data.number + 1), 40, 1, 10, 2);
-const problems = ref<ContestProblem[]>([]);
+const problems = ref<ContestProblem[] | null>(null);
 let loaded = false;
 const load = async () => {
     if (loaded) return;
@@ -56,6 +56,9 @@ onMounted(async () => {
         <AnimateInContainer type="fade" v-for="(problem, index) of problems" :key="index" :delay="index * 50">
             <ContestProblemListProblem :data="problem" archive></ContestProblemListProblem>
         </AnimateInContainer>
+        <div class="centered" v-if="problems == null">
+            <UILoadingBar width="max(50%, 100px)" height="24px"></UILoadingBar>
+        </div>
     </TitledCollapsible>
 </template>
 

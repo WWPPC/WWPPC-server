@@ -19,9 +19,6 @@ const upload = (event: any) => {
             modal.showModal({ title: 'Unsupported file type', content: 'Only .png and .jpg/.jpeg images are allowed.', color: 'red' });
         }
     };
-    reader.onerror = () => {
-        modal.showModal({ title: 'Error decoding image', content: 'An error occured and your profile image could not be used. Try using a .png or .jpg/.jpeg image instead.', color: 'red' });
-    };
     reader.readAsDataURL(file);
 };
 </script>

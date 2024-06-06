@@ -52,6 +52,7 @@ serverConnection.onconnect(load);
                 <AngledTitledContainer v-if="contestList != null" title="Contest Archive" class="archiveList">
                     <AnimateInContainer type="slideUp" v-for="(contest, index) of contestList" :key="contest.id" :delay="index * 200">
                         <ArchiveListContest :data="contest"></ArchiveListContest>
+                        <!-- future: lazy loading contests? load when become visible -->
                     </AnimateInContainer>
                 </AngledTitledContainer>
             </Transition>

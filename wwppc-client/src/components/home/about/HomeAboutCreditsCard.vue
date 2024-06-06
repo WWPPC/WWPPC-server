@@ -18,8 +18,8 @@ defineProps<{
 
 const router = useRouter();
 
-const slightlyFunAnimation = ref(Math.random() < 0.01);
-const funAnimation = ref(Math.random() < 0.01);
+const slightlyFunAnimation = ref(Math.random() < 0.001);
+const funAnimation = ref(Math.random() < 0.001);
 </script>
 
 <template>

@@ -35,8 +35,8 @@ export class WwppcGrader extends Grader {
         this.logger = new NamedLogger(logger, 'WwppcGrader');
         this.db = db;
         this.#password = password;
-        this.logger.info('Creating WwppcGrader');
         this.#path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
+        this.logger.info('Creating WwppcGrader under ' + this.#path);
         this.app.use(this.#path + '/*', bodyParser.json());
         // see docs
         this.app.get(this.#path + '/get-work', async (req, res) => {
