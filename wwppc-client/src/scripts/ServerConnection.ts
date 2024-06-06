@@ -22,13 +22,12 @@ const attemptConnect = () => {
     connectAttemptHandlers.forEach((h) => h());
     fetch(serverHostname + '/wakeup').then(() => {
         socket.connect();
-        apiFetch('GET', '/config').then((config: { maxProfileImgSize: number, acceptedLanguages: string[], maxSubmissionSize: number } | null) => {
-            if (config != null) state.serverConfig = config;
-            else {
+        apiFetch('GET', '/config').then((config: { maxProfileImgSize: number, acceptedLanguages: string[], maxSubmissionSize: number } | Error) => {
+            if (config instanceof Error) {
                 console.error('Failed to fetch server config!');
                 const modal = globalModal();
                 modal.showModal({ title: 'Failed to fetch server config!', content: 'The server configuration could not be fetched! This may cause issues with the website!', color: 'red' });
-            }
+            } else state.serverConfig = config;
         });
     }, () => {
         console.info(`HTTP wakeup failed, retrying in ${10 * connectionAttempts} seconds...`);
@@ -193,17 +192,20 @@ export const sendCredentials = async (username: string, password: string | numbe
 };
 
 const apiPath = serverHostname + '/api';
-export const apiFetch = async (method: 'GET' | 'POST', path: string, body?: string): Promise<any> => {
+export const apiFetch = async (method: 'GET' | 'POST', path: string, body?: string): Promise<any | Error> => {
     try {
-        return await (await fetch(apiPath + (path.startsWith('/') ? path : ('/' + path)), {
+        const res = await fetch(apiPath + (path.startsWith('/') ? path : ('/' + path)), {
             method: method,
             headers: {
                 "Content-Type": "application/json"
             },
             body: body != undefined ? JSON.stringify(body) : undefined
-        })).json();
+        });
+        if (res.ok) return await res.json();
+        return new Error(res.status + (res.statusText != '' ? ' - ' + res.statusText : ''));
     } catch (err) {
-        return null;
+        if (err instanceof Error) return err;
+        return new Error('' + err);
     }
 };
 

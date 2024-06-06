@@ -21,9 +21,9 @@ let loaded = false;
 const load = async () => {
     if (loaded) return;
     problems.value = await Promise.all(props.data.problems.map(async (id, i): Promise<ContestProblem> => {
-        const problem: UpsolveProblem | null = await upsolveManager.getProblemData(props.data.contest, props.data.number, i);
-        if (problem == null) {
-            modal.showModal({ title: '404: Not found', content: `Problem listed in contest was not found: ${props.data.contest} ${props.data.number}-${i}` })
+        const problem: UpsolveProblem | Error = await upsolveManager.getProblemData(props.data.contest, props.data.number, i);
+        if (problem instanceof Error) {
+            modal.showModal({ title: problem.message, content: `Problem could not be fetched: ${props.data.contest} ${props.data.number}-${i}` })
             return {
                 id: '',
                 contest: '',
@@ -56,8 +56,8 @@ onMounted(async () => {
         <AnimateInContainer type="fade" v-for="(problem, index) of problems" :key="index" :delay="index * 50">
             <ContestProblemListProblem :data="problem" archive></ContestProblemListProblem>
         </AnimateInContainer>
-        <div class="centered" v-if="problems == null">
-            <UILoadingBar width="max(50%, 100px)" height="24px"></UILoadingBar>
+        <div class="centered" v-if="problems == null" style="margin: 8px 0px;">
+            <UILoadingBar width="max(50%, 100px)" height="16px"></UILoadingBar>
         </div>
     </TitledCollapsible>
 </template>

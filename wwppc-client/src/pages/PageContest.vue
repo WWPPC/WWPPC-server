@@ -31,6 +31,7 @@ connectionEnforcer.connectionExcludeExact.add('/contest/home');
 connectionEnforcer.loginExcludeExact.add('/contest/home');
 connectionEnforcer.connectionExcludeExact.add('/contest');
 connectionEnforcer.loginExcludeExact.add('/contest');
+connectionEnforcer.loginExclude.add('/contest/archive');
 </script>
 
 <template>
@@ -40,9 +41,7 @@ connectionEnforcer.loginExcludeExact.add('/contest');
             <PanelNavList>
                 <PanelNavButton text="Home" for="/home"></PanelNavButton>
                 <PanelNavButton text="WWPIT" for="/contest/home" is-default></PanelNavButton>
-                <div v-if="serverConnection.loggedIn || ignoreServer" style="display: flex;">
-                    <PanelNavButton text="Archive" for="/contest/archive"></PanelNavButton>
-                </div>
+                <PanelNavButton text="Archive" for="/contest/archive"></PanelNavButton>
                 <div v-if="contestManager.contest !== null || ignoreServer" style="display: flex;">
                     <PanelNavButton text="Contest" for="/contest/contest"></PanelNavButton>
                     <PanelNavButton text="Problems" for="/contest/problemList"></PanelNavButton>
@@ -71,10 +70,10 @@ connectionEnforcer.loginExcludeExact.add('/contest');
                 <PagePanelContestLeaderboard v-if="serverConnection.loggedIn || ignoreServer"></PagePanelContestLeaderboard>
             </PanelBody>
             <PanelBody name="archive" title="Archive">
-                <PagePanelArchiveList v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveList>
+                <PagePanelArchiveList></PagePanelArchiveList>
             </PanelBody>
             <PanelBody name="archiveView" title="Archive Problem">
-                <PagePanelArchiveProblem v-if="serverConnection.loggedIn || ignoreServer"></PagePanelArchiveProblem>
+                <PagePanelArchiveProblem></PagePanelArchiveProblem>
             </PanelBody>
         </PanelMain>
     </PanelView>

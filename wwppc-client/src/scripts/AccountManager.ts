@@ -152,12 +152,12 @@ export const useAccountManager = defineStore('accountManager', {
             window.localStorage.removeItem('sessionId');
             window.location.replace('/home');
         },
-        async getUserData(username: string): Promise<AccountData | null> {
+        async getUserData(username: string): Promise<AccountData | Error> {
             return await apiFetch('GET', '/userData/' + username);
         },
-        async getTeamData(username: string): Promise<TeamData | null> {
-            const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | null = await apiFetch('GET', '/teamData/' + username);
-            return res == null ? null : { team: res.id, teamName: res.name, teamBio: res.bio, teamMembers: res.members, teamJoinCode: res.joinCode };
+        async getTeamData(username: string): Promise<TeamData | Error> {
+            const res: { id: string, name: string, bio: string, members: string[], joinCode: string } | Error = await apiFetch('GET', '/teamData/' + username);
+            return res instanceof Error ? res : { team: res.id, teamName: res.name, teamBio: res.bio, teamMembers: res.members, teamJoinCode: res.joinCode };
         },
         async writeUserData(): Promise<AccountOpResult> {
             const serverConnection = useServerConnection();
@@ -189,7 +189,7 @@ export const useAccountManager = defineStore('accountManager', {
         async updateOwnUserData(): Promise<boolean> {
             const dat = await this.getUserData(this.username);
             const dat2 = await this.getTeamData(this.username);
-            if (dat != null && dat2 != null) {
+            if (!(dat instanceof Error || dat2 instanceof Error)) {
                 this.firstName = dat.firstName;
                 this.lastName = dat.lastName;
                 this.displayName = dat.displayName;

@@ -34,8 +34,12 @@ const loadUserData = async () => {
     await nextTick();
     if (route.params.userView != null) {
         await Promise.all([
-            accountManager.getUserData(route.params.userView.toString()).then((v) => userData.value = v),
-            accountManager.getTeamData(route.params.userView.toString()).then((v) => teamData.value = v)
+            accountManager.getUserData(route.params.userView.toString()).then((v) => {
+                if (!(v instanceof Error)) userData.value = v;
+            }),
+            accountManager.getTeamData(route.params.userView.toString()).then((v) => {
+                if (!(v instanceof Error)) teamData.value = v;
+            })
         ]);
     }
     showLoading.value = false;
@@ -73,7 +77,7 @@ const largeHeader = ref(true);
         </PanelHeader>
         <PanelMain>
             <PanelBody name="default" is-default>
-                <div class="reverse">
+                <div class="reverse" v-if="!showLoading">
                     <div class="vStack">
                         <OnScreenHook @change="(v) => largeHeader = v" offset-top="-16px"></OnScreenHook>
                         <div style="height: 30vh;"></div>
@@ -144,9 +148,9 @@ const largeHeader = ref(true);
                         </div>
                     </div>
                 </div>
+                <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
+                <LoadingCover text="Loading..." ignore-server :show="showLoading"></LoadingCover>
             </PanelBody>
-            <NotFound v-if="route.params.userView == undefined || userData === null"></NotFound>
-            <LoadingCover text="Loading..." ignore-server :show="showLoading"></LoadingCover>
         </PanelMain>
     </PanelView>
 </template>

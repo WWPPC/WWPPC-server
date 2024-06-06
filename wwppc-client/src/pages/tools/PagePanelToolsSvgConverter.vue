@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TitledCutCornerContainer } from '@/components/ui-defaults/UIContainers';
-import { globalModal, UICopyButton, UITextArea, UIFileUpload, UINumberBox } from '@/components/ui-defaults/UIDefaults';
+import { globalModal, UIFileUpload, UINumberBox } from '@/components/ui-defaults/UIDefaults';
 import { ref, watch } from 'vue';
 
 const modal = globalModal();

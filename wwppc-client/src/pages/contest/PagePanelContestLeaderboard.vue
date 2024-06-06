@@ -13,11 +13,14 @@ const router = useRouter();
 const scoreboard = ref<{ username: string, displayName: string, score: number }[]>([]);
 const update = async () => {
     if (contestManager.scoreboard == null) scoreboard.value = [];
-    else scoreboard.value = await Promise.all(contestManager.scoreboard.map(async (s) => ({
-        username: s.username,
-        displayName: (await accountManager.getTeamData(s.username))?.teamName ?? s.username,
-        score: Math.round(s.score * 1000) / 1000
-    })));
+    else scoreboard.value = await Promise.all(contestManager.scoreboard.map(async (s) => {
+        const teamData = await accountManager.getTeamData(s.username);
+        return {
+            username: s.username,
+            displayName: (teamData instanceof Error) ? s.username : teamData.teamName,
+            score: Math.round(s.score * 1000) / 1000
+        };
+    }));
 };
 watch(() => contestManager.scoreboard, update);
 onMounted(update);
@@ -40,7 +43,6 @@ onMounted(update);
             </p>
         </div>
     </div>
-    <!-- future - make display display name instead of username -->
     <!-- future - instead of just a link, show user summary in sidebar? -->
 </template>
 

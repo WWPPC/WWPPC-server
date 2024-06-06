@@ -24,20 +24,32 @@ const load = async () => {
         router.push(`/contest/archiveView/${route.params.archiveContest}/${route.params.archiveRound}/${route.params.archiveProblem}`);
     } else if (route.params.archiveRound !== undefined) {
         if (isNaN(Number(route.params.archiveRound))) return;
-        round.value = await upsolveManager.getRoundData(route.params.archiveContest.toString(), Number(route.params.archiveRound));
+        const data = await upsolveManager.getRoundData(route.params.archiveContest.toString(), Number(route.params.archiveRound));
+        if (data instanceof Error) {
+            modal.showModal({ title: data.message, content: 'Could not load round', color: 'red' });
+            return;
+        }
+        round.value = data;
         contest.value = null;
         contestList.value = null;
-        if (round.value == null) modal.showModal({ title: '404: Not found', content: 'The requested round does not exist.', color: 'red' });
     } else if (route.params.archiveContest !== undefined) {
-        contest.value = await upsolveManager.getContestData(route.params.archiveContest.toString());
+        const data = await upsolveManager.getContestData(route.params.archiveContest.toString());
+        if (data instanceof Error) {
+            modal.showModal({ title: data.message, content: 'Could not load contest', color: 'red' });
+            return;
+        }
+        contest.value = data;
         round.value = null;
         contestList.value = null;
-        if (contest.value == null) modal.showModal({ title: '404: Not found', content: 'The requested contest does not exist.', color: 'red' });
     } else {
-        contestList.value = await upsolveManager.getContests();
+        const data = await upsolveManager.getContests();
+        if (data instanceof Error) {
+            modal.showModal({ title: data.message, content: 'Could not load contest list', color: 'red' });
+            return;
+        }
+        contestList.value = data;
         round.value = null;
         contest.value = null;
-        if (contestList.value == null) modal.showModal({ title: '500: Internal error', content: 'An error occured', color: 'red' });
     }
 };
 onMounted(load);

@@ -16,7 +16,12 @@ const contestList = ref<{ text: string, value: string }[]>([]);
 const registrationSelected = ref('');
 
 const updateAvailableContestList = async () => {
-    contestList.value = (await contestManager.getContestList())?.filter((v) => {
+    const res = await contestManager.getContestList();
+    if (res instanceof Error) {
+        modal.showModal({ title: res.message, content: 'Could not load upcoming contests.', color: 'resd' });
+        return;
+    }
+    contestList.value = res.filter((v) => {
         return !accountManager.registrations.includes(v) && !accountManager.pastRegistrations.includes(v)
     }).map((c) => ({ text: c, value: c })) ?? [];
 };

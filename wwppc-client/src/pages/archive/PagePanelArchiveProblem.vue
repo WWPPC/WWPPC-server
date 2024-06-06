@@ -71,15 +71,11 @@ const loadProblem = async () => {
         return;
     }
     const p = await upsolveManager.getProblemData(route.params.archiveContest.toString(), Number(route.params.archiveRound), Number(route.params.archiveProblem));
-    if (p === null) {
-        loadErrorModal('404: Not found', 'The requested problem does not exist!');
+    if (p instanceof Error) {
+        loadErrorModal(p.message, 'The requested problem does not exist!');
         return;
     }
-    const s = await upsolveManager.getSubmissions(p.id);
-    if (s === null) {
-        loadErrorModal('500: Internal error', 'Could not load submissions!');
-        return;
-    }
+    const s = await upsolveManager.getSubmissions(p.id) ?? [];
     problem.value = {
         ...p,
         submissions: s,
@@ -187,8 +183,11 @@ onMounted(() => {
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a }))" required></UIDropdown>
                     </div>
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="true || languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files?.item(0) == null"></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="true || !serverConnection.loggedIn || languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files?.item(0) == null"></UIButton>
                 </form>
+                <div style="text-align: center; color: yellow;" v-if="!serverConnection.loggedIn">
+                    <i>You must be signed in to submit solutions</i>
+                </div>
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
                 <h3 class="submissionsHeader">Previous submissions</h3>
@@ -209,7 +208,10 @@ onMounted(() => {
                         </div>
                     </div>
                 </AnimateInContainer>
-                <div v-if="problem.submissions.length == 0" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
+                <div v-if="problem.submissions.length == 0 && serverConnection.loggedIn" style="text-align: center;"><i>You have not submitted any solutions yet.</i></div>
+                <div style="text-align: center; color: yellow;" v-if="!serverConnection.loggedIn">
+                    <i>You must be signed in to submit solutions</i>
+                </div>
             </DoubleCutCornerContainer>
         </div>
     </div>

@@ -20,10 +20,12 @@ const accountManager = useAccountManager();
 const data = ref<AccountData | null>(null);
 
 watch(() => props.user, async () => {
-    data.value = await accountManager.getUserData(props.user);
+    const res = await accountManager.getUserData(props.user);
+    if (!(res instanceof Error)) data.value = res;
 });
 onMounted(async () => {
-    data.value = await accountManager.getUserData(props.user);
+    const res = await accountManager.getUserData(props.user);
+    if (!(res instanceof Error)) data.value = res;
 });
 
 const openUserView = () => {

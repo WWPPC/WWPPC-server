@@ -43,16 +43,16 @@ const state = reactive<{
 export const useUpsolveManager = defineStore('upsolveManager', {
     state: () => state,
     actions: {
-        async getContests(): Promise<UpsolveContest[] | null> {
+        async getContests(): Promise<UpsolveContest[] | Error> {
             return await apiFetch('GET', '/upsolveContestList');
         },
-        async getContestData(contest: string): Promise<UpsolveContest | null> {
+        async getContestData(contest: string): Promise<UpsolveContest | Error> {
             return await apiFetch('GET', `/upsolve/${contest}`);
         },
-        async getRoundData(contest: string, round: number): Promise<UpsolveRound | null> {
+        async getRoundData(contest: string, round: number): Promise<UpsolveRound | Error> {
             return await apiFetch('GET', `/upsolve/${contest}/${round}`);
         },
-        async getProblemData(contest: string, round: number, problem: number): Promise<UpsolveProblem | null> {
+        async getProblemData(contest: string, round: number, problem: number): Promise<UpsolveProblem | Error> {
             return await apiFetch('GET', `/upsolve/${contest}/${round}/${problem}`);
         },
         async updateSubmission(problemId: string, lang: string, file: string): Promise<ContestUpdateSubmissionResult> {
