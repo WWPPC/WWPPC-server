@@ -1,13 +1,12 @@
 import { Express } from 'express';
-import { Server as SocketIOServer } from 'socket.io';
 
-import Database, { Score, ScoreState, TeamOpResult } from './database';
+import config from './config';
+import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './contest';
+import Database, { Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
-import WwppcGrader from './wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { ServerSocket } from './socket';
-import { isUUID, UUID } from './util';
-import { ClientProblemCompletionState } from './contest';
+import { isUUID, reverse_enum, UUID } from './util';
 
 /**
  * `UpsolveManager` allows viewing and submitting to problems of past contests.
@@ -18,7 +17,7 @@ export class UpsolveManager {
     readonly db: Database;
     readonly app: Express;
     readonly logger: NamedLogger;
-    readonly #grader: Grader;
+    readonly grader: Grader;
 
     #open = true;
 
@@ -32,7 +31,7 @@ export class UpsolveManager {
         this.db = db;
         this.app = app;
         this.logger = new NamedLogger(logger, 'UpsolveManager');
-        this.#grader = new WwppcGrader(app, '/upsolve-judge', process.env.GRADER_PASS, logger, db);
+        this.grader = new Grader(app, '/upsolve-judge', process.env.GRADER_PASS, logger, db);
         // attach api
         this.app.get('/api/upsolveContestList', async (req, res) => {
             const contests = await this.db.readContests({ endTime: { op: '<', v: Date.now() }, public: true });
@@ -149,19 +148,63 @@ export class UpsolveManager {
         // new event handlers
         socket.removeAllListeners('updateUpsolveSubmission');
         socket.removeAllListeners('refreshUpsolveSubmission');
-        socket.on('updateUpsolveSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: TeamOpResult) => any) => {
+        socket.on('updateUpsolveSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
             if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid updateUpsolveSubmission payload');
                 return;
             }
-            cb(TeamOpResult.NOT_ALLOWED);
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Upsolve submission: ' + data.id);
+            const respond = (res: ContestUpdateSubmissionResult) => {
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
+                cb(res);
+            };
+            if (data.file.length > 10240) {
+                respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
+                return;
+            }
+            if (!config.acceptedLanguages.includes(data.lang)) {
+                respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
+                return;
+            }
+            const problems = await this.db.readProblems({ id: data.id });
+            if (problems === null) {
+                respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
+                return;
+            }
+            const submission: Submission = {
+                username: socket.username,
+                problemId: data.id,
+                file: data.file,
+                scores: [],
+                history: [],
+                lang: data.lang,
+                time: Date.now(),
+                analysis: true
+            };
+            if (!(await this.db.writeSubmission(submission, config.gradeAtRoundEnd))) {
+                respond(ContestUpdateSubmissionResult.ERROR);
+                return;
+            }
+            this.grader.cancelUngraded(socket.username, data.id);
+            this.grader.queueUngraded(submission, async (graded) => {
+                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
+                if (graded != null) await this.db.writeSubmission(graded, config.gradeAtRoundEnd);
+            });
+            respond(ContestUpdateSubmissionResult.SUCCESS);
         });
         socket.on('refreshUpsolveSubmission', async (data: { id: string }, cb: (res: UpsolveSubmission[] | null) => any) => {
             if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid refreshUpsolveSubmission payload');
                 return;
             }
-            cb([]);
+            const submissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
+            cb(submissions?.map((s) => ({
+                problemId: s.problemId,
+                time: s.time,
+                lang: s.lang,
+                scores: s.scores,
+                status: this.#getCompletionState(s.scores)
+            })) ?? null);
         });
 
         const removeSocket = () => {
@@ -175,7 +218,7 @@ export class UpsolveManager {
         socket.on('error', removeSocket);
     }
 
-    #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
+    #getCompletionState(scores: Score[] | undefined): ClientProblemCompletionState {
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.UPLOADED;
         const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
@@ -190,7 +233,7 @@ export class UpsolveManager {
      */
     close() {
         this.#open = false;
-        this.#grader.close();
+        this.grader.close();
         this.#sockets.forEach((socket) => {
             socket.removeAllListeners('upsolveUpsolveSubmission');
         });

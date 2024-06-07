@@ -4,7 +4,6 @@ import { Server as SocketIOServer } from 'socket.io';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
-import WwppcGrader from './wwppcGrader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
@@ -40,7 +39,7 @@ export class ContestManager {
         this.app = app;
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
-        this.#grader = new WwppcGrader(app, '/judge', process.env.GRADER_PASS, logger, db);
+        this.#grader = new Grader(app, '/judge', process.env.GRADER_PASS, logger, db);
         let reading = false;
         this.#updateLoop = setInterval(async () => {
             if (reading) return;
@@ -67,7 +66,7 @@ export class ContestManager {
                 }
             }
             reading = false;
-        }, 10000);
+        }, 60000);
     }
 
     /**
@@ -596,7 +595,7 @@ export class ContestHost {
             // submissions are stored under the team
             this.grader.cancelUngraded(teamData.id, data.id);
             this.grader.queueUngraded(submission, async (graded) => {
-                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
+                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${data.id})`);
                 if (graded != null) {
                     await this.db.writeSubmission(graded, config.gradeAtRoundEnd);
                     // make sure it gets to all the team
