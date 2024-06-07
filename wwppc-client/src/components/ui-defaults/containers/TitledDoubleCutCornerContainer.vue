@@ -51,7 +51,7 @@ defineProps<{
 
 .titledDoubleCutCornerContainerTitle>h2 {
     margin: 0px 0px;
-    white-space-collapse: pre;
+    white-space-collapse: pre-wrap;
 }
 
 .titledDoubleCutCornerContainerBody {

@@ -3,9 +3,10 @@ import { autoGlitchTextTransition } from '@/components/ui-defaults/TextTransitio
 import { AnimateInContainer, TitledCollapsible } from '@/components/ui-defaults/UIContainers';
 import { useUpsolveManager, type UpsolveProblem, type UpsolveRound, type UpsolveSubmission } from '@/scripts/UpsolveManager';
 import ContestProblemListProblem from '@/components/contest/problemList/ContestProblemListProblem.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { type ContestProblem, ContestProblemCompletionState } from '@/scripts/ContestManager';
 import { globalModal, UILoadingBar } from '@/components/ui-defaults/UIDefaults';
+import { useServerConnection } from '@/scripts/ServerConnection';
 
 const props = defineProps<{
     data: UpsolveRound
@@ -13,6 +14,7 @@ const props = defineProps<{
 }>();
 
 const modal = globalModal();
+const serverConnection = useServerConnection();
 const upsolveManager = useUpsolveManager();
 
 const titleText = autoGlitchTextTransition(() => 'Round ' + (props.data.number + 1), 40, 1, 10, 2);
@@ -49,6 +51,10 @@ const load = async () => {
 onMounted(async () => {
     if (!props.minimized) load();
 });
+if (!props.minimized) {
+    serverConnection.onconnect(load);
+    watch(() => serverConnection.loggedIn, load);
+}
 </script>
 
 <template>
