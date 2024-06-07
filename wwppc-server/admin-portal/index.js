@@ -146,7 +146,11 @@ async function modify() {
 window.addEventListener('load', () => {
     loadAdmins();
     loadLogs();
-    setInterval(loadLogs, 10000);
+    setInterval(() => {
+        // dont autoscroll to bottom
+        const rect = logsBlock.getBoundingClientRect();
+        if (logsBlock.scrollTop >= logsBlock.scrollHeight - rect.height - 2) loadLogs();
+    }, 10000);
 });
 
 document.getElementById('refreshLogsButton').onclick = loadLogs;

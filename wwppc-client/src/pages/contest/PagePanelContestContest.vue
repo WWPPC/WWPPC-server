@@ -90,7 +90,7 @@ onMounted(updateRoundTimes);
                                 <li>All: Input is fed through <code>stdin</code>, output is read from <code>stdout</code></li>
                                 <li>All: Exiting with a non-zero code will result in a <b>runtime error</b></li>
                                 <li>Java: Class name must be <code>Main</code></li>
-                                <li>C/C++: Programs are compiled with the gcc/g++ <code>-O2</code> flag</li>
+                                <li>C/C++: Programs are compiled with the gcc/g++ <code>-O2</code> and <code>-static</code> flags</li>
                             </ul>
                             </p>
                         </div>

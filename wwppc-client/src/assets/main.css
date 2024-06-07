@@ -118,7 +118,8 @@ codeblock {
     font-family: 'Source Code Pro', Courier, monospace;
     background-color: #FFF3;
     border-radius: 0.2em;
-    white-space: pre;
+    white-space-collapse: preserve;
+    text-wrap: nowrap;
     overflow-x: auto;
 }
 

@@ -55,6 +55,7 @@ const load = async () => {
 onMounted(load);
 watch(() => route.params, load);
 serverConnection.onconnect(load);
+watch(() => serverConnection.loggedIn, load);
 </script>
 
 <template>

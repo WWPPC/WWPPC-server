@@ -11,7 +11,7 @@ async function load() {
     const problemData = await response.json();
 
     // clear out the existing table and put some headers in
-    table.innerHTML = '<tr><th width="360px">UUID</th><th width="300px">Name</th><th width="200px">Author</th><th width="150px">Constraints</th><th width="600px">Problem Statement</th><th width="100px">Hidden</th><th width="100px">Archived</th><th width="150px">Save</th></tr>';
+    table.innerHTML = '<tr><th width="360px">UUID</th><th width="300px">Name</th><th width="200px">Author</th><th width="150px">Constraints</th><th width="600px">Problem Statement</th><th width="150px">Save</th></tr>';
 
     // add row button
     const addButtonRow = document.createElement('tr');

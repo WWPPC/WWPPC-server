@@ -31,10 +31,10 @@ export class Grader {
     constructor(app: Express, path: string, password: string, logger: Logger, db: Database) {
         this.#path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
         this.app = app;
-        this.logger = new NamedLogger(logger, 'WwppcGrader@' + this.#path);
+        this.logger = new NamedLogger(logger, 'Grader@' + this.#path);
         this.db = db;
         this.#password = password;
-        this.logger.info('Creating WwppcGrader under ' + this.#path);
+        this.logger.info('Creating WWPPC Grader under ' + this.#path);
         this.app.use(this.#path + '/*', bodyParser.json());
         // see docs
         this.app.get(this.#path + '/get-work', async (req, res) => {

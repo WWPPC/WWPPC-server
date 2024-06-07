@@ -192,7 +192,7 @@ onMounted(() => {
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
                 <h3 class="submissionsHeader">Previous submissions</h3>
-                <AnimateInContainer type="fade" v-for="(submission, index) in problem.submissions" :key="index" :delay="index * 50">
+                <AnimateInContainer type="fade" v-for="(submission, index) in problem.submissions" :key="submission.time" :delay="index * 50">
                     <div class="submissionContainer">
                         <label class="submissionTitle" :for="'submissionCheckbox' + index">
                             <ContestProblemStatusCircle :status="submission.status"></ContestProblemStatusCircle>

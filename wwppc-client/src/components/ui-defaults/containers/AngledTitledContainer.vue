@@ -50,7 +50,7 @@ defineProps<{
 }
 
 .titledAngleContainerTitle>h2 {
-    white-space-collapse: preserve-spaces;
+    white-space: pre;
 }
 
 .titledAngleContainerHeader {

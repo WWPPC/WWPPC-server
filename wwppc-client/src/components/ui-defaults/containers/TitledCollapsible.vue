@@ -92,7 +92,7 @@ defineExpose({
     text-wrap: wrap;
     font-size: v-bind("$props.fontSize ?? 'var(--font-large)'"); /* idk why */
     flex-grow: 1;
-    white-space-collapse: preserve-spaces;
+    white-space: pre;
 }
 
 .headeredCollapsibleContainerImage {
