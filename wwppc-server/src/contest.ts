@@ -608,7 +608,7 @@ export class ContestHost {
             respond(ContestUpdateSubmissionResult.SUCCESS);
             // update whole team
             teamData.members.forEach((username) => this.updateUser(username));
-            this.logger.info(`Accepted submission for ${data.id} by ${socket.username}`);
+            this.logger.info(`Accepted submission for ${data.id} by ${socket.username} (team ${teamData.id})`);
         });
 
         this.updateUser(socket.username);

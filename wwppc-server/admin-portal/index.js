@@ -146,6 +146,7 @@ async function modify() {
 window.addEventListener('load', () => {
     loadAdmins();
     loadLogs();
+    setInterval(loadLogs, 10000);
 });
 
 document.getElementById('refreshLogsButton').onclick = loadLogs;

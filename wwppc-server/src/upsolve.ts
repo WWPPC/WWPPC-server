@@ -181,16 +181,25 @@ export class UpsolveManager {
                 time: Date.now(),
                 analysis: true
             };
-            if (!(await this.db.writeSubmission(submission, config.gradeAtRoundEnd))) {
+            if (!(await this.db.writeSubmission(submission))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             this.grader.cancelUngraded(socket.username, data.id);
             this.grader.queueUngraded(submission, async (graded) => {
                 if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username} for ${data.id})`);
-                if (graded != null) await this.db.writeSubmission(graded, config.gradeAtRoundEnd);
+                if (graded != null) {
+                    await this.db.writeSubmission(graded);
+                    const updatedSubmissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
+                    if (updatedSubmissions != null && updatedSubmissions.length > 0) socket.emit('upsolveSubmissionStatus', this.#mapSubmissions(updatedSubmissions[0]));
+                    else socket.emit('upsolveSubmissionStatus', []);
+                }
             });
             respond(ContestUpdateSubmissionResult.SUCCESS);
+            const updatedSubmissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
+            if (updatedSubmissions != null && updatedSubmissions.length > 0) socket.emit('upsolveSubmissionStatus', this.#mapSubmissions(updatedSubmissions[0]));
+            else socket.emit('upsolveSubmissionStatus', []);
+            this.logger.info(`Accepted submission for ${data.id} by ${socket.username}`);
         });
         socket.on('refreshUpsolveSubmission', async (data: { id: string }, cb: (res: UpsolveSubmission[] | null) => any) => {
             if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
@@ -198,13 +207,8 @@ export class UpsolveManager {
                 return;
             }
             const submissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
-            cb(submissions?.map((s) => ({
-                problemId: s.problemId,
-                time: s.time,
-                lang: s.lang,
-                scores: s.scores,
-                status: this.#getCompletionState(s.scores)
-            })) ?? null);
+            if (submissions != null && submissions.length > 0) cb(this.#mapSubmissions(submissions[0]));
+            else cb([]);
         });
 
         const removeSocket = () => {
@@ -226,6 +230,25 @@ export class UpsolveManager {
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
         return ClientProblemCompletionState.GRADED_FAIL;
+    }
+
+    #mapSubmissions(submission: Submission): UpsolveSubmission[] {
+        return [
+            {
+                problemId: submission.problemId,
+                time: submission.time,
+                lang: submission.lang,
+                scores: submission.scores,
+                status: this.#getCompletionState(submission.scores)
+            },
+            ...submission.history.reverse().map((s): UpsolveSubmission => ({
+                problemId: submission.problemId,
+                time: s.time,
+                lang: s.lang,
+                scores: s.scores,
+                status: this.#getCompletionState(s.scores)
+            }))
+        ];
     }
 
     /**

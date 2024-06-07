@@ -36,8 +36,10 @@ export interface UpsolveSubmission {
 
 const state = reactive<{
     submissionsCache: Map<string, UpsolveSubmission[]>
+    submissionsUpdated: number // for watch hooks
 }>({
-    submissionsCache: new Map()
+    submissionsCache: new Map(),
+    submissionsUpdated: 0
 });
 
 export const useUpsolveManager = defineStore('upsolveManager', {
@@ -77,7 +79,9 @@ export const useUpsolveManager = defineStore('upsolveManager', {
 // prevent circular dependency nuke
 window.addEventListener('DOMContentLoaded', () => {
     socket.on('upsolveSubmissionStatus', (submissions: UpsolveSubmission[]) => {
+        if (submissions.length == 0) return;
         state.submissionsCache.set(submissions[0].problemId, submissions);
+        state.submissionsUpdated++;
     });
     const serverConnection = useServerConnection();
     serverConnection.ondisconnect(() => {

@@ -1288,7 +1288,7 @@ export class Database {
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history), submission.analysis
                 ]);
-                this.#submissionCache.set(submission.problemId + ':' + submission.username, {
+                this.#submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
                     submission: { ...submission, history: history },
                     expiration: performance.now() + config.dbCacheTime
                 });

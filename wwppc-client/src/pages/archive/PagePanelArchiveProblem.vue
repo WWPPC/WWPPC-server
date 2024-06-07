@@ -21,6 +21,7 @@ const upsolveManager = useUpsolveManager();
 const modal = globalModal();
 
 // placeholder data behind loading cover
+let problemId = '';
 const problem = ref<ContestProblem>({
     id: 'loading',
     contest: 'WWPIT Loading Contest',
@@ -72,17 +73,27 @@ const loadProblem = async () => {
     }
     const p = await upsolveManager.getProblemData(route.params.archiveContest.toString(), Number(route.params.archiveRound), Number(route.params.archiveProblem));
     if (p instanceof Error) {
-        loadErrorModal(p.message, 'The requested problem does not exist!');
+        loadErrorModal(p.message, 'Could not load the problem.');
         return;
     }
-    const s = await upsolveManager.getSubmissions(p.id) ?? [];
     problem.value = {
         ...p,
-        submissions: s,
-        status: s[0]?.status ?? ContestProblemCompletionState.NOT_UPLOADED
+        submissions: [],
+        status: ContestProblemCompletionState.NOT_UPLOADED
     };
+    problemId = p.id;
+    updateSubmissions();
 };
 onMounted(loadProblem);
+const updateSubmissions = () => {
+    setTimeout(async () => {
+        const s = await upsolveManager.getSubmissions(problemId) ?? [];
+        problem.value.submissions = s;
+        problem.value.status = s[0]?.status ?? ContestProblemCompletionState.NOT_UPLOADED;
+    }, 100);
+};
+watch(() => upsolveManager.submissionsUpdated, updateSubmissions);
+watch(() => serverConnection.loggedIn, updateSubmissions);
 
 watch(() => problem.value.name, () => {
     setTitlePanel(problem.value.name);
@@ -183,7 +194,7 @@ onMounted(() => {
                         <span>Language:</span>
                         <UIDropdown ref="languageDropdown" :items="serverConnection.serverConfig.acceptedLanguages.map((a) => ({ text: a, value: a }))" required></UIDropdown>
                     </div>
-                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="true || !serverConnection.loggedIn || languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files?.item(0) == null"></UIButton>
+                    <UIButton ref="submit" text="Upload Submission" type="submit" width="min-content" @click=submitUpload :disabled="!serverConnection.loggedIn || languageDropdown?.value == undefined || languageDropdown?.value == '' || fileUpload?.files == null || fileUpload?.files?.item(0) == null"></UIButton>
                 </form>
                 <div style="text-align: center; color: yellow;" v-if="!serverConnection.loggedIn">
                     <i>You must be signed in to submit solutions</i>
@@ -191,7 +202,7 @@ onMounted(() => {
             </DoubleCutCornerContainer>
             <DoubleCutCornerContainer flipped>
                 <h3 class="submissionsHeader">Previous submissions</h3>
-                <AnimateInContainer type="fade" v-for="(submission, index) in problem.submissions" :key="index" :delay="index * 100">
+                <AnimateInContainer type="fade" v-for="(submission, index) in problem.submissions" :key="index" :delay="index * 50">
                     <div class="submissionContainer">
                         <label class="submissionTitle" :for="'submissionCheckbox' + index">
                             <ContestProblemStatusCircle :status="submission.status"></ContestProblemStatusCircle>
