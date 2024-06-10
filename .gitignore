@@ -1,9 +1,4 @@
-# Vite
-*.vite
-vite.config.ts.timestamp*
-
 # Builds and stuff
-dist/
 build/
 *.cache
 
@@ -27,3 +22,6 @@ config.json
 
 # idk what this is but it's not supposed to be here
 .idea/
+
+# buh
+.vscode/*
