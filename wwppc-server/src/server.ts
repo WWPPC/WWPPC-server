@@ -7,7 +7,7 @@ import config from './config';
 import { reverse_enum } from './util';
 
 // verify environment variables exist
-if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'CLIENT_PATH', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -120,18 +120,22 @@ attachAdminPortal(database, app, contestManager, logger);
 // static hosting optional
 logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
 if (config.serveStatic) {
-    const indexDir = path.resolve(config.clientPath, 'index.html');
-    app.use('/', express.static(config.clientPath));
-    app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => {
-        if (!req.accepts('html')) res.sendStatus(406);
-        else res.sendFile(indexDir);
-    });
-    app.get('*', (req, res) => {
-        // last handler - if nothing else finds the page, just send 404
-        res.status(404);
-        if (req.accepts('html')) res.sendFile(indexDir);
-        else res.sendStatus(404);
-    });
+    if (config.clientPath == undefined) {
+        logger.error('SERVE_STATIC is TRUE but CLIENT_PATH not given!\nDisabling static hosting');
+    } else {
+        const indexDir = path.resolve(config.clientPath, 'index.html');
+        app.use('/', express.static(config.clientPath));
+        app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => {
+            if (!req.accepts('html')) res.sendStatus(406);
+            else res.sendFile(indexDir);
+        });
+        app.get('*', (req, res) => {
+            // last handler - if nothing else finds the page, just send 404
+            res.status(404);
+            if (req.accepts('html')) res.sendFile(indexDir);
+            else res.sendStatus(404);
+        });
+    }
 }
 
 // complete networking

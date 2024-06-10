@@ -52,21 +52,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             res.redirect(403, '/admin/login');
         }
     });
-    if (!config.serveStatic) {
-        // spaghetti to make stuff load
-        app.get('/assets/fonts.css', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/fonts.css')));
-        app.get('/assets/Jura.ttf', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/Jura.ttf')));
-        app.get('/assets/SourceCodePro.ttf', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/SourceCodePro.ttf')));
-        app.get('/assets/arrow-left.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/arrow-left.svg')));
-        app.get('/assets/arrow-right.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/arrow-right.svg')));
-        app.get('/assets/arrow-up.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/arrow-up.svg')));
-        app.get('/assets/arrow-down.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'assets/arrow-down.svg')));
-        app.get('/favicon.png', (req, res) => res.sendFile(path.resolve(config.clientPath, 'favicon.png')));
-        app.get('/logo.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'logo.svg')));
-        app.get('/icon.svg', (req, res) => res.sendFile(path.resolve(config.clientPath, 'icon.svg')));
-        app.get('/icon2.png', (req, res) => res.sendFile(path.resolve(config.clientPath, 'icon2.png')));
-        app.get('/icon2-small.png', (req, res) => res.sendFile(path.resolve(config.clientPath, 'icon2-small.png')));
-    }
 
     const defaultResponseMapping = (res, stat: AccountOpResult) => {
         if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);

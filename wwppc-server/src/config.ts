@@ -3,7 +3,6 @@ import path from 'path';
 
 process.env.CONFIG_PATH ??= path.resolve(__dirname, '../config/');
 process.env.EMAIL_TEMPLATE_PATH ??= path.resolve(__dirname, '../email-templates');
-process.env.CLIENT_PATH ??= path.resolve(__dirname, '../../wwppc-client/dist');
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
 const configPath = path.resolve(process.env.CONFIG_PATH, 'config.json');
@@ -38,7 +37,7 @@ const config: {
     readonly superSecretSecret: boolean
     readonly path: string
     readonly emailTemplatePath: string
-    readonly clientPath: string
+    readonly clientPath?: string
 } = {
     hostname: fileConfig.hostname ?? 'wwppc.tech',
     emailAddress: fileConfig.emailAddress ?? 'no-reply@wwppc.tech',
@@ -71,15 +70,15 @@ const config: {
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
     emailTemplatePath: process.env.EMAIL_TEMPLATE_PATH,
-    clientPath: process.env.CLIENT_PATH,
+    clientPath: process.env.CLIENT_PATH ?? fileConfig.clientPath,
 };
 const config2: any = structuredClone(config);
 config2.port = fileConfig.port ?? 8000;
 config2.serveStatic = fileConfig.serveStatic ?? false;
 config2.debugMode = fileConfig.debugMode ?? false;
+config2.clientPath = fileConfig.clientPath;
 delete config2.path;
 delete config2.emailTemplatePath;
-delete config2.clientPath;
 try {
     fs.writeFileSync(configPath, JSON.stringify(config2, null, 4));
 } catch { }
