@@ -70,7 +70,7 @@ const config: {
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
     emailTemplatePath: process.env.EMAIL_TEMPLATE_PATH,
-    clientPath: process.env.CLIENT_PATH ?? fileConfig.clientPath,
+    clientPath: (process.env.CLIENT_PATH != undefined || fileConfig.clientPath != undefined) ? path.resolve(__dirname, process.env.CLIENT_PATH ?? fileConfig.clientPath) : undefined,
 };
 const config2: any = structuredClone(config);
 config2.port = fileConfig.port ?? 8000;
