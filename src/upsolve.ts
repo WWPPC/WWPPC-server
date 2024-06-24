@@ -40,32 +40,7 @@ export class UpsolveManager {
                 return;
             }
             contests.sort((a, b) => a.endTime - b.endTime);
-            const mappedContests: UpsolveContest[] = [];
-            for (const contest of contests) {
-                const rounds = await this.db.readRounds({ id: contest.rounds });
-                if (rounds == null) {
-                    res.sendStatus(500);
-                    return;
-                }
-                const mapped: UpsolveRound[] = [];
-                for (let i in contest.rounds) {
-                    const round = rounds.find((r) => r.id === contest.rounds[i]);
-                    if (round == undefined) {
-                        res.sendStatus(500);
-                        return;
-                    }
-                    mapped.push({
-                        contest: contest.id,
-                        number: Number(i),
-                        problems: round.problems
-                    });
-                }
-                mappedContests.push({
-                    id: contest.id,
-                    rounds: mapped
-                });
-            }
-            res.json(mappedContests);
+            res.json(contests.map((c) => c.id));
         });
         this.app.get('/api/upsolve/:cid', async (req, res) => {
             const contests = await this.db.readContests({ id: req.params.cid });

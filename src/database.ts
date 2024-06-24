@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { createCipheriv, createDecipheriv, randomBytes, subtle, webcrypto } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, subtle } from 'crypto';
 import { Client } from 'pg';
 import { v4 as uuidV4 } from 'uuid';
 
@@ -34,13 +34,6 @@ export class Database {
     readonly connectPromise: Promise<any>;
     readonly #db: Client;
     readonly #dbKey: Buffer;
-    readonly #rsaKeys = subtle.generateKey({
-        name: "RSA-OAEP",
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256"
-    }, false, ['encrypt', 'decrypt']);
-    #publicKey: webcrypto.JsonWebKey | undefined;
     readonly logger: NamedLogger;
     readonly mailer: Mailer;
     readonly #cacheGarbageCollector: NodeJS.Timeout;
@@ -53,22 +46,18 @@ export class Database {
         this.logger = new NamedLogger(logger, 'Database');
         this.mailer = mailer;
         this.connectPromise = new Promise(() => undefined);
-        const setPublicKey = async () => this.#publicKey = await subtle.exportKey('jwk', (await this.#rsaKeys).publicKey);
         this.#dbKey = key instanceof Buffer ? key : Buffer.from(key, 'base64');
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
-        this.connectPromise = Promise.all([
-            this.#db.connect().catch((err) => {
-                this.logger.handleFatal('Could not connect to database:', err);
-                this.logger.fatal('Host: ' + this.#db.host);
-                this.logger.destroy();
-                process.exit(1);
-            }),
-            setPublicKey()
-        ]);
+        this.connectPromise = this.#db.connect().catch((err) => {
+            this.logger.handleFatal('Could not connect to database:', err);
+            this.logger.fatal('Host: ' + this.#db.host);
+            this.logger.destroy();
+            process.exit(1);
+        });
         this.connectPromise.then(() => {
             this.logger.info('Database connected');
             if (config.debugMode) {
@@ -94,25 +83,6 @@ export class Database {
             if (global.gc) global.gc();
             if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
         }, 300000);
-    }
-
-    /**
-     * @type {webcrypto.JsonWebKey}
-     * RA-OAEP public key.
-     */
-    get publicKey() { return this.#publicKey; }
-    /**
-     * Decrypt a message using the RSA-OAEP private key.
-     * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
-     * @returns {string} Decrypted string
-     */
-    async RSAdecrypt(buf: RSAEncrypted) {
-        try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#rsaKeys).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
-        } catch (err) {
-            this.logger.handleError('RSA decrypt error:', err);
-            return buf;
-        }
     }
 
     /**
@@ -1329,8 +1299,6 @@ export default Database;
 
 export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
-export type RSAEncrypted = Buffer | string;
-
 /**Response codes for operations involving account data */
 export enum AccountOpResult {
     /**The operation was completed successfully */
@@ -1342,7 +1310,9 @@ export enum AccountOpResult {
     /**The operation failed because of an authentication failure */
     INCORRECT_CREDENTIALS = 3,
     /**The operation failed because of an unexpected issue */
-    ERROR = 4
+    ERROR = 4,
+    /**The operation failed because the RSA-OAEP keys expired */
+    SESSION_EXPIRED = 5
 }
 
 /**Response codes for operations involving team data */

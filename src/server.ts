@@ -47,14 +47,16 @@ app.use(cookieParser());
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
+import { RSAAsymmetricEncryptionHandler, RSAEncrypted } from './util';
 import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';
-import Database, { AccountData, AccountOpResult, RSAEncrypted, TeamData, TeamOpResult } from './database';
+import Database, { AccountData, AccountOpResult, TeamData, TeamOpResult } from './database';
 import ContestManager from './contest';
 import UpsolveManager from './upsolve';
 import { validateRecaptcha } from './recaptcha';
 import { createServerSocket } from './socket';
 
+const clientEncryption = new RSAAsymmetricEncryptionHandler(logger);
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
     port: Number(process.env.SMTP_PORT ?? 587), // another default
@@ -140,7 +142,6 @@ if (config.serveStatic) {
 
 // complete networking
 if (config.debugMode) logger.info('Creating Socket.IO server');
-const sessionId = Math.random();
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
 const recentSignups = new Map<string, number>();
@@ -177,7 +178,7 @@ io.on('connection', async (s) => {
     // await credentials before allowing anything (in a weird way)
     socket.username = '[not signed in]';
     if (config.debugMode) socket.logWithId(logger.debug, 'Connection established, sending public key and requesting credentials');
-    socket.emit('getCredentials', { key: database.publicKey, session: sessionId });
+    socket.emit('getCredentials', { key: clientEncryption.publicKey, session: clientEncryption.sessionID });
     const checkRecaptcha = async (token: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> => {
         const recaptchaResponse = await validateRecaptcha(token, socket.ip);
         if (recaptchaResponse instanceof Error) {
@@ -198,13 +199,18 @@ io.on('connection', async (s) => {
         return AccountOpResult.SUCCESS;
     };
     if (await new Promise((resolve, reject) => {
-        socket.on('credentials', async (creds: { username: string, password: RSAEncrypted, token: string, signupData?: { firstName: string, lastName: string, email: string, school: string, grade: number, experience: number, languages: string[] } }, cb: (res: AccountOpResult) => any) => {
+        socket.on('credentials', async (creds: { username: string, password: RSAEncrypted, token: string, session: number, signupData?: { firstName: string, lastName: string, email: string, school: string, grade: number, experience: number, languages: string[] } }, cb: (res: AccountOpResult) => any) => {
             if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            const password = await database.RSAdecrypt(creds.password);
+            if (creds.session !== clientEncryption.sessionID) {
+                // different session would fail to decode
+                cb(AccountOpResult.SESSION_EXPIRED);
+                return;
+            }
+            const password = await clientEncryption.decrypt(creds.password);
             if (password instanceof Buffer) {
                 // for some reason decoding failed, redirect to login
                 cb(AccountOpResult.INCORRECT_CREDENTIALS);
@@ -269,10 +275,15 @@ io.on('connection', async (s) => {
                 }
             }
         });
-        socket.on('requestRecovery', async (creds: { username: string, email: string, token: string }, cb: (res: AccountOpResult) => any) => {
+        socket.on('requestRecovery', async (creds: { username: string, email: string, token: string, session: number }, cb: (res: AccountOpResult) => any) => {
             if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
+                return;
+            }
+            if (creds.session !== clientEncryption.sessionID) {
+                // different session would fail to decode
+                cb(AccountOpResult.SESSION_EXPIRED);
                 return;
             }
             if (typeof creds.username != 'string' || typeof creds.email != 'string' || !database.validate(creds.username, 'dummyPass') || typeof creds.token != 'string') {
@@ -325,14 +336,19 @@ io.on('connection', async (s) => {
             // remove the listener to try and combat spam some more
             socket.removeAllListeners('recoverCredentials');
         });
-        socket.on('recoverCredentials', async (creds: { username: string, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+        socket.on('recoverCredentials', async (creds: { username: string, recoveryPassword: RSAEncrypted, newPassword: RSAEncrypted, token: string, session: number }, cb: (res: AccountOpResult) => any) => {
             if (creds == undefined || typeof cb != 'function') {
                 socket.kick('null credentials');
                 resolve(true);
                 return;
             }
-            const recoveryPassword = await database.RSAdecrypt(creds.recoveryPassword);
-            const newPassword = await database.RSAdecrypt(creds.newPassword);
+            if (creds.session !== clientEncryption.sessionID) {
+                // different session would fail to decode
+                cb(AccountOpResult.SESSION_EXPIRED);
+                return;
+            }
+            const recoveryPassword = await clientEncryption.decrypt(creds.recoveryPassword);
+            const newPassword = await clientEncryption.decrypt(creds.newPassword);
             if (typeof creds.username != 'string' || typeof recoveryPassword != 'string' || typeof newPassword != 'string' || !database.validate(creds.username, newPassword) || typeof creds.token != 'string') {
                 socket.kick('invalid credentials');
                 return;
@@ -389,13 +405,18 @@ io.on('connection', async (s) => {
         cb(res);
         if (config.debugMode) socket.logWithId(logger.debug, 'Update user data: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('changeCredentials', async (creds: { password: RSAEncrypted, newPassword: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+    socket.on('changeCredentials', async (creds: { password: RSAEncrypted, newPassword: RSAEncrypted, token: string, session: number }, cb: (res: AccountOpResult) => any) => {
         if (creds == null || typeof cb != 'function') {
             socket.kick('null credentials');
             return;
         }
-        const password = await database.RSAdecrypt(creds.password);
-        const newPassword = await database.RSAdecrypt(creds.newPassword)
+        if (creds.session !== clientEncryption.sessionID) {
+            // different session would fail to decode
+            cb(AccountOpResult.SESSION_EXPIRED);
+            return;
+        }
+        const password = await clientEncryption.decrypt(creds.password);
+        const newPassword = await clientEncryption.decrypt(creds.newPassword)
         if (typeof password != 'string' || typeof newPassword != 'string' || !database.validate(socket.username, password) || !database.validate(socket.username, newPassword)) {
             socket.kick('invalid credentials');
             return;
@@ -411,12 +432,17 @@ io.on('connection', async (s) => {
         cb(res);
         socket.logWithId(logger.info, 'Change credentials: ' + reverse_enum(AccountOpResult, res));
     });
-    socket.on('deleteCredentials', async (creds: { password: RSAEncrypted, token: string }, cb: (res: AccountOpResult) => any) => {
+    socket.on('deleteCredentials', async (creds: { password: RSAEncrypted, token: string, session: number }, cb: (res: AccountOpResult) => any) => {
         if (creds == null || typeof cb != 'function') {
             socket.kick('null credentials');
             return;
         }
-        const password = await database.RSAdecrypt(creds.password);
+        if (creds.session !== clientEncryption.sessionID) {
+            // different session would fail to decode
+            cb(AccountOpResult.SESSION_EXPIRED);
+            return;
+        }
+        const password = await clientEncryption.decrypt(creds.password);
         if (typeof password != 'string' || !database.validate(socket.username, password)) {
             socket.kick('invalid credentials');
             return;
@@ -552,8 +578,14 @@ const connectionKickDecrementer = setInterval(() => {
     c++;
     if (c % 600 == 0) recentPasswordResetEmails.clear();
 }, 1000);
+if (config.rsaKeyRotateInterval < 3600000) logger.warn('rsaKeyRotateInterval is set to a low value! This will result in frequent sign outs! Is this intentional?');
+const keyRotateInterval = setInterval(() => clientEncryption.rotateKeys(), config.rsaKeyRotateInterval);
 
-Promise.all([database.connectPromise, mailer.ready]).then(() => {
+Promise.all([
+    clientEncryption.ready,
+    database.connectPromise,
+    mailer.ready
+]).then(() => {
     server.listen(config.port);
     logger.info(`Listening to port ${config.port}`);
 });
@@ -569,6 +601,7 @@ const stopServer = async (code: number) => {
     process.on('SIGINT', actuallyStop);
     io.close();
     clearInterval(connectionKickDecrementer);
+    clearInterval(keyRotateInterval);
     contestManager.close();
     upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);

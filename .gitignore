@@ -1,8 +1,11 @@
-# Builds and stuff
+# builds and stuff
 build/
 *.cache
 
-# Logs
+# optional client
+WWPPC-site-client/
+
+# logs
 logs/
 *.log
 *.log*

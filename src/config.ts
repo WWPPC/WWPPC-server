@@ -33,6 +33,7 @@ const config: {
     readonly gradeAtRoundEnd: boolean
     readonly freezeScoresLastRound: boolean
     readonly logEmailActivity: boolean
+    readonly rsaKeyRotateInterval: number
     readonly debugMode: boolean
     readonly superSecretSecret: boolean
     readonly path: string
@@ -66,6 +67,7 @@ const config: {
     gradeAtRoundEnd: fileConfig.gradeAtRoundEnd ?? true,
     freezeScoresLastRound: fileConfig.freezeScoresLastRound ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
+    rsaKeyRotateInterval: fileConfig.rsaKeyRotateInterval ?? 86400000,
     debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
@@ -76,6 +78,7 @@ const config2: any = structuredClone(config);
 config2.port = fileConfig.port ?? 8000;
 config2.serveStatic = fileConfig.serveStatic ?? false;
 config2.debugMode = fileConfig.debugMode ?? false;
+config2.superSecretSecret = fileConfig.superSecretSecret;
 config2.clientPath = fileConfig.clientPath;
 delete config2.path;
 delete config2.emailTemplatePath;
