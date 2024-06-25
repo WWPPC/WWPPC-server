@@ -171,19 +171,19 @@ table input[type=number]:hover {
     }
 
     *::-webkit-scrollbar-button:single-button:vertical:decrement {
-        background-image: url(/assets/arrow-up.svg);
+        background-image: url(/admin/assets/arrow-up.svg);
     }
 
     *::-webkit-scrollbar-button:single-button:vertical:increment {
-        background-image: url(/assets/arrow-down.svg);
+        background-image: url(/admin/assets/arrow-down.svg);
     }
 
     *::-webkit-scrollbar-button:single-button:horizontal:decrement {
-        background-image: url(/assets/arrow-left.svg);
+        background-image: url(/admin/assets/arrow-left.svg);
     }
 
     *::-webkit-scrollbar-button:single-button:horizontal:increment {
-        background-image: url(/assets/arrow-right.svg);
+        background-image: url(/admin/assets/arrow-right.svg);
     }
 
     *::-webkit-scrollbar-corner {

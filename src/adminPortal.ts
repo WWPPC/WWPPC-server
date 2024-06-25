@@ -47,7 +47,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             sessionTokens.set(token, req.body.username);
             setTimeout(() => sessionTokens.delete(token), 3600000);
             res.redirect('/admin');
-            log.info('[Admin] Admin login by ' + req.body.username);
+            log.info(`[Admin] Admin login by ${req.body.username} (${req.ip ?? req.headers['x-forwarded-for'] ?? 'unknown ip address'})`);
         } else {
             res.redirect(403, '/admin/login');
         }
