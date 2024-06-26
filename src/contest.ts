@@ -238,12 +238,19 @@ interface ClientSubmission {
     status: ClientProblemCompletionState
 }
 export enum ClientProblemCompletionState {
+    /**Not attempted */
     NOT_UPLOADED = 0,
+    /**Uploaded but not graded, can still be changed */
     UPLOADED = 1,
+    /**Submitted but not graded, submissions locked */
     SUBMITTED = 2,
+    /**Submitted, graded, and passed all tests */
     GRADED_PASS = 3,
+    /**Submitted, graded, and failed all tests */
     GRADED_FAIL = 4,
+    /**Submitted, graded, and only passed some tests */
     GRADED_PARTIAL = 5,
+    /**Error loading status */
     ERROR = 6
 }
 
@@ -629,6 +636,11 @@ export class ContestHost {
 
         this.updateUser(socket.username);
     }
+    /**
+     * Remove a previously-added username-linked SocketIO connection from the user list.
+     * @param {ServerSocket} socket SocketIO connection (with modifications)
+     * @returns {boolean} If the socket was previously within the list of connections
+     */
     removeSocket(socket: ServerSocket): boolean {
         if (this.#users.has(socket.username) && this.#users.get(socket.username)!.has(socket)) {
             socket.leave(this.#sid);
@@ -641,6 +653,10 @@ export class ContestHost {
     }
 
     #endListeners: Set<() => any> = new Set();
+    /**
+     * Stop the running contest and remove all users.
+     * @param {boolean} complete Mark the contest as ended in database (contest cannot be restarted)
+     */
     end(complete?: boolean) {
         if (this.#ended) return;
         this.#ended = true;
@@ -651,6 +667,10 @@ export class ContestHost {
         this.#users.forEach((s) => s.forEach((u) => this.removeSocket(u)));
         this.#endListeners.forEach((cb) => cb());
     }
+    /**
+     * Add a listener for when the contest ends.
+     * @param {() => any} cb Callback listener
+     */
     onended(cb: () => any) {
         this.#endListeners.add(cb);
     }

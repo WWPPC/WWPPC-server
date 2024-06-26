@@ -4,7 +4,6 @@ import path from 'path';
 import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
-import { reverse_enum } from './util';
 
 // verify environment variables exist
 if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
@@ -47,13 +46,13 @@ app.use(cookieParser());
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
-import { RSAAsymmetricEncryptionHandler, RSAEncrypted } from './util';
+import { reverse_enum, RSAAsymmetricEncryptionHandler, RSAEncrypted } from './util';
+import { validateRecaptcha } from './recaptcha';
 import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';
 import Database, { AccountData, AccountOpResult, TeamData, TeamOpResult } from './database';
 import ContestManager from './contest';
 import UpsolveManager from './upsolve';
-import { validateRecaptcha } from './recaptcha';
 import { createServerSocket } from './socket';
 
 const clientEncryption = new RSAAsymmetricEncryptionHandler(logger);
@@ -69,8 +68,7 @@ const database = new Database({
     uri: process.env.DATABASE_URL!,
     key: process.env.DATABASE_KEY!,
     sslCert: process.env.DATABASE_CERT,
-    logger: logger,
-    mailer: mailer
+    logger: logger
 });
 const io = new SocketIOServer(server, {
     path: '/web-socketio',

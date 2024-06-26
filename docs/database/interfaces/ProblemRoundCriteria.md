@@ -6,7 +6,7 @@
 
 # Interface: ProblemRoundCriteria
 
-Criteria to filter by. Leaving a value undefined removes the criteria
+Contest-based filter including contest, round, problem number, and round ID
 
 ## Properties
 
@@ -18,7 +18,7 @@ Contest ID
 
 #### Source
 
-[src/database.ts:1541](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1541)
+[src/database.ts:1538](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1538)
 
 ***
 
@@ -30,7 +30,7 @@ Zero-indexed problem number within the round
 
 #### Source
 
-[src/database.ts:1545](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1545)
+[src/database.ts:1542](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1542)
 
 ***
 
@@ -42,7 +42,7 @@ Zero-indexed round within the contest
 
 #### Source
 
-[src/database.ts:1543](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1543)
+[src/database.ts:1540](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1540)
 
 ***
 
@@ -54,4 +54,4 @@ Round ID
 
 #### Source
 
-[src/database.ts:1547](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1547)
+[src/database.ts:1544](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1544)

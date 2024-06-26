@@ -42,7 +42,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:290](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L290)
+[src/contest.ts:297](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L297)
 
 ## Properties
 
@@ -52,7 +52,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:276](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L276)
+[src/contest.ts:283](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L283)
 
 ***
 
@@ -62,7 +62,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:274](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L274)
+[src/contest.ts:281](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L281)
 
 ***
 
@@ -72,7 +72,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:643](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L643)
+[src/contest.ts:655](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L655)
 
 ***
 
@@ -82,7 +82,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:277](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L277)
+[src/contest.ts:284](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L284)
 
 ***
 
@@ -92,7 +92,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:275](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L275)
+[src/contest.ts:282](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L282)
 
 ***
 
@@ -102,7 +102,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:278](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L278)
+[src/contest.ts:285](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L285)
 
 ***
 
@@ -112,7 +112,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:279](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L279)
+[src/contest.ts:286](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L286)
 
 ***
 
@@ -122,7 +122,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:281](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L281)
+[src/contest.ts:288](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L288)
 
 ***
 
@@ -132,7 +132,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:270](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L270)
+[src/contest.ts:277](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L277)
 
 ***
 
@@ -142,7 +142,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:271](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L271)
+[src/contest.ts:278](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L278)
 
 ***
 
@@ -152,7 +152,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L268)
+[src/contest.ts:275](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L275)
 
 ***
 
@@ -162,7 +162,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:269](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L269)
+[src/contest.ts:276](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L276)
 
 ***
 
@@ -172,7 +172,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:273](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L273)
+[src/contest.ts:280](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L280)
 
 ***
 
@@ -182,7 +182,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:272](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L272)
+[src/contest.ts:279](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L279)
 
 ## Accessors
 
@@ -198,7 +198,7 @@ Get a copy of the internal data.
 
 #### Source
 
-[src/contest.ts:310](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L310)
+[src/contest.ts:317](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L317)
 
 ***
 
@@ -214,7 +214,7 @@ Index of the current round (zero-indexed).
 
 #### Source
 
-[src/contest.ts:431](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L431)
+[src/contest.ts:438](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L438)
 
 ## Methods
 
@@ -234,7 +234,7 @@ Index of the current round (zero-indexed).
 
 #### Source
 
-[src/contest.ts:522](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L522)
+[src/contest.ts:529](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L529)
 
 ***
 
@@ -256,7 +256,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/contest.ts:538](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L538)
+[src/contest.ts:545](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L545)
 
 ***
 
@@ -264,9 +264,13 @@ SocketIO connection (with modifications)
 
 > **end**(`complete`?): `void`
 
+Stop the running contest and remove all users.
+
 #### Parameters
 
 • **complete?**: `boolean`
+
+Mark the contest as ended in database (contest cannot be restarted)
 
 #### Returns
 
@@ -274,7 +278,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/contest.ts:644](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L644)
+[src/contest.ts:660](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L660)
 
 ***
 
@@ -282,9 +286,13 @@ SocketIO connection (with modifications)
 
 > **onended**(`cb`): `void`
 
+Add a listener for when the contest ends.
+
 #### Parameters
 
 • **cb**
+
+Callback listener
 
 #### Returns
 
@@ -292,7 +300,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/contest.ts:654](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L654)
+[src/contest.ts:674](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L674)
 
 ***
 
@@ -314,7 +322,7 @@ Problem ID
 
 #### Source
 
-[src/contest.ts:439](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L439)
+[src/contest.ts:446](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L446)
 
 ***
 
@@ -331,7 +339,7 @@ Will re-calculate the current round as well.
 
 #### Source
 
-[src/contest.ts:317](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L317)
+[src/contest.ts:324](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L324)
 
 ***
 
@@ -339,17 +347,23 @@ Will re-calculate the current round as well.
 
 > **removeSocket**(`socket`): `boolean`
 
+Remove a previously-added username-linked SocketIO connection from the user list.
+
 #### Parameters
 
 • **socket**: `ServerSocket`
+
+SocketIO connection (with modifications)
 
 #### Returns
 
 `boolean`
 
+If the socket was previously within the list of connections
+
 #### Source
 
-[src/contest.ts:632](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L632)
+[src/contest.ts:644](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L644)
 
 ***
 
@@ -365,7 +379,7 @@ Update all users in contest with latest contest data.
 
 #### Source
 
-[src/contest.ts:445](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L445)
+[src/contest.ts:452](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L452)
 
 ***
 
@@ -387,4 +401,4 @@ Username
 
 #### Source
 
-[src/contest.ts:452](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L452)
+[src/contest.ts:459](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L459)

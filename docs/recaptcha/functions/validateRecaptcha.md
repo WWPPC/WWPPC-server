@@ -28,4 +28,4 @@ Server response or error (if one occured during request)
 
 ## Source
 
-[src/recaptcha.ts:17](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/recaptcha.ts#L17)
+[src/recaptcha.ts:17](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/recaptcha.ts#L17)

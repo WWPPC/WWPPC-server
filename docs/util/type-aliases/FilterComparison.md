@@ -8,7 +8,59 @@
 
 > **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? `object` \| `object` \| `object` \| `T` \| `T`[] : `never`
 
-Flexible comparison type for filtering
+Flexible comparison type for filtering items. Allows for primitive comparisons (`=`, `!`),
+numerical comparisons (`>`, `<`, `>=`, `<=`), range comparisons (`><`, `<>`, `=><`, `><=`, `=><=`, `=<>`, `<>=`, `=<>=`),
+as well as list searches using `Array` values.
+
+### To be used with [filterCompare](../functions/filterCompare.md)
+
+### Matching
+
+```
+primitive | primitive[]
+```
+
+If the value is a `primitive`, [filterCompare](../functions/filterCompare.md) will check exact matches.
+
+If the value is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions/filterCompare.md) will check if the value is included in the array.
+
+### Generic Comparison
+
+```
+{
+    op: '=' | '!',
+    v: primitive | primitive[]
+}
+```
+
+If `v` is a `primitive`, [filterCompare](../functions/filterCompare.md) will check if the value exactly matches `v`.
+
+If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions/filterCompare.md) will check if the value is included in `v`.
+
+### Numerical Comparison
+
+```
+{
+    op: '>' | '<' | '>=' | '<='
+    v: number
+}
+```
+
+[filterCompare](../functions/filterCompare.md) will perform a numerical comparison with `v` using `op` on the value. That is, `inputValue` `op` `v`.
+
+### Range Comparison
+
+```
+{
+    op: '><' | '<>' | '=><' | '><=' | '=><=' | '=<>' | '<>=' | '=<>='
+    v1: number
+    v2: number
+}
+```
+
+[filterCompare](../functions/filterCompare.md) will perform two numerical comparisons using `v1` as the lower bound and `v2` as the upper bound for `op` on the value.
+
+`{ op: '=><', v1: 10, v2: 24 }` is satisfied within the range [10, 24) (i.e. greater than or equal to 10 and less than 24).
 
 ## Type parameters
 
@@ -16,4 +68,4 @@ Flexible comparison type for filtering
 
 ## Source
 
-[src/util.ts:71](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/util.ts#L71)
+[src/util.ts:131](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/util.ts#L131)

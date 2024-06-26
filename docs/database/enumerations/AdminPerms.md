@@ -14,9 +14,11 @@ Admin permission level bit flags
 
 > **ADMIN**: `1`
 
+Base admin permission; allows login
+
 #### Source
 
-[src/database.ts:1340](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1340)
+[src/database.ts:1337](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1337)
 
 ***
 
@@ -28,7 +30,7 @@ Create, delete, and modify accounts
 
 #### Source
 
-[src/database.ts:1342](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1342)
+[src/database.ts:1339](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1339)
 
 ***
 
@@ -40,7 +42,7 @@ Manage admin permissions
 
 #### Source
 
-[src/database.ts:1350](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1350)
+[src/database.ts:1347](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1347)
 
 ***
 
@@ -52,7 +54,7 @@ Edit contests and control ContestHost functions
 
 #### Source
 
-[src/database.ts:1346](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1346)
+[src/database.ts:1343](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1343)
 
 ***
 
@@ -60,11 +62,11 @@ Edit contests and control ContestHost functions
 
 > **MANAGE\_PROBLEMS**: `4`
 
-Edit all problems, including hidden ones
+Edit all problems, both contest and upsolve
 
 #### Source
 
-[src/database.ts:1344](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1344)
+[src/database.ts:1341](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1341)
 
 ***
 
@@ -76,4 +78,4 @@ View and disqualify submissions
 
 #### Source
 
-[src/database.ts:1348](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1348)
+[src/database.ts:1345](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1345)

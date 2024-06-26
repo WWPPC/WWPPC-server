@@ -18,13 +18,15 @@ Custom grading system that offloads grading to a network of other servers.
 
 • **app**: `Express`
 
-Express app (HTTP server) to attach api to
+Express app (HTTP server) to attach API to
 
 • **path**: `string`
 
-path of of API
+Path of API
 
 • **password**: `string`
+
+Global password for graders to authenticate with
 
 • **logger**: [`Logger`](../../log/interfaces/Logger.md)
 
@@ -40,7 +42,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:31](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L31)
+[src/grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L32)
 
 ## Properties
 
@@ -50,7 +52,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:13](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L13)
+[src/grader.ts:13](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L13)
 
 ***
 
@@ -60,7 +62,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:21](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L21)
+[src/grader.ts:21](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L21)
 
 ***
 
@@ -70,7 +72,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:19](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L19)
+[src/grader.ts:19](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L19)
 
 ***
 
@@ -80,7 +82,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:18](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L18)
+[src/grader.ts:18](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L18)
 
 ***
 
@@ -90,7 +92,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:23](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L23)
+[src/grader.ts:23](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L23)
 
 ***
 
@@ -100,7 +102,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L15)
+[src/grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L15)
 
 ***
 
@@ -110,7 +112,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L17)
+[src/grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L17)
 
 ***
 
@@ -120,7 +122,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L16)
+[src/grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L16)
 
 ## Methods
 
@@ -138,7 +140,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:253](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L253)
+[src/grader.ts:257](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L257)
 
 ***
 
@@ -164,7 +166,7 @@ ID or problem
 
 #### Source
 
-[src/grader.ts:226](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L226)
+[src/grader.ts:230](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L230)
 
 ***
 
@@ -180,7 +182,7 @@ Cancels all submissions and stops accepting submissions to the queue
 
 #### Source
 
-[src/grader.ts:269](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L269)
+[src/grader.ts:273](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L273)
 
 ***
 
@@ -204,4 +206,4 @@ New submission
 
 #### Source
 
-[src/grader.ts:208](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L208)
+[src/grader.ts:212](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L212)

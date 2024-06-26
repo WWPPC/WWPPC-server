@@ -14,7 +14,7 @@
 
 #### Source
 
-[src/contest.ts:193](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L193)
+[src/contest.ts:193](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L193)
 
 ***
 
@@ -24,7 +24,7 @@
 
 #### Source
 
-[src/contest.ts:197](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L197)
+[src/contest.ts:197](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L197)
 
 ***
 
@@ -34,7 +34,7 @@
 
 #### Source
 
-[src/contest.ts:192](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L192)
+[src/contest.ts:192](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L192)
 
 ***
 
@@ -44,7 +44,7 @@
 
 #### Source
 
-[src/contest.ts:194](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L194)
+[src/contest.ts:194](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L194)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Source
 
-[src/contest.ts:195](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L195)
+[src/contest.ts:195](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L195)
 
 ***
 
@@ -64,4 +64,4 @@
 
 #### Source
 
-[src/contest.ts:196](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L196)
+[src/contest.ts:196](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L196)

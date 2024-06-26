@@ -18,7 +18,7 @@ Author username of problem
 
 #### Source
 
-[src/database.ts:1556](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1556)
+[src/database.ts:1553](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1553)
 
 ***
 
@@ -26,11 +26,11 @@ Author username of problem
 
 > `optional` **contest**: [`ProblemRoundCriteria`](ProblemRoundCriteria.md)
 
-Round based filter for problems
+Contest-based filter including contest, round, problem number, and round ID
 
 #### Source
 
-[src/database.ts:1558](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1558)
+[src/database.ts:1555](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1555)
 
 ***
 
@@ -42,7 +42,7 @@ UUID of problem
 
 #### Source
 
-[src/database.ts:1552](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1552)
+[src/database.ts:1549](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1549)
 
 ***
 
@@ -54,4 +54,4 @@ Display name of problem
 
 #### Source
 
-[src/database.ts:1554](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1554)
+[src/database.ts:1551](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1551)

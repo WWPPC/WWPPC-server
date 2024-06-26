@@ -18,7 +18,7 @@ The submission was rejected because an error occured
 
 #### Source
 
-[src/contest.ts:261](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L261)
+[src/contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L268)
 
 ***
 
@@ -30,7 +30,7 @@ The submission was rejected because the file size was exceeded
 
 #### Source
 
-[src/contest.ts:255](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L255)
+[src/contest.ts:262](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L262)
 
 ***
 
@@ -42,7 +42,7 @@ The submission was rejected because the submission language is not acceptable
 
 #### Source
 
-[src/contest.ts:257](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L257)
+[src/contest.ts:264](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L264)
 
 ***
 
@@ -54,7 +54,7 @@ The submission was rejected because the target problem is not open to submission
 
 #### Source
 
-[src/contest.ts:259](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L259)
+[src/contest.ts:266](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L266)
 
 ***
 
@@ -66,4 +66,4 @@ The submission was accepted
 
 #### Source
 
-[src/contest.ts:253](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L253)
+[src/contest.ts:260](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L260)

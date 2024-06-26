@@ -23,8 +23,9 @@ export class Grader {
     #ungradedSubmissions: SubmissionWithCallback[] = [];
 
     /**
-     * @param {Express} app Express app (HTTP server) to attach api to
-     * @param {string} path path of of API
+     * @param {Express} app Express app (HTTP server) to attach API to
+     * @param {string} path Path of API
+     * @param {string} password Global password for graders to authenticate with
      * @param {Logger} logger Logger instance
      * @param {Database} db Database connection
      */
@@ -153,7 +154,10 @@ export class Grader {
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
                 return;
             }
-            node.grading.submission.scores = (req.body.scores as Score[]).map<Score>((s) => ({
+
+            // don't modify so as to not accidentally mess with other code
+            const returnedSubmission = structuredClone(node.grading.submission);
+            returnedSubmission.scores = (req.body.scores as Score[]).map<Score>((s) => ({
                 state: s.state,
                 time: s.time,
                 memory: s.memory,
@@ -163,7 +167,7 @@ export class Grader {
             try {
                 if (node.grading.callback) {
                     if (node.grading.cancelled) node.grading.callback(null);
-                    else node.grading.callback(node.grading.submission);
+                    else node.grading.callback(returnedSubmission);
                 }
             } catch (err) {
                 this.logger.handleError('Error occured in submission callback:', err);
@@ -211,7 +215,7 @@ export class Grader {
             return;
         }
         this.#ungradedSubmissions.push({
-            submission: submission,
+            submission: structuredClone(submission),
             returnCount: 0,
             callback: cb,
             cancelled: false
@@ -279,10 +283,17 @@ export class Grader {
     }
 }
 
+/**
+ * Internal submission of `Grader` class.
+ */
 export interface SubmissionWithCallback {
+    /**The submission itself */
     submission: Submission
+    /**Function supplied by queueUngraded to send submission to after grading is finished/cancelled */
     callback?: (graded: Submission | null) => any
+    /**How many times the grading servers have failed grading this (returned) */
     returnCount: number
+    /**If the submission was cancelled */
     cancelled: boolean
 }
 
@@ -294,7 +305,7 @@ export interface GraderNode {
     grading: SubmissionWithCallback | undefined
     /**Deadline to return the submission (unix ms) */
     deadline: number
-    /**Last time we communicated with this judgehost (unix ms) */
+    /**Last time we communicated with this grader (unix ms) */
     lastCommunication: number
 }
 

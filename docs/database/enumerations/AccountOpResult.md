@@ -18,7 +18,7 @@ The operation failed because database cannot not overwrite existing account
 
 #### Source
 
-[src/database.ts:1307](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1307)
+[src/database.ts:1303](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1303)
 
 ***
 
@@ -30,7 +30,7 @@ The operation failed because of an unexpected issue
 
 #### Source
 
-[src/database.ts:1313](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1313)
+[src/database.ts:1309](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1309)
 
 ***
 
@@ -42,7 +42,7 @@ The operation failed because of an authentication failure
 
 #### Source
 
-[src/database.ts:1311](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1311)
+[src/database.ts:1307](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1307)
 
 ***
 
@@ -54,7 +54,7 @@ The operation failed because the requested account does not exist
 
 #### Source
 
-[src/database.ts:1309](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1309)
+[src/database.ts:1305](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1305)
 
 ***
 
@@ -66,7 +66,7 @@ The operation failed because the RSA-OAEP keys expired
 
 #### Source
 
-[src/database.ts:1315](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1315)
+[src/database.ts:1311](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1311)
 
 ***
 
@@ -78,4 +78,4 @@ The operation was completed successfully
 
 #### Source
 
-[src/database.ts:1305](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1305)
+[src/database.ts:1301](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1301)

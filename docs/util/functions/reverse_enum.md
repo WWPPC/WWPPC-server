@@ -6,11 +6,13 @@
 
 # Function: reverse\_enum()
 
-> **reverse\_enum**(`enumerator`, `v`): `string`
+> **reverse\_enum**(`enumeration`, `v`): `string`
+
+Look up the name of an enumeration based on the value
 
 ## Parameters
 
-• **enumerator**: `any`
+• **enumeration**: `any`
 
 • **v**: `any`
 
@@ -20,4 +22,4 @@
 
 ## Source
 
-[src/util.ts:121](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/util.ts#L121)
+[src/util.ts:212](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/util.ts#L212)

@@ -6,11 +6,15 @@
 
 # Interface: SubmissionWithCallback
 
+Internal submission of `Grader` class.
+
 ## Properties
 
 ### callback()?
 
 > `optional` **callback**: (`graded`) => `any`
+
+Function supplied by queueUngraded to send submission to after grading is finished/cancelled
 
 #### Parameters
 
@@ -22,7 +26,7 @@
 
 #### Source
 
-[src/grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L284)
+[src/grader.ts:293](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L293)
 
 ***
 
@@ -30,9 +34,11 @@
 
 > **cancelled**: `boolean`
 
+If the submission was cancelled
+
 #### Source
 
-[src/grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L286)
+[src/grader.ts:297](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L297)
 
 ***
 
@@ -40,9 +46,11 @@
 
 > **returnCount**: `number`
 
+How many times the grading servers have failed grading this (returned)
+
 #### Source
 
-[src/grader.ts:285](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L285)
+[src/grader.ts:295](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L295)
 
 ***
 
@@ -50,6 +58,8 @@
 
 > **submission**: [`Submission`](../../database/interfaces/Submission.md)
 
+The submission itself
+
 #### Source
 
-[src/grader.ts:283](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/grader.ts#L283)
+[src/grader.ts:291](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/grader.ts#L291)

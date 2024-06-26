@@ -12,9 +12,11 @@
 
 > **ERROR**: `6`
 
+Error loading status
+
 #### Source
 
-[src/contest.ts:247](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L247)
+[src/contest.ts:254](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L254)
 
 ***
 
@@ -22,9 +24,11 @@
 
 > **GRADED\_FAIL**: `4`
 
+Submitted, graded, and failed all tests
+
 #### Source
 
-[src/contest.ts:245](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L245)
+[src/contest.ts:250](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L250)
 
 ***
 
@@ -32,9 +36,11 @@
 
 > **GRADED\_PARTIAL**: `5`
 
+Submitted, graded, and only passed some tests
+
 #### Source
 
-[src/contest.ts:246](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L246)
+[src/contest.ts:252](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L252)
 
 ***
 
@@ -42,9 +48,11 @@
 
 > **GRADED\_PASS**: `3`
 
+Submitted, graded, and passed all tests
+
 #### Source
 
-[src/contest.ts:244](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L244)
+[src/contest.ts:248](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L248)
 
 ***
 
@@ -52,9 +60,11 @@
 
 > **NOT\_UPLOADED**: `0`
 
+Not attempted
+
 #### Source
 
-[src/contest.ts:241](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L241)
+[src/contest.ts:242](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L242)
 
 ***
 
@@ -62,9 +72,11 @@
 
 > **SUBMITTED**: `2`
 
+Submitted but not graded, submissions locked
+
 #### Source
 
-[src/contest.ts:243](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L243)
+[src/contest.ts:246](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L246)
 
 ***
 
@@ -72,6 +84,8 @@
 
 > **UPLOADED**: `1`
 
+Uploaded but not graded, can still be changed
+
 #### Source
 
-[src/contest.ts:242](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/contest.ts#L242)
+[src/contest.ts:244](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L244)

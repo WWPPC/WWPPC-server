@@ -19,8 +19,6 @@ export interface DatabaseConstructorParams {
     sslCert?: string | Buffer
     /**Logging instance */
     logger: Logger
-    /**Nodemailer wrapper instance */
-    mailer: Mailer
 }
 
 /**
@@ -35,16 +33,14 @@ export class Database {
     readonly #db: Client;
     readonly #dbKey: Buffer;
     readonly logger: NamedLogger;
-    readonly mailer: Mailer;
     readonly #cacheGarbageCollector: NodeJS.Timeout;
 
     /**
      * @param params Parameters
      */
-    constructor({ uri, key, sslCert, logger, mailer }: DatabaseConstructorParams) {
+    constructor({ uri, key, sslCert, logger }: DatabaseConstructorParams) {
         const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
-        this.mailer = mailer;
         this.connectPromise = new Promise(() => undefined);
         this.#dbKey = key instanceof Buffer ? key : Buffer.from(key, 'base64');
         this.#db = new Client({
@@ -202,8 +198,8 @@ export class Database {
         };
     }
 
-    #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
-    #teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
+    readonly #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
+    readonly #teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
@@ -811,7 +807,7 @@ export class Database {
         }
     }
 
-    #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
+    readonly #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
      * Check if an administrator has a certain permission.
      * @param {string} username Valid administrator username
@@ -888,7 +884,7 @@ export class Database {
         }
     }
 
-    #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
+    readonly #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
      * Filter and get a list of contest data from the contests table according to a criteria.
      * @param {ReadContestsCriteria} c Filter criteria. Leaving one undefined removes the criteria
@@ -971,7 +967,7 @@ export class Database {
         }
     }
 
-    #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
+    readonly #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
      * Filter and get a list of round data from the rounds table according to a criteria.
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criteria
@@ -1057,10 +1053,10 @@ export class Database {
         }
     }
 
-    #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
+    readonly #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Filter and get a list of problems from the problems table according to a criteria.
-     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criterion
+     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criteria
      * @returns {Problem[] | null} Array of problems matching the filter criteria. If the query failed the returned value is `null`
      */
     async readProblems(c: ReadProblemsCriteria = {}): Promise<Problem[] | null> {
@@ -1152,10 +1148,10 @@ export class Database {
         }
     }
 
-    #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
+    readonly #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Filter and get a list of submissions from the submissions table according to a criteria.
-     * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criterion
+     * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criteria
      * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
      */
     async readSubmissions(c: ReadSubmissionsCriteria = {}): Promise<Submission[] | null> {
@@ -1337,10 +1333,11 @@ export enum TeamOpResult {
 
 /**Admin permission level bit flags */
 export enum AdminPerms {
+    /**Base admin permission; allows login */
     ADMIN = 1,
     /**Create, delete, and modify accounts */
     MANAGE_ACCOUNTS = 1 << 1,
-    /**Edit all problems, including hidden ones */
+    /**Edit all problems, both contest and upsolve */
     MANAGE_PROBLEMS = 1 << 2,
     /**Edit contests and control ContestHost functions */
     MANAGE_CONTESTS = 1 << 3,
@@ -1535,7 +1532,7 @@ export interface ReadRoundsCriteria {
     /**End of round, UNIX time */
     endTime?: FilterComparison<number>
 }
-/**Criteria to filter by. Leaving a value undefined removes the criteria */
+/**Contest-based filter including contest, round, problem number, and round ID */
 export interface ProblemRoundCriteria {
     /**Contest ID */
     contest?: FilterComparison<string>
@@ -1554,7 +1551,7 @@ export interface ReadProblemsCriteria {
     name?: FilterComparison<string>
     /**Author username of problem */
     author?: FilterComparison<string>
-    /**Round based filter for problems */
+    /**{@inheritDoc ProblemRoundCriteria} */
     contest?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
@@ -1563,7 +1560,7 @@ export interface ReadSubmissionsCriteria {
     id?: FilterComparison<UUID>
     /**Username of submitter */
     username?: FilterComparison<string>
-    /**Round-based filter for problems */
+    /**{@inheritDoc ProblemRoundCriteria} */
     contest?: ProblemRoundCriteria
     /**Time of submission */
     time?: FilterComparison<number>

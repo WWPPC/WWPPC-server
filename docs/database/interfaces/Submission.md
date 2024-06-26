@@ -18,7 +18,7 @@ If the submission was submitted through the upsolve system
 
 #### Source
 
-[src/database.ts:1492](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1492)
+[src/database.ts:1489](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1489)
 
 ***
 
@@ -30,7 +30,7 @@ Contents of the submission file
 
 #### Source
 
-[src/database.ts:1477](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1477)
+[src/database.ts:1474](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1474)
 
 ***
 
@@ -42,7 +42,7 @@ Shortened list of previous submissions and their results, without content (incre
 
 #### Source
 
-[src/database.ts:1483](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1483)
+[src/database.ts:1480](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1480)
 
 ***
 
@@ -54,7 +54,7 @@ Submission language
 
 #### Source
 
-[src/database.ts:1479](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1479)
+[src/database.ts:1476](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1476)
 
 ***
 
@@ -66,7 +66,7 @@ UUID of problem submitted to
 
 #### Source
 
-[src/database.ts:1473](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1473)
+[src/database.ts:1470](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1470)
 
 ***
 
@@ -78,7 +78,7 @@ Resulting scores of the submission
 
 #### Source
 
-[src/database.ts:1481](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1481)
+[src/database.ts:1478](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1478)
 
 ***
 
@@ -90,7 +90,7 @@ Time of submission, UNIX milliseconds
 
 #### Source
 
-[src/database.ts:1475](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1475)
+[src/database.ts:1472](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1472)
 
 ***
 
@@ -102,4 +102,4 @@ Username of submitter
 
 #### Source
 
-[src/database.ts:1471](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1471)
+[src/database.ts:1468](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1468)

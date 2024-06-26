@@ -16,7 +16,7 @@ AES-256 GCM 32-byte key (base64 string)
 
 #### Source
 
-[src/database.ts:17](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L17)
+[src/database.ts:17](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L17)
 
 ***
 
@@ -28,19 +28,7 @@ Logging instance
 
 #### Source
 
-[src/database.ts:21](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L21)
-
-***
-
-### mailer
-
-> **mailer**: [`Mailer`](../../email/classes/Mailer.md)
-
-Nodemailer wrapper instance
-
-#### Source
-
-[src/database.ts:23](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L23)
+[src/database.ts:21](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L21)
 
 ***
 
@@ -52,7 +40,7 @@ Optional SSL Certificate
 
 #### Source
 
-[src/database.ts:19](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L19)
+[src/database.ts:19](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L19)
 
 ***
 
@@ -64,4 +52,4 @@ Valid PostgreSQL connection URI (postgresql://username:password@host:port/databa
 
 #### Source
 
-[src/database.ts:15](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L15)
+[src/database.ts:15](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L15)

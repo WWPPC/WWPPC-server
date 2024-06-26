@@ -18,7 +18,7 @@ If the submission was submitted through the upsolve system
 
 #### Source
 
-[src/database.ts:1571](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1571)
+[src/database.ts:1568](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1568)
 
 ***
 
@@ -26,11 +26,11 @@ If the submission was submitted through the upsolve system
 
 > `optional` **contest**: [`ProblemRoundCriteria`](ProblemRoundCriteria.md)
 
-Round-based filter for problems
+Contest-based filter including contest, round, problem number, and round ID
 
 #### Source
 
-[src/database.ts:1567](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1567)
+[src/database.ts:1564](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1564)
 
 ***
 
@@ -42,7 +42,7 @@ UUID of problem
 
 #### Source
 
-[src/database.ts:1563](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1563)
+[src/database.ts:1560](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1560)
 
 ***
 
@@ -54,7 +54,7 @@ Time of submission
 
 #### Source
 
-[src/database.ts:1569](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1569)
+[src/database.ts:1566](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1566)
 
 ***
 
@@ -66,4 +66,4 @@ Username of submitter
 
 #### Source
 
-[src/database.ts:1565](https://github.com/WWPPC/WWPPC-server/blob/5af5647ee3617fa27e87b8a991f7e99d942ffb71/src/database.ts#L1565)
+[src/database.ts:1562](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1562)
