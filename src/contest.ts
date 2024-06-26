@@ -157,6 +157,7 @@ export class ContestManager {
         const removeSocket = () => {
             socket.removeAllListeners('registerContest');
             socket.removeAllListeners('unregisterContest');
+            socket.removeAllListeners('getSubmissionCode');
             this.#sockets.delete(socket);
         };
         this.#sockets.add(socket);
@@ -365,7 +366,7 @@ export class ContestHost {
         const submissions: Submission[][] = [];
         for (let i = 0; i < rounds.length; i++) {
             this.scorer.setRound(i);
-            const subs = await this.db.readSubmissions({ id: rounds[i].problems, username: users });
+            const subs = await this.db.readSubmissions({ id: rounds[i].problems, username: users, analysis: false });
             if (subs === null) {
                 this.logger.error(`Database error`);
                 this.end();
@@ -546,6 +547,7 @@ export class ContestHost {
 
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
+        socket.removeAllListeners('getSubmissionCode');
         socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
             if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid updateSubmission payload');
@@ -609,6 +611,20 @@ export class ContestHost {
             // update whole team
             teamData.members.forEach((username) => this.updateUser(username));
             this.logger.info(`Accepted submission for ${data.id} by ${socket.username} (team ${teamData.id})`);
+        });
+        socket.on('getSubmissionCode', async (data: { id: string }, cb: (res: string) => any) => {
+            if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
+                socket.kick('invalid getSubmissionCode payload');
+                return;
+            }
+            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Fetch submission code: ' + data.id);
+            const teamData = await this.db.getTeamData(socket.username);
+            if (typeof teamData != 'object') {
+                cb('');
+                return;
+            }
+            const submission = await this.db.readSubmissions({ username: teamData.id, id: data.id, analysis: false });
+            cb(submission?.at(0)?.file ?? '');
         });
 
         this.updateUser(socket.username);

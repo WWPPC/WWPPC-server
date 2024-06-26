@@ -123,6 +123,7 @@ export class UpsolveManager {
         // new event handlers
         socket.removeAllListeners('updateUpsolveSubmission');
         socket.removeAllListeners('refreshUpsolveSubmission');
+        socket.removeAllListeners('getUpsolveSubmissionCode');
         socket.on('updateUpsolveSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
             if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid updateUpsolveSubmission payload');
@@ -184,6 +185,15 @@ export class UpsolveManager {
             const submissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
             if (submissions != null && submissions.length > 0) cb(this.#mapSubmissions(submissions[0]));
             else cb([]);
+        });
+        socket.on('getUpsolveSubmissionCode', async (data: { id: string }, cb: (res: string) => any) => {
+            if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
+                socket.kick('invalid getUpsolveSubmissionCode payload');
+                return;
+            }
+            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Fetch submission code: ' + data.id);
+            const submission = await this.db.readSubmissions({ username: socket.username, id: data.id, analysis: true });
+            cb(submission?.at(0)?.file ?? '');
         });
 
         const removeSocket = () => {
