@@ -18,9 +18,10 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     const sessionTokens = new Map<string, string>();
     logger.info(`Attaching admin portal to /admin/ (served from ${process.env.ADMIN_PORTAL_PATH})`);
 
+    // require authentication for everything except a few assets and login screen
+    const alwaysAllowedPaths = ['login', 'assets/fonts.css', 'assets/common.css', 'assets/Jura.ttf', 'assets/SourceCodePro.ttf', 'assets/icon.svg', 'assets/favicon.png'].map(p => '/admin/' + p);
     app.use('/admin/*', (req, res, next) => {
-        // require authentication for everything except the login screen
-        if (req.baseUrl == '/admin/login') next();
+        if (alwaysAllowedPaths.includes(req.baseUrl)) next();
         else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect('/admin/login');
         else next();
     });
