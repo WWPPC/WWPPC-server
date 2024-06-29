@@ -915,7 +915,8 @@ export class Database {
                     { name: 'id', value: c.id != undefined ? contestIdList : undefined },
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime },
-                    { name: 'public', value: c.public }
+                    { name: 'public', value: c.public },
+                    { name: 'type', value: c.type }
                 ]);
                 const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
                 for (const contest of data.rows) {
@@ -926,7 +927,8 @@ export class Database {
                         maxTeamSize: contest.maxteamsize,
                         startTime: Number(contest.starttime),
                         endTime: Number(contest.endtime),
-                        public: contest.public
+                        public: contest.public,
+                        type: contest.type
                     };
                     this.#contestCache.set(contest.id, {
                         contest: structuredClone(co),
@@ -951,9 +953,9 @@ export class Database {
     async writeContest(contest: Contest): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize];
-            const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize) VALUES ($1, $2, $3, $4)', data);
+            const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize, contest.startTime, contest.endTime, contest.public, contest.type];
+            const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4, starttime=$5, endtime=$6, public=$7, type=$8 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize, starttime, endtime, public, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
             this.#contestCache.set(contest.id, {
                 contest: structuredClone(contest),
                 expiration: performance.now() + config.dbCacheTime
@@ -1430,8 +1432,17 @@ export interface Contest {
     startTime: number
     /**Time of contest end, UNIX */
     endTime: number
-    /**If the contest is publicly visible once archived */
+    /**If the contest is publicly archived once finished */
     public: boolean
+    /**The tournament the contest is part of */
+    type: ContestType
+}
+/**The tournament the contest is part of */
+export enum ContestType {
+    WWPIT = 0,
+    WWPHacks = 1,
+    WWPMI = 2,
+    WWPMT = 3
 }
 /**Descriptor for a single round */
 export interface Round {
@@ -1516,8 +1527,10 @@ export interface ReadContestsCriteria {
     startTime?: FilterComparison<number>
     /**End of contest, UNIX time */
     endTime?: FilterComparison<number>
-    /**If the contest is publicly visible once archived */
+    /**If the contest is publicly archived once finished */
     public?: boolean
+    /**The tournament the contest is part of */
+    type?: ContestType
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadRoundsCriteria {

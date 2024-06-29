@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import config from './config';
 import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './contest';
-import Database, { Score, ScoreState, Submission, TeamOpResult } from './database';
+import Database, { ContestType, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { ServerSocket } from './socket';
@@ -34,7 +34,11 @@ export class UpsolveManager {
         this.grader = new Grader(app, '/upsolve-judge', process.env.GRADER_PASS, logger, db);
         // attach api
         this.app.get('/api/upsolveContestList', async (req, res) => {
-            const contests = await this.db.readContests({ endTime: { op: '<', v: Date.now() }, public: true });
+            const contests = await this.db.readContests({
+                endTime: { op: '<', v: Date.now() },
+                public: true,
+                type: ContestType.WWPIT
+            });
             if (contests == null) {
                 res.sendStatus(500);
                 return;
@@ -129,7 +133,7 @@ export class UpsolveManager {
                 socket.kick('invalid updateUpsolveSubmission payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Upsolve submission: ' + data.id);
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + data.id);
             const respond = (res: ContestUpdateSubmissionResult) => {
                 if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
                 cb(res);

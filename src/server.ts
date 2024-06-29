@@ -77,7 +77,7 @@ const io = new SocketIOServer(server, {
 const contestManager = new ContestManager(database, app, io, logger);
 const upsolveManager = new UpsolveManager(database, app, logger);
 
-// api endpoints
+// general api endpoints
 app.get('/api/config', (req, res) => {
     res.json({
         maxProfileImgSize: config.maxProfileImgSize,
@@ -104,11 +104,6 @@ app.get('/api/teamData/:username', async (req, res) => {
         data2.joinCode = '';
         res.json(data2);
     }
-});
-app.get('/api/contestList', async (req, res) => {
-    const data = await database.readContests({ startTime: { op: '>', v: Date.now() } });
-    if (data === null) res.sendStatus(500);
-    else res.json(data);
 });
 // reserve /api path
 app.use('/api/*', (req, res) => res.sendStatus(404));

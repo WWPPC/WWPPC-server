@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
+import { AccountOpResult, ContestType, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -40,6 +40,12 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = new Grader(app, '/judge', process.env.GRADER_PASS, logger, db);
+        this.app.get('/api/contestList', async (req, res) => {
+            const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
+            if (data === null) res.sendStatus(500);
+            else res.json(data);
+        });
+        // auto-starting contest
         let reading = false;
         this.#updateLoop = setInterval(async () => {
             if (reading) return;
@@ -47,7 +53,8 @@ export class ContestManager {
             // start any contests that haven't been started
             const contests = await this.db.readContests({
                 startTime: { op: '>=', v: Date.now() },
-                endTime: { op: '<', v: Date.now() }
+                endTime: { op: '<', v: Date.now() },
+                type: ContestType.WWPIT
             });
             if (contests == null) {
                 this.logger.error('Could not read contest list!');
