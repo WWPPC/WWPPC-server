@@ -16,7 +16,7 @@ Error loading status
 
 #### Source
 
-[src/contest.ts:254](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L254)
+[src/contest.ts:261](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L261)
 
 ***
 
@@ -28,7 +28,7 @@ Submitted, graded, and failed all tests
 
 #### Source
 
-[src/contest.ts:250](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L250)
+[src/contest.ts:257](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L257)
 
 ***
 
@@ -40,7 +40,7 @@ Submitted, graded, and only passed some tests
 
 #### Source
 
-[src/contest.ts:252](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L252)
+[src/contest.ts:259](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L259)
 
 ***
 
@@ -52,7 +52,7 @@ Submitted, graded, and passed all tests
 
 #### Source
 
-[src/contest.ts:248](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L248)
+[src/contest.ts:255](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L255)
 
 ***
 
@@ -64,7 +64,7 @@ Not attempted
 
 #### Source
 
-[src/contest.ts:242](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L242)
+[src/contest.ts:249](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L249)
 
 ***
 
@@ -76,7 +76,7 @@ Submitted but not graded, submissions locked
 
 #### Source
 
-[src/contest.ts:246](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L246)
+[src/contest.ts:253](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L253)
 
 ***
 
@@ -88,4 +88,4 @@ Uploaded but not graded, can still be changed
 
 #### Source
 
-[src/contest.ts:244](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/contest.ts#L244)
+[src/contest.ts:251](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L251)

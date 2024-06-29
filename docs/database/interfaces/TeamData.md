@@ -18,7 +18,7 @@ Team's biography
 
 #### Source
 
-[src/database.ts:1412](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1412)
+[src/database.ts:1414](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1414)
 
 ***
 
@@ -30,7 +30,7 @@ The unique team id which is the team owner/creator's username
 
 #### Source
 
-[src/database.ts:1408](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1408)
+[src/database.ts:1410](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1410)
 
 ***
 
@@ -42,7 +42,7 @@ Numerical join code
 
 #### Source
 
-[src/database.ts:1416](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1416)
+[src/database.ts:1418](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1418)
 
 ***
 
@@ -54,7 +54,7 @@ List of usernames of team members
 
 #### Source
 
-[src/database.ts:1414](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1414)
+[src/database.ts:1416](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1416)
 
 ***
 
@@ -66,4 +66,4 @@ The name of the team
 
 #### Source
 
-[src/database.ts:1410](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L1410)
+[src/database.ts:1412](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1412)

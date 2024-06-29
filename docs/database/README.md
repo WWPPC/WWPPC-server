@@ -12,6 +12,7 @@
 
 - [AccountOpResult](enumerations/AccountOpResult.md)
 - [AdminPerms](enumerations/AdminPerms.md)
+- [ContestType](enumerations/ContestType.md)
 - [ScoreState](enumerations/ScoreState.md)
 - [TeamOpResult](enumerations/TeamOpResult.md)
 

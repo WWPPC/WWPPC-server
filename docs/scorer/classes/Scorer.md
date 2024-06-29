@@ -27,7 +27,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:23](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L23)
+[src/scorer.ts:23](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L23)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:14](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L14)
+[src/scorer.ts:14](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L14)
 
 ***
 
@@ -47,7 +47,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L13)
+[src/scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L13)
 
 ***
 
@@ -57,7 +57,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:17](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L17)
+[src/scorer.ts:17](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L17)
 
 ***
 
@@ -67,7 +67,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:12](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L12)
+[src/scorer.ts:12](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L12)
 
 ***
 
@@ -77,7 +77,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:21](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L21)
+[src/scorer.ts:21](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L21)
 
 ***
 
@@ -87,7 +87,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L10)
+[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L10)
 
 ## Methods
 
@@ -106,7 +106,7 @@ Mapping of username to score
 
 #### Source
 
-[src/scorer.ts:87](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L87)
+[src/scorer.ts:87](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L87)
 
 ***
 
@@ -124,7 +124,7 @@ mapping of username to score
 
 #### Source
 
-[src/scorer.ts:156](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L156)
+[src/scorer.ts:156](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L156)
 
 ***
 
@@ -146,7 +146,7 @@ Contest round data
 
 #### Source
 
-[src/scorer.ts:33](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L33)
+[src/scorer.ts:33](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L33)
 
 ***
 
@@ -168,7 +168,7 @@ Round number
 
 #### Source
 
-[src/scorer.ts:41](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L41)
+[src/scorer.ts:41](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L41)
 
 ***
 
@@ -193,4 +193,4 @@ whether it was successful
 
 #### Source
 
-[src/scorer.ts:53](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/scorer.ts#L53)
+[src/scorer.ts:53](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L53)

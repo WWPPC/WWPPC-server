@@ -104,4 +104,4 @@
 
 ## Source
 
-[src/config.ts:18](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/config.ts#L18)
+[src/config.ts:18](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/config.ts#L18)

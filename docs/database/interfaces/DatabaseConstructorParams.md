@@ -16,7 +16,7 @@ AES-256 GCM 32-byte key (base64 string)
 
 #### Source
 
-[src/database.ts:17](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L17)
+[src/database.ts:17](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L17)
 
 ***
 
@@ -28,7 +28,7 @@ Logging instance
 
 #### Source
 
-[src/database.ts:21](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L21)
+[src/database.ts:21](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L21)
 
 ***
 
@@ -40,7 +40,7 @@ Optional SSL Certificate
 
 #### Source
 
-[src/database.ts:19](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L19)
+[src/database.ts:19](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L19)
 
 ***
 
@@ -52,4 +52,4 @@ Valid PostgreSQL connection URI (postgresql://username:password@host:port/databa
 
 #### Source
 
-[src/database.ts:15](https://github.com/WWPPC/WWPPC-server/blob/2f411756995c4ec8bd83114e0be6e407a493af19/src/database.ts#L15)
+[src/database.ts:15](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L15)
