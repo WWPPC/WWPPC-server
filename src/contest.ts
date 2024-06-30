@@ -43,7 +43,7 @@ export class ContestManager {
         this.app.get('/api/contestList', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);
-            else res.json(data);
+            else res.json(data.map((item) => item.id));
         });
         // auto-starting contest
         let reading = false;
