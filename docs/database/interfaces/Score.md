@@ -18,7 +18,7 @@ Memory used in megabytes
 
 #### Source
 
-[src/database.ts:1509](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1509)
+[src/database.ts:1475](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1475)
 
 ***
 
@@ -30,7 +30,7 @@ Pass/fail status
 
 #### Source
 
-[src/database.ts:1505](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1505)
+[src/database.ts:1471](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1471)
 
 ***
 
@@ -42,7 +42,7 @@ Denotes which subtask to be part of
 
 #### Source
 
-[src/database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1511)
+[src/database.ts:1477](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1477)
 
 ***
 
@@ -54,4 +54,4 @@ Time used in milliseconds
 
 #### Source
 
-[src/database.ts:1507](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1507)
+[src/database.ts:1473](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1473)

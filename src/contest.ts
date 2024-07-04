@@ -31,15 +31,15 @@ export class ContestManager {
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
      * @param {SocketIOServer} io Socket.IO server
+     * @param {string} graderPassword Global password for graders to authenticate with
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, io: SocketIOServer, logger: Logger) {
-        if (process.env.GRADER_PASS == undefined) throw new Error('Missing grader password!');
+    constructor(db: Database, app: Express, io: SocketIOServer, graderPassword: string, logger: Logger) {
         this.db = db;
         this.app = app;
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
-        this.#grader = new Grader(app, '/judge', process.env.GRADER_PASS, logger, db);
+        this.#grader = new Grader(app, '/judge', graderPassword, logger, db);
         this.app.get('/api/contestList', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);

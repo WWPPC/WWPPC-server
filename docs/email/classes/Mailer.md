@@ -26,7 +26,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L39)
+[src/email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L39)
 
 ## Properties
 
@@ -36,7 +36,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:32](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L32)
+[src/email.ts:32](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L32)
 
 ***
 
@@ -46,7 +46,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:33](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L33)
+[src/email.ts:33](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L33)
 
 ***
 
@@ -56,7 +56,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:34](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L34)
+[src/email.ts:34](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L34)
 
 ***
 
@@ -66,7 +66,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:31](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L31)
+[src/email.ts:31](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L31)
 
 ***
 
@@ -76,7 +76,7 @@ Parameters
 
 #### Source
 
-[src/email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L30)
+[src/email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L30)
 
 ## Methods
 
@@ -92,7 +92,7 @@ Disconnect from the SMTP server.
 
 #### Source
 
-[src/email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L179)
+[src/email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L179)
 
 ***
 
@@ -128,7 +128,7 @@ Plaintext version of email
 
 #### Source
 
-[src/email.ts:103](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L103)
+[src/email.ts:103](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L103)
 
 ***
 
@@ -168,4 +168,4 @@ Plaintext version (does not use template)
 
 #### Source
 
-[src/email.ts:139](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/email.ts#L139)
+[src/email.ts:139](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/email.ts#L139)

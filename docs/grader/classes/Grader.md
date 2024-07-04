@@ -42,7 +42,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L32)
+[src/grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L32)
 
 ## Properties
 
@@ -52,7 +52,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:13](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L13)
+[src/grader.ts:13](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L13)
 
 ***
 
@@ -62,7 +62,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:21](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L21)
+[src/grader.ts:21](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L21)
 
 ***
 
@@ -72,7 +72,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:19](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L19)
+[src/grader.ts:19](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L19)
 
 ***
 
@@ -82,7 +82,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:18](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L18)
+[src/grader.ts:18](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L18)
 
 ***
 
@@ -92,7 +92,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:23](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L23)
+[src/grader.ts:23](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L23)
 
 ***
 
@@ -102,7 +102,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L15)
+[src/grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L15)
 
 ***
 
@@ -112,7 +112,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L17)
+[src/grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L17)
 
 ***
 
@@ -122,7 +122,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L16)
+[src/grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L16)
 
 ## Methods
 
@@ -140,7 +140,7 @@ Database connection
 
 #### Source
 
-[src/grader.ts:257](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L257)
+[src/grader.ts:257](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L257)
 
 ***
 
@@ -166,7 +166,7 @@ ID or problem
 
 #### Source
 
-[src/grader.ts:230](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L230)
+[src/grader.ts:230](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L230)
 
 ***
 
@@ -182,7 +182,7 @@ Cancels all submissions and stops accepting submissions to the queue
 
 #### Source
 
-[src/grader.ts:273](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L273)
+[src/grader.ts:273](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L273)
 
 ***
 
@@ -206,4 +206,4 @@ New submission
 
 #### Source
 
-[src/grader.ts:212](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/grader.ts#L212)
+[src/grader.ts:212](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/grader.ts#L212)
