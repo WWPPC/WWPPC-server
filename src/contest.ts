@@ -9,7 +9,6 @@ import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
 import { ServerSocket } from './socket';
 import { isUUID, reverse_enum, UUID } from './util';
-import { Client } from 'pg';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.

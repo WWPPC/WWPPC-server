@@ -18,7 +18,7 @@ Contest ID
 
 #### Source
 
-[src/database.ts:1517](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1517)
+[src/database.ts:1518](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1518)
 
 ***
 
@@ -30,7 +30,7 @@ Zero-indexed problem number within the round
 
 #### Source
 
-[src/database.ts:1521](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1521)
+[src/database.ts:1522](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1522)
 
 ***
 
@@ -42,7 +42,7 @@ Zero-indexed round within the contest
 
 #### Source
 
-[src/database.ts:1519](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1519)
+[src/database.ts:1520](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1520)
 
 ***
 
@@ -54,4 +54,4 @@ Round ID
 
 #### Source
 
-[src/database.ts:1523](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1523)
+[src/database.ts:1524](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1524)

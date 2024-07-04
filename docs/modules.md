@@ -9,6 +9,7 @@
 - [adminPortal](adminPortal/README.md)
 - [config](config/README.md)
 - [contest](contest/README.md)
+- [cryptoUtil](cryptoUtil/README.md)
 - [database](database/README.md)
 - [email](email/README.md)
 - [grader](grader/README.md)

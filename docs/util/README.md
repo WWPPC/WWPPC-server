@@ -8,15 +8,9 @@
 
 ## Index
 
-### Classes
-
-- [AESEncryptionHandler](classes/AESEncryptionHandler.md)
-- [RSAEncryptionHandler](classes/RSAEncryptionHandler.md)
-
 ### Type Aliases
 
 - [FilterComparison](type-aliases/FilterComparison.md)
-- [RSAEncrypted](type-aliases/RSAEncrypted.md)
 - [UUID](type-aliases/UUID.md)
 - [primitive](type-aliases/primitive.md)
 

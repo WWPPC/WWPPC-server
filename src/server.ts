@@ -12,7 +12,7 @@ if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PAS
 
 // start server
 import { FileLogger } from './log';
-const logger = new FileLogger();
+const logger = new FileLogger(config.logPath);
 logger.info('Starting server...');
 logger.debug('CONFIG_PATH: ' + config.path);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
@@ -46,7 +46,8 @@ app.use(cookieParser());
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
-import { reverse_enum, RSAEncryptionHandler, RSAEncrypted } from './util';
+import { reverse_enum } from './util';
+import { RSAEncryptionHandler, RSAEncrypted } from './cryptoUtil';
 import { validateRecaptcha } from './recaptcha';
 import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';

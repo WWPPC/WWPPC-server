@@ -1,5 +1,5 @@
 import fs from 'fs';
-import * as fspath from 'path';
+import fspath from 'path';
 
 export interface Logger {
     /**
@@ -62,14 +62,14 @@ export class FileLogger implements Logger {
     #file;
 
     /**
-     * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a `logs/` directory
-     * if there already exists a log.log in the directory, moving it in. This means creating multiple
-     * `Loggers` in the same directory will break them.
-     * @param {string} path Filepath to the log directory. The default is `'./'`.
+     * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
+     * `logs/` directory. If there already exists a log.log in the directory, moving it in. This means
+     * creating multiple `Loggers` in the same directory will break them.
+     * @param {string} path Path to the log directory
      */
-    constructor(path: string = './') {
+    constructor(path: string) {
+        path = fspath.resolve(__dirname, path);
         if (!fs.existsSync(path)) throw new Error('"path" must be a valid directory');
-        path = fspath.resolve(path);
         try {
             let filePath = fspath.resolve(path, 'log.log');
             if (fs.existsSync(filePath)) {

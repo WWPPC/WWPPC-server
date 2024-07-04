@@ -9,14 +9,13 @@ import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database'
 import Logger from './log';
 import { isUUID, reverse_enum } from './util';
 
-process.env.ADMIN_PORTAL_PATH ??= path.resolve(__dirname, '../admin-portal');
 export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {
     const database = db;
     const app = expressApp;
     const contest = contestManager;
     const logger = log;
     const sessionTokens = new Map<string, string>();
-    logger.info(`Attaching admin portal to /admin/ (served from ${process.env.ADMIN_PORTAL_PATH})`);
+    logger.info(`Attaching admin portal to /admin/ (served from ${config.adminPortalPath})`);
 
     // require authentication for everything except a few assets and login screen
     const alwaysAllowedPaths = ['login', 'assets/fonts.css', 'assets/common.css', 'assets/Jura.ttf', 'assets/SourceCodePro.ttf', 'assets/icon.svg', 'assets/favicon.png'].map(p => '/admin/' + p);
@@ -25,18 +24,18 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect('/admin/login');
         else next();
     });
-    app.use('/admin/', express.static(process.env.ADMIN_PORTAL_PATH!));
-    const adminPanelIndex = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'index.html');
-    const adminPanelAccountManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'accountManager/accountManager.html');
-    const adminPanelProblemManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'problemManager/problemManager.html');
-    const adminPanelContestManager = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'contestManager/contestManager.html');
-    const adminPanelContestRunner = path.resolve(process.env.ADMIN_PORTAL_PATH!, 'contestRunner/contestRunner.html');
+    app.use('/admin/', express.static(config.adminPortalPath));
+    const adminPanelIndex = path.resolve(config.adminPortalPath, 'index.html');
+    const adminPanelAccountManager = path.resolve(config.adminPortalPath, 'accountManager/accountManager.html');
+    const adminPanelProblemManager = path.resolve(config.adminPortalPath, 'problemManager/problemManager.html');
+    const adminPanelContestManager = path.resolve(config.adminPortalPath, 'contestManager/contestManager.html');
+    const adminPanelContestRunner = path.resolve(config.adminPortalPath, 'contestRunner/contestRunner.html');
     app.get('/admin', (req, res) => res.sendFile(adminPanelIndex));
     app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
     app.get('/admin/problemManager', (req, res) => res.sendFile(adminPanelProblemManager));
     app.get('/admin/contestManager', (req, res) => res.sendFile(adminPanelContestManager));
     app.get('/admin/contestRunner', (req, res) => res.sendFile(adminPanelContestRunner));
-    app.get('/admin/login', (req, res) => res.sendFile(path.resolve(process.env.ADMIN_PORTAL_PATH!, 'login.html')));
+    app.get('/admin/login', (req, res) => res.sendFile(path.resolve(config.adminPortalPath, 'login.html')));
     app.post('/admin/login', bodyParser.urlencoded({ extended: false }), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
             res.sendStatus(400);

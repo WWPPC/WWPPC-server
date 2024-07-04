@@ -2,7 +2,7 @@
 
 ***
 
-[wwppc-server](../../modules.md) / [util](../README.md) / RSAEncryptionHandler
+[wwppc-server](../../modules.md) / [cryptoUtil](../README.md) / RSAEncryptionHandler
 
 # Class: RSAEncryptionHandler
 
@@ -26,7 +26,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:23](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L23)
+src/cryptoUtil.ts:22
 
 ## Properties
 
@@ -36,7 +36,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:15](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L15)
+src/cryptoUtil.ts:14
 
 ***
 
@@ -46,7 +46,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:16](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L16)
+src/cryptoUtil.ts:15
 
 ***
 
@@ -56,7 +56,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:17](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L17)
+src/cryptoUtil.ts:16
 
 ***
 
@@ -66,7 +66,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:14](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L14)
+src/cryptoUtil.ts:13
 
 ***
 
@@ -76,7 +76,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:18](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L18)
+src/cryptoUtil.ts:17
 
 ***
 
@@ -86,7 +86,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:13](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L13)
+src/cryptoUtil.ts:12
 
 ## Accessors
 
@@ -102,7 +102,7 @@ RA-OAEP public key, exported in "jwk" format.
 
 #### Source
 
-[src/util.ts:40](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L40)
+src/cryptoUtil.ts:39
 
 ***
 
@@ -118,7 +118,7 @@ Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` 
 
 #### Source
 
-[src/util.ts:44](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L44)
+src/cryptoUtil.ts:43
 
 ## Methods
 
@@ -142,7 +142,7 @@ Decrypted string
 
 #### Source
 
-[src/util.ts:67](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L67)
+src/cryptoUtil.ts:66
 
 ***
 
@@ -158,4 +158,4 @@ Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the publi
 
 #### Source
 
-[src/util.ts:49](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L49)
+src/cryptoUtil.ts:48

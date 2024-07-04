@@ -22,4 +22,4 @@ Check if a value is in an enumeration
 
 ## Source
 
-[src/util.ts:273](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L273)
+[src/util.ts:148](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/util.ts#L148)

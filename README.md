@@ -1,19 +1,27 @@
-# Setup for development
+# WWPPC-server
 
-## Server setup
+The central server for all WWPPC services, like managing accounts and running contests. There should only ever be one of these at any given time.
 
-After cloning the `WWPPC-server` repo, create a folder `config` in the root directory of the repository with the following files:
+The server uses [Socket.IO](https://socket.io) as a bi-directional communication layer but also has some HTTP APIs. See the [WWPPC Networking Docs](https://docs.google.com/spreadsheets/d/1qNvahuIZ5CIl5ROGKc4nUBLOPs86TwiNX7WXwi0tqgo/edit?usp=sharing) for more information. (We may update this in the future to not depend on spaghetti links)
 
-* `.env`, which contains environment variables:
-    * DATABASE_URL: [PostgreSQL](https://www.postgresql.org/) database connection string
-    * DATABASE_KEY: Used for password recovery keys
-    * RECAPTCHA_SECRET: Connects to [reCAPTCHA](https://developers.google.com/recaptcha/)
-    * SMTP_HOST: For sending emails
-    * SMTP_PORT: For sending emails
-    * SMTP_USER: For sending emails
-    * SMTP_PASS: For sending emails
-    * GRADER_PASS: For authenticating grader connections
-* `db-cert.pem`, which allows you to connect to the database securely
+# Server setup
+
+## Base setup
+
+After cloning the `WWPPC-server` repo, create a folder `config` in the root directory of the repository (next to `src`).
+
+In that, create a new file, `.env`, which contains environment variables:
+* `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string (you can usually get this by copying one from your database provide, but if not, the format is usually `postgresql://username:password@hostname:port/databasename`)
+* `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
+* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key (*NOT* your *SITE* key)
+* `SMTP_HOST`: SMTP service hostname (email server)
+* `SMTP_PORT`: SMTP service port (email server)
+* `SMTP_USER`: SMTP service username (email server)
+* `SMTP_PASS`: SMTP service password (email server)
+* `GRADER_PASS`: Global grader password, can be any string
+`db-cert.pem`, which allows you to connect to the database securely
+
+There are also other environment variables, like `SERVE_STATIC` and `DEBUG_MODE`, which are temporary overrides for {@link config} options.
 
 Both of these should be in `#backend` channel on Discord, so you can just copy them in.
 
@@ -21,9 +29,9 @@ Next, run `npm i` to install dependencies, then `npm run compilerun` to start th
 
 Try navigating to `http://localhost:8000/wakeup` now. If you see `ok`, the server has successfully been setup! Note we still have to setup the client, where we have two options:
 
-## Setup HTTPS and vite (recommended)
+## Setup HTTPS and client (recommended)
 
-We will set up the `WWPPC-site-main` repo to act as a client and network with the server. This method is preferred because we can take advantage of the powerful features of [vite](https://vitejs.dev/). However, since the client makes HTTPS requests and not HTTP requests, we must first make our browser trust the server, otherwise we may get an SSL error:
+We will set up the `WWPPC-site-main` repo (but you can also use `WWPPC-site-math`) to act as a client and network with the server. However, the client requires HTTPS connections to access encryption methods, we must first make our browser trust the server, otherwise we may get an SSL error:
 
 Install [mkcert](https://github.com/FiloSottile/mkcert), then run `mkcert -install` followed by `mkcert localhost` as mentioned on the [mkcert documentation](https://github.com/FiloSottile/mkcert/blob/master/README.md). 
 
@@ -39,7 +47,37 @@ Next, find `config/config.json`, which is generated automatically when you start
 
 Restart the server and try navigating to `http://localhost:8000`. If you see the home page, static hosting is successfully setup!
 
-# Server stuff
+## Environment variables and config
+
+**For global server configuration, see {@link config}**
+
+WWPPC-server has some required and some optional environment variables.
+
+### Required
+* `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string
+* `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
+* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key
+* `SMTP_HOST`: SMTP service hostname (email server)
+* `SMTP_PORT`: SMTP service port (email server)
+* `SMTP_USER`: SMTP service username (email server)
+* `SMTP_PASS`: SMTP service password (email server)
+* `GRADER_PASS`: Global grader password, can be any string
+
+### Optional
+* `CONFIG_PATH`: Directory to load server configuration from (i.e. `config.json`, `db-cert.pem`, etc.) (default: `../config/`)
+* `LOG_PATH`: Directory to write logs to - server will also create a `logs` directory there (default: `../`)
+* `CLIENT_PATH`: Directory to serve static hosting from (if {@link config.serveStatic} is true) - setting this incorrectly can cause strange problems
+* `EMAIL_TEMPLATE_PATH`: Directory to load email templates from (default: `../email-templates/`)
+* `ADMIN_PORTAL_PATH`: Directory to load admin portal from (default: `../admin-portal/`)
+* `DATABASE_CERT`: Alternative to `db-cert.pem`
+* `PORT`: TCP port for the HTTP/HTTPS server to listen to (default: 8000)
+* `DEBUG_MODE`: Enable debug logging
+* `SERVE_STATIC`: Enable static hosting (note that this WILL NOT WORK if `CLIENT_PATH` is not given!)
+
+*Note: all paths can be absolute or relative to the **`src`** directory (NOT the root directory)*
+
+
+# Server stuff (needs formatting)
 
 Use github (or git) to clone to `/root/WWPPC`
 

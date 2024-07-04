@@ -18,7 +18,7 @@ The operation failed because the requested contest is already a registration
 
 #### Source
 
-[src/database.ts:1293](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1293)
+[src/database.ts:1294](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1294)
 
 ***
 
@@ -30,7 +30,7 @@ The operation failed because the requested contest is on exclude list of other r
 
 #### Source
 
-[src/database.ts:1289](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1289)
+[src/database.ts:1290](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1290)
 
 ***
 
@@ -42,7 +42,7 @@ The operation failed because the member count exceeds limits in a registration
 
 #### Source
 
-[src/database.ts:1291](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1291)
+[src/database.ts:1292](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1292)
 
 ***
 
@@ -54,7 +54,7 @@ The operation failed because of an unexpected issue
 
 #### Source
 
-[src/database.ts:1299](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1299)
+[src/database.ts:1300](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1300)
 
 ***
 
@@ -66,7 +66,7 @@ The operation failed because of an authentication failure
 
 #### Source
 
-[src/database.ts:1295](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1295)
+[src/database.ts:1296](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1296)
 
 ***
 
@@ -78,7 +78,7 @@ The operation failed because of an unspecified restriction
 
 #### Source
 
-[src/database.ts:1297](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1297)
+[src/database.ts:1298](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1298)
 
 ***
 
@@ -90,7 +90,7 @@ The operation failed because the reqested account, team, or contest does not exi
 
 #### Source
 
-[src/database.ts:1287](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1287)
+[src/database.ts:1288](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1288)
 
 ***
 
@@ -102,4 +102,4 @@ The operation was completed successfully
 
 #### Source
 
-[src/database.ts:1285](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1285)
+[src/database.ts:1286](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1286)

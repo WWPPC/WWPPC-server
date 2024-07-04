@@ -14,7 +14,7 @@
 
 #### Source
 
-[src/contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L212)
+[src/contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L212)
 
 ***
 
@@ -32,7 +32,7 @@
 
 #### Source
 
-[src/contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L214)
+[src/contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L214)
 
 ***
 
@@ -42,7 +42,7 @@
 
 #### Source
 
-[src/contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L213)
+[src/contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L213)
 
 ***
 
@@ -52,7 +52,7 @@
 
 #### Source
 
-[src/contest.ts:208](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L208)
+[src/contest.ts:208](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L208)
 
 ***
 
@@ -62,7 +62,7 @@
 
 #### Source
 
-[src/contest.ts:207](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L207)
+[src/contest.ts:207](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L207)
 
 ***
 
@@ -72,7 +72,7 @@
 
 #### Source
 
-[src/contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L211)
+[src/contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L211)
 
 ***
 
@@ -82,7 +82,7 @@
 
 #### Source
 
-[src/contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L210)
+[src/contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L210)
 
 ***
 
@@ -92,4 +92,4 @@
 
 #### Source
 
-[src/contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L209)
+[src/contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L209)

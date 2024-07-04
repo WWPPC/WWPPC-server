@@ -15,35 +15,66 @@ function loadConfig() {
     }
 }
 const fileConfig = loadConfig();
+/**
+ * Global configuration, loaded from `config.json` in the config folder.
+ * If any field is empty in `config.json`, it is filled in with the default.
+ */
 const config: {
+    /**Hostname of website to be linked to in emails (default: "wwppc.tech") */
     readonly hostname: string
+    /**Sending email address (default: "no-reply@wwppc.tech")*/
     readonly emailAddress: string
+    /**TCP port for the HTTP/HTTPS server to listen to (default: 8000) */
     readonly port: string
+    /**Enable static hosting (note that this WILL NOT WORK if {@link config.clientPath} is not set!) */
     readonly serveStatic: boolean
+    /**Ratelimiting - how many new Socket.IO connections can be made from any given IP address in 1 second before clients are kicked (default: 5) */
     readonly maxConnectPerSecond: number
+    /**Ratelimiting - how many new accounts can be made from any given IP address in 1 minute before clients are kicked (default: 1) */
     readonly maxSignupPerMinute: number
+    /**A `data:` URI representing the profile image given to every account on creation */
     readonly defaultProfileImg: string
+    /**Maximum file size of uploaded profile images (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 65535) */
     readonly maxProfileImgSize: number
+    /**Time in milliseconds before database cache entries expire (default: 60000) */
     readonly dbCacheTime: number
+    /**Time in milliseconds before database cache entries for problems expire (default: 600000) */
     readonly dbProblemCacheTime: number
+    /**Time in milliseconds before the grading host defaults a grading server to "disconnected" state (default: 180000) */
     readonly graderTimeout: number
+    /**Programming languages accepted by contest systems (case sensitive) (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedLanguages: string[]
+    /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
     readonly maxSubmissionSize: number
+    /**Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24) */
     readonly maxSubmissionHistory: number
+    /**Withhold submission results for each round until the round ends (submissions are still instantly graded) (default: true) */
     readonly gradeAtRoundEnd: boolean
+    /**"Freeze" scores - stop updating scores on the client - within the last round of competitions (default: true) */
     readonly freezeScoresLastRound: boolean
+    /**Log information about sent emails (default: true) */
     readonly logEmailActivity: boolean
+    /**Milliseconds between client RSA keypair rotations (default: 86400000) */
     readonly rsaKeyRotateInterval: number
+    /**Enable debug logging (default: false) */
     readonly debugMode: boolean
+    /**� (�: �) */
     readonly superSecretSecret: boolean
+    /**Same as the `CONFIG_PATH` environment variable (this cannot be edited in `config.json``) */
     readonly path: string
+    /**Directory to write logs to - server will also create a `logs` directory there (default: `../`) */
+    readonly logPath: string
+    /**Directory to load email templates from (default: `../email-templates/`) */
     readonly emailTemplatePath: string
+    /**Directory to serve static hosting from (if {@link config.serveStatic} is true) - setting this incorrectly can cause strange problems */
     readonly clientPath?: string
+    /**Directory to load admin portal from (default: `../admin-portal/`) */
+    readonly adminPortalPath: string
 } = {
     hostname: fileConfig.hostname ?? 'wwppc.tech',
     emailAddress: fileConfig.emailAddress ?? 'no-reply@wwppc.tech',
     port: process.env.PORT ?? fileConfig.port ?? 8000,
-    serveStatic: process.argv.includes('serve_static') ?? fileConfig.serveStatic ?? false,
+    serveStatic: process.argv.includes('serve_static') ?? process.env.SERVE_STATIC ?? fileConfig.serveStatic ?? false,
     maxConnectPerSecond: fileConfig.maxConnectPerSecond ?? 5,
     maxSignupPerMinute: fileConfig.maxSignupPerMinute ?? 1,
     defaultProfileImg: fileConfig.defaultProfileImg ?? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARxSURBVHhe7dy9SiRZAAXgdkeMzHwHAw0EQzNfREQwEVEMDAQfrp/DSBNB0MA2M3C3Zy1mZZ3rtP1TXXXP9yXFNavmnu5zEgcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAPG1vb29tbTUHiLKzs/P09DQajTY3N5s/QYjx7b+7u/v7X+MM+B0gyN7e3s3Nzfvtf3d/fy8DRBj3/sfHx+bif/D8/CwDVO699zdX/hN7gJp97P0l9gB1+tz7S+wBalPq/SX2APX4uveX2APUYJLeX2IP0G+T9/4Se4C++m7vL7EH6J/pen+JPUCfzNL7S+wB+mH23l9iD9B18+r9JfYA3TXf3l9iD9BFi+j9JfYA3bK43l9iD9AVi+79JfYAy9dO7y+xB1imNnt/iT3AcrTf+0vsAdq2rN5fYg/QnuX2/hJ7gDZ0ofeX2AMsVnd6f4k9wKJ0rfeX2APMXzd7f4k9wDx1ufeX2APMR/d7f4k9wKz60vtL7AGm16/eX2IPMI0+9v4Se4Dv6W/vL7EHmFTfe3+JPcCf1dH7S+wBvlJT7y+xB/i9+np/iT3A/9Xa+0vsAf5Td+8vsQf4KaH3l9gD6XJ6f4k9kCut95eE74GV5hlmfX399vZ2Y2OjOWcb/w7s7u4+PDw05yQ/mmeY19fXtbW1/f39lZXQr4Bfxj8CV1dXw+GwOZPj9PT0vQbEent7u7y8bD4OAh0fHzd3Ic/Ly8vR0dHq6mrzWZDp4OBg/EXYXIoYo9Ho7OzM7een6+vrqAyMX/bk5KR5eRjL2QN6P7+XsAf0fr5S9x7Q+/mzWveA3s+k6tsDej/fU9Me0PuZRh17QO9nen3fA3o/s+rvHtD7mY8+7gG9n3nq1x7Q+5m/vuwBvZ9F6f4e0PtZrC7vAb2fNnRzD+j9tKdre0Dvp23d2QN6P8vRhT2g97NMy90Dej/Lt6w9oPfTFe3vAb2fbmlzD+j9dFE7e0Dvp7sWvQf0frpucXtA76cfFrEH9H76ZL57QO+nf+a1B/R++mr2PaD302+z7AG9nxpMtwf0furx3T2g91ObyfeA3k+dJtkDej81+3oP6P3Ur7QH9H5SfN4Dej9ZPu4BvZ9E73tA7yfXeA/o/QAAAAAAAAAAAAAAAAAAAAAAAAAAsVaaJ4PB4eHh+fl5c6jXxcXFcDhsDvDLOADNPyyv2vg1mxdmMPireUIkASCaABBNAIgmAEQTAKIJANEEgGgCQDQBIJoAEE0AiCYARBMAogkA0QSAaAJANAEgmgAQTQCIJgBEEwCiCQDRBIBoAkA0ASCaABBNAIgmAEQTAKIJANEEgGgCQDQBIJoAEE0AiCYARBMAogkA0QSAaAJANAEgmgAQTQCIJgBEEwCiCQDRBIBoAkA0ASCaABBNAIgmAEQTAKIJANEEgGgCQDQBIJoAEE0AiCYARBMAogkA0QSAaAJANAEgmgAQTQCIJgBEEwCiCQDRBIBoAkA0ASCaABBsMPgHSaq6IM8BzA4AAAAASUVORK5CYII=',
@@ -68,20 +99,24 @@ const config: {
     freezeScoresLastRound: fileConfig.freezeScoresLastRound ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
     rsaKeyRotateInterval: fileConfig.rsaKeyRotateInterval ?? 86400000,
-    debugMode: process.argv.includes('debug_mode') ?? fileConfig.debugMode ?? false,
+    debugMode: process.argv.includes('debug_mode') ?? process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
-    emailTemplatePath: process.env.EMAIL_TEMPLATE_PATH,
+    logPath: process.env.LOG_PATH ?? fileConfig.logPath ?? path.resolve(__dirname, '../'),
+    emailTemplatePath: process.env.EMAIL_TEMPLATE_PATH ?? fileConfig.emailTemplatePath,
     clientPath: (process.env.CLIENT_PATH != undefined || fileConfig.clientPath != undefined) ? path.resolve(__dirname, process.env.CLIENT_PATH ?? fileConfig.clientPath) : undefined,
+    adminPortalPath: process.env.ADMIN_PORTAL_PATH ?? fileConfig.adminPortalPath ?? path.resolve(__dirname, '../admin-portal'),
 };
+// when writing back to file, prevent environment variables and argument overrides also overwriting file configurations
 const config2: any = structuredClone(config);
 config2.port = fileConfig.port ?? 8000;
 config2.serveStatic = fileConfig.serveStatic ?? false;
 config2.debugMode = fileConfig.debugMode ?? false;
 config2.superSecretSecret = fileConfig.superSecretSecret;
-config2.clientPath = fileConfig.clientPath;
 delete config2.path;
-delete config2.emailTemplatePath;
+config2.logPath = fileConfig.logPath ?? path.resolve(__dirname, '../');
+config2.emailTemplatePath = fileConfig.logPath ?? path.resolve(__dirname, '../');
+config2.clientPath = fileConfig.clientPath;
 try {
     fs.writeFileSync(configPath, JSON.stringify(config2, null, 4));
 } catch { }

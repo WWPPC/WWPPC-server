@@ -7,7 +7,7 @@
 # Class: Scorer
 
 Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
-Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who solved the problem (if cnt=0, then 1).
+Using the function score = 1/cnt where cnt is number of people who solved the problem
 
 ## Constructors
 
@@ -27,7 +27,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:23](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L23)
+[src/scorer.ts:23](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L23)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:14](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L14)
+[src/scorer.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L14)
 
 ***
 
@@ -47,7 +47,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L13)
+[src/scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L13)
 
 ***
 
@@ -57,7 +57,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:17](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L17)
+[src/scorer.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L17)
 
 ***
 
@@ -67,7 +67,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:12](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L12)
+[src/scorer.ts:12](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L12)
 
 ***
 
@@ -77,7 +77,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:21](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L21)
+[src/scorer.ts:21](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L21)
 
 ***
 
@@ -87,7 +87,7 @@ Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who
 
 #### Source
 
-[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L10)
+[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L10)
 
 ## Methods
 
@@ -106,7 +106,7 @@ Mapping of username to score
 
 #### Source
 
-[src/scorer.ts:87](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L87)
+[src/scorer.ts:91](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L91)
 
 ***
 
@@ -124,7 +124,7 @@ mapping of username to score
 
 #### Source
 
-[src/scorer.ts:156](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L156)
+[src/scorer.ts:160](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L160)
 
 ***
 
@@ -146,7 +146,7 @@ Contest round data
 
 #### Source
 
-[src/scorer.ts:33](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L33)
+[src/scorer.ts:33](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L33)
 
 ***
 
@@ -168,7 +168,7 @@ Round number
 
 #### Source
 
-[src/scorer.ts:41](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L41)
+[src/scorer.ts:41](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L41)
 
 ***
 
@@ -177,7 +177,6 @@ Round number
 > **updateUser**(`submission`): `Boolean`
 
 Add or edit user (or team the scorer doesnt care) to leaderboard
-Note that we only care about submission.scores so you can change the params to make it more convenient
 
 #### Parameters
 
@@ -193,4 +192,4 @@ whether it was successful
 
 #### Source
 
-[src/scorer.ts:53](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L53)
+[src/scorer.ts:52](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L52)

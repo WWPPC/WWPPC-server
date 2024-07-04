@@ -38,7 +38,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L30)
+[src/upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L30)
 
 ## Properties
 
@@ -48,7 +48,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:22](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L22)
+[src/upsolve.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L22)
 
 ***
 
@@ -58,7 +58,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:15](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L15)
+[src/upsolve.ts:15](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L15)
 
 ***
 
@@ -68,7 +68,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L18)
+[src/upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L18)
 
 ***
 
@@ -78,7 +78,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L17)
+[src/upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L17)
 
 ***
 
@@ -88,7 +88,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L20)
+[src/upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L20)
 
 ***
 
@@ -98,7 +98,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L19)
+[src/upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L19)
 
 ## Methods
 
@@ -116,7 +116,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:214](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L214)
+[src/upsolve.ts:214](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L214)
 
 ***
 
@@ -134,7 +134,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:224](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L224)
+[src/upsolve.ts:230](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L230)
 
 ***
 
@@ -156,7 +156,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/upsolve.ts:123](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L123)
+[src/upsolve.ts:123](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L123)
 
 ***
 
@@ -172,4 +172,4 @@ Closes the upsolve manager
 
 #### Source
 
-[src/upsolve.ts:246](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/upsolve.ts#L246)
+[src/upsolve.ts:252](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L252)

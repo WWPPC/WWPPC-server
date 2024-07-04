@@ -2,7 +2,7 @@
 
 ***
 
-[wwppc-server](../../modules.md) / [util](../README.md) / AESEncryptionHandler
+[wwppc-server](../../modules.md) / [cryptoUtil](../README.md) / AESEncryptionHandler
 
 # Class: AESEncryptionHandler
 
@@ -30,7 +30,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:89](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L89)
+src/cryptoUtil.ts:88
 
 ## Properties
 
@@ -40,7 +40,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:83](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L83)
+src/cryptoUtil.ts:82
 
 ***
 
@@ -50,7 +50,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:82](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L82)
+src/cryptoUtil.ts:81
 
 ***
 
@@ -60,7 +60,7 @@ Logger instance
 
 #### Source
 
-[src/util.ts:81](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L81)
+src/cryptoUtil.ts:80
 
 ## Methods
 
@@ -84,7 +84,7 @@ Plaintext string (the formatted encrypted string if there was an error)
 
 #### Source
 
-[src/util.ts:115](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L115)
+src/cryptoUtil.ts:114
 
 ***
 
@@ -108,4 +108,4 @@ Colon-concatenated base64-encoded ciphertext, initialization vector, and authent
 
 #### Source
 
-[src/util.ts:99](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L99)
+src/cryptoUtil.ts:98

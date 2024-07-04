@@ -18,7 +18,7 @@ Contest ID
 
 #### Source
 
-[src/database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1504)
+[src/database.ts:1505](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1505)
 
 ***
 
@@ -30,7 +30,7 @@ End of round, UNIX time
 
 #### Source
 
-[src/database.ts:1512](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1512)
+[src/database.ts:1513](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1513)
 
 ***
 
@@ -42,7 +42,7 @@ Round ID
 
 #### Source
 
-[src/database.ts:1508](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1508)
+[src/database.ts:1509](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1509)
 
 ***
 
@@ -54,7 +54,7 @@ Zero-indexed round within the contest
 
 #### Source
 
-[src/database.ts:1506](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1506)
+[src/database.ts:1507](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1507)
 
 ***
 
@@ -66,4 +66,4 @@ Start of round, UNIX time
 
 #### Source
 
-[src/database.ts:1510](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1510)
+[src/database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1511)

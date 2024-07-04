@@ -18,7 +18,7 @@ End of contest, UNIX time
 
 #### Source
 
-[src/database.ts:1495](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1495)
+[src/database.ts:1496](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1496)
 
 ***
 
@@ -30,7 +30,7 @@ Contest ID
 
 #### Source
 
-[src/database.ts:1491](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1491)
+[src/database.ts:1492](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1492)
 
 ***
 
@@ -42,7 +42,7 @@ If the contest is publicly archived once finished
 
 #### Source
 
-[src/database.ts:1497](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1497)
+[src/database.ts:1498](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1498)
 
 ***
 
@@ -54,7 +54,7 @@ Start of contest, UNIX time
 
 #### Source
 
-[src/database.ts:1493](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1493)
+[src/database.ts:1494](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1494)
 
 ***
 
@@ -66,4 +66,4 @@ The tournament the contest is part of
 
 #### Source
 
-[src/database.ts:1499](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1499)
+[src/database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1500)

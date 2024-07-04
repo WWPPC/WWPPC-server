@@ -3,8 +3,9 @@ import { Client } from 'pg';
 import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
+import { AESEncryptionHandler } from './cryptoUtil';
 import Logger, { NamedLogger } from './log';
-import { AESEncryptionHandler, filterCompare, FilterComparison, isUUID, UUID } from './util';
+import { filterCompare, FilterComparison, isUUID, UUID } from './util';
 
 const salt = 5;
 
