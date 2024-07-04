@@ -32,9 +32,9 @@ async function load() {
             return input;
         };
 
-        // id
-        const id = createField('text');
-        id.value = account.id;
+        // username
+        const username = createField('text');
+        username.value = account.username;
         // profile image actually is image? can upload image instead of manual copy paste data
 
         // team data editing needs to be in a popup thing
@@ -44,7 +44,7 @@ async function load() {
         const onEdit = () => {
             row.classList.add('edited');
         };
-        id.addEventListener('input', onEdit);
+        username.addEventListener('input', onEdit);
 
         // write button
         const updateButtonCell = document.createElement('td');
@@ -56,7 +56,7 @@ async function load() {
         const updateErrorMessage = document.createElement('div');
         updateButtonCell.appendChild(updateErrorMessage);
         updateButton.onclick = async () => {
-            const res = await modify(id.value);
+            const res = await modify(username.value);
             if (res == 200) {
                 row.classList.remove('edited');
             } else {
@@ -70,7 +70,7 @@ async function load() {
 }
 
 async function modify(id) {
-    const res = await fetch('/admin/api/asdf', {
+    const res = await fetch('/admin/api/accountData', {
         method: 'POST',
         headers: {
             "Content-Type": "application/json"
