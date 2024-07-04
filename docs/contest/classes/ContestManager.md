@@ -13,7 +13,7 @@ It will automatically start and stop contests, advance rounds, and process submi
 
 ### new ContestManager()
 
-> **new ContestManager**(`db`, `app`, `io`, `logger`): [`ContestManager`](ContestManager.md)
+> **new ContestManager**(`db`, `app`, `io`, `graderPassword`, `logger`): [`ContestManager`](ContestManager.md)
 
 #### Parameters
 
@@ -29,6 +29,10 @@ Express app (HTTP server) to attach API to
 
 Socket.IO server
 
+• **graderPassword**: `string`
+
+Global password for graders to authenticate with
+
 • **logger**: [`Logger`](../../log/interfaces/Logger.md)
 
 Logger instance
@@ -39,7 +43,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:36](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L36)
+[src/contest.ts:37](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L37)
 
 ## Properties
 
@@ -49,7 +53,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:19](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L19)
+[src/contest.ts:19](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L19)
 
 ***
 
@@ -59,7 +63,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:26](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L26)
+[src/contest.ts:26](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L26)
 
 ***
 
@@ -69,7 +73,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:28](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L28)
+[src/contest.ts:28](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L28)
 
 ***
 
@@ -79,7 +83,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:18](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L18)
+[src/contest.ts:18](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L18)
 
 ***
 
@@ -89,7 +93,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:20](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L20)
+[src/contest.ts:20](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L20)
 
 ***
 
@@ -99,7 +103,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L23)
+[src/contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L23)
 
 ***
 
@@ -109,7 +113,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:22](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L22)
+[src/contest.ts:22](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L22)
 
 ***
 
@@ -119,7 +123,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L24)
+[src/contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L24)
 
 ***
 
@@ -129,7 +133,7 @@ Logger instance
 
 #### Source
 
-[src/contest.ts:25](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L25)
+[src/contest.ts:25](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L25)
 
 ## Methods
 
@@ -151,7 +155,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/contest.ts:83](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L83)
+[src/contest.ts:83](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L83)
 
 ***
 
@@ -167,4 +171,4 @@ Stops all contests and closes the contest manager
 
 #### Source
 
-[src/contest.ts:179](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/contest.ts#L179)
+[src/contest.ts:179](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/contest.ts#L179)

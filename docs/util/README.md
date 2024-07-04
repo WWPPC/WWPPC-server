@@ -10,7 +10,8 @@
 
 ### Classes
 
-- [RSAAsymmetricEncryptionHandler](classes/RSAAsymmetricEncryptionHandler.md)
+- [AESEncryptionHandler](classes/AESEncryptionHandler.md)
+- [RSAEncryptionHandler](classes/RSAEncryptionHandler.md)
 
 ### Type Aliases
 

@@ -24,14 +24,14 @@ export class UpsolveManager {
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
+     * @param {string} graderPassword Global password for graders to authenticate with
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, logger: Logger) {
-        if (process.env.GRADER_PASS == undefined) throw new Error('Missing grader password!');
+    constructor(db: Database, app: Express, graderPassword: string, logger: Logger) {
         this.db = db;
         this.app = app;
         this.logger = new NamedLogger(logger, 'UpsolveManager');
-        this.grader = new Grader(app, '/upsolve-judge', process.env.GRADER_PASS, logger, db);
+        this.grader = new Grader(app, '/upsolve-judge', graderPassword, logger, db);
         // attach api
         this.app.get('/api/upsolveContestList', async (req, res) => {
             const contests = await this.db.readContests({

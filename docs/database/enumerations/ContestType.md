@@ -16,7 +16,7 @@ The tournament the contest is part of
 
 #### Source
 
-[src/database.ts:1443](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1443)
+[src/database.ts:1409](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1409)
 
 ***
 
@@ -26,7 +26,7 @@ The tournament the contest is part of
 
 #### Source
 
-[src/database.ts:1442](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1442)
+[src/database.ts:1408](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1408)
 
 ***
 
@@ -36,7 +36,7 @@ The tournament the contest is part of
 
 #### Source
 
-[src/database.ts:1444](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1444)
+[src/database.ts:1410](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1410)
 
 ***
 
@@ -46,4 +46,4 @@ The tournament the contest is part of
 
 #### Source
 
-[src/database.ts:1445](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1445)
+[src/database.ts:1411](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1411)

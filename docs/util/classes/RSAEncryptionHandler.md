@@ -2,29 +2,31 @@
 
 ***
 
-[wwppc-server](../../modules.md) / [util](../README.md) / RSAAsymmetricEncryptionHandler
+[wwppc-server](../../modules.md) / [util](../README.md) / RSAEncryptionHandler
 
-# Class: RSAAsymmetricEncryptionHandler
+# Class: RSAEncryptionHandler
 
-Simple RSA-OAEP asymmetric encryption wrapper.
+Simple RSA-OAEP-256 asymmetric encryption wrapper.
 
 ## Constructors
 
-### new RSAAsymmetricEncryptionHandler()
+### new RSAEncryptionHandler()
 
-> **new RSAAsymmetricEncryptionHandler**(`logger`): [`RSAAsymmetricEncryptionHandler`](RSAAsymmetricEncryptionHandler.md)
+> **new RSAEncryptionHandler**(`logger`): [`RSAEncryptionHandler`](RSAEncryptionHandler.md)
 
 #### Parameters
 
 • **logger**: [`Logger`](../../log/interfaces/Logger.md)
 
+Logger instance
+
 #### Returns
 
-[`RSAAsymmetricEncryptionHandler`](RSAAsymmetricEncryptionHandler.md)
+[`RSAEncryptionHandler`](RSAEncryptionHandler.md)
 
 #### Source
 
-[src/util.ts:20](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L20)
+[src/util.ts:23](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L23)
 
 ## Properties
 
@@ -34,7 +36,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:15](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L15)
+[src/util.ts:15](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L15)
 
 ***
 
@@ -44,7 +46,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:16](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L16)
+[src/util.ts:16](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L16)
 
 ***
 
@@ -54,7 +56,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:17](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L17)
+[src/util.ts:17](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L17)
 
 ***
 
@@ -64,7 +66,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:14](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L14)
+[src/util.ts:14](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L14)
 
 ***
 
@@ -74,7 +76,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:18](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L18)
+[src/util.ts:18](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L18)
 
 ***
 
@@ -84,7 +86,7 @@ Simple RSA-OAEP asymmetric encryption wrapper.
 
 #### Source
 
-[src/util.ts:13](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L13)
+[src/util.ts:13](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L13)
 
 ## Accessors
 
@@ -100,7 +102,7 @@ RA-OAEP public key, exported in "jwk" format.
 
 #### Source
 
-[src/util.ts:37](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L37)
+[src/util.ts:40](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L40)
 
 ***
 
@@ -116,7 +118,7 @@ Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` 
 
 #### Source
 
-[src/util.ts:41](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L41)
+[src/util.ts:44](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L44)
 
 ## Methods
 
@@ -140,7 +142,7 @@ Decrypted string
 
 #### Source
 
-[src/util.ts:64](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L64)
+[src/util.ts:67](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L67)
 
 ***
 
@@ -156,4 +158,4 @@ Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the publi
 
 #### Source
 
-[src/util.ts:46](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L46)
+[src/util.ts:49](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L49)

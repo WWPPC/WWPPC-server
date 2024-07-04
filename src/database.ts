@@ -1,12 +1,10 @@
 import bcrypt from 'bcrypt';
-import { createCipheriv, createDecipheriv, randomBytes, subtle } from 'crypto';
 import { Client } from 'pg';
 import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
-import { Mailer } from './email';
 import Logger, { NamedLogger } from './log';
-import { filterCompare, FilterComparison, isUUID, UUID } from './util';
+import { AESEncryptionHandler, filterCompare, FilterComparison, isUUID, UUID } from './util';
 
 const salt = 5;
 
@@ -31,7 +29,7 @@ export class Database {
      */
     readonly connectPromise: Promise<any>;
     readonly #db: Client;
-    readonly #dbKey: Buffer;
+    readonly #dbEncryptor: AESEncryptionHandler;
     readonly logger: NamedLogger;
     readonly #cacheGarbageCollector: NodeJS.Timeout;
 
@@ -42,7 +40,7 @@ export class Database {
         const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
         this.connectPromise = new Promise(() => undefined);
-        this.#dbKey = key instanceof Buffer ? key : Buffer.from(key, 'base64');
+        this.#dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key, 'base64'), logger);
         this.#db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
@@ -79,38 +77,6 @@ export class Database {
             if (global.gc) global.gc();
             if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
         }, 300000);
-    }
-
-    /**
-     * Symmetrically encrypt using AES-256 GCM and the database key.
-     * @param {string} plaintext Plaintext
-     * @returns {string} Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext if there was an error)
-     */
-    #RSAencryptSymmetric(plaintext: string): string {
-        try {
-            const initVector = randomBytes(12);
-            const cipher = createCipheriv('aes-256-gcm', this.#dbKey, initVector);
-            return `${cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64')}:${initVector.toString('base64')}:${cipher.getAuthTag().toString('base64')}`;
-        } catch (err) {
-            this.logger.handleError('RSA decrypt error:', err);
-            return plaintext;
-        }
-    }
-    /**
-     * Symmetrically decrypt using AES-256 GCM and the database key.
-     * @param {string} encrypted Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
-     * @returns {string} Plaintext (the encrypted text if there was an error)
-     */
-    #RSAdecryptSymmetric(encrypted: string): string {
-        try {
-            const text = encrypted.split(':');
-            const decipher = createDecipheriv('aes-256-gcm', this.#dbKey, Buffer.from(text[1], 'base64'));
-            decipher.setAuthTag(Buffer.from(text[2], 'base64'));
-            return decipher.update(text[0], 'base64', 'utf8') + decipher.final('utf8');
-        } catch (err) {
-            this.logger.handleError('RSA decrypt error:', err);
-            return encrypted;
-        }
     }
 
     /**
@@ -274,7 +240,7 @@ export class Database {
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     `, [
-                    username, encryptedPassword, this.#RSAencryptSymmetric(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                    username, encryptedPassword, this.#dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
                 const joinCode = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
                 await this.#db.query(`
@@ -447,7 +413,7 @@ export class Database {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
                 this.#rotateRecoveryPassword(username);
-                if (token === this.#RSAdecryptSymmetric(data.rows[0].recoverypass)) {
+                if (token === this.#dbEncryptor.encrypt(data.rows[0].recoverypass)) {
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
                     await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
                     this.logger.info(`Reset password via token for "${username}"`, true);
@@ -521,7 +487,7 @@ export class Database {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
                 this.logger.info(`Fetched recovery password for ${username}`, true);
-                return this.#RSAdecryptSymmetric(data.rows[0].recoverypass);
+                return this.#dbEncryptor.decrypt(data.rows[0].recoverypass);
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -539,7 +505,7 @@ export class Database {
     async #rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const newPass = this.#RSAencryptSymmetric(uuidV4());
+            const newPass = this.#dbEncryptor.encrypt(uuidV4());
             const data = await this.#db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
             if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             return AccountOpResult.SUCCESS;

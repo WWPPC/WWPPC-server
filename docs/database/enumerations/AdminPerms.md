@@ -18,7 +18,7 @@ Base admin permission; allows login
 
 #### Source
 
-[src/database.ts:1339](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1339)
+[src/database.ts:1305](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1305)
 
 ***
 
@@ -30,7 +30,7 @@ Create, delete, and modify accounts
 
 #### Source
 
-[src/database.ts:1341](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1341)
+[src/database.ts:1307](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1307)
 
 ***
 
@@ -42,7 +42,7 @@ Manage admin permissions
 
 #### Source
 
-[src/database.ts:1349](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1349)
+[src/database.ts:1315](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1315)
 
 ***
 
@@ -54,7 +54,7 @@ Edit contests and control ContestHost functions
 
 #### Source
 
-[src/database.ts:1345](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1345)
+[src/database.ts:1311](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1311)
 
 ***
 
@@ -66,7 +66,7 @@ Edit all problems, both contest and upsolve
 
 #### Source
 
-[src/database.ts:1343](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1343)
+[src/database.ts:1309](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1309)
 
 ***
 
@@ -78,4 +78,4 @@ View and disqualify submissions
 
 #### Source
 
-[src/database.ts:1347](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/database.ts#L1347)
+[src/database.ts:1313](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/database.ts#L1313)

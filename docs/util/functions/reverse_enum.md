@@ -22,4 +22,4 @@ Look up the name of an enumeration based on the value
 
 ## Source
 
-[src/util.ts:212](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/util.ts#L212)
+[src/util.ts:266](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/util.ts#L266)

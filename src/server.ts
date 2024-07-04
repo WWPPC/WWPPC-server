@@ -6,7 +6,7 @@ configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
 
 // verify environment variables exist
-if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'RECAPTCHA_SECRET', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'RECAPTCHA_SECRET', 'EMAIL_TEMPLATE_PATH', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -46,7 +46,7 @@ app.use(cookieParser());
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
-import { reverse_enum, RSAAsymmetricEncryptionHandler, RSAEncrypted } from './util';
+import { reverse_enum, RSAEncryptionHandler, RSAEncrypted } from './util';
 import { validateRecaptcha } from './recaptcha';
 import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';
@@ -55,7 +55,7 @@ import ContestManager from './contest';
 import UpsolveManager from './upsolve';
 import { createServerSocket } from './socket';
 
-const clientEncryption = new RSAAsymmetricEncryptionHandler(logger);
+const clientEncryption = new RSAEncryptionHandler(logger);
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
     port: Number(process.env.SMTP_PORT ?? 587), // another default
@@ -74,8 +74,8 @@ const io = new SocketIOServer(server, {
     path: '/web-socketio',
     cors: { origin: '*', methods: ['GET', 'POST'] }
 });
-const contestManager = new ContestManager(database, app, io, logger);
-const upsolveManager = new UpsolveManager(database, app, logger);
+const contestManager = new ContestManager(database, app, io, process.env.GRADER_PASS!, logger);
+const upsolveManager = new UpsolveManager(database, app, process.env.GRADER_PASS!, logger);
 
 // general api endpoints
 app.get('/api/config', (req, res) => {

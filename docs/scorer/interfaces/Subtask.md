@@ -18,7 +18,7 @@ Problem id
 
 #### Source
 
-[src/scorer.ts:172](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L172)
+[src/scorer.ts:172](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L172)
 
 ***
 
@@ -30,4 +30,4 @@ Subtask id
 
 #### Source
 
-[src/scorer.ts:174](https://github.com/WWPPC/WWPPC-server/blob/d36edcf5b3e9dc61bf375adab6f0ce8e98344d21/src/scorer.ts#L174)
+[src/scorer.ts:174](https://github.com/WWPPC/WWPPC-server/blob/db20055e35fd52dcfa5e227481f94ec317e29b6f/src/scorer.ts#L174)

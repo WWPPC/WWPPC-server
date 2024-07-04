@@ -1,4 +1,4 @@
-import { subtle, webcrypto } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, subtle, webcrypto } from 'crypto';
 import { validate } from 'uuid';
 
 import Logger, { NamedLogger } from './log';
@@ -7,9 +7,9 @@ import Logger, { NamedLogger } from './log';
 export type RSAEncrypted = Buffer | string;
 
 /**
- * Simple RSA-OAEP asymmetric encryption wrapper.
+ * Simple RSA-OAEP-256 asymmetric encryption wrapper.
  */
-export class RSAAsymmetricEncryptionHandler {
+export class RSAEncryptionHandler {
     static #counter = 0;
     readonly logger: NamedLogger;
     #keypair: Promise<webcrypto.CryptoKeyPair>;
@@ -17,8 +17,11 @@ export class RSAAsymmetricEncryptionHandler {
     #session: number;
     readonly ready: Promise<any>;
 
+    /**
+     * @param {Logger} logger Logger instance
+     */
     constructor(logger: Logger) {
-        this.logger = new NamedLogger(logger, 'RSAAsymmetricEncryptionHandler-' + RSAAsymmetricEncryptionHandler.#counter++);
+        this.logger = new NamedLogger(logger, 'RSAEncryptionHandler-' + RSAEncryptionHandler.#counter++);
         this.#keypair = subtle.generateKey({
             name: "RSA-OAEP",
             modulusLength: 2048,
@@ -67,6 +70,57 @@ export class RSAAsymmetricEncryptionHandler {
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
             return buf;
+        }
+    }
+}
+
+/**
+ * Simple AES-GCM-256 symmetric encryption wrapper.
+ */
+export class AESEncryptionHandler {
+    static #counter: 0;
+    readonly logger: NamedLogger;
+    readonly #key: Buffer;
+
+    /**
+     * @param {Buffer} key Valid AES key
+     * @param {Logger} logger Logger instance
+     */
+    constructor(key: Buffer, logger: Logger) {
+        this.logger = new NamedLogger(logger, 'AESEncryptionHandler-' + AESEncryptionHandler.#counter++);
+        this.#key = key;
+    }
+
+    /**
+     * Symmetrically encrypt a plaintext string to a formatted string.
+     * @param {string} plaintext Plaintext string
+     * @returns {string} Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext string if there was an error)
+     */
+    encrypt(plaintext: string): string {
+        try {
+            const initVector = randomBytes(12);
+            const cipher = createCipheriv('aes-256-gcm', this.#key, initVector);
+            return `${cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64')}:${initVector.toString('base64')}:${cipher.getAuthTag().toString('base64')}`;
+        } catch (err) {
+            this.logger.handleError('RSA decrypt error:', err);
+            return plaintext;
+        }
+    }
+
+    /**
+     * Symmetrically decrypt a formatted encrypted string to a plaintext string.
+     * @param {string} encrypted Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
+     * @returns {string} Plaintext string (the formatted encrypted string if there was an error)
+     */
+    decrypt(encrypted: string): string {
+        try {
+            const text = encrypted.split(':');
+            const decipher = createDecipheriv('aes-256-gcm', this.#key, Buffer.from(text[1], 'base64'));
+            decipher.setAuthTag(Buffer.from(text[2], 'base64'));
+            return decipher.update(text[0], 'base64', 'utf8') + decipher.final('utf8');
+        } catch (err) {
+            this.logger.handleError('RSA decrypt error:', err);
+            return encrypted;
         }
     }
 }
