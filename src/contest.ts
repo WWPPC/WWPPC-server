@@ -9,6 +9,7 @@ import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
 import { ServerSocket } from './socket';
 import { isUUID, reverse_enum, UUID } from './util';
+import { Client } from 'pg';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.
@@ -251,11 +252,11 @@ export enum ClientProblemCompletionState {
     UPLOADED = 1,
     /**Submitted but not graded, submissions locked */
     SUBMITTED = 2,
-    /**Submitted, graded, and passed all tests */
+    /**Submitted, graded, and passed all subtasks */
     GRADED_PASS = 3,
-    /**Submitted, graded, and failed all tests */
+    /**Submitted, graded, and failed all subtasks */
     GRADED_FAIL = 4,
-    /**Submitted, graded, and only passed some tests */
+    /**Submitted, graded, passed at least one subtask and failed at least one subtask */
     GRADED_PARTIAL = 5,
     /**Error loading status */
     ERROR = 6
@@ -538,7 +539,13 @@ export class ContestHost {
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (config.gradeAtRoundEnd && round == this.#index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
-        const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
+        const subtasks = new Map<number, boolean>();
+        scores.forEach((score) => {
+            if (subtasks.get(score.subtask) !== false) {
+                subtasks.set(score.subtask, score.state == ScoreState.CORRECT);
+            }
+        });
+        const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask) === true);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;

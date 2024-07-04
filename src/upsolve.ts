@@ -214,7 +214,13 @@ export class UpsolveManager {
     #getCompletionState(scores: Score[] | undefined): ClientProblemCompletionState {
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.UPLOADED;
-        const hasPass = scores.some((score) => score.state == ScoreState.CORRECT);
+        const subtasks = new Map<number, boolean>();
+        scores.forEach((score) => {
+            if (subtasks.get(score.subtask) !== false) {
+                subtasks.set(score.subtask, score.state == ScoreState.CORRECT);
+            }
+        });
+        const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask) === true);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
