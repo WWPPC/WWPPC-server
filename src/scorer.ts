@@ -4,7 +4,7 @@ import { UUID } from './util';
 
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
- * Using the function score = Math.log(cnt+1)/cnt where cnt is number of people who solved the problem (if cnt=0, then 1).
+ * Using the function score = 1/cnt where cnt is number of people who solved the problem
  */
 export class Scorer {
     logger: NamedLogger;
@@ -46,7 +46,6 @@ export class Scorer {
 
     /**
      * Add or edit user (or team the scorer doesnt care) to leaderboard
-     * Note that we only care about submission.scores so you can change the params to make it more convenient
      * @param {Submission} submission the submission (with COMPLETE SCORES)
      * @returns {Boolean} whether it was successful
      */
@@ -54,9 +53,13 @@ export class Scorer {
         // sort into subtasks
         const userScores = this.#users.get(submission.username) ?? new Map<Subtask, number>();
         for (const score of submission.scores) {
+            //add new subtasks
             let works = true;
             for (const i of this.#subtasks) {
-                if (i.id === submission.problemId && i.number == score.subtask) works = false;
+                if (i.id === submission.problemId && i.number == score.subtask) {
+                    works = false;
+                    break;
+                }
             }
             if (works) {
                 this.#subtasks.add({
@@ -67,7 +70,8 @@ export class Scorer {
         }
         for (const i of this.#subtasks) {
             if (i.id === submission.problemId) {
-                userScores.set(i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && submission.problemId === i.id && s.subtask === i.number) ? -1 : submission.time);
+                userScores.set(i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i.number) ? -1 : submission.time);
+                break;
             }
         }   
         for (const s of this.#subtasks) {
@@ -139,7 +143,7 @@ export class Scorer {
                         this.logger.warn('Subtask disappeared (2)');
                     } else {
                         //use the log function TIMES the weight, no time penalty yet
-                        score += weight * Math.log(numSolved+1) / numSolved;
+                        score += weight * 1 / numSolved;
                     }
                 }
             });
