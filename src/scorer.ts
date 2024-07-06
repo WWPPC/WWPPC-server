@@ -9,16 +9,31 @@ import { UUID } from './util';
 export class Scorer {
     logger: NamedLogger;
 
-    readonly #subtasks: Set<Subtask> = new Set();
+    /**
+     * list of all rounds
+     */
     #rounds: Round[];
+    /**
+     * current round
+     */
     #round: number
-    //key = round id
-    //value: map of username to scores
+
+    /**
+     * List of all subtasks. One is inserted anytime a submission contains a subtask we don't know about yet
+     */
+    readonly #subtasks: Set<Subtask> = new Set();
+    
+    /**
+     * key: round id
+     * value: map of username to scores
+     */
     readonly #scores: Map<number, Map<string, number>> = new Map();
 
-    //key = username
-    //value: map of subtask to solve time (or -1)
-    #users: Map<string, Map<Subtask, number>> = new Map();
+    /**
+     * key: username
+     * value: map of subtask to solve time (if a subtask is unsolved, it is not in the map)
+     */
+    #userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
 
     constructor(rounds: Round[], logger: Logger) {
         this.#rounds = rounds;
@@ -41,7 +56,7 @@ export class Scorer {
     setRound(round: number) {
         this.getRoundScores();
         this.#round = round;
-        this.#users.clear();
+        this.#userSolvedStatus.clear();
     }
 
     /**
@@ -50,36 +65,28 @@ export class Scorer {
      * @returns {Boolean} whether it was successful
      */
     updateUser(submission: Submission): Boolean {
-        // sort into subtasks
-        const userScores = this.#users.get(submission.username) ?? new Map<Subtask, number>();
+        const userScores = this.#userSolvedStatus.get(submission.username) ?? new Map<Subtask, number>();
+        //add new subtasks
         for (const score of submission.scores) {
-            //add new subtasks
-            let works = true;
+            let alreadyExists = false;
             for (const i of this.#subtasks) {
-                if (i.id === submission.problemId && i.number == score.subtask) {
-                    works = false;
-                    break;
-                }
+                alreadyExists = i.id === submission.problemId && i.number == score.subtask;
+                if (alreadyExists) break;
             }
-            if (works) {
+            if (!alreadyExists) {
                 this.#subtasks.add({
                     id: submission.problemId,
                     number: score.subtask
                 });
             }
         }
-        for (const i of this.#subtasks) {
-            if (i.id === submission.problemId) {
-                userScores.set(i, submission.scores.some((s: Score) => s.state != ScoreState.CORRECT && s.subtask === i.number) ? -1 : submission.time);
-                break;
-            }
-        }   
-        for (const s of this.#subtasks) {
-            if (userScores.get(s) == undefined) {
-                userScores.set(s, -1);
+        //put in the scores from the submission
+        for (const subtask of this.#subtasks) {
+            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.CORRECT)) {
+                userScores.set(subtask, submission.time);
             }
         }
-        this.#users.set(submission.username, userScores);
+        this.#userSolvedStatus.set(submission.username, userScores);
         return true;
     }
 
@@ -102,15 +109,13 @@ export class Scorer {
         });
 
         //find how many users solved each subtask
-        this.#users.forEach((scores, username) => {
-            scores.forEach((solved, subtask) => {
-                if (solved >= 0) {
-                    const c = subtaskSolved.get(subtask);
-                    if (c !== undefined) {
-                        subtaskSolved.set(subtask, c + 1);
-                    } else {
-                        this.logger.warn('Subtask disappeared (0)');
-                    }
+        this.#userSolvedStatus.forEach((scores) => {
+            scores.forEach((solveTime, subtask) => {
+                const c = subtaskSolved.get(subtask);
+                if (c !== undefined) {
+                    subtaskSolved.set(subtask, c + 1);
+                } else {
+                    this.logger.warn('Subtask disappeared (0)');
                 }
             })
         });
@@ -133,18 +138,16 @@ export class Scorer {
 
         //calculate actual scores for each user
         const userScores = new Map<string, number>();
-        this.#users.forEach((scores, username) => {
+        this.#userSolvedStatus.forEach((scores, username) => {
             let score = 0;
-            scores.forEach((solved, subtask) => {
-                if (solved >= 0) {
-                    const weight = problemWeight.get(subtask.id);
-                    const numSolved = subtaskSolved.get(subtask);
-                    if (weight === undefined || numSolved === undefined) {
-                        this.logger.warn('Subtask disappeared (2)');
-                    } else {
-                        //use the log function TIMES the weight, no time penalty yet
-                        score += weight * 1 / numSolved;
-                    }
+            scores.forEach((solveTime, subtask) => {
+                const weight = problemWeight.get(subtask.id);
+                const numSolved = subtaskSolved.get(subtask);
+                if (weight !== undefined && numSolved !== undefined) {
+                    //use the log function TIMES the weight, no time penalty yet
+                    score += weight * 1 / numSolved;
+                } else {
+                    this.logger.warn('Subtask disappeared (2)');
                 }
             });
             userScores.set(username, score);
