@@ -1,5 +1,4 @@
-import { ContestUpdateSubmissionResult } from './contest';
-import { Round, Score, ScoreState, Submission } from './database';
+import { Round, ScoreState, Submission } from './database';
 import Logger, { NamedLogger } from './log';
 import { UUID } from './util';
 
@@ -124,12 +123,8 @@ export class Scorer {
         subtaskSolved.forEach((numSolved, subtask) => {
             const problem = problemSubtasks.get(subtask.id);
             //probably no pass by reference issues?
-            if (problem == undefined) {
-                problemSubtasks.set(subtask.id, [subtask]);
-            } else {
-                problem.push(subtask);
-                problemSubtasks.set(subtask.id, problem);
-            }
+            if (problem === undefined) problemSubtasks.set(subtask.id, [subtask]);
+            else problemSubtasks.set(subtask.id, problem.concat([subtask]));
         });
         //weight subtasks so that problems with more subtasks aren't weighted too high
         problemSubtasks.forEach((subtasks, problem) => {
