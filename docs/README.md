@@ -14,7 +14,7 @@ The server uses [Socket.IO](https://socket.io) as a bi-directional communication
 
 After cloning the `WWPPC-server` repo, create a folder `config` in the root directory of the repository (next to `src`).
 
-In that, create a new file, `.env`, which contains environment variables:
+In the `config` folder, create a new file, `.env`, which contains the following environment variables:
 * `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string (you can usually get this by copying one from your database provide, but if not, the format is usually `postgresql://username:password@hostname:port/databasename`)
 * `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
 * `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key (*NOT* your *SITE* key)
@@ -23,9 +23,10 @@ In that, create a new file, `.env`, which contains environment variables:
 * `SMTP_USER`: SMTP service username (email server)
 * `SMTP_PASS`: SMTP service password (email server)
 * `GRADER_PASS`: Global grader password, can be any string
-`db-cert.pem`, which allows you to connect to the database securely
 
 There are also other environment variables, like `SERVE_STATIC` and `DEBUG_MODE`, which are temporary overrides for [config](config/README.md) options.
+
+Also create `db-cert.pem`, which is necessary to connect to the database securely.
 
 Both of these should be in `#backend` channel on Discord, so you can just copy them in.
 
