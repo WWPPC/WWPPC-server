@@ -344,7 +344,7 @@ export class ContestHost {
             this.end();
             return;
         }
-        this.scorer.setContest(rounds);
+        this.scorer.setRounds(rounds);
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
@@ -376,21 +376,14 @@ export class ContestHost {
             this.end();
             return;
         }
-        // submissions will need to be used later
-        const submissions: Submission[][] = [];
-        for (let i = 0; i < rounds.length; i++) {
-            this.scorer.setRound(i);
-            const subs = await this.db.readSubmissions({ id: rounds[i].problems, username: users, analysis: false });
-            if (subs === null) {
-                this.logger.error(`Database error`);
-                this.end();
-                return;
-            }
-            for (const sub of subs) {
-                this.scorer.updateUser(sub);
-            }
-            submissions[i] = subs;
-            this.scorer.getRoundScores();
+        const submissions = await this.db.readSubmissions({ contest: { contest: this.#data.id }, username: users, analysis: false });
+        if (submissions === null) {
+            this.logger.error(`Database error`);
+            this.end();
+            return;
+        }
+        for (const sub of submissions) {
+            this.scorer.updateUser(sub);
         }
         // re-index the contest
         this.#index = -1;
@@ -407,10 +400,6 @@ export class ContestHost {
             } else break;
         }
         this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`);
-        this.scorer.setRound(Math.max(0, this.#index));
-        for (const sub of submissions[Math.max(0, this.#index)]) {
-            this.scorer.updateUser(sub);
-        }
         let scorerUpdateModulo = 0;
         let lastScores: Map<string, number> | undefined = undefined;
         this.#updateLoop = setInterval(() => {
@@ -426,7 +415,6 @@ export class ContestHost {
                 this.#index++;
                 this.#active = true;
                 this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
-                this.scorer.setRound(this.#index);
             }
             if (updated) this.updateAllUsers();
             if (this.#data.endTime <= Date.now()) this.end(true);
@@ -624,7 +612,7 @@ export class ContestHost {
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
                     // score it too (after grading)
-                    this.scorer.updateUser(graded);
+                    this.scorer.updateUser(graded, this.#data.rounds[this.#index].id);
                 }
             });
             respond(ContestUpdateSubmissionResult.SUCCESS);
