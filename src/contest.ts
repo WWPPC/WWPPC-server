@@ -322,7 +322,7 @@ export class ContestHost {
      * Get a copy of the internal data.
      */
     get data(): ContestContest {
-        return structuredClone(this.data);
+        return structuredClone(this.#data);
     }
     /**
      * Reload the contest data from the database, also updating clients.
