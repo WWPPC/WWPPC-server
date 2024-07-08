@@ -41,11 +41,8 @@ export class Grader {
         this.app.get(this.#path + '/get-work', async (req, res) => {
             //fetch work from the server
             const username = this.#getAuth(req);
-            if (username == 401) {
-                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
-                if (config.debugMode) this.logger.debug(`get-work: ${req.ip} - 401`, true);
-                return;
-            } else if (typeof username == 'number') {
+            if (typeof username == 'number') {
+                if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
                 if (config.debugMode) this.logger.debug(`get-work: ${req.ip} - ${username}`, true);
                 return;
@@ -87,16 +84,13 @@ export class Grader {
                 lang: node.grading.submission.lang,
                 constraints: problems[0].constraints
             });
-            if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, work sent`);
+            if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, sent submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
         });
         this.app.post(this.#path + '/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
             const username = this.#getAuth(req);
-            if (username == 401) {
-                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
-                if (config.debugMode) this.logger.debug(`return-work: ${req.ip} - 401`, true);
-                return;
-            } else if (typeof username == 'number') {
+            if (typeof username == 'number') {
+                if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
                 if (config.debugMode) this.logger.debug(`return-work: ${req.ip} - ${username}`, true);
                 return;
@@ -120,20 +114,17 @@ export class Grader {
                     this.#ungradedSubmissions.unshift(node.grading);
                 }
             }
+            if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - returned submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
             node.grading = undefined;
             res.sendStatus(200);
-            if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 200, returned work`);
         });
         this.app.post(this.#path + '/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
             const username = this.#getAuth(req);
-            if (username == 401) {
-                res.set('WWW-Authenticate', 'Basic').sendStatus(401);
-                if (config.debugMode) this.logger.debug(`finish-work: ${req.ip} - 401`, true);
-                return;
-            } else if (typeof username == 'number') {
+            if (typeof username == 'number') {
+                if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
                 if (config.debugMode) this.logger.debug(`finish-work: ${req.ip} - ${username}`, true);
                 return;
@@ -173,9 +164,9 @@ export class Grader {
                 this.logger.handleError('Error occured in submission callback:', err);
             }
 
+            if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 200, finished submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
             node.grading = undefined;
             res.sendStatus(200);
-            if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 200, finished work`);
         });
 
         // reserve path
@@ -220,7 +211,7 @@ export class Grader {
             callback: cb,
             cancelled: false
         });
-        if (config.debugMode) this.logger.debug(`Submission queued by ${submission.username} for ${submission.problemId}`, true);
+        if (config.debugMode) this.logger.debug(`Submission for ${submission.problemId} queued by ${submission.username}`, true);
     }
     /**
      * Cancel all ungraded submissions from a user to a problem.
@@ -249,7 +240,7 @@ export class Grader {
                 i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
                 canceled++;
             }
-            if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions by ${username} for ${problemId}`);
+            if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions to ${problemId} by ${username}`);
         }
         return canceled > 0;
     }
