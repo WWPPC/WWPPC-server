@@ -285,7 +285,7 @@ export class ContestHost {
     readonly grader: Grader;
     readonly scorer: Scorer;
     readonly logger: NamedLogger;
-    #data: ContestContest;
+    #contest: ContestContest;
     #index: number = 0;
     #active: boolean = false;
     #ended: boolean = false;
@@ -308,7 +308,7 @@ export class ContestHost {
         this.grader = grader;
         this.scorer = new Scorer([], logger);
         this.logger = new NamedLogger(logger, 'ContestHost');
-        this.#data = {
+        this.#contest = {
             id: id,
             rounds: [],
             startTime: Infinity,
@@ -322,7 +322,7 @@ export class ContestHost {
      * Get a copy of the internal data.
      */
     get data(): ContestContest {
-        return structuredClone(this.#data);
+        return structuredClone(this.#contest);
     }
     /**
      * Reload the contest data from the database, also updating clients.
@@ -362,7 +362,7 @@ export class ContestHost {
                 endTime: round.endTime
             });
         }
-        this.#data = {
+        this.#contest = {
             id: this.id,
             rounds: mapped,
             startTime: contest[0].startTime,
@@ -376,7 +376,7 @@ export class ContestHost {
             this.end();
             return;
         }
-        const submissions = await this.db.readSubmissions({ contest: { contest: this.#data.id }, username: users, analysis: false });
+        const submissions = await this.db.readSubmissions({ contest: { contest: this.#contest.id }, username: users, analysis: false });
         if (submissions === null) {
             this.logger.error(`Database error`);
             this.end();
@@ -389,39 +389,39 @@ export class ContestHost {
         this.#index = -1;
         this.#active = false;
         const now = Date.now();
-        if (this.#data.startTime > now || this.#data.endTime <= now) {
+        if (this.#contest.startTime > now || this.#contest.endTime <= now) {
             this.end();
             return;
         }
-        for (let i = 0; i < this.#data.rounds.length; i++) {
-            if (this.#data.rounds[i].startTime <= now) {
+        for (let i = 0; i < this.#contest.rounds.length; i++) {
+            if (this.#contest.rounds[i].startTime <= now) {
                 this.#index = i;
-                this.#active = this.#data.rounds[i].endTime > now;
+                this.#active = this.#contest.rounds[i].endTime > now;
             } else break;
         }
-        this.logger.info(`Contest ${this.#data.id} - Indexed to round ${this.#index}`);
+        this.logger.info(`Contest ${this.#contest.id} - Indexed to round ${this.#index}`);
         let scorerUpdateModulo = 0;
         let lastScores: Map<string, number> | undefined = undefined;
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
-            if (this.#index >= 0 && this.#data.rounds[this.#index].endTime <= now && this.#active) {
+            if (this.#index >= 0 && this.#contest.rounds[this.#index].endTime <= now && this.#active) {
                 updated = true;
                 this.#active = false;
-                this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} end`);
+                this.logger.info(`Contest ${this.#contest.id} - Round ${this.#index} end`);
             }
-            if (this.#data.rounds[this.#index + 1] != undefined && this.#data.rounds[this.#index + 1].startTime <= now) {
+            if (this.#contest.rounds[this.#index + 1] != undefined && this.#contest.rounds[this.#index + 1].startTime <= now) {
                 updated = true;
                 this.#index++;
                 this.#active = true;
-                this.logger.info(`Contest ${this.#data.id} - Round ${this.#index} start`);
+                this.logger.info(`Contest ${this.#contest.id} - Round ${this.#index} start`);
             }
             if (updated) this.updateAllUsers();
-            if (this.#data.endTime <= Date.now()) this.end(true);
+            if (this.#contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (!config.freezeScoresLastRound || this.#index != this.#data.rounds.length - 1 || lastScores == undefined) lastScores = this.scorer.getScores();
+                if (!config.freezeScoresLastRound || this.#index != this.#contest.rounds.length - 1 || lastScores == undefined) lastScores = this.scorer.getScores();
                 if (lastScores != undefined) this.io.to(this.#sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
@@ -439,7 +439,7 @@ export class ContestHost {
      * @returns 
      */
     problemSubmittable(id: UUID): boolean {
-        return this.#active && this.#data.rounds[this.#index].problems.includes(id);
+        return this.#active && this.#contest.rounds[this.#index].problems.includes(id);
     }
     /**
      * Update all users in contest with latest contest data.
@@ -456,7 +456,7 @@ export class ContestHost {
             try {
                 const team = await this.db.getAccountTeam(username);
                 if (typeof team != 'string') throw new Error(`Database error while reading team data (${username})`);
-                const userRounds: ClientRound[] = await Promise.all(this.#data.rounds.map(async (round): Promise<ClientRound> => {
+                const userRounds: ClientRound[] = await Promise.all(this.#contest.rounds.map(async (round): Promise<ClientRound> => {
                     if (round.number <= this.#index) {
                         const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
                             // submissions go under team names
@@ -468,7 +468,7 @@ export class ContestHost {
                             // otherwise concatenate with reverse history array
                             return {
                                 id: problemData[0].id,
-                                contest: this.#data.id,
+                                contest: this.#contest.id,
                                 round: round.number,
                                 number: i,
                                 name: problemData[0].name,
@@ -507,10 +507,10 @@ export class ContestHost {
                     }
                 }));
                 const userContest: ClientContest = {
-                    id: this.#data.id,
+                    id: this.#contest.id,
                     rounds: userRounds,
-                    startTime: this.#data.startTime,
-                    endTime: this.#data.endTime
+                    startTime: this.#contest.startTime,
+                    endTime: this.#contest.endTime
                 };
                 this.io.to(username).emit('contestData', userContest);
                 try {
@@ -556,30 +556,30 @@ export class ContestHost {
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
         socket.removeAllListeners('getSubmissionCode');
-        socket.on('updateSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
-            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
+        socket.on('updateSubmission', async (submission: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
+            if (submission == null || typeof submission.id != 'string' || typeof submission.file != 'string' || typeof submission.lang != 'string' || !isUUID(submission.id) || typeof cb != 'function') {
                 socket.kick('invalid updateSubmission payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + data.id);
+            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + submission.id);
             const respond = (res: ContestUpdateSubmissionResult) => {
-                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${submission.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
                 cb(res);
             };
-            if (data.file.length > 10240) {
+            if (submission.file.length > 10240) {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
-            if (!config.acceptedLanguages.includes(data.lang)) {
+            if (!config.acceptedLanguages.includes(submission.lang)) {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }
-            const problems = await this.db.readProblems({ id: data.id });
+            const problems = await this.db.readProblems({ id: submission.id });
             if (problems === null) {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
-            if (!this.problemSubmittable(data.id)) {
+            if (!this.problemSubmittable(submission.id)) {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
@@ -588,37 +588,37 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
-            const submission: Submission = {
+            const serverSubmission: Submission = {
                 username: teamData.id,
-                problemId: data.id,
-                file: data.file,
+                problemId: submission.id,
+                file: submission.file,
                 scores: [],
                 history: [],
-                lang: data.lang,
+                lang: submission.lang,
                 time: Date.now(),
                 analysis: false
             };
-            if (!(await this.db.writeSubmission(submission, config.gradeAtRoundEnd))) {
+            if (!(await this.db.writeSubmission(serverSubmission, config.gradeAtRoundEnd))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             // submissions are stored under the team
-            this.grader.cancelUngraded(teamData.id, data.id);
-            this.grader.queueUngraded(submission, async (graded) => {
-                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${data.id})`);
+            this.grader.cancelUngraded(teamData.id, submission.id);
+            this.grader.queueUngraded(serverSubmission, async (graded) => {
+                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
                 if (graded != null) {
                     await this.db.writeSubmission(graded, config.gradeAtRoundEnd);
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
                     // score it too (after grading)
-                    this.scorer.updateUser(graded, this.#data.rounds[this.#index].id);
+                    this.scorer.updateUser(graded, this.#contest.rounds[this.#index].id);
                 }
             });
             respond(ContestUpdateSubmissionResult.SUCCESS);
             // update whole team
             teamData.members.forEach((username) => this.updateUser(username));
-            this.logger.info(`Accepted submission for ${data.id} by ${socket.username} (team ${teamData.id})`);
+            this.logger.info(`Accepted submission for ${submission.id} by ${socket.username} (team ${teamData.id})`);
         });
         socket.on('getSubmissionCode', async (data: { id: string }, cb: (res: string) => any) => {
             if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
