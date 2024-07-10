@@ -50,7 +50,7 @@ export class Scorer {
     /**
      * Process submission and add to leaderboard
      * @param {Submission} submission the scored submission
-     * @param {UUID} [submissionRound] (optional) round UUID
+     * @param {UUID} submissionRound (optional) round UUID
      * @returns {Boolean} whether it was successful
      */
     updateUser(submission: Submission, submissionRound?: UUID): Boolean {
@@ -64,14 +64,7 @@ export class Scorer {
             }
             if (!alreadyExists) {
                 //if submissionRound isn't passed in, look it up from the loaded rounds
-                if (submissionRound === undefined) {
-                    for (const round of this.#rounds) {
-                        if (round.problems.some((id) => id === submission.problemId)) {
-                            submissionRound = round.id;
-                            break;
-                        }
-                    }
-                }
+                submissionRound ??= this.#rounds.find((round) => round.problems.some((id) => id == submission.problemId))?.id;
                 if (submissionRound === undefined) {
                     this.logger.error(`Problem ID (${submission.problemId}) of submission not found in round data`);
                     return false;
