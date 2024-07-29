@@ -1,0 +1,58 @@
+{
+    "WWPIT": {
+        "graders": true,
+        "rounds": true,
+        "scoreFreezeTime": 60,
+        "withholdResults": false,
+        "submitSolver": true,
+        "acceptedSolverLanguages": [
+            "Java8",
+            "Java11",
+            "Java17",
+            "Java21",
+            "C11",
+            "C++11",
+            "C++17",
+            "C++20",
+            "Python3.12.3"
+        ],
+        "maxSubmissionSize": 10240
+    },
+    "WWPHACKS": {
+        "graders": false,
+        "rounds": false,
+        "scoreFreezeTime": 60,
+        "withholdResults": false,
+        "submitSolver": true,
+        "acceptedSolverLanguages": [],
+        "maxSubmissionSize": 10240
+    },
+    "WWPMI": {
+        "graders": true,
+        "rounds": false,
+        "scoreFreezeTime": 60,
+        "withholdResults": false,
+        "submitSolver": true,
+        "acceptedSolverLanguages": [
+            "Java8",
+            "Java11",
+            "Java17",
+            "Java21",
+            "C11",
+            "C++11",
+            "C++17",
+            "C++20",
+            "Python3.12.3"
+        ],
+        "maxSubmissionSize": 10240
+    },
+    "WWPMT": {
+        "graders": true,
+        "rounds": false,
+        "scoreFreezeTime": 60,
+        "withholdResults": false,
+        "submitSolver": false,
+        "acceptedSolverLanguages": [],
+        "maxSubmissionSize": 10240
+    }
+}

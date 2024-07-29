@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import config from './config';
 import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './contest';
-import Database, { ContestType, Score, ScoreState, Submission } from './database';
+import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { ServerSocket } from './socket';

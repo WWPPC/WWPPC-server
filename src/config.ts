@@ -6,6 +6,7 @@ process.env.EMAIL_TEMPLATE_PATH ??= path.resolve(__dirname, '../email-templates'
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
 const configPath = path.resolve(process.env.CONFIG_PATH, 'config.json');
+const contestPath = path.resolve(process.env.CONFIG_PATH, 'contests.json');
 function loadConfig() {
     try {
         if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}', 'utf8');
@@ -14,7 +15,16 @@ function loadConfig() {
         return {};
     }
 }
+function loadContests() {
+    try {
+        if (!fs.existsSync(contestPath)) fs.writeFileSync(contestPath, '{}', 'utf8');
+        return JSON.parse(fs.readFileSync(contestPath, 'utf8'));
+    } catch {
+        return {};
+    }
+}
 const fileConfig = loadConfig();
+const fileContests = loadContests();
 /**
  * Global configuration, loaded from `config.json` in the config folder.
  * If any field is empty in `config.json`, it is filled in with the default.
@@ -42,16 +52,27 @@ const config: {
     readonly dbProblemCacheTime: number
     /**Time in milliseconds before the grading host defaults a grading server to "disconnected" state (default: 180000) */
     readonly graderTimeout: number
-    /**Programming languages accepted by contest systems (case sensitive) (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
-    readonly acceptedLanguages: string[]
-    /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
-    readonly maxSubmissionSize: number
+    /**Contest types and options (no defaults) */
+    readonly contests: {
+        [key: string]: {
+            /**Use grading system to evaluate submissions, otherwise grade manually (default: true) */
+            readonly graders: boolean,
+            /**Enable round separation (separates contest into multiple sub-contests) (default: true) */
+            readonly rounds: boolean,
+            /**"Freeze" scores - stop updating scores for clients - for some amount of time (minutes) before the last round ends (default: 60) */
+            readonly scoreFreezeTime: number,
+            /**Withhold submission results for each round until the round ends (submissions are still instantly graded however) (default: false) */
+            readonly withholdResults: boolean,
+            /**Submissions will be treated as solution code instead of an answer - setting to "false" limits grading to one test case (default: true) */
+            readonly submitSolver: boolean,
+            /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
+            readonly acceptedSolverLanguages: string[]
+            /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
+            readonly maxSubmissionSize: number
+        }
+    }
     /**Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24) */
     readonly maxSubmissionHistory: number
-    /**Withhold submission results for each round until the round ends (submissions are still instantly graded) (default: true) */
-    readonly gradeAtRoundEnd: boolean
-    /**"Freeze" scores - stop updating scores on the client - within the last round of competitions (default: true) */
-    readonly freezeScoresLastRound: boolean
     /**Log information about sent emails (default: true) */
     readonly logEmailActivity: boolean
     /**Milliseconds between client RSA keypair rotations (default: 86400000) */
@@ -82,21 +103,30 @@ const config: {
     dbCacheTime: fileConfig.dbCacheTime ?? 60000,
     dbProblemCacheTime: fileConfig.dbProblemCacheTime ?? 600000,
     graderTimeout: fileConfig.graderTimeout ?? 180000,
-    acceptedLanguages: fileConfig.acceptedLanguages ?? [
-        'Java8',
-        'Java11',
-        'Java17',
-        'Java21',
-        'C11',
-        'C++11',
-        'C++17',
-        'C++20',
-        'Python3.12.3'
-    ],
-    maxSubmissionSize: fileConfig.maxSubmissionSize ?? 10240,
+    // single "line" mapping and validating (validation is crashing if invalid or adding defaults)
+    contests: fileContests != null ? Object.entries(fileContests).reduce((p, [cId, cVal]: [string, any]) => {
+        p[cId] = {
+            graders: cVal.graders ?? true,
+            rounds: cVal.rounds ?? true,
+            scoreFreezeTime: cVal.scoreFreezeTime ?? 60,
+            withholdResults: cVal.withholdResults ?? false,
+            submitSolver: cVal.submitSolver ?? true,
+            acceptedSolverLanguages: cVal.acceptedSolverLanguages ?? [
+                'Java8',
+                'Java11',
+                'Java17',
+                'Java21',
+                'C11',
+                'C++11',
+                'C++17',
+                'C++20',
+                'Python3.12.3'
+            ],
+            maxSubmissionSize: cVal.maxSubmissionSize ?? 10240
+        };
+        return p;
+    }, {}) : {},
     maxSubmissionHistory: fileConfig.maxSubmissionHistory ?? 24,
-    gradeAtRoundEnd: fileConfig.gradeAtRoundEnd ?? true,
-    freezeScoresLastRound: fileConfig.freezeScoresLastRound ?? true,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
     rsaKeyRotateInterval: fileConfig.rsaKeyRotateInterval ?? 86400000,
     debugMode: process.argv.includes('debug_mode') ?? process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false,

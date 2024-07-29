@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 import config from './config';
-import { AccountOpResult, ContestType, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
+import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -54,7 +54,7 @@ export class ContestManager {
             const contests = await this.db.readContests({
                 startTime: { op: '>=', v: Date.now() },
                 endTime: { op: '<', v: Date.now() },
-                type: ContestType.WWPIT
+                type: "WWPIT"
             });
             if (contests == null) {
                 this.logger.error('Could not read contest list!');

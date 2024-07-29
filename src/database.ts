@@ -1402,14 +1402,7 @@ export interface Contest {
     /**If the contest is publicly archived once finished */
     public: boolean
     /**The tournament the contest is part of */
-    type: ContestType
-}
-/**The tournament the contest is part of */
-export enum ContestType {
-    WWPIT = 0,
-    WWPHacks = 1,
-    WWPMI = 2,
-    WWPMT = 3
+    type: string
 }
 /**Descriptor for a single round */
 export interface Round {
@@ -1497,7 +1490,7 @@ export interface ReadContestsCriteria {
     /**If the contest is publicly archived once finished */
     public?: boolean
     /**The tournament the contest is part of */
-    type?: ContestType
+    type?: string
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export interface ReadRoundsCriteria {
