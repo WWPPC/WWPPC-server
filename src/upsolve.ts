@@ -1,11 +1,11 @@
 import { Express } from 'express';
 
+import { ServerSocket } from './clients';
 import config from './config';
 import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './contest';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
-import { ServerSocket } from './socket';
 import { isUUID, reverse_enum, UUID } from './util';
 
 /**
@@ -24,20 +24,25 @@ export class UpsolveManager {
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
-     * @param {string} graderPassword Global password for graders to authenticate with
+     * @param {string} contestType Contest type Id
+     * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, graderPassword: string, logger: Logger) {
+    constructor(db: Database, app: Express, grader: Grader, logger: Logger) {
         this.db = db;
         this.app = app;
+        this.grader = grader;
         this.logger = new NamedLogger(logger, 'UpsolveManager');
-        this.grader = new Grader(app, '/upsolve-judge', graderPassword, logger, db);
         // attach api
-        this.app.get('/api/upsolveContestList', async (req, res) => {
+        this.app.get(`/api/upsolveContestList/:ctype`, async (req, res) => {
+            if (config.contests[req.params.ctype] === undefined) {
+                res.sendStatus(404);
+                return;
+            }
             const contests = await this.db.readContests({
                 endTime: { op: '<', v: Date.now() },
                 public: true,
-                type: ContestType.WWPIT
+                type: req.params.ctype
             });
             if (contests == null) {
                 res.sendStatus(500);
@@ -46,7 +51,7 @@ export class UpsolveManager {
             contests.sort((a, b) => a.endTime - b.endTime);
             res.json(contests.map((c) => c.id));
         });
-        this.app.get('/api/upsolve/:cid', async (req, res) => {
+        this.app.get(`/api/upsolve/:cid`, async (req, res) => {
             const contests = await this.db.readContests({ id: req.params.cid });
             if (contests == null) {
                 res.sendStatus(500);
@@ -79,7 +84,7 @@ export class UpsolveManager {
                 rounds: mapped
             });
         });
-        this.app.get('/api/upsolve/:cid/:r', async (req, res) => {
+        this.app.get(`/api/upsolve/:cid/:r`, async (req, res) => {
             if (isNaN(Number(req.params.r))) {
                 res.sendStatus(400);
                 return;
@@ -93,7 +98,7 @@ export class UpsolveManager {
                 problems: rounds[0].problems
             });
         });
-        this.app.get('/api/upsolve/:cid/:r/:n', async (req, res) => {
+        this.app.get(`/api/upsolve/:cid/:r/:n`, async (req, res) => {
             if (isNaN(Number(req.params.r)) || isNaN(Number(req.params.n))) {
                 res.sendStatus(400);
                 return;
@@ -113,7 +118,7 @@ export class UpsolveManager {
             });
         });
         // reserve /api/upsolve
-        this.app.use('/api/upsolve/*', (req, res) => res.sendStatus(404));
+        this.app.use(`/api/upsolve/*`, (req, res) => res.sendStatus(404));
     }
 
     /**
@@ -124,12 +129,14 @@ export class UpsolveManager {
         if (!this.#open) return;
         const socket = s;
 
+        // THIS GOES TO NAMESPACED AREA NOW
+
         // new event handlers
         socket.removeAllListeners('updateUpsolveSubmission');
         socket.removeAllListeners('refreshUpsolveSubmission');
         socket.removeAllListeners('getUpsolveSubmissionCode');
-        socket.on('updateUpsolveSubmission', async (data: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
-            if (data == null || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
+        socket.on('updateUpsolveSubmission', async (data: { contest: string, id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
+            if (data == null || typeof data.contest != 'string' || config.contests[data.contest] === undefined || typeof data.id != 'string' || typeof data.file != 'string' || typeof data.lang != 'string' || !isUUID(data.id) || typeof cb != 'function') {
                 socket.kick('invalid updateUpsolveSubmission payload');
                 return;
             }
@@ -142,7 +149,7 @@ export class UpsolveManager {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
-            if (!config.acceptedLanguages.includes(data.lang)) {
+            if (!config.contests[data.contest].acceptedSolverLanguages.includes(data.lang)) {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }

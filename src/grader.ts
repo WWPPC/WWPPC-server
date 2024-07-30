@@ -23,13 +23,13 @@ export class Grader {
     #ungradedSubmissions: SubmissionWithCallback[] = [];
 
     /**
+     * @param {Database} db Database connection
      * @param {Express} app Express app (HTTP server) to attach API to
      * @param {string} path Path of API
      * @param {string} password Global password for graders to authenticate with
      * @param {Logger} logger Logger instance
-     * @param {Database} db Database connection
      */
-    constructor(app: Express, path: string, password: string, logger: Logger, db: Database) {
+    constructor(db: Database, app: Express, path: string, password: string, logger: Logger) {
         this.#path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
         this.app = app;
         this.logger = new NamedLogger(logger, 'Grader@' + this.#path);

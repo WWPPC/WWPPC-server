@@ -54,7 +54,7 @@ const config: {
     readonly graderTimeout: number
     /**Contest types and options (no defaults) */
     readonly contests: {
-        [key: string]: {
+        readonly [key: string]: {
             /**Use grading system to evaluate submissions, otherwise grade manually (default: true) */
             readonly graders: boolean,
             /**Enable round separation (separates contest into multiple sub-contests) (default: true) */
