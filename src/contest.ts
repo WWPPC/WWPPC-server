@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { Namespace as SocketIONamespace, Server as SocketIOServer, Socket as SocketIOSocket } from 'socket.io';
 
-import { ServerSocket } from './clients';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult, ServerSocket } from './clients';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
@@ -9,6 +9,7 @@ import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
+import 'crypto';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.
@@ -31,7 +32,6 @@ export class ContestManager {
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
      * @param {SocketIOServer} io Socket.IO server
-     * @param {string} contestType Contest type Id
      * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
@@ -41,12 +41,8 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = grader;
-        this.app.get('/api/:ctype/contestList', async (req, res) => {
-            if (config.contests[req.params.ctype] === undefined) {
-                res.sendStatus(404);
-                return;
-            }
-            const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() }, type: req.params.ctype });
+        this.app.get('/api/contestList', async (req, res) => {
+            const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);
             else res.json(data.map((item) => item.id));
         });
@@ -72,7 +68,7 @@ export class ContestManager {
                         this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
                         continue;
                     }
-                    const host = new ContestHost(contest.id, this.io, this.db, contest.type, this.#grader, this.logger.logger);
+                    const host = new ContestHost(contest.type, contest.id, this.io, this.db, this.#grader, this.logger.logger);
                     this.#contests.set(contest.id, host);
                     host.onended(() => this.#contests.delete(contest.id));
                     this.#sockets.forEach(async (socket) => {
@@ -201,15 +197,14 @@ export class ContestManager {
     }
 }
 
-// slightly modified versions of server/client interfaces, refer to those for documentation
-/**Slightly modified version of {@link Contest} */
+/**Slightly modified version of {@link database.Contest} */
 export interface ContestContest {
     readonly id: string
     rounds: ContestRound[]
     startTime: number
     endTime: number
 }
-/**Slightly modified version of {@link Round} */
+/**Slightly modified version of {@link database.Round} */
 export interface ContestRound {
     readonly id: UUID
     readonly contest: string
@@ -218,7 +213,7 @@ export interface ContestRound {
     startTime: number
     endTime: number
 }
-/**Slightly modified version of {@link Problem} */
+/**Slightly modified version of {@link database.Problem} */
 export interface ContestProblem {
     readonly id: string
     readonly contest: string
@@ -229,65 +224,26 @@ export interface ContestProblem {
     content: string
     constraints: { memory: number, time: number }
 }
-/**Slightly modified version of client Contest */
-interface ClientContest {
-    readonly id: string
-    rounds: ClientRound[]
-    startTime: number
-    endTime: number
+
+/**
+ * Socket.IO connection with a reference to the original "spawning" connection, similar to ServerSocket but within contest namespace.
+ * @ignore
+ */
+export interface ContestSocket extends ServerSocket {
+    linkedSocket: ServerSocket;
 }
-/**Slightly modified version of client Round */
-interface ClientRound {
-    readonly contest: string
-    readonly number: number
-    problems: ClientProblem[]
-    startTime: number
-    endTime: number
-}
-/**Slightly modified version of client Problem */
-interface ClientProblem {
-    readonly id: string
-    readonly contest: string
-    readonly round: number
-    readonly number: number
-    name: string
-    author: string
-    content: string
-    constraints: { memory: number, time: number }
-    submissions: ClientSubmission[]
-    status: ClientProblemCompletionState
-}
-/**Slightly modified version of client Submission */
-interface ClientSubmission {
-    time: number
-    lang: string
-    scores: Score[]
-    status: ClientProblemCompletionState
-}
-/**Client enum for completion state of problems */
-export enum ClientProblemCompletionState {
-    /**Not attempted */
-    NOT_UPLOADED = 0,
-    /**Uploaded but not graded, can still be changed */
-    UPLOADED = 1,
-    /**Submitted but not graded, submissions locked */
-    SUBMITTED = 2,
-    /**Submitted, graded, and passed all subtasks */
-    GRADED_PASS = 3,
-    /**Submitted, graded, and failed all subtasks */
-    GRADED_FAIL = 4,
-    /**Submitted, graded, passed at least one subtask and failed at least one subtask */
-    GRADED_PARTIAL = 5,
-    /**Error loading status */
-    ERROR = 6
-}
-/**Client enum for submission response codes */
-export enum ContestUpdateSubmissionResult {
-    SUCCESS = 0,
-    FILE_TOO_LARGE = 1,
-    LANGUAGE_NOT_ACCEPTABLE = 2,
-    PROBLEM_NOT_SUBMITTABLE = 3,
-    ERROR = 4
+
+export function createContestSocket(socket: SocketIOSocket, linkedSocket: ServerSocket) {
+    const s2 = socket as ContestSocket;
+    s2.kick = function (reason) {
+        linkedSocket.kick(reason);
+        socket.removeAllListeners();
+        socket.disconnect();
+    };
+    s2.logWithId = linkedSocket.logWithId;
+    s2.ip = linkedSocket.ip;
+    s2.username = linkedSocket.ip;
+    return s2;
 }
 
 /**
@@ -295,7 +251,7 @@ export enum ContestUpdateSubmissionResult {
  * Creates a SocketIO namespace for client contest managers to connect to on top of the default namespace connection.
  */
 export class ContestHost {
-    readonly #sid: string;
+    readonly sid: string;
     readonly contestType: string;
     readonly id: string;
     readonly io: SocketIONamespace;
@@ -309,34 +265,51 @@ export class ContestHost {
     #ended: boolean = false;
     #updateLoop: NodeJS.Timeout | undefined = undefined;
 
-    readonly #users: Map<string, { sockets: Set<ServerSocket>, internalSockets: Set<SocketIOSocket> }> = new Map();
+    readonly #users: Map<string, { sockets: Set<ServerSocket>, internalSockets: Set<ContestSocket> }> = new Map();
+    readonly #pendingConnections: Map<string, ServerSocket> = new Map();
+    readonly #pendingConnectionsInverse: Map<ServerSocket, string> = new Map();
 
     /**
+     * @param {string} type Contest type Id
      * @param {string} id Contest id of contest
      * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
      * @param {Database} db Database connection
-     * @param {string} contestType Contest type Id
      * @param {Grader} grader Grader management instance to use for grading
      * @param {Logger} logger Logger instance
      */
-    constructor(id: string, io: SocketIOServer, db: Database, contestType: string, grader: Grader, logger: Logger) {
-        this.#sid = Array.from(new Array(8), () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
-        if (config.contests[contestType] === undefined) throw new ReferenceError(`Contest type "${contestType}" does not exist in configuration`);
-        this.contestType = contestType;
+    constructor(type: string, id: string, io: SocketIOServer, db: Database, grader: Grader, logger: Logger) {
+        this.sid = Array.from(new Array(8), () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
+        if (config.contests[type] === undefined) throw new ReferenceError(`Contest type "${type}" does not exist in configuration`);
+        this.contestType = type;
         this.id = id;
-        this.io = io.of(`contest-${this.#sid}/`);
+        this.io = io.of(`contest-${this.sid}/`);
         this.db = db;
         this.grader = grader;
         this.scorer = new Scorer([], logger);
-        this.logger = new NamedLogger(logger, `ContestHost-${this.contestType}-${this.#sid}`);
+        this.logger = new NamedLogger(logger, `ContestHost-${this.contestType}-${this.sid}`);
         this.#contest = {
             id: id,
             rounds: [],
             startTime: Infinity,
             endTime: Infinity
         };
-        this.io.on('connection', (socket) => {
+        this.io.on('connection', async (s) => {
+            s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
+            const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
             console.log('omg');
+            const auth = await s.emitWithAck('auth');
+            if (auth == null || typeof auth.username != 'string' || typeof auth.token != 'string'
+                || !this.#pendingConnections.has(auth.token) || auth.username !== this.#pendingConnections.get(auth.token)!.username) {
+                    this.logger.logger.warn(`${auth?.username} @ ${ip} | Kicked for violating restrictions: invalid ContestHost namespace authentication`);
+                    s.removeAllListeners();
+                    s.disconnect();
+                return;
+            }
+            const socket = createContestSocket(s, this.#pendingConnections.get(auth.token)!);
+            this.#pendingConnectionsInverse.delete(this.#pendingConnections.get(auth.token)!);
+            this.#pendingConnections.delete(auth.token);
+            
+            this.#addInternalSocket(socket);
         });
         this.reload();
     }
@@ -445,7 +418,7 @@ export class ContestHost {
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
                 if (Date.now() + (config.contests[this.contestType].scoreFreezeTime * 60000) < this.#contest.endTime) lastScores = this.scorer.getScores();
-                if (lastScores != undefined) this.io.to(this.#sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+                if (lastScores != undefined) this.io.to(this.sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
     }
@@ -571,10 +544,32 @@ export class ContestHost {
 
         if (this.#users.has(socket.username)) this.#users.get(socket.username)!.sockets.add(socket);
         else this.#users.set(socket.username, { sockets: new Set([socket]), internalSockets: new Set() });
-        socket.join(this.#sid);
+        socket.join(this.sid);
         socket.on('disconnect', () => this.removeSocket(socket));
         socket.on('timeout', () => this.removeSocket(socket));
         socket.on('error', () => this.removeSocket(socket));
+
+        // prompt connection to namespace
+        const authToken = crypto.randomUUID();
+        this.#pendingConnections.set(authToken, socket);
+        this.#pendingConnectionsInverse.set(socket, authToken);
+        socket.emit('joinContestHost', { sid: this.sid, token: authToken });
+        if (config.debugMode) socket.logWithId(this.logger.debug, `Prompted to join ContestHost namespace "contest-${this.sid}"`, true);
+    }
+    /**
+     * Add an internal SocketIO connection (within the contest namespace) to the user list.
+     * @param {ContestSocket} s SocketIO connection within the namespace (with modifications)
+     */
+    #addInternalSocket(s: ContestSocket): void {
+        if (s.nsp.name !== this.io.name) throw new TypeError(`Socket supplied is not within the ContestHost namespace (expected "${this.io.name}", got"${s.nsp.name}`);
+
+        const socket = s;
+
+        if (this.#users.has(socket.username)) this.#users.get(socket.username)!.internalSockets.add(socket);
+        else this.#users.set(socket.username, { sockets: new Set(), internalSockets: new Set([socket]) });
+        socket.on('disconnect', () => this.#removeInternalSocket(socket));
+        socket.on('timeout', () => this.#removeInternalSocket(socket));
+        socket.on('error', () => this.#removeInternalSocket(socket));
 
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
@@ -661,14 +656,6 @@ export class ContestHost {
         this.updateUser(socket.username);
     }
     /**
-     * Add a previously-added internal SocketIO connection to the user list.
-     * @param {string} username Username linked to socket
-     * @param {SocketIOSocket} s SocketIO connection
-     */
-    #addInternalSocket(username: string, s: SocketIOSocket): void {
-
-    }
-    /**
      * Remove a previously-added username-linked SocketIO connection from the user list.
      * @param {ServerSocket} socket SocketIO connection (with modifications)
      * @returns {boolean} If the socket was previously within the list of connections
@@ -677,11 +664,15 @@ export class ContestHost {
         if (!this.#users.has(socket.username)) return false;
         const user = this.#users.get(socket.username)!;
         if (user.sockets.has(socket)) {
-            socket.leave(this.#sid);
+            socket.leave(this.sid);
             user.sockets.delete(socket);
+            if (this.#pendingConnectionsInverse.has(socket)) {
+                this.#pendingConnections.delete(this.#pendingConnectionsInverse.get(socket)!);
+                this.#pendingConnectionsInverse.delete(socket);
+            }
             if (user.sockets.size == 0) {
                 // there shouldn't be extra internal sockets, but delete anyway
-                user.internalSockets.forEach((s) => this.#removeInternalSocket(socket.username, s));
+                user.internalSockets.forEach((s) => this.#removeInternalSocket(s));
                 this.#users.delete(socket.username);
             }
             return true;
@@ -690,13 +681,12 @@ export class ContestHost {
     }
     /**
      * Remove a previously-added internal SocketIO connection from the user list.
-     * @param {string} username Username linked to socket
-     * @param {SocketIOSocket} socket SocketIO connection
+     * @param {ContestSocket} socket SocketIO connection (with modifications)
      * @returns {boolean} If the socket was previously within the list of connections
      */
-    #removeInternalSocket(username: string, socket: SocketIOSocket): boolean {
-        if (!this.#users.has(username)) return false;
-        const user = this.#users.get(username)!;
+    #removeInternalSocket(socket: ContestSocket): boolean {
+        if (!this.#users.has(socket.username)) return false;
+        const user = this.#users.get(socket.username)!;
         if (user.internalSockets.has(socket)) {
             socket.removeAllListeners('updateSubmission');
             user.internalSockets.delete(socket);

@@ -6,7 +6,7 @@
 
 # Enumeration: ContestUpdateSubmissionResult
 
-Response codes for submitting to a problem in contest
+Client enum for submission response codes
 
 ## Enumeration Members
 
@@ -14,11 +14,9 @@ Response codes for submitting to a problem in contest
 
 > **ERROR**: `4`
 
-The submission was rejected because an error occured
-
 #### Source
 
-[src/contest.ts:275](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L275)
+[src/contest.ts:284](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L284)
 
 ***
 
@@ -26,11 +24,9 @@ The submission was rejected because an error occured
 
 > **FILE\_TOO\_LARGE**: `1`
 
-The submission was rejected because the file size was exceeded
-
 #### Source
 
-[src/contest.ts:269](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L269)
+[src/contest.ts:281](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L281)
 
 ***
 
@@ -38,11 +34,9 @@ The submission was rejected because the file size was exceeded
 
 > **LANGUAGE\_NOT\_ACCEPTABLE**: `2`
 
-The submission was rejected because the submission language is not acceptable
-
 #### Source
 
-[src/contest.ts:271](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L271)
+[src/contest.ts:282](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L282)
 
 ***
 
@@ -50,11 +44,9 @@ The submission was rejected because the submission language is not acceptable
 
 > **PROBLEM\_NOT\_SUBMITTABLE**: `3`
 
-The submission was rejected because the target problem is not open to submissions
-
 #### Source
 
-[src/contest.ts:273](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L273)
+[src/contest.ts:283](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L283)
 
 ***
 
@@ -62,8 +54,6 @@ The submission was rejected because the target problem is not open to submission
 
 > **SUCCESS**: `0`
 
-The submission was accepted
-
 #### Source
 
-[src/contest.ts:267](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L267)
+[src/contest.ts:280](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L280)

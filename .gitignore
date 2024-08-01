@@ -2,9 +2,6 @@
 build/
 *.cache
 
-# optional client
-WWPPC-site-client/
-
 # logs
 logs/
 *.log

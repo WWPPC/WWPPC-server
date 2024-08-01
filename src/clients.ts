@@ -4,7 +4,7 @@ import { Socket as SocketIOSocket } from 'socket.io';
 import config from './config';
 import ContestManager from './contest';
 import { RSAEncrypted, RSAEncryptionHandler } from './cryptoUtil';
-import Database, { AccountData, AccountOpResult, TeamData, TeamOpResult } from './database';
+import Database, { AccountData, AccountOpResult, Score, TeamData, TeamOpResult } from './database';
 import Mailer from './email';
 import Logger from './log';
 import { validateRecaptcha } from './recaptcha';
@@ -484,7 +484,7 @@ export class ClientHost {
 }
 
 /**
- * Socket.IO socket with username, IP, and kick function
+ * Socket.IO connection with username, IP, logging, and kick function.
  * @ignore
  */
 export interface ServerSocket extends SocketIOSocket {
@@ -502,11 +502,73 @@ export function createServerSocket(socket: SocketIOSocket, ip: string, logger: L
         socket.disconnect();
     };
     s2.logWithId = (logMethod, message, logOnly) => {
-        logMethod.call(logger, (`${s2.username} @ ${s2.ip} | ${message}`), logOnly);
+        logMethod.call(logger, `${s2.username} @ ${s2.ip} | ${message}`, logOnly);
     };
     s2.ip = ip;
     s2.username = '';
     return s2;
+}
+
+// client interfaces that are sometimes used
+/**Slightly modified version of client Contest */
+export interface ClientContest {
+    readonly id: string
+    rounds: ClientRound[]
+    startTime: number
+    endTime: number
+}
+/**Slightly modified version of client Round */
+export interface ClientRound {
+    readonly contest: string
+    readonly number: number
+    problems: ClientProblem[]
+    startTime: number
+    endTime: number
+}
+/**Slightly modified version of client Problem */
+export interface ClientProblem {
+    readonly id: string
+    readonly contest: string
+    readonly round: number
+    readonly number: number
+    name: string
+    author: string
+    content: string
+    constraints: { memory: number, time: number }
+    submissions: ClientSubmission[]
+    status: ClientProblemCompletionState
+}
+/**Slightly modified version of client Submission */
+export interface ClientSubmission {
+    time: number
+    lang: string
+    scores: Score[]
+    status: ClientProblemCompletionState
+}
+/**Client enum for completion state of problems */
+export enum ClientProblemCompletionState {
+    /**Not attempted */
+    NOT_UPLOADED = 0,
+    /**Uploaded but not graded, can still be changed */
+    UPLOADED = 1,
+    /**Submitted but not graded, submissions locked */
+    SUBMITTED = 2,
+    /**Submitted, graded, and passed all subtasks */
+    GRADED_PASS = 3,
+    /**Submitted, graded, and failed all subtasks */
+    GRADED_FAIL = 4,
+    /**Submitted, graded, passed at least one subtask and failed at least one subtask */
+    GRADED_PARTIAL = 5,
+    /**Error loading status */
+    ERROR = 6
+}
+/**Client enum for submission response codes */
+export enum ContestUpdateSubmissionResult {
+    SUCCESS = 0,
+    FILE_TOO_LARGE = 1,
+    LANGUAGE_NOT_ACCEPTABLE = 2,
+    PROBLEM_NOT_SUBMITTABLE = 3,
+    ERROR = 4
 }
 
 export default ClientHost;

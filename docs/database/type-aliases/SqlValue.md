@@ -10,4 +10,4 @@
 
 ## Source
 
-[src/database.ts:1265](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/database.ts#L1265)
+[src/database.ts:1265](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1265)

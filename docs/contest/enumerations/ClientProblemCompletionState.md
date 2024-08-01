@@ -6,6 +6,8 @@
 
 # Enumeration: ClientProblemCompletionState
 
+Client enum for completion state of problems
+
 ## Enumeration Members
 
 ### ERROR
@@ -16,7 +18,7 @@ Error loading status
 
 #### Source
 
-[src/contest.ts:261](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L261)
+[src/contest.ts:276](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L276)
 
 ***
 
@@ -28,7 +30,7 @@ Submitted, graded, and failed all subtasks
 
 #### Source
 
-[src/contest.ts:257](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L257)
+[src/contest.ts:272](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L272)
 
 ***
 
@@ -40,7 +42,7 @@ Submitted, graded, passed at least one subtask and failed at least one subtask
 
 #### Source
 
-[src/contest.ts:259](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L259)
+[src/contest.ts:274](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L274)
 
 ***
 
@@ -52,7 +54,7 @@ Submitted, graded, and passed all subtasks
 
 #### Source
 
-[src/contest.ts:255](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L255)
+[src/contest.ts:270](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L270)
 
 ***
 
@@ -64,7 +66,7 @@ Not attempted
 
 #### Source
 
-[src/contest.ts:249](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L249)
+[src/contest.ts:264](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L264)
 
 ***
 
@@ -76,7 +78,7 @@ Submitted but not graded, submissions locked
 
 #### Source
 
-[src/contest.ts:253](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L253)
+[src/contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L268)
 
 ***
 
@@ -88,4 +90,4 @@ Uploaded but not graded, can still be changed
 
 #### Source
 
-[src/contest.ts:251](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L251)
+[src/contest.ts:266](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L266)

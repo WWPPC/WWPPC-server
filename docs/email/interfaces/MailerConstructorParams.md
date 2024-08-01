@@ -16,7 +16,7 @@ Hostname of SMTP server
 
 #### Source
 
-[src/email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L12)
+[src/email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L12)
 
 ***
 
@@ -28,7 +28,7 @@ Logging instance
 
 #### Source
 
-[src/email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L24)
+[src/email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L24)
 
 ***
 
@@ -40,7 +40,7 @@ SMTP password
 
 #### Source
 
-[src/email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L20)
+[src/email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L20)
 
 ***
 
@@ -52,7 +52,7 @@ Port number of SMTP server (default 587)
 
 #### Source
 
-[src/email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L14)
+[src/email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L14)
 
 ***
 
@@ -64,7 +64,7 @@ Use secure connection
 
 #### Source
 
-[src/email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L16)
+[src/email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L16)
 
 ***
 
@@ -76,7 +76,7 @@ Path to email templates
 
 #### Source
 
-[src/email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L22)
+[src/email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L22)
 
 ***
 
@@ -88,4 +88,4 @@ SMTP username
 
 #### Source
 
-[src/email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/email.ts#L18)
+[src/email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L18)

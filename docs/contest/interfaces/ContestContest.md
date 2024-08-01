@@ -6,6 +6,8 @@
 
 # Interface: ContestContest
 
+Slightly modified version of [database.Contest](../../database/interfaces/Contest.md)
+
 ## Properties
 
 ### endTime
@@ -14,7 +16,7 @@
 
 #### Source
 
-[src/contest.ts:196](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L196)
+[src/contest.ts:204](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L204)
 
 ***
 
@@ -24,7 +26,7 @@
 
 #### Source
 
-[src/contest.ts:193](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L193)
+[src/contest.ts:201](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L201)
 
 ***
 
@@ -34,7 +36,7 @@
 
 #### Source
 
-[src/contest.ts:194](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L194)
+[src/contest.ts:202](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L202)
 
 ***
 
@@ -44,4 +46,4 @@
 
 #### Source
 
-[src/contest.ts:195](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L195)
+[src/contest.ts:203](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L203)

@@ -27,37 +27,19 @@ Using the function score = 1/cnt where cnt is number of people who solved the pr
 
 #### Source
 
-[src/scorer.ts:23](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L23)
+[src/scorer.ts:28](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L28)
 
 ## Properties
-
-### #round
-
-> `private` **#round**: `number`
-
-#### Source
-
-[src/scorer.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L14)
-
-***
 
 ### #rounds
 
 > `private` **#rounds**: [`Round`](../../database/interfaces/Round.md)[]
 
-#### Source
-
-[src/scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L13)
-
-***
-
-### #scores
-
-> `private` `readonly` **#scores**: `Map`\<`number`, `Map`\<`string`, `number`\>\>
+list of all rounds
 
 #### Source
 
-[src/scorer.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L17)
+[src/scorer.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L15)
 
 ***
 
@@ -65,19 +47,24 @@ Using the function score = 1/cnt where cnt is number of people who solved the pr
 
 > `private` `readonly` **#subtasks**: `Set`\<[`Subtask`](../interfaces/Subtask.md)\>
 
+List of all subtasks. One is inserted anytime a submission contains a subtask we don't know about yet
+
 #### Source
 
-[src/scorer.ts:12](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L12)
+[src/scorer.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L20)
 
 ***
 
-### #users
+### #userSolvedStatus
 
-> `private` **#users**: `Map`\<`string`, `Map`\<[`Subtask`](../interfaces/Subtask.md), `number`\>\>
+> `private` **#userSolvedStatus**: `Map`\<`string`, `Map`\<[`Subtask`](../interfaces/Subtask.md), `number`\>\>
+
+key: username
+value: map of subtask to solve time (if a subtask is unsolved, it is not in the map)
 
 #### Source
 
-[src/scorer.ts:21](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L21)
+[src/scorer.ts:26](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L26)
 
 ***
 
@@ -87,16 +74,43 @@ Using the function score = 1/cnt where cnt is number of people who solved the pr
 
 #### Source
 
-[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L10)
+[src/scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L10)
 
 ## Methods
 
+### addRounds()
+
+> **addRounds**(`rounds`): `void`
+
+Add rounds
+
+#### Parameters
+
+• **rounds**: [`Round`](../../database/interfaces/Round.md) \| [`Round`](../../database/interfaces/Round.md)[]
+
+Contest round data
+
+#### Returns
+
+`void`
+
+#### Source
+
+[src/scorer.ts:45](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L45)
+
+***
+
 ### getRoundScores()
 
-> **getRoundScores**(): `Map`\<`string`, `number`\>
+> **getRoundScores**(`round`): `Map`\<`string`, `number`\>
 
-Get the current standings, only calculating current round scores.
-Writes current scores to scores map.
+Get standings for a specified round.
+
+#### Parameters
+
+• **round**: `string`
+
+Round ID
 
 #### Returns
 
@@ -106,7 +120,7 @@ Mapping of username to score
 
 #### Source
 
-[src/scorer.ts:91](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L91)
+[src/scorer.ts:94](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L94)
 
 ***
 
@@ -124,15 +138,15 @@ mapping of username to score
 
 #### Source
 
-[src/scorer.ts:160](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L160)
+[src/scorer.ts:147](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L147)
 
 ***
 
-### setContest()
+### setRounds()
 
-> **setContest**(`rounds`): `void`
+> **setRounds**(`rounds`): `void`
 
-Reset the rounds data (MAY CAUSE ISSUES!)
+Set rounds data (shouldn't bork anything)
 
 #### Parameters
 
@@ -146,43 +160,25 @@ Contest round data
 
 #### Source
 
-[src/scorer.ts:33](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L33)
-
-***
-
-### setRound()
-
-> **setRound**(`round`): `void`
-
-Set the round. Updates current round scores and resets submissions.
-
-#### Parameters
-
-• **round**: `number`
-
-Round number
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/scorer.ts:41](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L41)
+[src/scorer.ts:37](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L37)
 
 ***
 
 ### updateUser()
 
-> **updateUser**(`submission`): `Boolean`
+> **updateUser**(`submission`, `submissionRound`?): `Boolean`
 
-Add or edit user (or team the scorer doesnt care) to leaderboard
+Process submission and add to leaderboard
 
 #### Parameters
 
 • **submission**: [`Submission`](../../database/interfaces/Submission.md)
 
-the submission (with COMPLETE SCORES)
+the scored submission
+
+• **submissionRound?**: `string`
+
+(optional) round UUID
 
 #### Returns
 
@@ -192,4 +188,4 @@ whether it was successful
 
 #### Source
 
-[src/scorer.ts:52](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L52)
+[src/scorer.ts:56](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L56)

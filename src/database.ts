@@ -309,7 +309,6 @@ export class Database {
         try {
             if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
             if (this.#userCache.has(username)) return structuredClone(this.#userCache.get(username)!.data);;
-            // update query to alias future registrations.
             const data = await this.#db.query(`
                 SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
                 FROM users
@@ -1344,30 +1343,6 @@ export interface AccountData {
     registrations: string[]
     /**Past list of registrations for previous contests that have already ended */
     pastRegistrations: string[]
-    /**The teamid which is the username of the team owner */
-    team: string
-}
-export interface AccountUserData {
-    /**Email */
-    email: string
-    /**First name */
-    firstName: string
-    /**Last name */
-    lastName: string
-    /**Alternate name used in front-end */
-    displayName: string
-    /**Encoded image */
-    profileImage: string
-    /**User-written short biography */
-    bio: string
-    /**School name */
-    school: string
-    /**Grade level (8 = below HS, 13 = above HS) */
-    grade: number
-    /**Experience level, 0 to 4, with 4 being the highest */
-    experience: number
-    /**Known languages, in file extension form */
-    languages: string[]
     /**The teamid which is the username of the team owner */
     team: string
 }

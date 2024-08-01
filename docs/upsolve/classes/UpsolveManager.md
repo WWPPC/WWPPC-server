@@ -12,7 +12,7 @@
 
 ### new UpsolveManager()
 
-> **new UpsolveManager**(`db`, `app`, `graderPassword`, `logger`): [`UpsolveManager`](UpsolveManager.md)
+> **new UpsolveManager**(`db`, `app`, `grader`, `logger`): [`UpsolveManager`](UpsolveManager.md)
 
 #### Parameters
 
@@ -24,9 +24,9 @@ Database connection
 
 Express app (HTTP server) to attach API to
 
-• **graderPassword**: `string`
+• **grader**: [`Grader`](../../grader/classes/Grader.md)
 
-Global password for graders to authenticate with
+Grading system to use
 
 • **logger**: [`Logger`](../../log/interfaces/Logger.md)
 
@@ -38,7 +38,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L30)
+[src/upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L30)
 
 ## Properties
 
@@ -48,7 +48,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L22)
+[src/upsolve.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L22)
 
 ***
 
@@ -58,7 +58,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:15](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L15)
+[src/upsolve.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L15)
 
 ***
 
@@ -68,7 +68,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L18)
+[src/upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L18)
 
 ***
 
@@ -78,7 +78,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L17)
+[src/upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L17)
 
 ***
 
@@ -88,7 +88,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L20)
+[src/upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L20)
 
 ***
 
@@ -98,7 +98,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L19)
+[src/upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L19)
 
 ## Methods
 
@@ -116,7 +116,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:214](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L214)
+[src/upsolve.ts:220](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L220)
 
 ***
 
@@ -134,7 +134,7 @@ Logger instance
 
 #### Source
 
-[src/upsolve.ts:230](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L230)
+[src/upsolve.ts:236](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L236)
 
 ***
 
@@ -156,7 +156,7 @@ SocketIO connection (with modifications)
 
 #### Source
 
-[src/upsolve.ts:123](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L123)
+[src/upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L127)
 
 ***
 
@@ -172,4 +172,4 @@ Closes the upsolve manager
 
 #### Source
 
-[src/upsolve.ts:252](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/upsolve.ts#L252)
+[src/upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L258)

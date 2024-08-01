@@ -14,7 +14,7 @@
 
 #### Source
 
-[src/recaptcha.ts:6](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L6)
+[src/recaptcha.ts:6](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L6)
 
 ***
 
@@ -24,7 +24,7 @@
 
 #### Source
 
-[src/recaptcha.ts:7](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L7)
+[src/recaptcha.ts:7](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L7)
 
 ***
 
@@ -34,7 +34,7 @@
 
 #### Source
 
-[src/recaptcha.ts:9](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L9)
+[src/recaptcha.ts:9](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L9)
 
 ***
 
@@ -44,7 +44,7 @@
 
 #### Source
 
-[src/recaptcha.ts:8](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L8)
+[src/recaptcha.ts:8](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L8)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Source
 
-[src/recaptcha.ts:5](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L5)
+[src/recaptcha.ts:5](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L5)
 
 ***
 
@@ -64,4 +64,4 @@
 
 #### Source
 
-[src/recaptcha.ts:4](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/recaptcha.ts#L4)
+[src/recaptcha.ts:4](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L4)

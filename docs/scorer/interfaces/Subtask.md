@@ -18,7 +18,7 @@ Problem id
 
 #### Source
 
-[src/scorer.ts:176](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L176)
+[src/scorer.ts:164](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L164)
 
 ***
 
@@ -30,4 +30,16 @@ Subtask id
 
 #### Source
 
-[src/scorer.ts:178](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/scorer.ts#L178)
+[src/scorer.ts:166](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L166)
+
+***
+
+### round
+
+> **round**: `string`
+
+Round id
+
+#### Source
+
+[src/scorer.ts:162](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/scorer.ts#L162)

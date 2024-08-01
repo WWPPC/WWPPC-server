@@ -8,16 +8,10 @@
 
 > `const` **default**: `object`
 
-Global configuration, loaded from `config.json` in the config folder (config.path).
+Global configuration, loaded from `config.json` in the config folder.
 If any field is empty in `config.json`, it is filled in with the default.
 
 ## Type declaration
-
-### acceptedLanguages
-
-> `readonly` **acceptedLanguages**: `string`[]
-
-Programming languages accepted by contest systems (case sensitive) (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3)
 
 ### adminPortalPath
 
@@ -30,6 +24,16 @@ Directory to load admin portal from (default: `../admin-portal/`)
 > `optional` `readonly` **clientPath**: `string`
 
 Directory to serve static hosting from (if config.serveStatic is true) - setting this incorrectly can cause strange problems
+
+### contests
+
+> `readonly` **contests**: `object`
+
+Contest types and options (no defaults)
+
+#### Index signature
+
+ \[`key`: `string`\]: `object`
 
 ### dbCacheTime
 
@@ -66,18 +70,6 @@ Sending email address (default: "no-reply@wwppc.tech")
 > `readonly` **emailTemplatePath**: `string`
 
 Directory to load email templates from (default: `../email-templates/`)
-
-### freezeScoresLastRound
-
-> `readonly` **freezeScoresLastRound**: `boolean`
-
-"Freeze" scores - stop updating scores on the client - within the last round of competitions (default: true)
-
-### gradeAtRoundEnd
-
-> `readonly` **gradeAtRoundEnd**: `boolean`
-
-Withhold submission results for each round until the round ends (submissions are still instantly graded) (default: true)
 
 ### graderTimeout
 
@@ -127,12 +119,6 @@ Ratelimiting - how many new accounts can be made from any given IP address in 1 
 
 Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24)
 
-### maxSubmissionSize
-
-> `readonly` **maxSubmissionSize**: `number`
-
-Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240)
-
 ### path
 
 > `readonly` **path**: `string`
@@ -165,4 +151,4 @@ Enable static hosting (note that this WILL NOT WORK if config.clientPath is not 
 
 ## Source
 
-[src/config.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/config.ts#L22)
+[src/config.ts:32](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/config.ts#L32)

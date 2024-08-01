@@ -6,6 +6,8 @@
 
 # Interface: ContestProblem
 
+Slightly modified version of [database.Problem](../../database/interfaces/Problem.md)
+
 ## Properties
 
 ### author
@@ -14,7 +16,7 @@
 
 #### Source
 
-[src/contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L212)
+[src/contest.ts:222](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L222)
 
 ***
 
@@ -32,7 +34,7 @@
 
 #### Source
 
-[src/contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L214)
+[src/contest.ts:224](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L224)
 
 ***
 
@@ -42,7 +44,7 @@
 
 #### Source
 
-[src/contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L213)
+[src/contest.ts:223](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L223)
 
 ***
 
@@ -52,7 +54,7 @@
 
 #### Source
 
-[src/contest.ts:208](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L208)
+[src/contest.ts:218](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L218)
 
 ***
 
@@ -62,7 +64,7 @@
 
 #### Source
 
-[src/contest.ts:207](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L207)
+[src/contest.ts:217](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L217)
 
 ***
 
@@ -72,7 +74,7 @@
 
 #### Source
 
-[src/contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L211)
+[src/contest.ts:221](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L221)
 
 ***
 
@@ -82,7 +84,7 @@
 
 #### Source
 
-[src/contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L210)
+[src/contest.ts:220](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L220)
 
 ***
 
@@ -92,4 +94,4 @@
 
 #### Source
 
-[src/contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L209)
+[src/contest.ts:219](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L219)

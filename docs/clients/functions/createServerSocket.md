@@ -2,7 +2,7 @@
 
 ***
 
-[wwppc-server](../../modules.md) / [socket](../README.md) / createServerSocket
+[wwppc-server](../../modules.md) / [clients](../README.md) / createServerSocket
 
 # Function: createServerSocket()
 
@@ -22,4 +22,4 @@
 
 ## Source
 
-[src/socket.ts:16](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/socket.ts#L16)
+[src/clients.ts:497](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L497)

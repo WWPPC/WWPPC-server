@@ -2,7 +2,7 @@ import { Express } from 'express';
 
 import { ServerSocket } from './clients';
 import config from './config';
-import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './contest';
+import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './clients';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
@@ -23,8 +23,7 @@ export class UpsolveManager {
 
     /**
      * @param {Database} db Database connection
-     * @param {express} app Express app (HTTP server) to attach API to
-     * @param {string} contestType Contest type Id
+     * @param {Express} app Express app (HTTP server) to attach API to
      * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
@@ -34,7 +33,7 @@ export class UpsolveManager {
         this.grader = grader;
         this.logger = new NamedLogger(logger, 'UpsolveManager');
         // attach api
-        this.app.get(`/api/upsolveContestList/:ctype`, async (req, res) => {
+        this.app.get(`/api/upsolveList/:ctype`, async (req, res) => {
             if (config.contests[req.params.ctype] === undefined) {
                 res.sendStatus(404);
                 return;

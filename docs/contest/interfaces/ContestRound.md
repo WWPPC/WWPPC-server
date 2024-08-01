@@ -6,6 +6,8 @@
 
 # Interface: ContestRound
 
+Slightly modified version of [database.Round](../../database/interfaces/Round.md)
+
 ## Properties
 
 ### contest
@@ -14,7 +16,7 @@
 
 #### Source
 
-[src/contest.ts:200](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L200)
+[src/contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L209)
 
 ***
 
@@ -24,7 +26,7 @@
 
 #### Source
 
-[src/contest.ts:204](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L204)
+[src/contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L213)
 
 ***
 
@@ -34,7 +36,7 @@
 
 #### Source
 
-[src/contest.ts:199](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L199)
+[src/contest.ts:208](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L208)
 
 ***
 
@@ -44,7 +46,7 @@
 
 #### Source
 
-[src/contest.ts:201](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L201)
+[src/contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L210)
 
 ***
 
@@ -54,7 +56,7 @@
 
 #### Source
 
-[src/contest.ts:202](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L202)
+[src/contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L211)
 
 ***
 
@@ -64,4 +66,4 @@
 
 #### Source
 
-[src/contest.ts:203](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/contest.ts#L203)
+[src/contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L212)

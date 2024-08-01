@@ -18,7 +18,7 @@ Deadline to return the submission (unix ms)
 
 #### Source
 
-[src/grader.ts:307](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/grader.ts#L307)
+[src/grader.ts:298](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L298)
 
 ***
 
@@ -30,7 +30,7 @@ Submission that is being graded
 
 #### Source
 
-[src/grader.ts:305](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/grader.ts#L305)
+[src/grader.ts:296](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L296)
 
 ***
 
@@ -42,7 +42,7 @@ Last time we communicated with this grader (unix ms)
 
 #### Source
 
-[src/grader.ts:309](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/grader.ts#L309)
+[src/grader.ts:300](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L300)
 
 ***
 
@@ -54,4 +54,4 @@ Username
 
 #### Source
 
-[src/grader.ts:303](https://github.com/WWPPC/WWPPC-server/blob/ad5cd9fce3d5cf381927c08c4923fceefb2a5362/src/grader.ts#L303)
+[src/grader.ts:294](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L294)

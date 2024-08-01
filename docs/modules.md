@@ -7,6 +7,7 @@
 ## Modules
 
 - [adminPortal](adminPortal/README.md)
+- [clients](clients/README.md)
 - [config](config/README.md)
 - [contest](contest/README.md)
 - [cryptoUtil](cryptoUtil/README.md)
@@ -17,6 +18,5 @@
 - [recaptcha](recaptcha/README.md)
 - [scorer](scorer/README.md)
 - [server](server/README.md)
-- [socket](socket/README.md)
 - [upsolve](upsolve/README.md)
 - [util](util/README.md)
