@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 
 process.env.CONFIG_PATH ??= path.resolve(__dirname, '../config/');
-process.env.EMAIL_TEMPLATE_PATH ??= path.resolve(__dirname, '../email-templates');
 const certPath = path.resolve(process.env.CONFIG_PATH, 'db-cert.pem');
 if (fs.existsSync(certPath)) process.env.DATABASE_CERT = fs.readFileSync(certPath, 'utf8');
 const configPath = path.resolve(process.env.CONFIG_PATH, 'config.json');
@@ -132,10 +131,10 @@ const config: {
     debugMode: process.argv.includes('debug_mode') ?? process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
-    logPath: process.env.LOG_PATH ?? fileConfig.logPath ?? path.resolve(__dirname, '../'),
-    emailTemplatePath: process.env.EMAIL_TEMPLATE_PATH ?? fileConfig.emailTemplatePath,
+    logPath: path.resolve(__dirname, process.env.LOG_PATH ?? fileConfig.logPath ?? '../'),
+    emailTemplatePath: path.resolve(__dirname, process.env.EMAIL_TEMPLATE_PATH ?? fileConfig.emailTemplatePath ?? '../email-templates'),
     clientPath: (process.env.CLIENT_PATH != undefined || fileConfig.clientPath != undefined) ? path.resolve(__dirname, process.env.CLIENT_PATH ?? fileConfig.clientPath) : undefined,
-    adminPortalPath: process.env.ADMIN_PORTAL_PATH ?? fileConfig.adminPortalPath ?? path.resolve(__dirname, '../admin-portal'),
+    adminPortalPath: path.resolve(__dirname, process.env.ADMIN_PORTAL_PATH ?? fileConfig.adminPortalPath ?? '../admin-portal'),
 };
 // when writing back to file, prevent environment variables and argument overrides also overwriting file configurations
 const config2: any = structuredClone(config);
@@ -143,10 +142,12 @@ config2.port = fileConfig.port ?? 8000;
 config2.serveStatic = fileConfig.serveStatic ?? false;
 config2.debugMode = fileConfig.debugMode ?? false;
 config2.superSecretSecret = fileConfig.superSecretSecret;
+delete config2.contests;
 delete config2.path;
-config2.logPath = fileConfig.logPath ?? path.resolve(__dirname, '../');
-config2.emailTemplatePath = fileConfig.logPath ?? path.resolve(__dirname, '../');
+config2.logPath = fileConfig.logPath;
+config2.emailTemplatePath = fileConfig.emailTemplatePath;
 config2.clientPath = fileConfig.clientPath;
+config2.adminPortalPath = fileConfig.adminPortalPath;
 try {
     fs.writeFileSync(configPath, JSON.stringify(config2, null, 4));
 } catch { }
