@@ -21,7 +21,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     const alwaysAllowedPaths = ['login', 'assets/fonts.css', 'assets/common.css', 'assets/Jura.ttf', 'assets/SourceCodePro.ttf', 'assets/icon.svg', 'assets/favicon.png'].map(p => '/admin/' + p);
     app.use('/admin/*', (req, res, next) => {
         if (alwaysAllowedPaths.includes(req.baseUrl)) next();
-        else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect('/admin/login');
+        else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect(401, '/admin/login');
         else next();
     });
     app.use('/admin/', express.static(config.adminPortalPath));

@@ -47,11 +47,20 @@ export class ClientHost {
         this.ready = Promise.all([this.clientEncryption.ready]);
 
         // general api endpoints
+        const clientConfig = {
+            maxProfileImgSize: config.maxProfileImgSize,
+            contests: Object.entries(config.contests).reduce((p, [cId, cConfig]) => {
+                p[cId] = {
+                    rounds: cConfig.rounds,
+                    submitSolver: cConfig.submitSolver,
+                    acceptedSolverLanguages: cConfig.acceptedSolverLanguages,
+                    maxSubmissionSize: cConfig.maxSubmissionSize
+                };
+                return p;
+            }, {})
+        };
         app.get('/api/config', (req, res) => {
-            res.json({
-                maxProfileImgSize: config.maxProfileImgSize,
-                contests: config.contests.buh
-            });
+            res.json(clientConfig);
         });
         app.get('/api/userData/:username', async (req, res) => {
             const data = await this.database.getAccountData(req.params.username);
