@@ -113,7 +113,7 @@ import { createServerSocket } from './clients';
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
 io.on('connection', async (s) => {
-    console.log('oof')
+    console.log('main connection')
     s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
     const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
     const socket = createServerSocket(s, ip, logger);
@@ -174,7 +174,7 @@ const stopServer = async (code: number) => {
     contestManager.close();
     upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
-    logger.destroy();
+    await logger.destroy();
     process.exit(code);
 };
 process.on('SIGTERM', () => stopServer(0));

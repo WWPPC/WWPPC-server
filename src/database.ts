@@ -47,10 +47,10 @@ export class Database {
             application_name: 'WWPPC Server',
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
-        this.connectPromise = this.#db.connect().catch((err) => {
+        this.connectPromise = this.#db.connect().catch(async (err) => {
             this.logger.handleFatal('Could not connect to database:', err);
             this.logger.fatal('Host: ' + this.#db.host);
-            this.logger.destroy();
+            await this.logger.destroy();
             process.exit(1);
         });
         this.connectPromise.then(() => {
@@ -60,9 +60,9 @@ export class Database {
                 this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
             }
         });
-        this.#db.on('error', (err) => {
+        this.#db.on('error',async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
-            this.logger.destroy();
+            await this.logger.destroy();
             process.exit(1);
         });
         this.#cacheGarbageCollector = setInterval(() => {

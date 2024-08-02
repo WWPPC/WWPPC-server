@@ -50,7 +50,7 @@ export interface Logger {
      */
     handleFatal(message: string, error: any): void
     /**
-     * Safely closes the logging session.
+     * Safely closes the logging session. May be asynchronous to allow pending operations to finish.
      */
     destroy(): void
 }
@@ -59,7 +59,8 @@ export interface Logger {
  * A simple logging class with timestamps and logging levels that writes to file and stdout.
  */
 export class FileLogger implements Logger {
-    #file;
+    #file?: number;
+    #activity: Promise<void>[] = [];
 
     /**
      * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
@@ -140,12 +141,17 @@ export class FileLogger implements Logger {
             process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
         }
         let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
-        fs.appendFile(this.#file, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => { if (err) console.error(err) });
+        const fd = this.#file;
+        this.#activity.push(new Promise((resolve) => fs.appendFile(fd, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => {
+            if (err) console.error(err);
+            resolve();
+        })));
     }
 
-    destroy() {
+    async destroy() {
         if (this.#file == undefined) return;
         this.info('Logger instance destroyed');
+        await Promise.all(this.#activity);
         fs.closeSync(this.#file);
         this.#file = undefined;
     }
@@ -204,8 +210,9 @@ export class NamedLogger implements Logger {
             this.fatal('' + error);
         }
     }
-    destroy() {
-        this.logger.destroy();
+
+    async destroy() {
+        await this.logger.destroy();
     }
 }
 

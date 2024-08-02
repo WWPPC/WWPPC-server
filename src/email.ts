@@ -85,9 +85,9 @@ export class Mailer {
             this.#logger.debug('Current sending address: ' + config.emailAddress);
         }
         this.#logger.info('Email activity logging is ' + config.logEmailActivity);
-        this.#transporter.on('error', (err) => {
+        this.#transporter.on('error', async (err) => {
             this.#logger.handleFatal('Fatal SMTP error:', err);
-            this.#logger.destroy();
+            await this.#logger.destroy();
             process.exit(1);
         });
     }

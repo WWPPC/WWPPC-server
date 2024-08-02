@@ -296,20 +296,22 @@ export class ContestHost {
         this.io.on('connection', async (s) => {
             s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
             const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
-            console.log('omg');
-            const auth = await s.emitWithAck('auth');
-            if (auth == null || typeof auth.username != 'string' || typeof auth.token != 'string'
-                || !this.#pendingConnections.has(auth.token) || auth.username !== this.#pendingConnections.get(auth.token)!.username) {
+            console.log('contest ocnncetion');
+            s.once('auth', (auth: { username: string, token: string }, cb: (res: boolean) => any) => {
+                if (auth == null || typeof auth.username != 'string' || typeof auth.token != 'string' || !this.#pendingConnections.has(auth.token)
+                    || auth.username !== this.#pendingConnections.get(auth.token)!.username || typeof cb != 'function') {
                     this.logger.logger.warn(`${auth?.username} @ ${ip} | Kicked for violating restrictions: invalid ContestHost namespace authentication`);
                     s.removeAllListeners();
                     s.disconnect();
-                return;
-            }
-            const socket = createContestSocket(s, this.#pendingConnections.get(auth.token)!);
-            this.#pendingConnectionsInverse.delete(this.#pendingConnections.get(auth.token)!);
-            this.#pendingConnections.delete(auth.token);
-            
-            this.#addInternalSocket(socket);
+                    return;
+                }
+                const socket = createContestSocket(s, this.#pendingConnections.get(auth.token)!);
+                this.#pendingConnectionsInverse.delete(this.#pendingConnections.get(auth.token)!);
+                this.#pendingConnections.delete(auth.token);
+
+                this.#addInternalSocket(socket);
+                cb(true);
+            });
         });
         this.reload();
     }
@@ -553,7 +555,7 @@ export class ContestHost {
         const authToken = crypto.randomUUID();
         this.#pendingConnections.set(authToken, socket);
         this.#pendingConnectionsInverse.set(socket, authToken);
-        socket.emit('joinContestHost', { sid: this.sid, token: authToken });
+        socket.emit('joinContestHost', { type: this.contestType, sid: this.sid, token: authToken });
         if (config.debugMode) socket.logWithId(this.logger.debug, `Prompted to join ContestHost namespace "contest-${this.sid}"`, true);
     }
     /**
@@ -584,7 +586,7 @@ export class ContestHost {
                 if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${submission.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
                 cb(res);
             };
-            if (submission.file.length > 10240) {
+            if (Buffer.byteLength(submission.file, 'utf8') > config.contests[this.contestType].maxSubmissionSize) {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
