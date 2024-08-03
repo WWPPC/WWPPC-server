@@ -227,7 +227,6 @@ export interface ContestProblem {
 
 /**
  * Socket.IO connection with a reference to the original "spawning" connection, similar to ServerSocket but within contest namespace.
- * @ignore
  */
 export interface ContestSocket extends ServerSocket {
     linkedSocket: ServerSocket;
@@ -567,6 +566,7 @@ export class ContestHost {
 
         const socket = s;
 
+        socket.join(socket.username);
         if (this.#users.has(socket.username)) this.#users.get(socket.username)!.internalSockets.add(socket);
         else this.#users.set(socket.username, { sockets: new Set(), internalSockets: new Set([socket]) });
         socket.on('disconnect', () => this.#removeInternalSocket(socket));
@@ -594,17 +594,19 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }
-            const problems = await this.db.readProblems({ id: submission.id });
-            if (problems === null) {
-                respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
-                return;
-            }
             if (!this.problemSubmittable(submission.id)) {
                 respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
                 return;
             }
+            const problems = await this.db.readProblems({ id: submission.id });
+            if (problems === null || problems.length != 1) {
+                this.logger.handleError(`Could not load problem "${submission.id}"`, `Fetched ${problems?.length ?? 'null'} results`);
+                respond(ContestUpdateSubmissionResult.ERROR);
+                return;
+            }
             const teamData = await this.db.getTeamData(socket.username);
             if (typeof teamData != 'object') {
+                this.logger.handleError(`Could not fetch team data (for ${socket.username})!`, `Result ${reverse_enum(AccountOpResult, teamData)}`);
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
@@ -619,22 +621,42 @@ export class ContestHost {
                 analysis: false
             };
             if (!(await this.db.writeSubmission(serverSubmission, config.contests[this.contestType]!.withholdResults))) {
+                this.logger.error(`Failed to write submission for ${serverSubmission.problemId} by ${socket.username}`);
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             // submissions are stored under the team
-            this.grader.cancelUngraded(teamData.id, submission.id);
-            this.grader.queueUngraded(serverSubmission, async (graded) => {
-                if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
-                if (graded != null) {
-                    await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults);
-                    // make sure it gets to all the team
-                    const teamData = await this.db.getTeamData(socket.username);
-                    if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));
-                    // score it too (after grading)
-                    this.scorer.updateUser(graded, this.#contest.rounds[this.#index].id);
+            if (config.contests[this.contestType]!.graders) {
+                if (config.contests[this.contestType]!.submitSolver) {
+                    // use the grading system
+                    this.grader.cancelUngraded(teamData.id, submission.id);
+                    this.grader.queueUngraded(serverSubmission, async (graded) => {
+                        if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
+                        if (graded != null) {
+                            if (!(await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults))) {
+                                this.logger.error(`Failed to write submission for ${graded.problemId} by ${socket.username}`);
+                            }
+                            // make sure it gets to all the team
+                            const teamData = await this.db.getTeamData(socket.username);
+                            if (typeof teamData != 'object') this.logger.error(`Could not fetch team data (for ${socket.username})! Was the account deleted?`);
+                            else teamData.members.forEach((username) => this.updateUser(username));
+                            // score it too (after grading)
+                            this.scorer.updateUser(graded, this.#contest.rounds[this.#index].id);
+                        }
+                    });
+                } else {
+                    // direct comparison
+                    // if the problem doesnt have a solution then whomp whomp
+                    if (problems[0].solution === null) {
+                        this.logger.error(`Failed to grade submission solution for "${problems[0].id}" because correct solution is null`);
+                        return;
+                    }
+
                 }
-            });
+            } else {
+                // idk what to do here
+                this.logger.error(`Could not grade submission for ${submission.id} (from ${socket.username}):\nUnimplemented manual grading system used`);
+            }
             respond(ContestUpdateSubmissionResult.SUCCESS);
             // update whole team
             teamData.members.forEach((username) => this.updateUser(username));
@@ -651,6 +673,7 @@ export class ContestHost {
                 cb('');
                 return;
             }
+            // same as having null checks
             const submission = await this.db.readSubmissions({ username: teamData.id, id: data.id, analysis: false });
             cb(submission?.at(0)?.file ?? '');
         });
@@ -691,6 +714,8 @@ export class ContestHost {
         const user = this.#users.get(socket.username)!;
         if (user.internalSockets.has(socket)) {
             socket.removeAllListeners('updateSubmission');
+            socket.removeAllListeners('getSubmissionCode');
+            socket.leave(socket.username);
             user.internalSockets.delete(socket);
             return true;
         }

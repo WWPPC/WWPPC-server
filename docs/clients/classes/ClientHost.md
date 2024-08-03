@@ -44,39 +44,19 @@ Logging instance
 
 [`ClientHost`](ClientHost.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:39](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L39)
+[clients.ts:39](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L39)
 
 ## Properties
-
-### #recentPasswordResetEmails
-
-> `private` `readonly` **#recentPasswordResetEmails**: `Set`\<`string`\>
-
-#### Source
-
-[src/clients.ts:27](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L27)
-
-***
-
-### #recentSignups
-
-> `private` `readonly` **#recentSignups**: `Map`\<`string`, `number`\>
-
-#### Source
-
-[src/clients.ts:26](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L26)
-
-***
 
 ### app
 
 > `readonly` **app**: `Express`
 
-#### Source
+#### Defined in
 
-[src/clients.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L20)
+[clients.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L20)
 
 ***
 
@@ -84,9 +64,9 @@ Logging instance
 
 > `readonly` **clientEncryption**: [`RSAEncryptionHandler`](../../cryptoUtil/classes/RSAEncryptionHandler.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L18)
+[clients.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L18)
 
 ***
 
@@ -94,9 +74,9 @@ Logging instance
 
 > `readonly` **contestManager**: [`ContestManager`](../../contest/classes/ContestManager.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:21](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L21)
+[clients.ts:21](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L21)
 
 ***
 
@@ -104,9 +84,9 @@ Logging instance
 
 > `readonly` **database**: [`Database`](../../database/classes/Database.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:19](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L19)
+[clients.ts:19](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L19)
 
 ***
 
@@ -114,9 +94,9 @@ Logging instance
 
 > `readonly` **logger**: [`Logger`](../../log/interfaces/Logger.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:24](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L24)
+[clients.ts:24](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L24)
 
 ***
 
@@ -124,9 +104,9 @@ Logging instance
 
 > `readonly` **mailer**: [`Mailer`](../../email/classes/Mailer.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:23](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L23)
+[clients.ts:23](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L23)
 
 ***
 
@@ -134,9 +114,9 @@ Logging instance
 
 > `readonly` **ready**: `Promise`\<`any`\>
 
-#### Source
+#### Defined in
 
-[src/clients.ts:29](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L29)
+[clients.ts:29](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L29)
 
 ***
 
@@ -144,9 +124,9 @@ Logging instance
 
 > `readonly` **upsolveManager**: [`UpsolveManager`](../../upsolve/classes/UpsolveManager.md)
 
-#### Source
+#### Defined in
 
-[src/clients.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L22)
+[clients.ts:22](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L22)
 
 ## Methods
 
@@ -159,7 +139,7 @@ Performs authentication with reCAPTCHA, then adds user-specific endpoints over S
 
 #### Parameters
 
-• **s**: `ServerSocket`
+• **s**: [`ServerSocket`](../interfaces/ServerSocket.md)
 
 SocketIO connection (with modifications)
 
@@ -167,6 +147,6 @@ SocketIO connection (with modifications)
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/clients.ts:90](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/clients.ts#L90)
+[clients.ts:100](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L100)

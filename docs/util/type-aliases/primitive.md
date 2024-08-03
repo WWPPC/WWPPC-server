@@ -4,10 +4,10 @@
 
 [wwppc-server](../../modules.md) / [util](../README.md) / primitive
 
-# Type alias: primitive
+# Type Alias: primitive
 
 > **primitive**: `number` \| `string` \| `boolean` \| `undefined` \| `null`
 
-## Source
+## Defined in
 
-[src/util.ts:4](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/util.ts#L4)
+[util.ts:4](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/util.ts#L4)

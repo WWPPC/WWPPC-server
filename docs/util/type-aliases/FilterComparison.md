@@ -4,7 +4,7 @@
 
 [wwppc-server](../../modules.md) / [util](../README.md) / FilterComparison
 
-# Type alias: FilterComparison\<T\>
+# Type Alias: FilterComparison\<T\>
 
 > **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? `object` \| `object` \| `object` \| `T` \| `T`[] : `never`
 
@@ -62,10 +62,10 @@ If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions
 
 `{ op: '=><', v1: 10, v2: 24 }` is satisfied within the range [10, 24) (i.e. greater than or equal to 10 and less than 24).
 
-## Type parameters
+## Type Parameters
 
 • **T**
 
-## Source
+## Defined in
 
-[src/util.ts:60](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/util.ts#L60)
+[util.ts:60](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/util.ts#L60)

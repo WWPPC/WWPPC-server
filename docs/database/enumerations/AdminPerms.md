@@ -16,9 +16,9 @@ Admin permission level bit flags
 
 Base admin permission; allows login
 
-#### Source
+#### Defined in
 
-[src/database.ts:1306](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1306)
+[database.ts:1306](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1306)
 
 ***
 
@@ -28,9 +28,9 @@ Base admin permission; allows login
 
 Create, delete, and modify accounts
 
-#### Source
+#### Defined in
 
-[src/database.ts:1308](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1308)
+[database.ts:1308](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1308)
 
 ***
 
@@ -40,9 +40,9 @@ Create, delete, and modify accounts
 
 Manage admin permissions
 
-#### Source
+#### Defined in
 
-[src/database.ts:1316](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1316)
+[database.ts:1316](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1316)
 
 ***
 
@@ -52,9 +52,9 @@ Manage admin permissions
 
 Edit contests and control ContestHost functions
 
-#### Source
+#### Defined in
 
-[src/database.ts:1312](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1312)
+[database.ts:1312](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1312)
 
 ***
 
@@ -64,9 +64,9 @@ Edit contests and control ContestHost functions
 
 Edit all problems, both contest and upsolve
 
-#### Source
+#### Defined in
 
-[src/database.ts:1310](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1310)
+[database.ts:1310](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1310)
 
 ***
 
@@ -76,6 +76,6 @@ Edit all problems, both contest and upsolve
 
 View and disqualify submissions
 
-#### Source
+#### Defined in
 
-[src/database.ts:1314](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1314)
+[database.ts:1314](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1314)

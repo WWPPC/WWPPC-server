@@ -24,59 +24,19 @@ Parameters
 
 [`Mailer`](Mailer.md)
 
-#### Source
+#### Defined in
 
-[src/email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L39)
+[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L39)
 
 ## Properties
-
-### #logger
-
-> `private` `readonly` **#logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
-
-#### Source
-
-[src/email.ts:32](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L32)
-
-***
-
-### #templatePathURL
-
-> `private` `readonly` **#templatePathURL**: `string`
-
-#### Source
-
-[src/email.ts:33](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L33)
-
-***
-
-### #templates
-
-> `private` `readonly` **#templates**: `Map`\<`string`, `string`\>
-
-#### Source
-
-[src/email.ts:34](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L34)
-
-***
-
-### #transporter
-
-> `private` `readonly` **#transporter**: `Transporter`
-
-#### Source
-
-[src/email.ts:31](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L31)
-
-***
 
 ### ready
 
 > `readonly` **ready**: `Promise`\<`any`\>
 
-#### Source
+#### Defined in
 
-[src/email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L30)
+[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L30)
 
 ## Methods
 
@@ -90,9 +50,9 @@ Disconnect from the SMTP server.
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L179)
+[email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L179)
 
 ***
 
@@ -126,9 +86,9 @@ Plaintext version of email
 
 `undefined` if email was sent succesfully. Otherwise, an Error
 
-#### Source
+#### Defined in
 
-[src/email.ts:103](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L103)
+[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L111)
 
 ***
 
@@ -166,6 +126,6 @@ Plaintext version (does not use template)
 
 `undefined` if email was sent succesfully. Otherwise, an Error
 
-#### Source
+#### Defined in
 
-[src/email.ts:139](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L139)
+[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L147)

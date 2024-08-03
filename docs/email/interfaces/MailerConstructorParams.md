@@ -14,9 +14,9 @@
 
 Hostname of SMTP server
 
-#### Source
+#### Defined in
 
-[src/email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L12)
+[email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L12)
 
 ***
 
@@ -26,9 +26,9 @@ Hostname of SMTP server
 
 Logging instance
 
-#### Source
+#### Defined in
 
-[src/email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L24)
+[email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L24)
 
 ***
 
@@ -38,9 +38,9 @@ Logging instance
 
 SMTP password
 
-#### Source
+#### Defined in
 
-[src/email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L20)
+[email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L20)
 
 ***
 
@@ -50,9 +50,9 @@ SMTP password
 
 Port number of SMTP server (default 587)
 
-#### Source
+#### Defined in
 
-[src/email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L14)
+[email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L14)
 
 ***
 
@@ -62,9 +62,9 @@ Port number of SMTP server (default 587)
 
 Use secure connection
 
-#### Source
+#### Defined in
 
-[src/email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L16)
+[email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L16)
 
 ***
 
@@ -74,9 +74,9 @@ Use secure connection
 
 Path to email templates
 
-#### Source
+#### Defined in
 
-[src/email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L22)
+[email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L22)
 
 ***
 
@@ -86,6 +86,6 @@ Path to email templates
 
 SMTP username
 
-#### Source
+#### Defined in
 
-[src/email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/email.ts#L18)
+[email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L18)

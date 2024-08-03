@@ -20,6 +20,6 @@ Look up the name of an enumeration based on the value
 
 `string`
 
-## Source
+## Defined in
 
-[src/util.ts:141](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/util.ts#L141)
+[util.ts:141](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/util.ts#L141)

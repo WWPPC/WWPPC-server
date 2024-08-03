@@ -40,69 +40,19 @@ Logger instance
 
 [`Grader`](Grader.md)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L32)
+[grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L32)
 
 ## Properties
-
-### #nodes
-
-> `private` `readonly` **#nodes**: `Map`\<`string`, [`GraderNode`](../interfaces/GraderNode.md)\>
-
-#### Source
-
-[src/grader.ts:13](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L13)
-
-***
-
-### #open
-
-> `private` **#open**: `boolean` = `true`
-
-#### Source
-
-[src/grader.ts:21](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L21)
-
-***
-
-### #password
-
-> `private` `readonly` **#password**: `string`
-
-#### Source
-
-[src/grader.ts:19](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L19)
-
-***
-
-### #path
-
-> `private` `readonly` **#path**: `string`
-
-#### Source
-
-[src/grader.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L18)
-
-***
-
-### #ungradedSubmissions
-
-> `private` **#ungradedSubmissions**: [`SubmissionWithCallback`](../interfaces/SubmissionWithCallback.md)[] = `[]`
-
-#### Source
-
-[src/grader.ts:23](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L23)
-
-***
 
 ### app
 
 > `readonly` **app**: `Express`
 
-#### Source
+#### Defined in
 
-[src/grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L15)
+[grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L15)
 
 ***
 
@@ -110,9 +60,9 @@ Logger instance
 
 > `readonly` **db**: [`Database`](../../database/classes/Database.md)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L17)
+[grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L17)
 
 ***
 
@@ -120,29 +70,11 @@ Logger instance
 
 > `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L16)
+[grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L16)
 
 ## Methods
-
-### #getAuth()
-
-> `private` **#getAuth**(`req`): `string` \| `number`
-
-#### Parameters
-
-• **req**: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>
-
-#### Returns
-
-`string` \| `number`
-
-#### Source
-
-[src/grader.ts:248](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L248)
-
-***
 
 ### cancelUngraded()
 
@@ -164,9 +96,9 @@ ID or problem
 
 `boolean`
 
-#### Source
+#### Defined in
 
-[src/grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L221)
+[grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L221)
 
 ***
 
@@ -180,9 +112,9 @@ Cancels all submissions and stops accepting submissions to the queue
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L264)
+[grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L264)
 
 ***
 
@@ -204,6 +136,6 @@ New submission
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L203)
+[grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L203)

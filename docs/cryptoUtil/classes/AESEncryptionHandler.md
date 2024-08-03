@@ -28,39 +28,19 @@ Logger instance
 
 [`AESEncryptionHandler`](AESEncryptionHandler.md)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:88](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L88)
+[cryptoUtil.ts:88](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L88)
 
 ## Properties
-
-### #key
-
-> `private` `readonly` **#key**: `Buffer`
-
-#### Source
-
-[src/cryptoUtil.ts:82](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L82)
-
-***
 
 ### logger
 
 > `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:81](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L81)
-
-***
-
-### #counter
-
-> `static` `private` **#counter**: `0`
-
-#### Source
-
-[src/cryptoUtil.ts:80](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L80)
+[cryptoUtil.ts:81](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L81)
 
 ## Methods
 
@@ -82,9 +62,9 @@ Colon-concatenated base64-encoded ciphertext, initialization vector, and authent
 
 Plaintext string (the formatted encrypted string if there was an error)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L114)
+[cryptoUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L114)
 
 ***
 
@@ -106,6 +86,6 @@ Plaintext string
 
 Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext string if there was an error)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:98](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L98)
+[cryptoUtil.ts:98](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L98)

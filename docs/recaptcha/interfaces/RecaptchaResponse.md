@@ -12,9 +12,9 @@
 
 > **action**: `string`
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:6](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L6)
+[recaptcha.ts:6](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L6)
 
 ***
 
@@ -22,9 +22,9 @@
 
 > **challenge\_ts**: `number`
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:7](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L7)
+[recaptcha.ts:7](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L7)
 
 ***
 
@@ -32,9 +32,9 @@
 
 > **error\_codes**: (`"missing-input-secret"` \| `"invalid-input-secret"` \| `"missing-input-response"` \| `"invalid-input-response"` \| `"bad-request"` \| `"timeout-or-duplicate"`)[]
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:9](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L9)
+[recaptcha.ts:9](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L9)
 
 ***
 
@@ -42,9 +42,9 @@
 
 > **hostname**: `string`
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:8](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L8)
+[recaptcha.ts:8](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L8)
 
 ***
 
@@ -52,9 +52,9 @@
 
 > **score**: `number`
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:5](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L5)
+[recaptcha.ts:5](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L5)
 
 ***
 
@@ -62,6 +62,6 @@
 
 > **success**: `boolean`
 
-#### Source
+#### Defined in
 
-[src/recaptcha.ts:4](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/recaptcha.ts#L4)
+[recaptcha.ts:4](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/recaptcha.ts#L4)

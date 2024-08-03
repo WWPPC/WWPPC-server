@@ -16,9 +16,9 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 Contest ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1474](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1474)
+[database.ts:1476](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1476)
 
 ***
 
@@ -28,9 +28,9 @@ Contest ID
 
 End of round, UNIX time
 
-#### Source
+#### Defined in
 
-[src/database.ts:1482](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1482)
+[database.ts:1484](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1484)
 
 ***
 
@@ -40,9 +40,9 @@ End of round, UNIX time
 
 Round ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1478](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1478)
+[database.ts:1480](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1480)
 
 ***
 
@@ -52,9 +52,9 @@ Round ID
 
 Zero-indexed round within the contest
 
-#### Source
+#### Defined in
 
-[src/database.ts:1476](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1476)
+[database.ts:1478](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1478)
 
 ***
 
@@ -64,6 +64,6 @@ Zero-indexed round within the contest
 
 Start of round, UNIX time
 
-#### Source
+#### Defined in
 
-[src/database.ts:1480](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1480)
+[database.ts:1482](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1482)

@@ -16,9 +16,9 @@ Represents a grader server
 
 Deadline to return the submission (unix ms)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:298](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L298)
+[grader.ts:298](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L298)
 
 ***
 
@@ -28,9 +28,9 @@ Deadline to return the submission (unix ms)
 
 Submission that is being graded
 
-#### Source
+#### Defined in
 
-[src/grader.ts:296](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L296)
+[grader.ts:296](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L296)
 
 ***
 
@@ -40,9 +40,9 @@ Submission that is being graded
 
 Last time we communicated with this grader (unix ms)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:300](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L300)
+[grader.ts:300](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L300)
 
 ***
 
@@ -52,6 +52,6 @@ Last time we communicated with this grader (unix ms)
 
 Username
 
-#### Source
+#### Defined in
 
-[src/grader.ts:294](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L294)
+[grader.ts:294](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L294)

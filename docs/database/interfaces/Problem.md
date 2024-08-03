@@ -16,9 +16,9 @@ Descriptor for a single problem
 
 Author username
 
-#### Source
+#### Defined in
 
-[src/database.ts:1401](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1401)
+[database.ts:1401](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1401)
 
 ***
 
@@ -40,9 +40,9 @@ Memory limit per test case in megabytes
 
 Time limit per test case in millseconds
 
-#### Source
+#### Defined in
 
-[src/database.ts:1405](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1405)
+[database.ts:1405](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1405)
 
 ***
 
@@ -52,9 +52,9 @@ Time limit per test case in millseconds
 
 HTML/KaTeX content of problem statement
 
-#### Source
+#### Defined in
 
-[src/database.ts:1403](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1403)
+[database.ts:1403](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1403)
 
 ***
 
@@ -64,9 +64,9 @@ HTML/KaTeX content of problem statement
 
 UUID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1397](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1397)
+[database.ts:1397](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1397)
 
 ***
 
@@ -76,6 +76,18 @@ UUID
 
 Display name
 
-#### Source
+#### Defined in
 
-[src/database.ts:1399](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1399)
+[database.ts:1399](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1399)
+
+***
+
+### solution
+
+> **solution**: `null` \| `string`
+
+"Correct" answer used in contests with answer grading ([config.ContestConfiguration.submitSolver](../../config/interfaces/ContestConfiguration.md#submitsolver) is false)
+
+#### Defined in
+
+[database.ts:1412](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1412)

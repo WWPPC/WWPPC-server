@@ -32,45 +32,11 @@ Path to the log directory
 
 [`FileLogger`](FileLogger.md)
 
-#### Source
+#### Defined in
 
-[src/log.ts:70](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L70)
-
-## Properties
-
-### #file
-
-> `private` **#file**: `any`
-
-#### Source
-
-[src/log.ts:62](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L62)
+[log.ts:71](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L71)
 
 ## Methods
-
-### #append()
-
-> `private` **#append**(`level`, `text`, `color`, `logOnly`): `void`
-
-#### Parameters
-
-• **level**: `string`
-
-• **text**: `string`
-
-• **color**: `number`
-
-• **logOnly**: `boolean`= `false`
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/log.ts:136](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L136)
-
-***
 
 ### debug()
 
@@ -84,7 +50,7 @@ Append a debug-level entry to the log.
 
 Text
 
-• **logOnly**: `boolean`= `false`
+• **logOnly**: `boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -96,29 +62,29 @@ Only put in logfile, not stdout
 
 [`Logger`](../interfaces/Logger.md).[`debug`](../interfaces/Logger.md#debug)
 
-#### Source
+#### Defined in
 
-[src/log.ts:102](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L102)
+[log.ts:103](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L103)
 
 ***
 
 ### destroy()
 
-> **destroy**(): `void`
+> **destroy**(): `Promise`\<`void`\>
 
-Safely closes the logging session.
+Safely closes the logging session. May be asynchronous to allow pending operations to finish.
 
 #### Returns
 
-`void`
+`Promise`\<`void`\>
 
 #### Implementation of
 
 [`Logger`](../interfaces/Logger.md).[`destroy`](../interfaces/Logger.md#destroy)
 
-#### Source
+#### Defined in
 
-[src/log.ts:146](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L146)
+[log.ts:159](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L159)
 
 ***
 
@@ -134,7 +100,7 @@ Append an error-level entry to the log.
 
 Text
 
-• **logOnly**: `boolean`= `false`
+• **logOnly**: `boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -146,9 +112,9 @@ Only put in logfile, not stdout
 
 [`Logger`](../interfaces/Logger.md).[`error`](../interfaces/Logger.md#error)
 
-#### Source
+#### Defined in
 
-[src/log.ts:111](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L111)
+[log.ts:112](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L112)
 
 ***
 
@@ -164,7 +130,7 @@ Append a fatal-level entry to the log.
 
 Text
 
-• **logOnly**: `boolean`= `false`
+• **logOnly**: `boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -176,9 +142,9 @@ Only put in logfile, not stdout
 
 [`Logger`](../interfaces/Logger.md).[`fatal`](../interfaces/Logger.md#fatal)
 
-#### Source
+#### Defined in
 
-[src/log.ts:114](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L114)
+[log.ts:115](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L115)
 
 ***
 
@@ -206,9 +172,9 @@ Accompanying message
 
 [`Logger`](../interfaces/Logger.md).[`handleError`](../interfaces/Logger.md#handleerror)
 
-#### Source
+#### Defined in
 
-[src/log.ts:117](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L117)
+[log.ts:118](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L118)
 
 ***
 
@@ -236,9 +202,9 @@ Accompanying message
 
 [`Logger`](../interfaces/Logger.md).[`handleFatal`](../interfaces/Logger.md#handlefatal)
 
-#### Source
+#### Defined in
 
-[src/log.ts:126](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L126)
+[log.ts:131](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L131)
 
 ***
 
@@ -254,7 +220,7 @@ Append an information-level entry to the log.
 
 Text
 
-• **logOnly**: `boolean`= `false`
+• **logOnly**: `boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -266,9 +232,9 @@ Only put in logfile, not stdout
 
 [`Logger`](../interfaces/Logger.md).[`info`](../interfaces/Logger.md#info)
 
-#### Source
+#### Defined in
 
-[src/log.ts:105](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L105)
+[log.ts:106](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L106)
 
 ***
 
@@ -288,9 +254,9 @@ Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 [`Logger`](../interfaces/Logger.md).[`timestamp`](../interfaces/Logger.md#timestamp)
 
-#### Source
+#### Defined in
 
-[src/log.ts:88](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L88)
+[log.ts:89](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L89)
 
 ***
 
@@ -306,7 +272,7 @@ Append a warning-level entry to the log.
 
 Text
 
-• **logOnly**: `boolean`= `false`
+• **logOnly**: `boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -318,6 +284,6 @@ Only put in logfile, not stdout
 
 [`Logger`](../interfaces/Logger.md).[`warn`](../interfaces/Logger.md#warn)
 
-#### Source
+#### Defined in
 
-[src/log.ts:108](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L108)
+[log.ts:109](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L109)

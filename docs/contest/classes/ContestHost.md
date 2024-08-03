@@ -45,89 +45,19 @@ Logger instance
 
 [`ContestHost`](ContestHost.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:316](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L316)
+[contest.ts:279](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L279)
 
 ## Properties
-
-### #active
-
-> `private` **#active**: `boolean` = `false`
-
-#### Source
-
-[src/contest.ts:302](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L302)
-
-***
-
-### #contest
-
-> `private` **#contest**: [`ContestContest`](../interfaces/ContestContest.md)
-
-#### Source
-
-[src/contest.ts:300](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L300)
-
-***
-
-### #endListeners
-
-> `private` **#endListeners**: `Set`\<() => `any`\>
-
-#### Source
-
-[src/contest.ts:702](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L702)
-
-***
-
-### #ended
-
-> `private` **#ended**: `boolean` = `false`
-
-#### Source
-
-[src/contest.ts:303](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L303)
-
-***
-
-### #index
-
-> `private` **#index**: `number` = `0`
-
-#### Source
-
-[src/contest.ts:301](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L301)
-
-***
-
-### #updateLoop
-
-> `private` **#updateLoop**: `undefined` \| `Timeout` = `undefined`
-
-#### Source
-
-[src/contest.ts:304](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L304)
-
-***
-
-### #users
-
-> `private` `readonly` **#users**: `Map`\<`string`, `object`\>
-
-#### Source
-
-[src/contest.ts:306](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L306)
-
-***
 
 ### contestType
 
 > `readonly` **contestType**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:293](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L293)
+[contest.ts:254](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L254)
 
 ***
 
@@ -135,9 +65,9 @@ Logger instance
 
 > `readonly` **db**: [`Database`](../../database/classes/Database.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:296](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L296)
+[contest.ts:257](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L257)
 
 ***
 
@@ -145,9 +75,9 @@ Logger instance
 
 > `readonly` **grader**: [`Grader`](../../grader/classes/Grader.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:297](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L297)
+[contest.ts:258](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L258)
 
 ***
 
@@ -155,9 +85,9 @@ Logger instance
 
 > `readonly` **id**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:294](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L294)
+[contest.ts:255](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L255)
 
 ***
 
@@ -165,9 +95,9 @@ Logger instance
 
 > `readonly` **io**: `Namespace`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
 
-#### Source
+#### Defined in
 
-[src/contest.ts:295](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L295)
+[contest.ts:256](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L256)
 
 ***
 
@@ -175,9 +105,9 @@ Logger instance
 
 > `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:299](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L299)
+[contest.ts:260](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L260)
 
 ***
 
@@ -185,9 +115,9 @@ Logger instance
 
 > `readonly` **scorer**: [`Scorer`](../../scorer/classes/Scorer.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:298](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L298)
+[contest.ts:259](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L259)
 
 ***
 
@@ -195,9 +125,9 @@ Logger instance
 
 > `readonly` **sid**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:292](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L292)
+[contest.ts:253](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L253)
 
 ## Accessors
 
@@ -211,9 +141,9 @@ Get a copy of the internal data.
 
 [`ContestContest`](../interfaces/ContestContest.md)
 
-#### Source
+#### Defined in
 
-[src/contest.ts:341](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L341)
+[contest.ts:321](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L321)
 
 ***
 
@@ -227,85 +157,11 @@ Index of the current round (zero-indexed).
 
 `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:450](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L450)
+[contest.ts:430](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L430)
 
 ## Methods
-
-### #addInternalSocket()
-
-> `private` **#addInternalSocket**(`username`, `s`): `void`
-
-Add a previously-added internal SocketIO connection to the user list.
-
-#### Parameters
-
-• **username**: `string`
-
-Username linked to socket
-
-• **s**: `Socket`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
-
-SocketIO connection
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/contest.ts:662](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L662)
-
-***
-
-### #getCompletionState()
-
-> `private` **#getCompletionState**(`round`, `scores`): [`ClientProblemCompletionState`](../enumerations/ClientProblemCompletionState.md)
-
-#### Parameters
-
-• **round**: `number`
-
-• **scores**: `undefined` \| [`Score`](../../database/interfaces/Score.md)[]
-
-#### Returns
-
-[`ClientProblemCompletionState`](../enumerations/ClientProblemCompletionState.md)
-
-#### Source
-
-[src/contest.ts:541](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L541)
-
-***
-
-### #removeInternalSocket()
-
-> `private` **#removeInternalSocket**(`username`, `socket`): `boolean`
-
-Remove a previously-added internal SocketIO connection from the user list.
-
-#### Parameters
-
-• **username**: `string`
-
-Username linked to socket
-
-• **socket**: `Socket`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
-
-SocketIO connection
-
-#### Returns
-
-`boolean`
-
-If the socket was previously within the list of connections
-
-#### Source
-
-[src/contest.ts:691](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L691)
-
-***
 
 ### addSocket()
 
@@ -315,7 +171,7 @@ Add a username-linked SocketIO connection to the user list.
 
 #### Parameters
 
-• **s**: `ServerSocket`
+• **s**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
 
 SocketIO connection (with modifications)
 
@@ -323,9 +179,9 @@ SocketIO connection (with modifications)
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:563](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L563)
+[contest.ts:543](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L543)
 
 ***
 
@@ -345,9 +201,9 @@ Mark the contest as ended in database (contest cannot be restarted)
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:707](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L707)
+[contest.ts:730](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L730)
 
 ***
 
@@ -367,9 +223,9 @@ Callback listener
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:721](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L721)
+[contest.ts:744](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L744)
 
 ***
 
@@ -389,9 +245,9 @@ Problem ID
 
 `boolean`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:458](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L458)
+[contest.ts:438](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L438)
 
 ***
 
@@ -406,9 +262,9 @@ Will re-calculate the current round as well.
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/contest.ts:348](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L348)
+[contest.ts:328](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L328)
 
 ***
 
@@ -420,7 +276,7 @@ Remove a previously-added username-linked SocketIO connection from the user list
 
 #### Parameters
 
-• **socket**: `ServerSocket`
+• **socket**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
 
 SocketIO connection (with modifications)
 
@@ -430,9 +286,9 @@ SocketIO connection (with modifications)
 
 If the socket was previously within the list of connections
 
-#### Source
+#### Defined in
 
-[src/contest.ts:670](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L670)
+[contest.ts:688](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L688)
 
 ***
 
@@ -446,9 +302,9 @@ Update all users in contest with latest contest data.
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/contest.ts:464](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L464)
+[contest.ts:444](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L444)
 
 ***
 
@@ -468,6 +324,6 @@ Username
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/contest.ts:471](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L471)
+[contest.ts:451](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L451)

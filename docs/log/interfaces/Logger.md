@@ -28,9 +28,9 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L15)
+[log.ts:15](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L15)
 
 ***
 
@@ -38,15 +38,15 @@ Only put in logfile, not stdout
 
 > **destroy**(): `void`
 
-Safely closes the logging session.
+Safely closes the logging session. May be asynchronous to allow pending operations to finish.
 
 #### Returns
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:55](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L55)
+[log.ts:55](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L55)
 
 ***
 
@@ -70,9 +70,9 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:33](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L33)
+[log.ts:33](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L33)
 
 ***
 
@@ -96,9 +96,9 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:39](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L39)
+[log.ts:39](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L39)
 
 ***
 
@@ -122,9 +122,9 @@ Accompanying message
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:45](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L45)
+[log.ts:45](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L45)
 
 ***
 
@@ -148,9 +148,9 @@ Accompanying message
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:51](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L51)
+[log.ts:51](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L51)
 
 ***
 
@@ -174,9 +174,9 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:21](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L21)
+[log.ts:21](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L21)
 
 ***
 
@@ -192,9 +192,9 @@ Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
-#### Source
+#### Defined in
 
-[src/log.ts:9](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L9)
+[log.ts:9](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L9)
 
 ***
 
@@ -218,6 +218,6 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/log.ts:27](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/log.ts#L27)
+[log.ts:27](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/log.ts#L27)

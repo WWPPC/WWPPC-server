@@ -16,9 +16,9 @@ Descriptor for a team
 
 Team's biography
 
-#### Source
+#### Defined in
 
-[src/database.ts:1357](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1357)
+[database.ts:1357](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1357)
 
 ***
 
@@ -28,9 +28,9 @@ Team's biography
 
 The unique team id which is the team owner/creator's username
 
-#### Source
+#### Defined in
 
-[src/database.ts:1353](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1353)
+[database.ts:1353](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1353)
 
 ***
 
@@ -40,9 +40,9 @@ The unique team id which is the team owner/creator's username
 
 Numerical join code
 
-#### Source
+#### Defined in
 
-[src/database.ts:1361](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1361)
+[database.ts:1361](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1361)
 
 ***
 
@@ -52,9 +52,9 @@ Numerical join code
 
 List of usernames of team members
 
-#### Source
+#### Defined in
 
-[src/database.ts:1359](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1359)
+[database.ts:1359](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1359)
 
 ***
 
@@ -64,6 +64,6 @@ List of usernames of team members
 
 The name of the team
 
-#### Source
+#### Defined in
 
-[src/database.ts:1355](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1355)
+[database.ts:1355](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1355)

@@ -16,9 +16,9 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 Author username of problem
 
-#### Source
+#### Defined in
 
-[src/database.ts:1502](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1502)
+[database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1504)
 
 ***
 
@@ -28,9 +28,9 @@ Author username of problem
 
 Contest-based filter including contest, round, problem number, and round ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1504)
+[database.ts:1506](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1506)
 
 ***
 
@@ -40,9 +40,9 @@ Contest-based filter including contest, round, problem number, and round ID
 
 UUID of problem
 
-#### Source
+#### Defined in
 
-[src/database.ts:1498](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1498)
+[database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1500)
 
 ***
 
@@ -52,6 +52,6 @@ UUID of problem
 
 Display name of problem
 
-#### Source
+#### Defined in
 
-[src/database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1500)
+[database.ts:1502](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1502)

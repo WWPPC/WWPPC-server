@@ -1075,7 +1075,8 @@ export class Database {
                         name: problem.name,
                         author: problem.author,
                         content: problem.content,
-                        constraints: problem.constraints
+                        constraints: problem.constraints,
+                        solution: problem.solution
                     };
                     this.#problemCache.set(problem.id, {
                         problem: structuredClone(p),
@@ -1100,9 +1101,9 @@ export class Database {
     async writeProblem(problem: Problem): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints)];
+            const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.solution];
             const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints) VALUES ($1, $2, $3, $4, $5)', data);
+            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints, solution) VALUES ($1, $2, $3, $4, $5, $6)', data);
             this.#problemCache.set(problem.id, {
                 problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
@@ -1406,7 +1407,9 @@ export interface Problem {
         time: number
         /**Memory limit per test case in megabytes */
         memory: number
-    }
+    },
+    /**"Correct" answer used in contests with answer grading ({@link config.ContestConfiguration.submitSolver} is false) */
+    solution: string | null
 }
 /**Descriptor for a single submission */
 export interface Submission {

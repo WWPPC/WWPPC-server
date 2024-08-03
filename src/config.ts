@@ -24,11 +24,11 @@ function loadContests() {
 }
 const fileConfig = loadConfig();
 const fileContests = loadContests();
+
 /**
- * Global configuration, loaded from `config.json` in the config folder.
- * If any field is empty in `config.json`, it is filled in with the default.
+ * Global server configuration, loaded from config.json.
  */
-const config: {
+export interface GlobalConfiguration {
     /**Hostname of website to be linked to in emails (default: "wwppc.tech") */
     readonly hostname: string
     /**Sending email address (default: "no-reply@wwppc.tech")*/
@@ -51,22 +51,7 @@ const config: {
     readonly graderTimeout: number
     /**Contest types and options (no defaults) */
     readonly contests: {
-        readonly [key: string]: {
-            /**Use grading system to evaluate submissions, otherwise grade manually (default: true) */
-            readonly graders: boolean,
-            /**Enable round separation (separates contest into multiple sub-contests) (default: true) */
-            readonly rounds: boolean,
-            /**"Freeze" scores - stop updating scores for clients - for some amount of time (minutes) before the last round ends (default: 60) */
-            readonly scoreFreezeTime: number,
-            /**Withhold submission results for each round until the round ends (submissions are still instantly graded however) (default: false) */
-            readonly withholdResults: boolean,
-            /**Submissions will be treated as solution code instead of an answer - setting to "false" limits grading to one test case (default: true) */
-            readonly submitSolver: boolean,
-            /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
-            readonly acceptedSolverLanguages: string[]
-            /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
-            readonly maxSubmissionSize: number
-        } | undefined
+        readonly [key: string]: ContestConfiguration | undefined
     }
     /**Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24) */
     readonly maxSubmissionHistory: number
@@ -84,7 +69,31 @@ const config: {
     readonly logPath: string
     /**Directory to load email templates from (default: `../email-templates/`) */
     readonly emailTemplatePath: string
-} = {
+}
+/**
+ * Configuration settings for a contest type, part of the {@link GlobalConfiguration.contests} field of {@link GlobalConfiguration}. Loaded from contests.json.
+ */
+export interface ContestConfiguration {
+    /**Use grading system to evaluate submissions, otherwise grade manually (default: true) */
+    readonly graders: boolean
+    /**Enable round separation (separates contest into multiple sub-contests) (default: true) */
+    readonly rounds: boolean
+    /**"Freeze" scores - stop updating scores for clients - for some amount of time (minutes) before the last round ends (default: 60) */
+    readonly scoreFreezeTime: number
+    /**Withhold submission results for each round until the round ends (submissions are still instantly graded however) (default: false) */
+    readonly withholdResults: boolean
+    /**Submissions will be treated as solution code instead of an answer - setting to "false" limits grading to one test case (default: true) */
+    readonly submitSolver: boolean
+    /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
+    readonly acceptedSolverLanguages: string[]
+    /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
+    readonly maxSubmissionSize: number
+};
+/**
+ * Global configuration, loaded from `config.json` in the config folder.
+ * If any field is empty in `config.json`, it is filled in with the default.
+ */
+const config: GlobalConfiguration = {
     hostname: fileConfig.hostname ?? 'wwppc.tech',
     emailAddress: fileConfig.emailAddress ?? 'no-reply@wwppc.tech',
     port: process.env.PORT ?? fileConfig.port ?? 8000,

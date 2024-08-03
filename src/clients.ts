@@ -495,7 +495,6 @@ export class ClientHost {
 
 /**
  * Socket.IO connection with username, IP, logging, and kick function.
- * @ignore
  */
 export interface ServerSocket extends SocketIOSocket {
     kick(reason: string): void

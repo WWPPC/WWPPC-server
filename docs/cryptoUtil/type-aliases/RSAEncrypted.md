@@ -4,10 +4,10 @@
 
 [wwppc-server](../../modules.md) / [cryptoUtil](../README.md) / RSAEncrypted
 
-# Type alias: RSAEncrypted
+# Type Alias: RSAEncrypted
 
 > **RSAEncrypted**: `Buffer` \| `string`
 
-## Source
+## Defined in
 
-[src/cryptoUtil.ts:6](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L6)
+[cryptoUtil.ts:6](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L6)

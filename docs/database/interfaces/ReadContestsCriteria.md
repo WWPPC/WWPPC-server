@@ -16,9 +16,9 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 End of contest, UNIX time
 
-#### Source
+#### Defined in
 
-[src/database.ts:1465](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1465)
+[database.ts:1467](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1467)
 
 ***
 
@@ -28,9 +28,9 @@ End of contest, UNIX time
 
 Contest ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1461](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1461)
+[database.ts:1463](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1463)
 
 ***
 
@@ -40,9 +40,9 @@ Contest ID
 
 If the contest is publicly archived once finished
 
-#### Source
+#### Defined in
 
-[src/database.ts:1467](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1467)
+[database.ts:1469](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1469)
 
 ***
 
@@ -52,9 +52,9 @@ If the contest is publicly archived once finished
 
 Start of contest, UNIX time
 
-#### Source
+#### Defined in
 
-[src/database.ts:1463](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1463)
+[database.ts:1465](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1465)
 
 ***
 
@@ -64,6 +64,6 @@ Start of contest, UNIX time
 
 The tournament the contest is part of
 
-#### Source
+#### Defined in
 
-[src/database.ts:1469](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1469)
+[database.ts:1471](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1471)

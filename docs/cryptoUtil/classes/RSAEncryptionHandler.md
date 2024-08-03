@@ -24,49 +24,19 @@ Logger instance
 
 [`RSAEncryptionHandler`](RSAEncryptionHandler.md)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L22)
+[cryptoUtil.ts:22](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L22)
 
 ## Properties
-
-### #keypair
-
-> `private` **#keypair**: `Promise`\<`CryptoKeyPair`\>
-
-#### Source
-
-[src/cryptoUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L14)
-
-***
-
-### #publicKey
-
-> `private` **#publicKey**: `undefined` \| `JsonWebKey`
-
-#### Source
-
-[src/cryptoUtil.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L15)
-
-***
-
-### #session
-
-> `private` **#session**: `number`
-
-#### Source
-
-[src/cryptoUtil.ts:16](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L16)
-
-***
 
 ### logger
 
 > `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:13](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L13)
+[cryptoUtil.ts:13](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L13)
 
 ***
 
@@ -74,19 +44,9 @@ Logger instance
 
 > `readonly` **ready**: `Promise`\<`any`\>
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:17](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L17)
-
-***
-
-### #counter
-
-> `static` `private` **#counter**: `number` = `0`
-
-#### Source
-
-[src/cryptoUtil.ts:12](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L12)
+[cryptoUtil.ts:17](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L17)
 
 ## Accessors
 
@@ -100,9 +60,9 @@ RA-OAEP public key, exported in "jwk" format.
 
 `undefined` \| `JsonWebKey`
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L39)
+[cryptoUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L39)
 
 ***
 
@@ -116,9 +76,9 @@ Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` 
 
 `number`
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:43](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L43)
+[cryptoUtil.ts:43](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L43)
 
 ## Methods
 
@@ -140,9 +100,9 @@ Encrypted ArrayBuffer representing a string or an unencrypted string (pass-throu
 
 Decrypted string
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:66](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L66)
+[cryptoUtil.ts:66](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L66)
 
 ***
 
@@ -156,6 +116,6 @@ Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the publi
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/cryptoUtil.ts:48](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/cryptoUtil.ts#L48)
+[cryptoUtil.ts:48](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/cryptoUtil.ts#L48)

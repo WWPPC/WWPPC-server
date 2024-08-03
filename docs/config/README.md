@@ -8,6 +8,11 @@
 
 ## Index
 
+### Interfaces
+
+- [ContestConfiguration](interfaces/ContestConfiguration.md)
+- [GlobalConfiguration](interfaces/GlobalConfiguration.md)
+
 ### Variables
 
 - [default](variables/default.md)

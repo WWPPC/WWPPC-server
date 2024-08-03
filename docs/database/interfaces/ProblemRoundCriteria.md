@@ -16,9 +16,9 @@ Contest-based filter including contest, round, problem number, and round ID
 
 Contest ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1487](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1487)
+[database.ts:1489](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1489)
 
 ***
 
@@ -28,9 +28,9 @@ Contest ID
 
 Zero-indexed problem number within the round
 
-#### Source
+#### Defined in
 
-[src/database.ts:1491](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1491)
+[database.ts:1493](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1493)
 
 ***
 
@@ -40,9 +40,9 @@ Zero-indexed problem number within the round
 
 Zero-indexed round within the contest
 
-#### Source
+#### Defined in
 
-[src/database.ts:1489](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1489)
+[database.ts:1491](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1491)
 
 ***
 
@@ -52,6 +52,6 @@ Zero-indexed round within the contest
 
 Round ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1493](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1493)
+[database.ts:1495](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1495)

@@ -12,9 +12,9 @@
 
 > `readonly` **id**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:269](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L269)
+[upsolve.ts:269](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L269)
 
 ***
 
@@ -22,6 +22,6 @@
 
 > **rounds**: [`UpsolveRound`](UpsolveRound.md)[]
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:270](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L270)
+[upsolve.ts:270](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L270)

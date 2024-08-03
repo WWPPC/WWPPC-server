@@ -16,9 +16,9 @@ Descriptor for the score of a single test case
 
 Memory used in megabytes
 
-#### Source
+#### Defined in
 
-[src/database.ts:1445](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1445)
+[database.ts:1447](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1447)
 
 ***
 
@@ -28,9 +28,9 @@ Memory used in megabytes
 
 Pass/fail status
 
-#### Source
+#### Defined in
 
-[src/database.ts:1441](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1441)
+[database.ts:1443](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1443)
 
 ***
 
@@ -40,9 +40,9 @@ Pass/fail status
 
 Denotes which subtask to be part of
 
-#### Source
+#### Defined in
 
-[src/database.ts:1447](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1447)
+[database.ts:1449](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1449)
 
 ***
 
@@ -52,6 +52,6 @@ Denotes which subtask to be part of
 
 Time used in milliseconds
 
-#### Source
+#### Defined in
 
-[src/database.ts:1443](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1443)
+[database.ts:1445](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1445)

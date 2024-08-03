@@ -12,9 +12,9 @@
 
 > **lang**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:290](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L290)
+[upsolve.ts:290](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L290)
 
 ***
 
@@ -22,9 +22,9 @@
 
 > `readonly` **problemId**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:288](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L288)
+[upsolve.ts:288](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L288)
 
 ***
 
@@ -32,19 +32,19 @@
 
 > **scores**: [`Score`](../../database/interfaces/Score.md)[]
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:291](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L291)
+[upsolve.ts:291](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L291)
 
 ***
 
 ### status
 
-> **status**: [`ClientProblemCompletionState`](../../contest/enumerations/ClientProblemCompletionState.md)
+> **status**: [`ClientProblemCompletionState`](../../clients/enumerations/ClientProblemCompletionState.md)
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:292](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L292)
+[upsolve.ts:292](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L292)
 
 ***
 
@@ -52,6 +52,6 @@
 
 > **time**: `number`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:289](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L289)
+[upsolve.ts:289](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L289)

@@ -16,9 +16,9 @@ Response codes for operations involving account data
 
 The operation failed because database cannot not overwrite existing account
 
-#### Source
+#### Defined in
 
-[src/database.ts:1272](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1272)
+[database.ts:1272](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1272)
 
 ***
 
@@ -28,9 +28,9 @@ The operation failed because database cannot not overwrite existing account
 
 The operation failed because of an unexpected issue
 
-#### Source
+#### Defined in
 
-[src/database.ts:1278](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1278)
+[database.ts:1278](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1278)
 
 ***
 
@@ -40,9 +40,9 @@ The operation failed because of an unexpected issue
 
 The operation failed because of an authentication failure
 
-#### Source
+#### Defined in
 
-[src/database.ts:1276](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1276)
+[database.ts:1276](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1276)
 
 ***
 
@@ -52,9 +52,9 @@ The operation failed because of an authentication failure
 
 The operation failed because the requested account does not exist
 
-#### Source
+#### Defined in
 
-[src/database.ts:1274](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1274)
+[database.ts:1274](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1274)
 
 ***
 
@@ -64,9 +64,9 @@ The operation failed because the requested account does not exist
 
 The operation failed because the RSA-OAEP keys expired
 
-#### Source
+#### Defined in
 
-[src/database.ts:1280](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1280)
+[database.ts:1280](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1280)
 
 ***
 
@@ -76,6 +76,6 @@ The operation failed because the RSA-OAEP keys expired
 
 The operation was completed successfully
 
-#### Source
+#### Defined in
 
-[src/database.ts:1270](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1270)
+[database.ts:1270](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1270)

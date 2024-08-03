@@ -16,9 +16,9 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 If the submission was submitted through the upsolve system
 
-#### Source
+#### Defined in
 
-[src/database.ts:1517](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1517)
+[database.ts:1519](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1519)
 
 ***
 
@@ -28,9 +28,9 @@ If the submission was submitted through the upsolve system
 
 Contest-based filter including contest, round, problem number, and round ID
 
-#### Source
+#### Defined in
 
-[src/database.ts:1513](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1513)
+[database.ts:1515](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1515)
 
 ***
 
@@ -40,9 +40,9 @@ Contest-based filter including contest, round, problem number, and round ID
 
 UUID of problem
 
-#### Source
+#### Defined in
 
-[src/database.ts:1509](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1509)
+[database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1511)
 
 ***
 
@@ -52,9 +52,9 @@ UUID of problem
 
 Time of submission
 
-#### Source
+#### Defined in
 
-[src/database.ts:1515](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1515)
+[database.ts:1517](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1517)
 
 ***
 
@@ -64,6 +64,6 @@ Time of submission
 
 Username of submitter
 
-#### Source
+#### Defined in
 
-[src/database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1511)
+[database.ts:1513](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1513)

@@ -25,7 +25,7 @@ filterCompare<number>(33.33, { op: '><=', v1: 34, v2: 100 }); // false, since 33
 filterCompare<number>(-5, { op: '<>', v1: -1, v2: 1}); // true, since -5 is out of the range (-1, 1)
 ```
 
-## Type parameters
+## Type Parameters
 
 • **T**
 
@@ -45,6 +45,6 @@ Comparison
 
 Comparison result
 
-## Source
+## Defined in
 
-[src/util.ts:94](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/util.ts#L94)
+[util.ts:94](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/util.ts#L94)

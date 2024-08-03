@@ -119,18 +119,26 @@ export class FileLogger implements Logger {
         this.error(message);
         if (error instanceof Error) {
             this.error(error.message);
+            if (error.stack == undefined) Error.captureStackTrace(error);
             if (error.stack) this.error(error.stack);
         } else {
             this.error('' + error);
+            const stack: { stack?: string } = {};
+            Error.captureStackTrace(stack);
+            if (stack.stack) this.error(stack.stack);
         }
     }
     handleFatal(message: string, error: any) {
         this.fatal(message);
         if (error instanceof Error) {
             this.fatal(error.message);
+            if (error.stack == undefined) Error.captureStackTrace(error);
             if (error.stack) this.fatal(error.stack);
         } else {
             this.fatal('' + error);
+            const stack: { stack?: string } = {};
+            Error.captureStackTrace(stack);
+            if (stack.stack) this.error(stack.stack);
         }
     }
 

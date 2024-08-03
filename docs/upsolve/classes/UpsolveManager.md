@@ -36,39 +36,19 @@ Logger instance
 
 [`UpsolveManager`](UpsolveManager.md)
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L30)
+[upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L30)
 
 ## Properties
-
-### #open
-
-> `private` **#open**: `boolean` = `true`
-
-#### Source
-
-[src/upsolve.ts:22](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L22)
-
-***
-
-### #sockets
-
-> `private` `readonly` **#sockets**: `Set`\<`ServerSocket`\>
-
-#### Source
-
-[src/upsolve.ts:15](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L15)
-
-***
 
 ### app
 
 > `readonly` **app**: `Express`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L18)
+[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L18)
 
 ***
 
@@ -76,9 +56,9 @@ Logger instance
 
 > `readonly` **db**: [`Database`](../../database/classes/Database.md)
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L17)
+[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L17)
 
 ***
 
@@ -86,9 +66,9 @@ Logger instance
 
 > `readonly` **grader**: [`Grader`](../../grader/classes/Grader.md)
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L20)
+[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L20)
 
 ***
 
@@ -96,47 +76,11 @@ Logger instance
 
 > `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L19)
+[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L19)
 
 ## Methods
-
-### #getCompletionState()
-
-> `private` **#getCompletionState**(`scores`): [`ClientProblemCompletionState`](../../contest/enumerations/ClientProblemCompletionState.md)
-
-#### Parameters
-
-• **scores**: `undefined` \| [`Score`](../../database/interfaces/Score.md)[]
-
-#### Returns
-
-[`ClientProblemCompletionState`](../../contest/enumerations/ClientProblemCompletionState.md)
-
-#### Source
-
-[src/upsolve.ts:220](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L220)
-
-***
-
-### #mapSubmissions()
-
-> `private` **#mapSubmissions**(`submission`): [`UpsolveSubmission`](../interfaces/UpsolveSubmission.md)[]
-
-#### Parameters
-
-• **submission**: [`Submission`](../../database/interfaces/Submission.md)
-
-#### Returns
-
-[`UpsolveSubmission`](../interfaces/UpsolveSubmission.md)[]
-
-#### Source
-
-[src/upsolve.ts:236](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L236)
-
-***
 
 ### addUser()
 
@@ -146,7 +90,7 @@ Add a username-linked SocketIO connection to the user list.
 
 #### Parameters
 
-• **s**: `ServerSocket`
+• **s**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
 
 SocketIO connection (with modifications)
 
@@ -154,9 +98,9 @@ SocketIO connection (with modifications)
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L127)
+[upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L127)
 
 ***
 
@@ -170,6 +114,6 @@ Closes the upsolve manager
 
 `void`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L258)
+[upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L258)

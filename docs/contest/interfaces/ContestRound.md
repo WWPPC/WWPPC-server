@@ -14,9 +14,9 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > `readonly` **contest**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L209)
+[contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L210)
 
 ***
 
@@ -24,9 +24,9 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > **endTime**: `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L213)
+[contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L214)
 
 ***
 
@@ -34,9 +34,9 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > `readonly` **id**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:208](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L208)
+[contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L209)
 
 ***
 
@@ -44,9 +44,9 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > `readonly` **number**: `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L210)
+[contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L211)
 
 ***
 
@@ -54,9 +54,9 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > **problems**: `string`[]
 
-#### Source
+#### Defined in
 
-[src/contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L211)
+[contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L212)
 
 ***
 
@@ -64,6 +64,6 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 > **startTime**: `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L212)
+[contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L213)

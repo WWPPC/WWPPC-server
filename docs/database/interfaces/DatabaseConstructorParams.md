@@ -14,9 +14,9 @@
 
 AES-256 GCM 32-byte key (base64 string)
 
-#### Source
+#### Defined in
 
-[src/database.ts:16](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L16)
+[database.ts:16](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L16)
 
 ***
 
@@ -26,9 +26,9 @@ AES-256 GCM 32-byte key (base64 string)
 
 Logging instance
 
-#### Source
+#### Defined in
 
-[src/database.ts:20](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L20)
+[database.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L20)
 
 ***
 
@@ -38,9 +38,9 @@ Logging instance
 
 Optional SSL Certificate
 
-#### Source
+#### Defined in
 
-[src/database.ts:18](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L18)
+[database.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L18)
 
 ***
 
@@ -50,6 +50,6 @@ Optional SSL Certificate
 
 Valid PostgreSQL connection URI (postgresql://username:password@host:port/database)
 
-#### Source
+#### Defined in
 
-[src/database.ts:14](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L14)
+[database.ts:14](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L14)

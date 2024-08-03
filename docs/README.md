@@ -25,7 +25,7 @@ In that, create a new file, `.env`, which contains environment variables:
 * `GRADER_PASS`: Global grader password, can be any string
 `db-cert.pem`, which allows you to connect to the database securely
 
-There are also other environment variables, like `SERVE_STATIC` and `DEBUG_MODE`, which are temporary overrides for [config](config/README.md) options.
+There are also other environment variables, like `DEBUG_MODE`, which are temporary overrides for [ config](config/README.md) options.
 
 Both of these should be in `#backend` channel on Discord, so you can just copy them in.
 
@@ -43,17 +43,9 @@ Then find the certificate and key and move them to `config/cert.pem` and `config
 
 Next, clone the `WWPPC-site-main` repo, **ensuring you clone all submodules**. Inside the repo, run `npm i` to install all dependencies, then `npm run dev`, which starts [vite](https://vitejs.dev/). Remember to start the server if you haven't already. Navigate to the port specified by `vite` and try clicking on the login screen. If the page successfully loads, you have connected to the server!
 
-## Setup static hosting
-
-First, clone the `WWPPC-site-main` repo, **ensuring you clone all submodules**. Inside the repo, run `npm i` to install all dependencies, then `npm run build`, which compiles the TypeScript, among other things, and places it in a folder called `dist`.
-
-Next, find `config/config.json`, which is generated automatically when you start the server. Add another key, `clientPath`, specifying the relative location of the `WWPPC-site-main/dist` folder to `WWPPC-server/src`. If the two repos were cloned in the same directory, it will be `"../../WWPPC-site-main/dist"`, so the full line will look like `"clientPath": "../../WWPPC-site-main/dist"`.
-
-Restart the server and try navigating to `http://localhost:8000`. If you see the home page, static hosting is successfully setup!
-
 ## Environment variables and config
 
-**For global server configuration, see [config](config/README.md)**
+**For global server configuration, see [ config](config/README.md)**
 
 WWPPC-server has some required and some optional environment variables.
 
@@ -70,13 +62,11 @@ WWPPC-server has some required and some optional environment variables.
 ### Optional
 * `CONFIG_PATH`: Directory to load server configuration from (i.e. `config.json`, `db-cert.pem`, etc.) (default: `../config/`)
 * `LOG_PATH`: Directory to write logs to - server will also create a `logs` directory there (default: `../`)
-* `CLIENT_PATH`: Directory to serve static hosting from (if config.serveStatic is true) - setting this incorrectly can cause strange problems
 * `EMAIL_TEMPLATE_PATH`: Directory to load email templates from (default: `../email-templates/`)
 * `ADMIN_PORTAL_PATH`: Directory to load admin portal from (default: `../admin-portal/`)
 * `DATABASE_CERT`: Alternative to `db-cert.pem`
 * `PORT`: TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 * `DEBUG_MODE`: Enable debug logging
-* `SERVE_STATIC`: Enable static hosting (note that this WILL NOT WORK if `CLIENT_PATH` is not given!)
 
 *Note: all paths can be absolute or relative to the **`src`** directory (NOT the root directory)*
 

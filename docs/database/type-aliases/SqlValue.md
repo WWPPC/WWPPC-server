@@ -4,10 +4,10 @@
 
 [wwppc-server](../../modules.md) / [database](../README.md) / SqlValue
 
-# Type alias: SqlValue
+# Type Alias: SqlValue
 
 > **SqlValue**: `number` \| `string` \| `boolean` \| `number`[] \| `string`[] \| `boolean`[]
 
-## Source
+## Defined in
 
-[src/database.ts:1265](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/database.ts#L1265)
+[database.ts:1265](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1265)

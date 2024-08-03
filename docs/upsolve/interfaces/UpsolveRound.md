@@ -12,9 +12,9 @@
 
 > `readonly` **contest**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:273](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L273)
+[upsolve.ts:273](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L273)
 
 ***
 
@@ -22,9 +22,9 @@
 
 > `readonly` **number**: `number`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:274](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L274)
+[upsolve.ts:274](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L274)
 
 ***
 
@@ -32,6 +32,6 @@
 
 > **problems**: `string`[]
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:275](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L275)
+[upsolve.ts:275](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L275)

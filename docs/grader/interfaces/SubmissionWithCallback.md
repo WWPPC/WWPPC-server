@@ -24,9 +24,9 @@ Function supplied by queueUngraded to send submission to after grading is finish
 
 `any`
 
-#### Source
+#### Defined in
 
-[src/grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L284)
+[grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L284)
 
 ***
 
@@ -36,9 +36,9 @@ Function supplied by queueUngraded to send submission to after grading is finish
 
 If the submission was cancelled
 
-#### Source
+#### Defined in
 
-[src/grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L288)
+[grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L288)
 
 ***
 
@@ -48,9 +48,9 @@ If the submission was cancelled
 
 How many times the grading servers have failed grading this (returned)
 
-#### Source
+#### Defined in
 
-[src/grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L286)
+[grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L286)
 
 ***
 
@@ -60,6 +60,6 @@ How many times the grading servers have failed grading this (returned)
 
 The submission itself
 
-#### Source
+#### Defined in
 
-[src/grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/grader.ts#L282)
+[grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L282)

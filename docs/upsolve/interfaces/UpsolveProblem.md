@@ -12,9 +12,9 @@
 
 > **author**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:283](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L283)
+[upsolve.ts:283](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L283)
 
 ***
 
@@ -30,9 +30,9 @@
 
 > **time**: `number`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:285](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L285)
+[upsolve.ts:285](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L285)
 
 ***
 
@@ -40,9 +40,9 @@
 
 > **content**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:284](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L284)
+[upsolve.ts:284](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L284)
 
 ***
 
@@ -50,9 +50,9 @@
 
 > `readonly` **contest**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:279](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L279)
+[upsolve.ts:279](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L279)
 
 ***
 
@@ -60,9 +60,9 @@
 
 > `readonly` **id**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:278](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L278)
+[upsolve.ts:278](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L278)
 
 ***
 
@@ -70,9 +70,9 @@
 
 > **name**: `string`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:282](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L282)
+[upsolve.ts:282](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L282)
 
 ***
 
@@ -80,9 +80,9 @@
 
 > `readonly` **number**: `number`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:281](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L281)
+[upsolve.ts:281](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L281)
 
 ***
 
@@ -90,6 +90,6 @@
 
 > `readonly` **round**: `number`
 
-#### Source
+#### Defined in
 
-[src/upsolve.ts:280](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/upsolve.ts#L280)
+[upsolve.ts:280](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L280)

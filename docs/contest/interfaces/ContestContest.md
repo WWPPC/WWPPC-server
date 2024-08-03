@@ -14,9 +14,9 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 > **endTime**: `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:204](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L204)
+[contest.ts:205](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L205)
 
 ***
 
@@ -24,9 +24,9 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 > `readonly` **id**: `string`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:201](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L201)
+[contest.ts:202](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L202)
 
 ***
 
@@ -34,9 +34,9 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 > **rounds**: [`ContestRound`](ContestRound.md)[]
 
-#### Source
+#### Defined in
 
-[src/contest.ts:202](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L202)
+[contest.ts:203](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L203)
 
 ***
 
@@ -44,6 +44,6 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 > **startTime**: `number`
 
-#### Source
+#### Defined in
 
-[src/contest.ts:203](https://github.com/WWPPC/WWPPC-server/blob/7d555ed708ef67895244cc584473d7c0aa4c1395/src/contest.ts#L203)
+[contest.ts:204](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L204)
