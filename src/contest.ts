@@ -419,7 +419,7 @@ export class ContestHost {
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (Date.now() + (config.contests[this.contestType].scoreFreezeTime * 60000) < this.#contest.endTime) lastScores = this.scorer.getScores();
+                if (Date.now() + (config.contests[this.contestType]!.scoreFreezeTime * 60000) < this.#contest.endTime) lastScores = this.scorer.getScores();
                 if (lastScores != undefined) this.io.to(this.sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
@@ -522,7 +522,7 @@ export class ContestHost {
     #getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
         // will not reveal verdict until round ends!
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
-        if (config.contests[this.contestType].withholdResults && round == this.#index) return ClientProblemCompletionState.UPLOADED;
+        if (config.contests[this.contestType]!.withholdResults && round == this.#index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         const subtasks = new Map<number, boolean>();
         scores.forEach((score) => {
@@ -586,11 +586,11 @@ export class ContestHost {
                 if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${submission.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
                 cb(res);
             };
-            if (Buffer.byteLength(submission.file, 'utf8') > config.contests[this.contestType].maxSubmissionSize) {
+            if (Buffer.byteLength(submission.file, 'utf8') > config.contests[this.contestType]!.maxSubmissionSize) {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
-            if (!config.contests[this.contestType].acceptedSolverLanguages.includes(submission.lang)) {
+            if (!config.contests[this.contestType]!.acceptedSolverLanguages.includes(submission.lang)) {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }
@@ -618,7 +618,7 @@ export class ContestHost {
                 time: Date.now(),
                 analysis: false
             };
-            if (!(await this.db.writeSubmission(serverSubmission, config.contests[this.contestType].withholdResults))) {
+            if (!(await this.db.writeSubmission(serverSubmission, config.contests[this.contestType]!.withholdResults))) {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
@@ -627,7 +627,7 @@ export class ContestHost {
             this.grader.queueUngraded(serverSubmission, async (graded) => {
                 if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
                 if (graded != null) {
-                    await this.db.writeSubmission(graded, config.contests[this.contestType].withholdResults);
+                    await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults);
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData == 'object') teamData.members.forEach((username) => this.updateUser(username));

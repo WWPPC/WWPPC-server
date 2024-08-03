@@ -57,7 +57,15 @@ export class Mailer {
                             this.#logger.handleError('Email template read failed:', err);
                             return;
                         }
-                        this.#templates.set(file.name.split('.')[0], data);
+                        const inlined = await inlineCss(data, {
+                            url: this.#templatePathURL,
+                            removeHtmlSelectors: true
+                        });
+                        const minified = htmlMinify(inlined, {
+                            collapseBooleanAttributes: true,
+                            collapseWhitespace: true
+                        });
+                        this.#templates.set(file.name.split('.')[0], minified);
                         if (config.debugMode) this.#logger.debug('Read email template ' + file.name);
                         resolve(undefined);
                     });
@@ -139,18 +147,10 @@ export class Mailer {
     async sendFromTemplate(template: string, recipients: string[], subject: string, params: [string, string][], plaintext?: string): Promise<Error | undefined> {
         try {
             if (this.#templates.has(template)) {
-                let text = this.#templates.get(template)!;
+                let content = this.#templates.get(template)!;
                 params.push(['hostname', 'https://' + config.hostname]);
                 params.forEach(([key, value]) => {
-                    text = text.replaceAll(`$${key}$`, value);
-                });
-                const inlined = await inlineCss(text, {
-                    url: this.#templatePathURL,
-                    removeHtmlSelectors: true
-                });
-                const minified = htmlMinify(inlined, {
-                    collapseBooleanAttributes: true,
-                    collapseWhitespace: true
+                    content = content.replaceAll(`$${key}$`, value);
                 });
                 if (config.logEmailActivity) this.#logger.info(`Sending email to ${recipients.join(', ')} (template: ${template})`);
                 await this.#transporter.sendMail({
@@ -161,7 +161,7 @@ export class Mailer {
                     to: recipients,
                     subject: subject,
                     text: plaintext,
-                    html: minified
+                    html: content
                 });
             } else {
                 this.#logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, new Error('Template not found'));

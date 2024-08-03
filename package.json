@@ -22,12 +22,12 @@
         "nodemailer": "^6.9.13",
         "pg": "^8.11.3",
         "socket.io": "^4.7.4",
-        "typescript": "^5.3.3",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
         "typedoc": "^0.25.13",
         "typedoc-plugin-markdown": "^4.0.2",
+        "typescript": "^5.3.3",
         "@types/express": "^4.17.21",
         "@types/nodemailer": "^6.4.14",
         "@types/pg": "^8.11.2"

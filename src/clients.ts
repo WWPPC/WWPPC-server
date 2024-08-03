@@ -50,6 +50,7 @@ export class ClientHost {
         const clientConfig = {
             maxProfileImgSize: config.maxProfileImgSize,
             contests: Object.entries(config.contests).reduce((p, [cId, cConfig]) => {
+                if (cConfig == undefined) return p;
                 p[cId] = {
                     rounds: cConfig.rounds,
                     submitSolver: cConfig.submitSolver,

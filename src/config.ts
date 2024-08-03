@@ -68,7 +68,7 @@ const config: {
             readonly acceptedSolverLanguages: string[]
             /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
             readonly maxSubmissionSize: number
-        }
+        } | undefined
     }
     /**Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24) */
     readonly maxSubmissionHistory: number

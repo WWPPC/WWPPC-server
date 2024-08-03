@@ -148,7 +148,7 @@ export class UpsolveManager {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
-            if (!config.contests[data.contest].acceptedSolverLanguages.includes(data.lang)) {
+            if (!config.contests[data.contest]!.acceptedSolverLanguages.includes(data.lang)) {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }
