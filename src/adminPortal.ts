@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { Express } from 'express';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import cors from 'cors';
-import config from './config';
+
 import ContestManager from './contest';
 import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database';
 import Logger from './log';
@@ -15,21 +15,16 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     const contest = contestManager;
     const logger = log;
     const sessionTokens = new Map<string, string>();
-    logger.info(`Attaching admin portal to /admin/ (served from ${config.adminPortalPath})`);
+    logger.info('Attaching admin portal to /admin/');
 
-    // block a bunch of stuff
-    app.use('/admin/*', cors({
-        origin: ['http://localhost:5176', 'https://admin.wwppc.tech'],
-        credentials: true,
-        allowedHeaders: 'Content-Type,Cookie'
-    }));
+    // require authentication for everything except login
     app.use('/admin/*', (req, res, next) => {
         if (req.baseUrl == '/admin/login') next();
-        else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect(401, '/');
+        else if (typeof req.cookies.token != 'string') res.sendStatus(401);
+        else if (!sessionTokens.has(req.cookies.token)) res.sendStatus(403);
         else next();
     });
 
-    // require authentication for everything except login
     app.post('/admin/login', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
             res.sendStatus(400);

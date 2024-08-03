@@ -16,7 +16,6 @@ const logger = new FileLogger(config.logPath);
 logger.info('Starting server...');
 logger.debug('CONFIG_PATH: ' + config.path);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
-logger.debug('CLIENT_PATH: ' + config.clientPath);
 logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
 if (global.gc) logger.info('Manual garbage collector cleanup is enabled');
 
@@ -40,10 +39,11 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
-app.use(cors({ origin: [/https:\/\/(?:.+\.)*wwppc\.tech/, /https*:\/\/localhost:[0-9]{1,5}/], preflightContinue: true }));
-app.options("*", (req, res) => {
-    res.sendStatus(200);
-});
+app.use(cors({
+    origin: [/https:\/\/(?:.+\.)*wwppc\.tech/, /https?:\/\/localhost:[0-9]{1,5}/],
+    credentials: true,
+    allowedHeaders: 'Content-Type,Cookie'
+}));
 app.use(cookieParser());
 // in case server is not running
 app.get('/wakeup', (req, res) => res.json('ok'));
@@ -85,27 +85,6 @@ const clientHost = new ClientHost(database, app, contestManager, upsolveManager,
 // admin portal
 import attachAdminPortal from './adminPortal';
 attachAdminPortal(database, app, contestManager, logger);
-
-// static hosting optional
-logger.info('SERVE_STATIC is ' + config.serveStatic.toString().toUpperCase());
-if (config.serveStatic) {
-    if (config.clientPath == undefined) {
-        logger.error('SERVE_STATIC is TRUE but CLIENT_PATH not given!\nDisabling static hosting');
-    } else {
-        const indexDir = path.resolve(config.clientPath, 'index.html');
-        app.use('/', express.static(config.clientPath));
-        app.get(/^(^[^.\n]+\.?)+(.*(html){1})?$/, (req, res) => {
-            if (!req.accepts('html')) res.sendStatus(406);
-            else res.sendFile(indexDir);
-        });
-        app.get('*', (req, res) => {
-            // last handler - if nothing else finds the page, just send 404
-            res.status(404);
-            if (req.accepts('html')) res.sendFile(indexDir);
-            else res.sendStatus(404);
-        });
-    }
-}
 
 // complete networking
 if (config.debugMode) logger.info('Creating Socket.IO server');
