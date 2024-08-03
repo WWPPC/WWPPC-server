@@ -40,7 +40,10 @@ const limiter = rateLimit({
     }
 });
 app.use(limiter);
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: [/https:\/\/(?:.+\.)*wwppc\.tech/, /https*:\/\/localhost:[0-9]{1,5}/], preflightContinue: true }));
+app.options("*", (req, res) => {
+    res.sendStatus(200);
+});
 app.use(cookieParser());
 // in case server is not running
 app.get('/wakeup', (req, res) => res.json('ok'));

@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser';
-import express, { Express } from 'express';
+import { Express } from 'express';
 import path from 'path';
-import { v4 as uuidV4 } from 'uuid';
-
+import { v4 as uuidv4 } from 'uuid';
+import cors from 'cors';
 import config from './config';
 import ContestManager from './contest';
 import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database';
@@ -17,39 +17,38 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     const sessionTokens = new Map<string, string>();
     logger.info(`Attaching admin portal to /admin/ (served from ${config.adminPortalPath})`);
 
-    // require authentication for everything except a few assets and login screen
-    const alwaysAllowedPaths = ['login', 'assets/fonts.css', 'assets/common.css', 'assets/Jura.ttf', 'assets/SourceCodePro.ttf', 'assets/icon.svg', 'assets/favicon.png'].map(p => '/admin/' + p);
+    // block a bunch of stuff
+    app.use('/admin/*', cors({
+        origin: ['http://localhost:5176', 'https://admin.wwppc.tech'],
+        credentials: true,
+        allowedHeaders: 'Content-Type,Cookie'
+    }));
     app.use('/admin/*', (req, res, next) => {
-        if (alwaysAllowedPaths.includes(req.baseUrl)) next();
-        else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect(401, '/admin/login');
+        if (req.baseUrl == '/admin/login') next();
+        else if (typeof req.cookies.token != 'string' || !sessionTokens.has(req.cookies.token)) res.redirect(401, '/');
         else next();
     });
-    app.use('/admin/', express.static(config.adminPortalPath));
-    const adminPanelIndex = path.resolve(config.adminPortalPath, 'index.html');
-    const adminPanelAccountManager = path.resolve(config.adminPortalPath, 'accountManager/accountManager.html');
-    const adminPanelProblemManager = path.resolve(config.adminPortalPath, 'problemManager/problemManager.html');
-    const adminPanelContestManager = path.resolve(config.adminPortalPath, 'contestManager/contestManager.html');
-    const adminPanelContestRunner = path.resolve(config.adminPortalPath, 'contestRunner/contestRunner.html');
-    app.get('/admin', (req, res) => res.sendFile(adminPanelIndex));
-    app.get('/admin/accountManager', (req, res) => res.sendFile(adminPanelAccountManager));
-    app.get('/admin/problemManager', (req, res) => res.sendFile(adminPanelProblemManager));
-    app.get('/admin/contestManager', (req, res) => res.sendFile(adminPanelContestManager));
-    app.get('/admin/contestRunner', (req, res) => res.sendFile(adminPanelContestRunner));
-    app.get('/admin/login', (req, res) => res.sendFile(path.resolve(config.adminPortalPath, 'login.html')));
-    app.post('/admin/login', bodyParser.urlencoded({ extended: false }), async (req, res) => {
+
+    // require authentication for everything except login
+    app.post('/admin/login', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
             res.sendStatus(400);
             return;
         }
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
-            const token = uuidV4();
-            res.cookie('token', token, { expires: new Date(Date.now() + 3600000) });
+            const token = uuidv4();
+            res.cookie('token', token, {
+                expires: new Date(Date.now() + 3600000),
+                httpOnly: true,
+                sameSite: "none", 
+                secure: true
+            });
             sessionTokens.set(token, req.body.username);
             setTimeout(() => sessionTokens.delete(token), 3600000);
-            res.redirect('/admin');
+            res.sendStatus(200);
             log.info(`[Admin] Admin login by ${req.body.username} (${req.ip ?? req.headers['x-forwarded-for'] ?? 'unknown ip address'})`);
         } else {
-            res.redirect(403, '/admin/login');
+            res.sendStatus(403);
         }
     });
 
