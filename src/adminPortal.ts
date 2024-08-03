@@ -34,6 +34,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             const token = uuidv4();
             res.cookie('token', token, {
                 expires: new Date(Date.now() + 3600000),
+                path: '/',
                 httpOnly: true,
                 sameSite: "none", 
                 secure: true
