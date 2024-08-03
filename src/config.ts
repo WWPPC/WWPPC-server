@@ -41,7 +41,7 @@ export interface GlobalConfiguration {
     readonly maxSignupPerMinute: number
     /**A `data:` URI representing the profile image given to every account on creation */
     readonly defaultProfileImg: string
-    /**Maximum file size of uploaded profile images (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 65535) */
+    /**Maximum file size of uploaded profile images (default: 65535) */
     readonly maxProfileImgSize: number
     /**Time in milliseconds before database cache entries expire (default: 60000) */
     readonly dbCacheTime: number
@@ -86,7 +86,7 @@ export interface ContestConfiguration {
     readonly submitSolver: boolean
     /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedSolverLanguages: string[]
-    /**Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240) */
+    /**Maximum file size of uploaded submission files (default: 10240) */
     readonly maxSubmissionSize: number
 };
 /**

@@ -586,7 +586,7 @@ export class ContestHost {
                 if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${submission.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
                 cb(res);
             };
-            if (Buffer.byteLength(submission.file, 'utf8') > config.contests[this.contestType]!.maxSubmissionSize) {
+            if (Buffer.byteLength(submission.file, 'base64url') > config.contests[this.contestType]!.maxSubmissionSize) {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
@@ -627,22 +627,23 @@ export class ContestHost {
             }
             // submissions are stored under the team
             if (config.contests[this.contestType]!.graders) {
+                const writeGraded = async (graded: Submission) => {
+                    if (!(await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults))) {
+                        this.logger.error(`Failed to write submission for ${graded.problemId} by ${socket.username}`);
+                    }
+                    // make sure it gets to all the team
+                    const teamData = await this.db.getTeamData(socket.username);
+                    if (typeof teamData != 'object') this.logger.error(`Could not fetch team data (for ${socket.username})! Was the account deleted?`);
+                    else teamData.members.forEach((username) => this.updateUser(username));
+                    // score it too (after grading)
+                    this.scorer.updateUser(graded, this.#contest.rounds[this.#index].id);
+                }
                 if (config.contests[this.contestType]!.submitSolver) {
                     // use the grading system
                     this.grader.cancelUngraded(teamData.id, submission.id);
                     this.grader.queueUngraded(serverSubmission, async (graded) => {
                         if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
-                        if (graded != null) {
-                            if (!(await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults))) {
-                                this.logger.error(`Failed to write submission for ${graded.problemId} by ${socket.username}`);
-                            }
-                            // make sure it gets to all the team
-                            const teamData = await this.db.getTeamData(socket.username);
-                            if (typeof teamData != 'object') this.logger.error(`Could not fetch team data (for ${socket.username})! Was the account deleted?`);
-                            else teamData.members.forEach((username) => this.updateUser(username));
-                            // score it too (after grading)
-                            this.scorer.updateUser(graded, this.#contest.rounds[this.#index].id);
-                        }
+                        if (graded != null) writeGraded(graded);
                     });
                 } else {
                     // direct comparison
@@ -651,7 +652,13 @@ export class ContestHost {
                         this.logger.error(`Failed to grade submission solution for "${problems[0].id}" because correct solution is null`);
                         return;
                     }
-
+                    serverSubmission.scores.push({
+                        state: submission.file === problems[0].solution ? ScoreState.CORRECT : ScoreState.INCORRECT,
+                        time: 0,
+                        memory: 0,
+                        subtask: 0
+                    });
+                    writeGraded(serverSubmission);
                 }
             } else {
                 // idk what to do here
