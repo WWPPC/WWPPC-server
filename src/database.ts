@@ -1116,6 +1116,24 @@ export class Database {
             if (config.debugMode) this.logger.debug(`writeProblem in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Delete a problem from the problems table.
+     * @param {UUID} id Problem to delete
+     * @returns {boolean} If the delete was successful
+     */
+    async deleteProblem(id: UUID): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            await this.#db.query('DELETE FROM problems WHERE id=$1', [id]);
+            this.#problemCache.delete(id);
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteProblem):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteProblem in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     readonly #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
