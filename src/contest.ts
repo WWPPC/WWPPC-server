@@ -295,7 +295,6 @@ export class ContestHost {
         this.io.on('connection', async (s) => {
             s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
             const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
-            console.log('contest ocnncetion');
             s.once('auth', (auth: { username: string, token: string }, cb: (res: boolean) => any) => {
                 if (auth == null || typeof auth.username != 'string' || typeof auth.token != 'string' || !this.#pendingConnections.has(auth.token)
                     || auth.username !== this.#pendingConnections.get(auth.token)!.username || typeof cb != 'function') {
