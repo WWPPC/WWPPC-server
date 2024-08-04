@@ -1102,7 +1102,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.solution];
-            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5 WHERE id=$1 RETURNING id', data);
+            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5, solution=$6 WHERE id=$1 RETURNING id', data);
             if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints, solution) VALUES ($1, $2, $3, $4, $5, $6)', data);
             this.#problemCache.set(problem.id, {
                 problem: structuredClone(problem),
