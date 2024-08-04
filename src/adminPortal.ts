@@ -6,14 +6,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import ContestManager from './contest';
 import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database';
-import Logger from './log';
+import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 
 export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {
     const database = db;
     const app = expressApp;
     const contest = contestManager;
-    const logger = log;
+    const logger = new NamedLogger(log, 'AdminPortal');
     const sessionTokens = new Map<string, string>();
     logger.info('Attaching admin portal to /admin/');
 
@@ -67,7 +67,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
     app.get('/admin/api/logs', async (req, res) => {
         res.sendFile(path.resolve('./log.log'));
     });
-    app.get('/admin/api/accountList', async (req, res) => {
+    app.get('/admin/api/readAccounts', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_ACCOUNTS))) {
             res.sendStatus(403);
             return;
@@ -76,7 +76,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         if (data == null) res.sendStatus(500);
         else res.json(data);
     });
-    app.get('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
+    app.get('/admin/api/readAccount', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || req.body.username == undefined) {
             res.sendStatus(400);
             return;
@@ -90,7 +90,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (data == AccountOpResult.ERROR) res.sendStatus(500);
         else res.json(data);
     });
-    app.get('/admin/api/teamData/', bodyParser.json(), async (req, res) => {
+    app.get('/admin/api/readTeam', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || req.body.username == undefined) {
             res.sendStatus(400);
             return;
@@ -104,7 +104,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else if (data == TeamOpResult.ERROR) res.sendStatus(500);
         else res.json(data);
     });
-    app.post('/admin/api/accountData/', bodyParser.json(), async (req, res) => {
+    app.post('/admin/api/writeAccount', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || [req.body.username, req.body.firstName, req.body.lastName, req.body.displayName, req.body.profileImage, req.body.school, req.body.grade, req.body.experience, req.body.languages, req.body.bio, req.body.registrations, req.body.team].some((v) => v == undefined)) {
             res.sendStatus(400);
             return;
@@ -116,7 +116,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         const stat = await database.updateAccountData(req.body.username, req.body);
         defaultResponseMapping(res, stat);
     });
-    app.post('/admin/api/accountTeam/', bodyParser.json(), async (req, res) => {
+    app.post('/admin/api/writeAccountTeam', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || req.body.team == undefined) {
             res.sendStatus(400);
             return;
@@ -124,7 +124,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         const stat = await database.setAccountTeam(req.body.username, req.body.team);
         defaultResponseMapping2(res, stat);
     });
-    app.get('/admin/api/admins', async (req, res) => {
+    app.get('/admin/api/readAdmins', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_ADMINS))) {
             res.sendStatus(403);
             return;
@@ -133,8 +133,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         if (data == null) res.sendStatus(500);
         else res.json(data);
     });
-    app.post('/admin/api/admins', bodyParser.json(), async (req, res) => {
-        if (req.body == undefined || !Array.isArray(req.body.admins)) {
+    app.post('/admin/api/writeAdmin', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.username == undefined || req.body.permissions == undefined) {
             res.sendStatus(400);
             return;
         }
@@ -142,17 +142,26 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             res.sendStatus(403);
             return;
         }
-        for (const admin of req.body.admins) {
-            const writeRes = await database.setAdminPerms(admin.username, admin.permissions);
-            if (!writeRes) {
-                res.sendStatus(500);
-                return;
-            }
-        }
-        res.sendStatus(200);
-        logger.info(`[Admin] Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
+        const stat = await database.setAdminPerms(req.body.username, req.body.permissions);
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
+        logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
     });
-    app.get('/admin/api/problemList', async (req, res) => {
+    app.post('/admin/api/deleteAdmin', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.username == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_ADMINS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const stat = await database.setAdminPerms(req.body.username, 0);
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
+        logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
+    });
+    app.get('/admin/api/readProblems', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
             res.sendStatus(403);
             return;
@@ -161,7 +170,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         if (data == null) res.sendStatus(500);
         else res.json(data);
     });
-    app.post('/admin/api/problemData/', bodyParser.json(), async (req, res) => {
+    app.post('/admin/api/writeProblem', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || [req.body.id, req.body.name, req.body.author, req.body.content, req.body.constraints].some((v) => v == undefined) || !isUUID(req.body.id)) {
             res.sendStatus(400);
             return;
@@ -171,6 +180,19 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
             return;
         }
         const stat = await database.writeProblem(req.body);
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
+    });
+    app.post('/admin/api/deleteProblem', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.id == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const stat = await database.deleteProblem(req.body.id);
         if (!stat) res.sendStatus(500);
         else res.sendStatus(200);
     });
