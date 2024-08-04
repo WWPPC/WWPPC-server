@@ -32,7 +32,7 @@
         "rounds": false,
         "scoreFreezeTime": 60,
         "withholdResults": false,
-        "submitSolver": true,
+        "submitSolver": false,
         "acceptedSolverLanguages": [
             "Java8",
             "Java11",
