@@ -54,8 +54,8 @@ export class ContestManager {
             reading = true;
             // start any contests that haven't been started
             const contests = await this.db.readContests({
-                startTime: { op: '>=', v: Date.now() },
-                endTime: { op: '<', v: Date.now() },
+                startTime: { op: '<=', v: Date.now() },
+                endTime: { op: '>', v: Date.now() },
             });
             if (contests == null) {
                 this.logger.error('Could not read contest list!');
@@ -241,7 +241,7 @@ export function createContestSocket(socket: SocketIOSocket, linkedSocket: Server
     };
     s2.logWithId = linkedSocket.logWithId;
     s2.ip = linkedSocket.ip;
-    s2.username = linkedSocket.ip;
+    s2.username = linkedSocket.username;
     return s2;
 }
 
@@ -308,9 +308,11 @@ export class ContestHost {
                 this.#pendingConnections.delete(auth.token);
 
                 this.#addInternalSocket(socket);
+                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Joined ContestHost namespace "contest-${this.sid}"`);
                 cb(true);
             });
         });
+        this.logger.info('Starting contest');
         this.reload();
     }
 
@@ -554,7 +556,7 @@ export class ContestHost {
         this.#pendingConnections.set(authToken, socket);
         this.#pendingConnectionsInverse.set(socket, authToken);
         socket.emit('joinContestHost', { type: this.contestType, sid: this.sid, token: authToken });
-        if (config.debugMode) socket.logWithId(this.logger.debug, `Prompted to join ContestHost namespace "contest-${this.sid}"`, true);
+        if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Prompted to join ContestHost namespace "contest-${this.sid}"`);
     }
     /**
      * Add an internal SocketIO connection (within the contest namespace) to the user list.
@@ -683,7 +685,6 @@ export class ContestHost {
             const submission = await this.db.readSubmissions({ username: teamData.id, id: data.id, analysis: false });
             cb(submission?.at(0)?.file ?? '');
         });
-
         this.updateUser(socket.username);
     }
     /**
