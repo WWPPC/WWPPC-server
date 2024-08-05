@@ -1020,6 +1020,24 @@ export class Database {
             if (config.debugMode) this.logger.debug(`writeRound in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Delete a round from the round table.
+     * @param {UUID} id Round to delete
+     * @returns {boolean} If the delete was successful
+     */
+    async deleteRound(id: UUID): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            await this.#db.query('DELETE FROM rounds WHERE id=$1', [id]);
+            this.#roundCache.delete(id);
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteRound):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteRound in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     readonly #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
@@ -1322,15 +1340,13 @@ export enum TeamOpResult {
 export enum AdminPerms {
     /**Base admin permission; allows login */
     ADMIN = 1,
-    /**Create, delete, and modify accounts */
+    /**Create, read, update, and delete accounts */
     MANAGE_ACCOUNTS = 1 << 1,
-    /**Edit all problems, both contest and upsolve */
+    /**Create, read, update, and delete problems and rounds */
     MANAGE_PROBLEMS = 1 << 2,
-    /**Edit contests and control ContestHost functions */
+    /**Create, read, update, and delete contests and submissions, as well as use ContestHost functions */
     MANAGE_CONTESTS = 1 << 3,
-    /**View and disqualify submissions */
-    MANAGE_SUBMISSIONS = 1 << 4,
-    /**Manage admin permissions */
+    /**Gives all permissions */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 
