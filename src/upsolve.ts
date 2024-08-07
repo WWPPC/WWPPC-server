@@ -192,7 +192,7 @@ export class UpsolveManager {
                 socket.kick('invalid refreshUpsolveSubmission payload');
                 return;
             }
-            const submissions = await this.db.readSubmissions({ id: data.id, username: socket.username });
+            const submissions = await this.db.readSubmissions({ id: data.id, username: socket.username, analysis: true });
             if (submissions != null && submissions.length > 0) cb(this.#mapSubmissions(submissions[0]));
             else cb([]);
         });

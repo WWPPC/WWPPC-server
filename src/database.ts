@@ -177,45 +177,14 @@ export class Database {
         return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_]+$/.test(username);
     }
     /**
-     * Read a list of all accounts that exist. Bypasses cache.
-     * @returns {AccountData[] | null}
+     * Read a list of all account usernames that exist. Bypasses cache.
+     * @returns {strings[] | null} List of account usernames, or null if an error occurred
      */
-    async getAccountList(): Promise<AccountData[] | null> {
+    async getAccountList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query(`
-                SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
-                FROM users
-                INNER JOIN teams ON users.team=teams.username
-            `);
-            if (data.rows.length > 0) {
-                const ret: AccountData[] = [];
-                for (const row of data.rows) {
-                    const userData: AccountData = {
-                        username: row.username,
-                        email: row.email,
-                        firstName: row.firstname,
-                        lastName: row.lastname,
-                        displayName: row.displayname,
-                        profileImage: row.profileimg,
-                        bio: row.biography,
-                        school: row.school,
-                        grade: row.grade,
-                        experience: row.experience,
-                        languages: row.languages,
-                        registrations: row.registrations,
-                        pastRegistrations: row.pastregistrations,
-                        team: row.team
-                    };
-                    this.#userCache.set(row.username, {
-                        data: structuredClone(userData),
-                        expiration: performance.now() + config.dbCacheTime
-                    });
-                    ret.push(userData);
-                }
-                return ret;
-            }
-            return null;
+            const data = await this.#db.query('SELECT users.username FROM users');
+            return data.rows.map((r) => r.username);
         } catch (err) {
             this.logger.handleError('Database error (getAccountList):', err);
             return null;
@@ -430,6 +399,7 @@ export class Database {
     }
     /**
      * Delete an account. Allows deletion by users and admins with permission level `AdminPerms.MANAGE_ACCOUNTS` if `adminUsername` is given. **Does not validate credentials**.
+     * *Note: Requires password or admin username to delete to avoid accidental deletion of accounts.*
      * @param {string} username Valid username
      * @param {string} password Valid password of user, or admin password if `adminUsername` is given
      * @param {string} adminUsername Valid username of administrator
@@ -852,6 +822,22 @@ export class Database {
 
     readonly #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
+     * Read a list of all contest IDs that exist. Bypasses cache.
+     * @returns {strings[] | null} List of contest IDs, or null if an error occurred
+     */
+    async getContestList(): Promise<string[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT contests.id FROM contests');
+            return data.rows.map((r) => r.id);
+        } catch (err) {
+            this.logger.handleError('Database error (getContestList):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getContestList in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
      * Filter and get a list of contest data from the contests table according to a criteria.
      * @param {ReadContestsCriteria} c Filter criteria. Leaving one undefined removes the criteria
      * @returns {Contest[] | null} Array of contest data matching the filter criteria
@@ -954,6 +940,22 @@ export class Database {
     }
 
     readonly #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
+    /**
+     * Read a list of all round IDs that exist. Bypasses cache.
+     * @returns {strings[] | null} List of round IDs, or null if an error occurred
+     */
+    async getRoundList(): Promise<string[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT rounds.id FROM rounds');
+            return data.rows.map((r) => r.id);
+        } catch (err) {
+            this.logger.handleError('Database error (getRoundList):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getRoundList in ${performance.now() - startTime}ms`, true);
+        }
+    }
     /**
      * Filter and get a list of round data from the rounds table according to a criteria.
      * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criteria
@@ -1058,6 +1060,22 @@ export class Database {
     }
 
     readonly #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
+    /**
+     * Read a list of all problem IDs that exist. Bypasses cache.
+     * @returns {strings[] | null} List of problem IDs, or null if an error occurred
+     */
+    async getProblemList(): Promise<string[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT problems.id FROM problems');
+            return data.rows.map((r) => r.id);
+        } catch (err) {
+            this.logger.handleError('Database error (getProblemList):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getProblemList in ${performance.now() - startTime}ms`, true);
+        }
+    }
     /**
      * Filter and get a list of problems from the problems table according to a criteria.
      * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criteria
@@ -1172,6 +1190,22 @@ export class Database {
     }
 
     readonly #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
+    /**
+     * Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
+     * @returns {strings[] | null} List of submission ID strings, or null if an error occurred
+     */
+    async getSubmissionList(): Promise<string[] | null> {
+        const startTime = performance.now();
+        try {
+            const data = await this.#db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions');
+            return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
+        } catch (err) {
+            this.logger.handleError('Database error (getSubmissionList):', err);
+            return null;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getSubmissionList in ${performance.now() - startTime}ms`, true);
+        }
+    }
     /**
      * Filter and get a list of submissions from the submissions table according to a criteria.
      * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criteria
@@ -1298,6 +1332,26 @@ export class Database {
             if (config.debugMode) this.logger.debug(`writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Delete a submission from the submission table.
+     * @param {UUID} id Problem id linked to submission to delete
+     * @param {UUID} username Username linked to submission to delete
+     * @returns {boolean} If the delete was successful
+     */
+    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            await this.#db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3', [id, username, analysis]);
+            this.#problemCache.delete(`${id}:${username}:${analysis}`);
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteSubmission):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteSubmission in ${performance.now() - startTime}ms`, true);
+        }
+    }
+
 
     /**
      * Clears all database account, team, admin, contest, round, problem, and submission cache entries.
@@ -1358,13 +1412,15 @@ export enum TeamOpResult {
 export enum AdminPerms {
     /**Base admin permission; allows login */
     ADMIN = 1,
-    /**Create, read, update, and delete accounts */
+    /**Create, read, edit, and delete accounts */
     MANAGE_ACCOUNTS = 1 << 1,
-    /**Create, read, update, and delete problems and rounds */
+    /**Create, read, edit, and delete problems */
     MANAGE_PROBLEMS = 1 << 2,
-    /**Create, read, update, and delete contests and submissions, as well as use ContestHost functions */
+    /**Create, read, edit, and delete contests and rounds */
     MANAGE_CONTESTS = 1 << 3,
-    /**Gives all permissions */
+    /**Access running contests through exposed ContestHost functions */
+    CONTROL_CONTESTS = 1 << 4,
+    /**Add admins and edit permissions for other admins */
     MANAGE_ADMINS = 1 << 30 // only 31 bits available
 }
 

@@ -131,7 +131,7 @@ export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): bool
 // more helpers
 export type UUID = string;
 
-export function isUUID(id: string): id is UUID {
+export function isUUID(id: any): id is UUID {
     return validate(id);
 }
 

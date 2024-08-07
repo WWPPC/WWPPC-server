@@ -305,7 +305,7 @@ export class ClientHost {
             if (data == null || typeof data.firstName != 'string' || data.firstName.length > 32 || typeof data.lastName != 'string' || data.lastName.length > 32 || typeof data.displayName != 'string'
                 || data.displayName.length > 32 || typeof data.profileImage != 'string' || Buffer.byteLength(data.profileImage, 'base64url') > config.maxProfileImgSize || typeof data.bio != 'string' || data.bio.length > 2048
                 || typeof data.school != 'string' || data.school.length > 64 || typeof data.grade != 'number' || typeof data.experience != 'number'
-                || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.find((v) => typeof v != 'string') !== undefined || typeof cb != 'function') {
+                || !Array.isArray(data.languages) || data.languages.length > 64 || data.languages.some((v) => typeof v != 'string' || v.length > 64) || typeof cb != 'function') {
                 socket.kick('invalid setUserData payload');
                 return;
             }

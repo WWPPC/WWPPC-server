@@ -49,7 +49,7 @@ export class ContestManager {
 
         // auto-starting contest
         let reading = false;
-        this.#updateLoop = setInterval(async () => {
+        const checkNewContests = async () => {
             if (reading) return;
             reading = true;
             // start any contests that haven't been started
@@ -82,7 +82,9 @@ export class ContestManager {
                 }
             }
             reading = false;
-        }, 60000);
+        };
+        this.#updateLoop = setInterval(checkNewContests, 60000);
+        checkNewContests();
     }
 
     /**
@@ -614,7 +616,7 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
                 return;
             }
-            if (!config.contests[this.contestType]!.acceptedSolverLanguages.includes(submission.lang)) {
+            if (config.contests[this.contestType]!.submitSolver && !config.contests[this.contestType]!.acceptedSolverLanguages.includes(submission.lang)) {
                 respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
                 return;
             }

@@ -44,7 +44,7 @@
             "C++20",
             "Python3.12.3"
         ],
-        "maxSubmissionSize": 10240
+        "maxSubmissionSize": 128
     },
     "WWPMT": {
         "graders": true,
