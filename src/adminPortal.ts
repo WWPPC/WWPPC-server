@@ -8,10 +8,10 @@ import Database, { AccountOpResult, AdminPerms, TeamOpResult } from './database'
 import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 
-export function attachAdminPortal(db: Database, expressApp: Express, contestManager: ContestManager, log: Logger) {
+export function attachAdminPortal(db: Database, expressApp: Express, contest: ContestManager, log: Logger) {
     const database = db;
     const app = expressApp;
-    const contest = contestManager;
+    const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
     const sessionTokens = new Map<string, string>();
     logger.info('Attaching admin portal to /admin/');
@@ -160,6 +160,41 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.sendStatus(200);
         logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
     });
+    app.get('/admin/api/readContests', async (req, res) => {
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const data = await database.readContests();
+        if (data == null) res.sendStatus(500);
+        else res.json(data);
+    });
+    app.post('/admin/api/writeContest', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || [req.body.id, req.body.rounds, req.body.exclusions, req.body.maxTeamSize, req.body.startTime, req.body.endTime, req.body.public, req.body.type].some(v => v == undefined) || !isUUID(req.body.id) || !Array.isArray(req.body.rounds) || !Array.isArray(req.body.exclusions) || req.body.rounds.some(v => !isUUID(v))) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const stat = await database.writeContest(req.body);
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
+    });
+    app.post('/admin/api/deleteContest', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.id == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const stat = await database.deleteContest(req.body.id);
+        if (!stat) res.sendStatus(500);
+        else res.sendStatus(200);
+    });
     app.get('/admin/api/readRounds', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_PROBLEMS))) {
             res.sendStatus(403);
@@ -183,7 +218,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.sendStatus(200);
     });
     app.post('/admin/api/deleteRound', bodyParser.json(), async (req, res) => {
-        if (req.body == undefined || req.body.id == undefined) {
+        if (req.body == undefined || req.body.id == undefined || !isUUID(req.body.id)) {
             res.sendStatus(400);
             return;
         }
@@ -218,7 +253,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         else res.sendStatus(200);
     });
     app.post('/admin/api/deleteProblem', bodyParser.json(), async (req, res) => {
-        if (req.body == undefined || req.body.id == undefined) {
+        if (req.body == undefined || req.body.id == undefined || !isUUID(req.body.id)) {
             res.sendStatus(400);
             return;
         }
@@ -229,6 +264,14 @@ export function attachAdminPortal(db: Database, expressApp: Express, contestMana
         const stat = await database.deleteProblem(req.body.id);
         if (!stat) res.sendStatus(500);
         else res.sendStatus(200);
+    });
+
+    app.get('/admin/api/getRunningContests', async (req, res) => {
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        res.json(contestManager.getRunningContests());
     });
 
     // reserve /admin path

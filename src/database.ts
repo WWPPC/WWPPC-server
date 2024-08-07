@@ -934,6 +934,24 @@ export class Database {
             if (config.debugMode) this.logger.debug(`writeContest in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Delete a contest from the contests table.
+     * @param {string} id Contest to delete
+     * @returns {boolean} If the delete was successful
+     */
+    async deleteContest(id: string): Promise<boolean> {
+        const startTime = performance.now();
+        try {
+            await this.#db.query('DELETE FROM contests WHERE id=$1', [id]);
+            this.#contestCache.delete(id);
+            return true;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteContest):', err);
+            return false;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteContest in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
     readonly #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**

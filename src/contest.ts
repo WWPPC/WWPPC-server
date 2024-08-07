@@ -183,6 +183,14 @@ export class ContestManager {
     }
 
     /**
+     * Get a list of running contests
+     * @returns {ContestHost[]} the contests
+     */
+    getRunningContests(): ContestHost[] {
+        return Array.from(this.#contests.values());
+    }
+
+    /**
      * Stops all contests and closes the contest manager
      */
     close() {
