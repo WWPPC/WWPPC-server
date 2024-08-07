@@ -273,6 +273,32 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         res.json(contestManager.getRunningContests());
     });
+    app.post('/admin/api/reloadContest', bodyParser.json(), async (req, res) => {
+        if (req.body == undefined || req.body.id == undefined) {
+            res.sendStatus(400);
+            return;
+        }
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        const runningContests = contestManager.getRunningContests();
+        const contestHost = runningContests.find(c => c.id == req.body.id);
+        if (!contestHost) {
+            res.sendStatus(400);
+            return;
+        }
+        contestHost.reload();
+        res.sendStatus(200);
+    });
+    app.post('/admin/api/clearCache', async (req, res) => {
+        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
+            res.sendStatus(403);
+            return;
+        }
+        database.clearCache();
+        res.sendStatus(200);
+    });
 
     // reserve /admin path
     app.use('/admin/*', (req, res) => res.sendStatus(404));
