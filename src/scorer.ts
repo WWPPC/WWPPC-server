@@ -7,44 +7,22 @@ import { UUID } from './util';
  * Using the function score = 1/cnt where cnt is number of people who solved the problem
  */
 export class Scorer {
-    logger: NamedLogger;
-
-    /**
-     * list of all rounds
-     */
     #rounds: Round[];
-
-    /**
-     * List of all subtasks. One is inserted anytime a submission contains a subtask we don't know about yet
-     */
     readonly #subtasks: Set<Subtask> = new Set();
+    #userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    readonly logger: NamedLogger;
 
     /**
-     * key: username
-     * value: map of subtask to solve time (if a subtask is unsolved, it is not in the map)
+     * @param {Round[]} rounds Contest rounds
+     * @param {Logger} logger Logger instance
      */
-    #userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
-
     constructor(rounds: Round[], logger: Logger) {
         this.#rounds = rounds;
         this.logger = new NamedLogger(logger, 'Scorer');
     }
 
-    /**
-     * Set rounds data (shouldn't bork anything)
-     * @param {Round[]} rounds Contest round data
-     */
-    setRounds(rounds: Round[]) {
+    set rounds(rounds: Round[]) {
         this.#rounds = rounds;
-    }
-
-    /**
-     * Add rounds
-     * @param {Round | Round[]} rounds Contest round data
-     */
-    addRounds(rounds: Round | Round[]) {
-        if (rounds instanceof Array) this.#rounds = this.#rounds.concat(rounds);
-        else this.#rounds.push(rounds);
     }
 
     /**

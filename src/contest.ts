@@ -355,7 +355,7 @@ export class ContestHost {
             this.end();
             return;
         }
-        this.scorer.setRounds(rounds);
+        this.scorer.rounds = rounds;
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
