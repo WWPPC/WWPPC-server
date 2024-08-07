@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Express } from 'express';
 import { Namespace as SocketIONamespace, Server as SocketIOServer, Socket as SocketIOSocket } from 'socket.io';
 
@@ -9,7 +10,6 @@ import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
-import 'crypto';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.
@@ -336,6 +336,11 @@ export class ContestHost {
             this.end();
             return;
         }
+        if (!config.contests[this.contestType]!.rounds && contest[0].rounds.length != 1) {
+            this.logger.error('Contest rounds are disabled, but contest contains multiple rounds');
+            this.end();
+            return;
+        }
         const rounds = await this.db.readRounds({ id: contest[0].rounds });
         if (rounds === null) {
             this.logger.error(`Database error`);
@@ -393,7 +398,7 @@ export class ContestHost {
         for (const sub of frozenSubmissions) {
             this.scorer.updateUser(sub);
         }
-        
+
         // re-index the contest
         this.#index = -1;
         this.#active = false;
@@ -562,7 +567,7 @@ export class ContestHost {
         socket.on('error', () => this.removeSocket(socket));
 
         // prompt connection to namespace
-        const authToken = crypto.randomUUID();
+        const authToken = randomUUID();
         this.#pendingConnections.set(authToken, socket);
         this.#pendingConnectionsInverse.set(socket, authToken);
         socket.emit('joinContestHost', { type: this.contestType, sid: this.sid, token: authToken });
