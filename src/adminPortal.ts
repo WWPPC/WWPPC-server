@@ -24,7 +24,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else next();
     });
 
-    app.post('/admin/login', async (req, res) => {
+    app.post('/admin/login', bodyParser.json(), async (req, res) => {
         if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
             res.sendStatus(400);
             return;
@@ -83,6 +83,9 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     app.get('/admin/api/logs', async (req, res) => {
         res.sendFile(path.resolve('./log.log'));
     });
+    app.get('/admin/uselessEndpoint', async (req, res) => {
+        res.sendStatus(200);
+    })
     // accounts (ADMINS CAN BYPASS RESTRICTIONS LIKE MAXIMUM LENGTHS)
     app.get('/admin/api/accountList', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
