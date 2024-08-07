@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes, subtle, webcrypto } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, randomUUID, subtle, webcrypto } from 'crypto';
 
 import Logger, { NamedLogger } from './log';
 
@@ -121,5 +121,73 @@ export class AESEncryptionHandler {
             this.logger.handleError('RSA decrypt error:', err);
             return encrypted;
         }
+    }
+}
+
+/**
+ * Basic access token system with permissions checking.
+ */
+export class AccessTokenHandler {
+    static #counter: 0;
+    readonly logger: NamedLogger;
+    readonly #tokens: Map<string, string[]> = new Map();
+
+    /**
+     * @param {Logger} logger Logger instance
+     */
+    constructor(logger: Logger) {
+        this.logger = new NamedLogger(logger, 'AccessTokenHandler-' + AccessTokenHandler.#counter++);
+    }
+
+    /**
+     * Create and register a new token with specified permissions list.
+     * @param {string[]} perms Permissions list
+     * @returns {string} Access token
+     */
+    createToken(perms: string[]): string {
+        const token = randomUUID();
+        this.#tokens.set(token, perms.slice());
+        return token;
+    }
+
+    /**
+     * Get a map of all tokens and corresponding permissions lists.
+     * @returns {Map<string, string[]>} Copy of token map
+     */
+    getTokens(): Map<string, string[]> {
+        const ret = new Map<string, string[]>();
+        this.#tokens.forEach((v, k) => ret.set(k, v.slice()));
+        return ret;
+    }
+
+    /**
+     * Check if a token is registered.
+     * @param {string} token Token to check
+     * @returns {boolean} If the token is registered
+     */
+    tokenExists(token: string): boolean {
+        return this.#tokens.has(token);
+    }
+
+    /**
+     * Check if a token has a permission or all permissions in a list of permissions.
+     * @param {string} token Token to check
+     * @param {string | string[]} perms Permission or list of permissions
+     * @returns {boolean} If the token contains the permission or all permissions from the list
+     */
+    tokenHasPermissions(token: string, perms: string | string[]): boolean {
+        perms = typeof perms == 'string' ? [perms] : perms;
+        if (!this.#tokens.has(token)) return false;
+        const tokenPerms = this.#tokens.get(token)!;
+        return perms.every((perm) => tokenPerms.includes(perm));
+    }
+
+    /**
+     * Unregister a token for all permissions.
+     * @param {string} token Token to unregister
+     * @returns {boolean} If a token was previously registered and is now unregistered
+     */
+    removeToken(token: string): boolean {
+        return this.#tokens.delete(token);
     }
 }

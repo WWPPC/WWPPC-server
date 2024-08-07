@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Express } from 'express';
 import { Namespace as SocketIONamespace, Server as SocketIOServer, Socket as SocketIOSocket } from 'socket.io';
 
@@ -9,7 +10,6 @@ import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
-import 'crypto';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.
@@ -344,6 +344,11 @@ export class ContestHost {
             this.end();
             return;
         }
+        if (!config.contests[this.contestType]!.rounds && contest[0].rounds.length != 1) {
+            this.logger.error('Contest rounds are disabled, but contest contains multiple rounds');
+            this.end();
+            return;
+        }
         const rounds = await this.db.readRounds({ id: contest[0].rounds });
         if (rounds === null) {
             this.logger.error(`Database error`);
@@ -375,6 +380,7 @@ export class ContestHost {
             endTime: contest[0].endTime
         };
         this.updateAllUsers();
+
         // reload the scoreboard too
         const users = await this.db.getAllRegisteredUsers(this.id);
         if (users == null) {
@@ -382,15 +388,25 @@ export class ContestHost {
             this.end();
             return;
         }
+        let userScores: Map<string, number> = new Map();
         const submissions = await this.db.readSubmissions({ contest: { contest: this.#contest.id }, username: users, analysis: false });
         if (submissions === null) {
             this.logger.error(`Database error`);
             this.end();
             return;
         }
+        // maintain consistency with score freeze time
+        const scoreFreezeCutoffTime = this.#contest.endTime - (config.contests[this.contestType]!.scoreFreezeTime * 60000);
+        const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
+            if (sub.time < scoreFreezeCutoffTime) this.scorer.updateUser(sub);
+            else frozenSubmissions.push(sub);
+        }
+        userScores = this.scorer.getScores();
+        for (const sub of frozenSubmissions) {
             this.scorer.updateUser(sub);
         }
+
         // re-index the contest
         this.#index = -1;
         this.#active = false;
@@ -407,7 +423,6 @@ export class ContestHost {
         }
         this.logger.info(`Contest ${this.#contest.id} - Indexed to round ${this.#index}`);
         let scorerUpdateModulo = 0;
-        let lastScores: Map<string, number> | undefined = undefined;
         this.#updateLoop = setInterval(() => {
             const now = Date.now();
             let updated = false;
@@ -427,8 +442,8 @@ export class ContestHost {
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (Date.now() + (config.contests[this.contestType]!.scoreFreezeTime * 60000) < this.#contest.endTime) lastScores = this.scorer.getScores();
-                if (lastScores != undefined) this.io.to(this.sid).emit('scoreboard', Array.from(lastScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+                if (Date.now() < scoreFreezeCutoffTime) userScores = this.scorer.getScores();
+                this.io.to(this.sid).emit('scoreboard', Array.from(userScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
     }
@@ -560,7 +575,7 @@ export class ContestHost {
         socket.on('error', () => this.removeSocket(socket));
 
         // prompt connection to namespace
-        const authToken = crypto.randomUUID();
+        const authToken = randomUUID();
         this.#pendingConnections.set(authToken, socket);
         this.#pendingConnectionsInverse.set(socket, authToken);
         socket.emit('joinContestHost', { type: this.contestType, sid: this.sid, token: authToken });
