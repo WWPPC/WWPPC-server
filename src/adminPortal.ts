@@ -1,8 +1,10 @@
 import bodyParser from 'body-parser';
 import { Express } from 'express';
-import path from 'path';
+import { resolve as pathResolve } from 'path';
+import { read as readLastLines } from 'read-last-lines';
 import { v4 as uuidv4 } from 'uuid';
 
+import config from './config';
 import ContestManager from './contest';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
 import Logger, { NamedLogger } from './log';
@@ -77,11 +79,20 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     const defaultSuccessMapping = (res, stat: boolean) => {
         if (stat) res.json(200);
         else res.sendStatus(500);
-    }
+    };
 
     // general functions
+    const logFile = pathResolve(config.logPath, 'log.log');
     app.get('/admin/api/logs', async (req, res) => {
-        res.sendFile(path.resolve('./log.log'));
+        const lines = await readLastLines(logFile, 100, 'utf8');
+        res.type('text').send(lines);
+    });
+    app.get('/admin/api/fullLogs', async (req, res) => {
+        res.sendFile(logFile);
+    });
+    app.post('/admin/api/clearCache', async (req, res) => {
+        database.clearCache();
+        res.sendStatus(200);
     });
     // accounts (ADMINS CAN BYPASS RESTRICTIONS LIKE MAXIMUM LENGTHS)
     app.get('/admin/api/accountList', async (req, res) => {
@@ -246,6 +257,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         defaultSuccessMapping(res, await database.deleteProblem(req.params.id));
     });
 
+    // add access keys?
     app.get('/admin/api/runningContests', async (req, res) => {
         if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
             res.sendStatus(403);
@@ -314,14 +326,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         contestHost.reload();
-        res.sendStatus(200);
-    });
-    app.post('/admin/api/clearCache', async (req, res) => {
-        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
-            res.sendStatus(403);
-            return;
-        }
-        database.clearCache();
         res.sendStatus(200);
     });
 

@@ -17,7 +17,7 @@ export class Grader {
     readonly db: Database;
     readonly #path: string;
     readonly #password: string;
-    
+
     #open = true;
 
     #ungradedSubmissions: SubmissionWithCallback[] = [];
