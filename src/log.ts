@@ -1,5 +1,5 @@
 import fs from 'fs';
-import fspath from 'path';
+import { resolve as pathResolve } from 'path';
 
 export interface Logger {
     /**
@@ -69,15 +69,15 @@ export class FileLogger implements Logger {
      * @param {string} path Path to the log directory
      */
     constructor(path: string) {
-        path = fspath.resolve(__dirname, path);
+        path = pathResolve(__dirname, path);
         if (!fs.existsSync(path)) throw new Error('"path" must be a valid directory');
         try {
-            let filePath = fspath.resolve(path, 'log.log');
+            let filePath = pathResolve(path, 'log.log');
             if (fs.existsSync(filePath)) {
-                let dirPath = fspath.resolve(path, 'logs/');
+                let dirPath = pathResolve(path, 'logs/');
                 if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
                 let fileCount = fs.readdirSync(dirPath).length;
-                fs.renameSync(filePath, fspath.resolve(dirPath, `log-${fileCount}.log`));
+                fs.renameSync(filePath, pathResolve(dirPath, `log-${fileCount}.log`));
             }
             this.#file = fs.openSync(filePath, 'a');
             this.info('Logger instance created');

@@ -21,6 +21,7 @@
         "inline-css": "^4.0.2",
         "nodemailer": "^6.9.13",
         "pg": "^8.11.3",
+        "read-last-lines": "^1.8.0",
         "socket.io": "^4.7.4",
         "uuid": "^9.0.1"
     },

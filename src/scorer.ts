@@ -99,7 +99,7 @@ export class Scorer {
         });
         //weight subtasks so that problems with more subtasks aren't weighted too high
         problemSubtasks.forEach((subtasks, problem) => {
-            problemWeight.set(problem, 1/subtasks.length);
+            problemWeight.set(problem, 1 / subtasks.length);
         });
 
         //calculate actual scores for each user

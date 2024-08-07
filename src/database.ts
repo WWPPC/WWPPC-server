@@ -60,7 +60,7 @@ export class Database {
                 this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
             }
         });
-        this.#db.on('error',async (err) => {
+        this.#db.on('error', async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
             await this.logger.destroy();
             process.exit(1);
@@ -1410,7 +1410,7 @@ export enum TeamOpResult {
 
 /**Admin permission level bit flags */
 export enum AdminPerms {
-    /**Base admin permission; allows login */
+    /**Base admin permission; allows login and general functions */
     ADMIN = 1,
     /**Create, read, edit, and delete accounts */
     MANAGE_ACCOUNTS = 1 << 1,
