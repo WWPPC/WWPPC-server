@@ -10,8 +10,10 @@ import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 import { AccessTokenHandler } from './cryptoUtil';
 
+/**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
-
+    /**Read leaderboards of ongoing contests */
+    READ_LEADERBOARDS = 'readLeaderboards'
 }
 
 export function attachAdminPortal(db: Database, expressApp: Express, contest: ContestManager, log: Logger) {
@@ -20,7 +22,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
     const sessionTokens = new AccessTokenHandler<never, string>();
-    const accessTokens = new AccessTokenHandler<string, string>();
+    const accessTokens = new AccessTokenHandler<AdminAccessTokenPerms, undefined>();
     logger.info('Attaching admin portal to /admin/');
 
     // require authentication for everything except login
@@ -95,16 +97,29 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // access tokens
     app.get('/admin/accessTokens/ruleset', (req, res) => {
-
+        res.json(['getContestLeaderboard']);
     });
     app.post('/admin/accessTokens/list', (req, res) => {
-
+        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        res.json(Object.fromEntries(accessTokens.getTokens())); // should this be an array instead of an object?
     });
     app.post('/admin/accessTokens/create', (req, res) => {
-
+        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (req.body == undefined || req.body.permissions == undefined || typeof req.body.expiration != 'number') {
+            //also check if its valid permission oof i dont have time aaaa
+            res.sendStatus(400);
+            return;
+        }
+        accessTokens.createToken(req.body.permissions, undefined, req.body.expiration);
     });
-    app.delete('/admin/accessTokens/delete', (req, res) => {
-
+    app.delete('/admin/accessTokens/delete/:id', (req, res) => {
+        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (!accessTokens.tokenExists(req.params.id)) {
+            res.sendStatus(400);
+            return;
+        }
+        accessTokens.removeToken(req.params.id);
+        res.sendStatus(200);
     });
     // general functions
     app.post('/admin/api/clearCache', async (req, res) => {
