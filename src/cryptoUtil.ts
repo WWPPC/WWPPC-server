@@ -130,7 +130,19 @@ export class AESEncryptionHandler {
  * @type {DType} Type of linked data
  */
 export class AccessTokenHandler<PType, DType> {
+    readonly #expirationTimers: { time: number, token: string }[] = [];
     readonly #tokens: Map<string, { data: DType, perms: PType[] }> = new Map();
+
+    constructor() {
+        setInterval(() => {
+            for (let i = this.#expirationTimers.length - 1; i >= 0; i--) {
+                if (performance.now() >= this.#expirationTimers[i].time) {
+                    this.removeToken(this.#expirationTimers[i].token);
+                    this.#expirationTimers.splice(i, 1);
+                }
+            }
+        }, 1000);
+    }
 
     /**
      * Create and register a new token with specified permissions list that optionally expires after some time.
@@ -142,7 +154,7 @@ export class AccessTokenHandler<PType, DType> {
     createToken(perms: PType[], linkedData: DType, expiration?: number): string {
         const token = randomUUID();
         this.#tokens.set(token, { data: linkedData, perms: perms.slice() });
-        if (expiration !== undefined) setTimeout(() => this.removeToken(token), expiration * 1000);
+        if (expiration !== undefined) this.#expirationTimers.push({ time: performance.now() + (expiration * 1000), token: token });
         return token;
     }
 
