@@ -156,11 +156,20 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.post('/admin/api/admin/:username', bodyParser.json(), async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || req.body.permissions == undefined || !database.validate(req.params.username, '')) {
+        if (req.body == undefined || req.body.permissions == undefined || !database.validate(req.params.username, 'a')) {
             res.sendStatus(400);
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, req.body.permissions));
+        logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
+    });
+    app.delete('/admin/api/admin/:username', async (req, res) => {
+        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (req.body == undefined || !database.validate(req.params.username, 'a')) {
+            res.sendStatus(400);
+            return;
+        }
+        defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, 0));
         logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
     });
     // contests
@@ -323,7 +332,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     app.post('/admin/api/reloadContest/:id', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
         const runningContests = contestManager.getRunningContests();
-        const contestHost = runningContests.find(c => c.id == req.body.id);
+        const contestHost = runningContests.find(c => c.id == req.params.id);
         if (!contestHost) {
             res.sendStatus(400);
             return;
