@@ -84,6 +84,8 @@ export interface ContestConfiguration {
     readonly withholdResults: boolean
     /**Submissions will be treated as solution code instead of an answer - setting to "false" limits grading to one test case (default: true) */
     readonly submitSolver: boolean
+    /**Submissions when {@link ContestConfiguration.submitSolver} is "false" will be delayed by a number of seconds (usually to discourage spamming) (default: 10) */
+    readonly directSubmissionDelay: number
     /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedSolverLanguages: string[]
     /**Maximum file size of uploaded submission files (default: 10240) */
@@ -112,6 +114,7 @@ const config: GlobalConfiguration = {
             scoreFreezeTime: cVal.scoreFreezeTime ?? 60,
             withholdResults: cVal.withholdResults ?? false,
             submitSolver: cVal.submitSolver ?? true,
+            directSubmissionDelay: cVal.directSubmissionDelay ?? 5000,
             acceptedSolverLanguages: cVal.acceptedSolverLanguages ?? [
                 'Java8',
                 'Java11',
