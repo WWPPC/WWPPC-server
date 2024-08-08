@@ -228,7 +228,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     // problems
     app.get('/admin/api/problemList', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-        defaultObjectMapping(res, await database.getRoundList());
+        defaultObjectMapping(res, await database.getProblemList());
     });
     app.get('/admin/api/problem/:id', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
