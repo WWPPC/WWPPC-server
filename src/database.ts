@@ -127,30 +127,34 @@ export class Database {
                         bindings.push(value.v1, value.v2);
                         switch (value.op) {
                             case '><':
-                                conditions.push(`${name}>${bindings.length - 1} AND ${name}<${bindings.length}`);
+                                conditions.push(`${name}>$${bindings.length - 1} AND ${name}<$${bindings.length}`);
                                 break;
                             case '<>':
-                                conditions.push(`${name}<${bindings.length - 1} OR ${name}>${bindings.length}`);
+                                conditions.push(`${name}<$${bindings.length - 1} OR ${name}>$${bindings.length}`);
                                 break;
                             case '=><':
-                                conditions.push(`${name}>=${bindings.length - 1} AND ${name}<${bindings.length}`);
+                                conditions.push(`${name}>=$${bindings.length - 1} AND ${name}<$${bindings.length}`);
                                 break;
                             case '><=':
-                                conditions.push(`${name}>${bindings.length - 1} AND ${name}<=${bindings.length}`);
+                                conditions.push(`${name}>$${bindings.length - 1} AND ${name}<=$${bindings.length}`);
                                 break;
                             case '=><=':
-                                conditions.push(`${name}>=${bindings.length - 1} AND ${name}<=${bindings.length}`);
+                                conditions.push(`${name}>=$${bindings.length - 1} AND ${name}<=$${bindings.length}`);
                                 break;
                             case '=<>':
-                                conditions.push(`${name}<=${bindings.length - 1} OR ${name}>${bindings.length}`);
+                                conditions.push(`${name}<=$${bindings.length - 1} OR ${name}>$${bindings.length}`);
                                 break;
                             case '<>=':
-                                conditions.push(`${name}<${bindings.length - 1} OR ${name}>=${bindings.length}`);
+                                conditions.push(`${name}<$${bindings.length - 1} OR ${name}>=$${bindings.length}`);
                                 break;
                             case '=<>=':
-                                conditions.push(`${name}<=${bindings.length - 1} OR ${name}>=${bindings.length}`);
+                                conditions.push(`${name}<=$${bindings.length - 1} OR ${name}>=$${bindings.length}`);
                                 break;
                         }
+                        break;
+                    case '~':
+                        bindings.push(value.v);
+                        conditions.push(`${name} LIKE '%' || $${bindings.length} || '%'`);
                         break;
                 }
                 // should never reach here

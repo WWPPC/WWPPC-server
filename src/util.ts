@@ -67,6 +67,9 @@ export type FilterComparison<T> = T extends primitive ? ({
     op: '><' | '<>' | '=><' | '><=' | '=><=' | '=<>' | '<>=' | '=<>='
     v1: number & T
     v2: number & T
+} | {
+    op: '~'
+    v: string & T
 } | T | T[]) : never;
 
 /**

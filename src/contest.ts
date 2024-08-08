@@ -278,6 +278,8 @@ export class ContestHost {
     readonly #pendingConnections: Map<string, ServerSocket> = new Map();
     readonly #pendingConnectionsInverse: Map<ServerSocket, string> = new Map();
 
+    readonly #pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
+
     /**
      * @param {string} type Contest type Id
      * @param {string} id Contest id of contest
@@ -445,7 +447,7 @@ export class ContestHost {
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) userScores = this.scorer.getScores();
-                this.io.to(this.sid).emit('scoreboard', Array.from(userScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+                this.io.emit('scoreboard', Array.from(userScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
     }
@@ -678,13 +680,20 @@ export class ContestHost {
                         this.logger.error(`Failed to grade submission solution for "${problems[0].id}" because correct solution is null`);
                         return;
                     }
-                    serverSubmission.scores.push({
-                        state: submission.file === problems[0].solution ? ScoreState.CORRECT : ScoreState.INCORRECT,
-                        time: 0,
-                        memory: 0,
-                        subtask: 0
-                    });
-                    writeGraded(serverSubmission);
+                    // cancel the previous submission in a weird way
+                    const subId = serverSubmission.username + ':' + serverSubmission.problemId;
+                    if (this.#pendingDirectSubmissions.has(subId)) clearTimeout(this.#pendingDirectSubmissions.get(subId));
+                    const timeout = setTimeout(() => {
+                        serverSubmission.scores.push({
+                            state: submission.file === problems[0].solution ? ScoreState.CORRECT : ScoreState.INCORRECT,
+                            time: 0,
+                            memory: 0,
+                            subtask: 0
+                        });
+                        writeGraded(serverSubmission);
+                        this.#pendingDirectSubmissions.delete(subId);
+                    }, config.contests[this.contestType]!.directSubmissionDelay * 1000);
+                    this.#pendingDirectSubmissions.set(subId, timeout);
                 }
             } else {
                 // idk what to do here

@@ -5,6 +5,7 @@
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": true,
+        "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [
             "Java8",
             "Java11",
@@ -24,6 +25,7 @@
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": true,
+        "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [],
         "maxSubmissionSize": 10240
     },
@@ -33,6 +35,7 @@
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": false,
+        "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [
             "Java8",
             "Java11",
@@ -52,6 +55,7 @@
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": false,
+        "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [],
         "maxSubmissionSize": 10240
     }
