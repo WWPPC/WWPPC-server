@@ -125,38 +125,34 @@ export class AESEncryptionHandler {
 }
 
 /**
- * Basic access token system with permissions checking.
+ * Basic access token system with permissions checking and linked data.
+ * @type {PType} Type of permissions list entries
+ * @type {DType} Type of linked data
  */
-export class AccessTokenHandler {
-    static #counter: 0;
-    readonly logger: NamedLogger;
-    readonly #tokens: Map<string, string[]> = new Map();
+export class AccessTokenHandler<PType, DType> {
+    readonly #tokens: Map<string, { data: DType, perms: PType[] }> = new Map();
 
     /**
-     * @param {Logger} logger Logger instance
-     */
-    constructor(logger: Logger) {
-        this.logger = new NamedLogger(logger, 'AccessTokenHandler-' + AccessTokenHandler.#counter++);
-    }
-
-    /**
-     * Create and register a new token with specified permissions list.
-     * @param {string[]} perms Permissions list
+     * Create and register a new token with specified permissions list that optionally expires after some time.
+     * @param {PType[]} perms Permissions list
+     * @param {DType} linkedData Data to associate with the new token
+     * @param {number | undefined} expiration Seconds until expiration removes the token
      * @returns {string} Access token
      */
-    createToken(perms: string[]): string {
+    createToken(perms: PType[], linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.#tokens.set(token, perms.slice());
+        this.#tokens.set(token, { data: linkedData, perms: perms.slice() });
+        if (expiration !== undefined) setTimeout(() => this.removeToken(token), expiration * 1000);
         return token;
     }
 
     /**
      * Get a map of all tokens and corresponding permissions lists.
-     * @returns {Map<string, string[]>} Copy of token map
+     * @returns {Map<string, { data: DType, perms: PType[] }>} Copy of token map
      */
-    getTokens(): Map<string, string[]> {
-        const ret = new Map<string, string[]>();
-        this.#tokens.forEach((v, k) => ret.set(k, v.slice()));
+    getTokens(): Map<string, { data: DType, perms: PType[] }> {
+        const ret = new Map<string, { data: DType, perms: PType[] }>();
+        this.#tokens.forEach((v, k) => ret.set(k, { data: v.data, perms: v.perms.slice() }));
         return ret;
     }
 
@@ -170,16 +166,36 @@ export class AccessTokenHandler {
     }
 
     /**
+     * Get the permissions list for a token if it exists.
+     * @param {string} token Token to check
+     * @returns {PType[] | null} Token permissions list or null if not exists
+     */
+    tokenPermissions(token: string): PType[] | null {
+        if (!this.#tokens.has(token)) return null;
+        return this.#tokens.get(token)!.perms.slice();
+    }
+
+    /**
+     * Get the linked data for a token if it exists.
+     * @param {string} token Token to check
+     * @returns {DType | null} Token linked data or null if not exists
+     */
+    tokenData(token: string): DType | null {
+        if (!this.#tokens.has(token)) return null;
+        return this.#tokens.get(token)!.data;
+    }
+
+    /**
      * Check if a token has a permission or all permissions in a list of permissions.
      * @param {string} token Token to check
-     * @param {string | string[]} perms Permission or list of permissions
+     * @param {PType | PType[]} perms Permission or list of permissions
      * @returns {boolean} If the token contains the permission or all permissions from the list
      */
-    tokenHasPermissions(token: string, perms: string | string[]): boolean {
-        perms = typeof perms == 'string' ? [perms] : perms;
+    tokenHasPermissions(token: string, perms: PType | PType[]): boolean {
+        perms = Array.isArray(perms) ? perms : [perms];
         if (!this.#tokens.has(token)) return false;
         const tokenPerms = this.#tokens.get(token)!;
-        return perms.every((perm) => tokenPerms.includes(perm));
+        return perms.every((perm) => tokenPerms.perms.includes(perm));
     }
 
     /**

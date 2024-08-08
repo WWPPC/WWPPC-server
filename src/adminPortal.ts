@@ -2,27 +2,32 @@ import bodyParser from 'body-parser';
 import { Express } from 'express';
 import { resolve as pathResolve } from 'path';
 import { read as readLastLines } from 'read-last-lines';
-import { v4 as uuidv4 } from 'uuid';
 
 import config from './config';
 import ContestManager from './contest';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
 import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
+import { AccessTokenHandler } from './cryptoUtil';
+
+enum AdminAccessTokenPerms {
+
+}
 
 export function attachAdminPortal(db: Database, expressApp: Express, contest: ContestManager, log: Logger) {
     const database = db;
     const app = expressApp;
     const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
-    const sessionTokens = new Map<string, string>();
+    const sessionTokens = new AccessTokenHandler<never, string>();
+    const accessTokens = new AccessTokenHandler<string, string>();
     logger.info('Attaching admin portal to /admin/');
 
     // require authentication for everything except login
     app.use('/admin/*', (req, res, next) => {
         if (req.baseUrl == '/admin/login') next();
         else if (typeof req.cookies.token != 'string') res.sendStatus(401);
-        else if (!sessionTokens.has(req.cookies.token)) res.sendStatus(403);
+        else if (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token)) res.sendStatus(403);
         else next();
     });
 
@@ -32,7 +37,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
-            const token = uuidv4();
+            const token = sessionTokens.createToken([], req.body.username, 3600000);
             res.cookie('token', token, {
                 expires: new Date(Date.now() + 3600000),
                 path: '/',
@@ -40,8 +45,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
                 sameSite: "none",
                 secure: true
             });
-            sessionTokens.set(token, req.body.username);
-            setTimeout(() => sessionTokens.delete(token), 3600000);
             res.sendStatus(200);
             log.info(`[Admin] Admin login by ${req.body.username} (${req.ip ?? req.headers['x-forwarded-for'] ?? 'unknown ip address'})`);
         } else {
@@ -50,7 +53,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
 
     const checkPerms = async (req, res, perms: AdminPerms): Promise<boolean> => {
-        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, perms))) {
+        if (!sessionTokens.tokenExists(req.cookies.token) || !(await db.hasAdminPerms(sessionTokens.tokenData(req.cookies.token)!, perms))) {
             res.sendStatus(403);
             return false;
         }
@@ -81,22 +84,33 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else res.sendStatus(500);
     };
 
-    // general functions
+    // logs
     const logFile = pathResolve(config.logPath, 'log.log');
-    app.get('/admin/api/logs', async (req, res) => {
+    app.get('/admin/logTail', async (req, res) => {
         const lines = await readLastLines(logFile, 100, 'utf8');
         res.type('text').send(lines);
     });
-    app.get('/admin/api/fullLogs', async (req, res) => {
+    app.get('/admin/logs', async (req, res) => {
         res.sendFile(logFile);
     });
+    // access tokens
+    app.get('/admin/accessTokens/ruleset', (req, res) => {
+
+    });
+    app.post('/admin/accessTokens/list', (req, res) => {
+
+    });
+    app.post('/admin/accessTokens/create', (req, res) => {
+
+    });
+    app.delete('/admin/accessTokens/delete', (req, res) => {
+
+    });
+    // general functions
     app.post('/admin/api/clearCache', async (req, res) => {
         database.clearCache();
         res.sendStatus(200);
     });
-    app.get('/admin/uselessEndpoint', async (req, res) => {
-        res.sendStatus(200);
-    })
     // accounts (ADMINS CAN BYPASS RESTRICTIONS LIKE MAXIMUM LENGTHS)
     app.get('/admin/api/accountList', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
@@ -161,7 +175,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, req.body.permissions));
-        logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
+        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // contests
     app.get('/admin/api/contestList', async (req, res) => {
@@ -259,13 +273,9 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         defaultSuccessMapping(res, await database.deleteProblem(req.params.id));
     });
-
-    // add access keys?
+    // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
-        if (!(await db.hasAdminPerms(sessionTokens.get(req.cookies.token)!, AdminPerms.MANAGE_CONTESTS))) {
-            res.sendStatus(403);
-            return;
-        }
+        if (!checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
         const TESTING_CONTESTS = [
             {
                 "id": "WWPIT Spring 2024 Advanced",
