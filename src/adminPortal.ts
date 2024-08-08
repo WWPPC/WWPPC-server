@@ -51,6 +51,10 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(403);
         }
     });
+    app.get('/admin/login', (req, res) => {
+        // only way to get here is to be logged in
+        res.sendStatus(200);
+    });
 
     const checkPerms = async (req, res, perms: AdminPerms): Promise<boolean> => {
         if (!sessionTokens.tokenExists(req.cookies.token) || !(await db.hasAdminPerms(sessionTokens.tokenData(req.cookies.token)!, perms))) {
