@@ -184,7 +184,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, 0));
-        logger.info(`Administrator list modified by ${sessionTokens.get(req.cookies.token)!}`);
+        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // contests
     app.get('/admin/api/contestList', async (req, res) => {
