@@ -18,7 +18,7 @@ Time of round end, UNIX
 
 #### Defined in
 
-[database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1504)
+[database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1504)
 
 ***
 
@@ -30,7 +30,7 @@ UUID
 
 #### Defined in
 
-[database.ts:1498](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1498)
+[database.ts:1498](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1498)
 
 ***
 
@@ -42,7 +42,7 @@ List of problem UUIDs within the round
 
 #### Defined in
 
-[database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1500)
+[database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1500)
 
 ***
 
@@ -54,4 +54,4 @@ Time of round start, UNIX
 
 #### Defined in
 
-[database.ts:1502](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1502)
+[database.ts:1502](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1502)

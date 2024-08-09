@@ -18,7 +18,7 @@ Contest ID
 
 #### Defined in
 
-[database.ts:1588](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1588)
+[database.ts:1588](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1588)
 
 ***
 
@@ -30,7 +30,7 @@ End of round, UNIX time
 
 #### Defined in
 
-[database.ts:1596](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1596)
+[database.ts:1596](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1596)
 
 ***
 
@@ -42,7 +42,7 @@ Round ID
 
 #### Defined in
 
-[database.ts:1592](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1592)
+[database.ts:1592](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1592)
 
 ***
 
@@ -54,7 +54,7 @@ Zero-indexed round within the contest
 
 #### Defined in
 
-[database.ts:1590](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1590)
+[database.ts:1590](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1590)
 
 ***
 
@@ -66,4 +66,4 @@ Start of round, UNIX time
 
 #### Defined in
 
-[database.ts:1594](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1594)
+[database.ts:1594](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1594)

@@ -117,7 +117,7 @@ export class Scorer {
                     //old score function: 1/x * (time penalty linear from 1.0 -> 0.9)
                     //new score function: 1 + (end - solveTime in minutes) / 500
                     const baseScore = weight;
-                    score += baseScore * (round.endTime - solveTime) / (60000 * 500);
+                    score += baseScore + (round.endTime - solveTime) / 60000 / 500;
                 }
             });
             userScores.set(username, score);

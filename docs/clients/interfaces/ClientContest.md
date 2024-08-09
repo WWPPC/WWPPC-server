@@ -16,7 +16,7 @@ Slightly modified version of client Contest
 
 #### Defined in
 
-[clients.ts:527](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L527)
+[clients.ts:527](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L527)
 
 ***
 
@@ -26,7 +26,7 @@ Slightly modified version of client Contest
 
 #### Defined in
 
-[clients.ts:524](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L524)
+[clients.ts:524](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L524)
 
 ***
 
@@ -36,7 +36,7 @@ Slightly modified version of client Contest
 
 #### Defined in
 
-[clients.ts:525](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L525)
+[clients.ts:525](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L525)
 
 ***
 
@@ -46,4 +46,4 @@ Slightly modified version of client Contest
 
 #### Defined in
 
-[clients.ts:526](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L526)
+[clients.ts:526](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L526)

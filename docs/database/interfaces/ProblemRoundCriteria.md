@@ -18,7 +18,7 @@ Contest ID
 
 #### Defined in
 
-[database.ts:1601](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1601)
+[database.ts:1601](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1601)
 
 ***
 
@@ -30,7 +30,7 @@ Zero-indexed problem number within the round
 
 #### Defined in
 
-[database.ts:1605](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1605)
+[database.ts:1605](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1605)
 
 ***
 
@@ -42,7 +42,7 @@ Zero-indexed round within the contest
 
 #### Defined in
 
-[database.ts:1603](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1603)
+[database.ts:1603](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1603)
 
 ***
 
@@ -54,4 +54,4 @@ Round ID
 
 #### Defined in
 
-[database.ts:1607](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1607)
+[database.ts:1607](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1607)

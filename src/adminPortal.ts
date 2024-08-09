@@ -310,7 +310,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
         res.json(contestManager.getRunningContests().map(contest => {return {
             id: contest.id,
-            scores: Object.fromEntries(contest.scorer.getScores()),
+            scores: Array.from(contest.scorer.getScores()).map(s => {return { username: s[0], score: s[1] }}),
             rounds: contest.data.rounds.map(round => {return {
                 startTime: round.startTime,
                 endTime: round.endTime

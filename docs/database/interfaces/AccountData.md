@@ -18,7 +18,7 @@ User-written short biography
 
 #### Defined in
 
-[database.ts:1446](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1446)
+[database.ts:1446](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1446)
 
 ***
 
@@ -30,7 +30,7 @@ Alternate name used in front-end
 
 #### Defined in
 
-[database.ts:1442](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1442)
+[database.ts:1442](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1442)
 
 ***
 
@@ -42,7 +42,7 @@ Email
 
 #### Defined in
 
-[database.ts:1436](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1436)
+[database.ts:1436](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1436)
 
 ***
 
@@ -54,7 +54,7 @@ Experience level, 0 to 4, with 4 being the highest
 
 #### Defined in
 
-[database.ts:1452](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1452)
+[database.ts:1452](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1452)
 
 ***
 
@@ -66,7 +66,7 @@ First name
 
 #### Defined in
 
-[database.ts:1438](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1438)
+[database.ts:1438](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1438)
 
 ***
 
@@ -78,7 +78,7 @@ Grade level (8 = below HS, 13 = above HS)
 
 #### Defined in
 
-[database.ts:1450](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1450)
+[database.ts:1450](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1450)
 
 ***
 
@@ -90,7 +90,7 @@ Known languages, in file extension form
 
 #### Defined in
 
-[database.ts:1454](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1454)
+[database.ts:1454](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1454)
 
 ***
 
@@ -102,7 +102,7 @@ Last name
 
 #### Defined in
 
-[database.ts:1440](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1440)
+[database.ts:1440](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1440)
 
 ***
 
@@ -114,7 +114,7 @@ Past list of registrations for previous contests that have already ended
 
 #### Defined in
 
-[database.ts:1458](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1458)
+[database.ts:1458](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1458)
 
 ***
 
@@ -126,7 +126,7 @@ Encoded image
 
 #### Defined in
 
-[database.ts:1444](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1444)
+[database.ts:1444](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1444)
 
 ***
 
@@ -138,7 +138,7 @@ List of registrations
 
 #### Defined in
 
-[database.ts:1456](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1456)
+[database.ts:1456](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1456)
 
 ***
 
@@ -150,7 +150,7 @@ School name
 
 #### Defined in
 
-[database.ts:1448](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1448)
+[database.ts:1448](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1448)
 
 ***
 
@@ -162,7 +162,7 @@ The teamid which is the username of the team owner
 
 #### Defined in
 
-[database.ts:1460](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1460)
+[database.ts:1460](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1460)
 
 ***
 
@@ -174,4 +174,4 @@ Username
 
 #### Defined in
 
-[database.ts:1434](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1434)
+[database.ts:1434](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1434)

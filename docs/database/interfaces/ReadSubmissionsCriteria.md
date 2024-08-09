@@ -18,7 +18,7 @@ If the submission was submitted through the upsolve system
 
 #### Defined in
 
-[database.ts:1631](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1631)
+[database.ts:1631](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1631)
 
 ***
 
@@ -30,7 +30,7 @@ Contest-based filter including contest, round, problem number, and round ID
 
 #### Defined in
 
-[database.ts:1627](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1627)
+[database.ts:1627](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1627)
 
 ***
 
@@ -42,7 +42,7 @@ UUID of problem
 
 #### Defined in
 
-[database.ts:1623](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1623)
+[database.ts:1623](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1623)
 
 ***
 
@@ -54,7 +54,7 @@ Time of submission
 
 #### Defined in
 
-[database.ts:1629](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1629)
+[database.ts:1629](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1629)
 
 ***
 
@@ -66,4 +66,4 @@ Username of submitter
 
 #### Defined in
 
-[database.ts:1625](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1625)
+[database.ts:1625](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1625)

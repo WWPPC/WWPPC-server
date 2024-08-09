@@ -16,7 +16,7 @@ Client enum for submission response codes
 
 #### Defined in
 
-[clients.ts:580](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L580)
+[clients.ts:580](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L580)
 
 ***
 
@@ -26,7 +26,7 @@ Client enum for submission response codes
 
 #### Defined in
 
-[clients.ts:577](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L577)
+[clients.ts:577](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L577)
 
 ***
 
@@ -36,7 +36,7 @@ Client enum for submission response codes
 
 #### Defined in
 
-[clients.ts:578](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L578)
+[clients.ts:578](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L578)
 
 ***
 
@@ -46,7 +46,7 @@ Client enum for submission response codes
 
 #### Defined in
 
-[clients.ts:579](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L579)
+[clients.ts:579](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L579)
 
 ***
 
@@ -56,4 +56,4 @@ Client enum for submission response codes
 
 #### Defined in
 
-[clients.ts:576](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L576)
+[clients.ts:576](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L576)

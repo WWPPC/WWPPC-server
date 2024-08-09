@@ -46,7 +46,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:39](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L39)
+[clients.ts:39](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L39)
 
 ## Properties
 
@@ -56,7 +56,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:20](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L20)
+[clients.ts:20](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L20)
 
 ***
 
@@ -66,7 +66,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:18](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L18)
+[clients.ts:18](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L18)
 
 ***
 
@@ -76,7 +76,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:21](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L21)
+[clients.ts:21](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L21)
 
 ***
 
@@ -86,7 +86,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:19](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L19)
+[clients.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L19)
 
 ***
 
@@ -96,7 +96,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:24](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L24)
+[clients.ts:24](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L24)
 
 ***
 
@@ -106,7 +106,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:23](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L23)
+[clients.ts:23](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L23)
 
 ***
 
@@ -116,7 +116,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:29](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L29)
+[clients.ts:29](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L29)
 
 ***
 
@@ -126,7 +126,7 @@ Logging instance
 
 #### Defined in
 
-[clients.ts:22](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L22)
+[clients.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L22)
 
 ## Methods
 
@@ -149,4 +149,4 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[clients.ts:100](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L100)
+[clients.ts:100](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/clients.ts#L100)

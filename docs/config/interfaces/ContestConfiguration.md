@@ -18,7 +18,7 @@ Programming languages accepted for submissions (case sensitive, only if "submitS
 
 #### Defined in
 
-[config.ts:90](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L90)
+[config.ts:90](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L90)
 
 ***
 
@@ -30,7 +30,7 @@ Submissions when [ContestConfiguration.submitSolver](ContestConfiguration.md#sub
 
 #### Defined in
 
-[config.ts:88](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L88)
+[config.ts:88](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L88)
 
 ***
 
@@ -42,7 +42,7 @@ Use grading system to evaluate submissions, otherwise grade manually (default: t
 
 #### Defined in
 
-[config.ts:78](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L78)
+[config.ts:78](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L78)
 
 ***
 
@@ -54,7 +54,7 @@ Maximum file size of uploaded submission files (default: 10240)
 
 #### Defined in
 
-[config.ts:92](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L92)
+[config.ts:92](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L92)
 
 ***
 
@@ -66,7 +66,7 @@ Enable round separation (separates contest into multiple sub-contests) (default:
 
 #### Defined in
 
-[config.ts:80](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L80)
+[config.ts:80](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L80)
 
 ***
 
@@ -78,7 +78,7 @@ Enable round separation (separates contest into multiple sub-contests) (default:
 
 #### Defined in
 
-[config.ts:82](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L82)
+[config.ts:82](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L82)
 
 ***
 
@@ -90,7 +90,7 @@ Submissions will be treated as solution code instead of an answer - setting to "
 
 #### Defined in
 
-[config.ts:86](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L86)
+[config.ts:86](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L86)
 
 ***
 
@@ -102,4 +102,4 @@ Withhold submission results for each round until the round ends (submissions are
 
 #### Defined in
 
-[config.ts:84](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L84)
+[config.ts:84](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L84)

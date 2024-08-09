@@ -30,7 +30,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:88](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L88)
+[cryptoUtil.ts:88](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L88)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:81](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L81)
+[cryptoUtil.ts:81](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L81)
 
 ## Methods
 
@@ -64,7 +64,7 @@ Plaintext string (the formatted encrypted string if there was an error)
 
 #### Defined in
 
-[cryptoUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L114)
+[cryptoUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L114)
 
 ***
 
@@ -88,4 +88,4 @@ Colon-concatenated base64-encoded ciphertext, initialization vector, and authent
 
 #### Defined in
 
-[cryptoUtil.ts:98](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L98)
+[cryptoUtil.ts:98](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L98)

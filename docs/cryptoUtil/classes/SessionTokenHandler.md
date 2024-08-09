@@ -26,7 +26,7 @@ Basic access token system with permissions checking and linked data.
 
 #### Defined in
 
-[cryptoUtil.ts:136](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L136)
+[cryptoUtil.ts:136](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L136)
 
 ## Methods
 
@@ -58,7 +58,7 @@ Access token
 
 #### Defined in
 
-[cryptoUtil.ts:154](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L154)
+[cryptoUtil.ts:154](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L154)
 
 ***
 
@@ -76,7 +76,7 @@ Copy of token map
 
 #### Defined in
 
-[cryptoUtil.ts:165](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L165)
+[cryptoUtil.ts:165](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L165)
 
 ***
 
@@ -100,7 +100,7 @@ If a token was previously registered and is now unregistered
 
 #### Defined in
 
-[cryptoUtil.ts:218](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L218)
+[cryptoUtil.ts:218](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L218)
 
 ***
 
@@ -124,7 +124,7 @@ Token linked data or null if not exists
 
 #### Defined in
 
-[cryptoUtil.ts:195](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L195)
+[cryptoUtil.ts:195](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L195)
 
 ***
 
@@ -148,7 +148,7 @@ If the token is registered
 
 #### Defined in
 
-[cryptoUtil.ts:176](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L176)
+[cryptoUtil.ts:176](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L176)
 
 ***
 
@@ -176,7 +176,7 @@ If the token contains the permission or all permissions from the list
 
 #### Defined in
 
-[cryptoUtil.ts:206](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L206)
+[cryptoUtil.ts:206](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L206)
 
 ***
 
@@ -200,4 +200,4 @@ Token permissions list or null if not exists
 
 #### Defined in
 
-[cryptoUtil.ts:185](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/cryptoUtil.ts#L185)
+[cryptoUtil.ts:185](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L185)

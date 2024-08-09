@@ -47,7 +47,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:291](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L291)
+[contest.ts:291](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L291)
 
 ## Properties
 
@@ -57,7 +57,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:264](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L264)
+[contest.ts:264](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L264)
 
 ***
 
@@ -67,7 +67,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:267](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L267)
+[contest.ts:267](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L267)
 
 ***
 
@@ -77,7 +77,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L268)
+[contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L268)
 
 ***
 
@@ -87,7 +87,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:265](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L265)
+[contest.ts:265](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L265)
 
 ***
 
@@ -97,7 +97,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:266](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L266)
+[contest.ts:266](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L266)
 
 ***
 
@@ -107,7 +107,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:270](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L270)
+[contest.ts:270](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L270)
 
 ***
 
@@ -117,7 +117,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:269](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L269)
+[contest.ts:269](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L269)
 
 ***
 
@@ -127,7 +127,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:263](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L263)
+[contest.ts:263](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L263)
 
 ## Accessors
 
@@ -143,7 +143,7 @@ Get a copy of the internal data.
 
 #### Defined in
 
-[contest.ts:334](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L334)
+[contest.ts:334](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L334)
 
 ***
 
@@ -159,7 +159,7 @@ Index of the current round (zero-indexed).
 
 #### Defined in
 
-[contest.ts:458](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L458)
+[contest.ts:458](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L458)
 
 ## Methods
 
@@ -181,7 +181,7 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[contest.ts:571](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L571)
+[contest.ts:571](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L571)
 
 ***
 
@@ -203,7 +203,7 @@ Mark the contest as ended in database (contest cannot be restarted)
 
 #### Defined in
 
-[contest.ts:771](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L771)
+[contest.ts:771](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L771)
 
 ***
 
@@ -225,7 +225,7 @@ Callback listener
 
 #### Defined in
 
-[contest.ts:785](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L785)
+[contest.ts:785](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L785)
 
 ***
 
@@ -247,7 +247,7 @@ Problem ID
 
 #### Defined in
 
-[contest.ts:466](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L466)
+[contest.ts:466](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L466)
 
 ***
 
@@ -264,7 +264,7 @@ Will re-calculate the current round as well.
 
 #### Defined in
 
-[contest.ts:341](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L341)
+[contest.ts:341](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L341)
 
 ***
 
@@ -288,7 +288,7 @@ If the socket was previously within the list of connections
 
 #### Defined in
 
-[contest.ts:729](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L729)
+[contest.ts:729](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L729)
 
 ***
 
@@ -304,7 +304,7 @@ Update all users in contest with latest contest data.
 
 #### Defined in
 
-[contest.ts:472](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L472)
+[contest.ts:472](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L472)
 
 ***
 
@@ -326,4 +326,4 @@ Username
 
 #### Defined in
 
-[contest.ts:479](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L479)
+[contest.ts:479](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L479)

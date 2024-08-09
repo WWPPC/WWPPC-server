@@ -31,7 +31,7 @@ Logger instance
 
 #### Defined in
 
-[scorer.ts:19](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L19)
+[scorer.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L19)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Logger instance
 
 #### Defined in
 
-[scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L13)
+[scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L13)
 
 ## Accessors
 
@@ -55,19 +55,19 @@ Logger instance
 
 #### Defined in
 
-[scorer.ts:24](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L24)
+[scorer.ts:24](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L24)
 
 ## Methods
 
 ### getRoundScores()
 
-> **getRoundScores**(`round`): `Map`\<`string`, `number`\>
+> **getRoundScores**(`roundId`): `Map`\<`string`, `number`\>
 
 Get standings for a specified round.
 
 #### Parameters
 
-• **round**: `string`
+• **roundId**: `string`
 
 Round ID
 
@@ -79,7 +79,7 @@ Mapping of username to score
 
 #### Defined in
 
-[scorer.ts:72](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L72)
+[scorer.ts:72](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L72)
 
 ***
 
@@ -97,7 +97,7 @@ mapping of username to score
 
 #### Defined in
 
-[scorer.ts:125](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L125)
+[scorer.ts:132](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L132)
 
 ***
 
@@ -125,4 +125,4 @@ whether it was successful
 
 #### Defined in
 
-[scorer.ts:34](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L34)
+[scorer.ts:34](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L34)
