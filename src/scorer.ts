@@ -66,18 +66,23 @@ export class Scorer {
 
     /**
      * Get standings for a specified round.
-     * @param {UUID} round Round ID
+     * @param {UUID} roundId Round ID
      * @returns {Map<string, number>} Mapping of username to score
      */
-    getRoundScores(round: UUID): Map<string, number> {
+    getRoundScores(roundId: UUID): Map<string, number> {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
         const problemWeight = new Map<UUID, number>(); // how much to weight each problem
         const userScores = new Map<string, number>(); // final scores of each user
+        const round = this.#rounds.find(r => r.id == roundId);
+        if (round == undefined) {
+            this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
+            throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
+        }
 
         //set everything to 0
         this.#subtasks.forEach((subtask) => {
-            if (subtask.round === round) subtaskSolved.set(subtask, 0);
+            if (subtask.round === roundId) subtaskSolved.set(subtask, 0);
         });
 
         //find how many users solved each subtask
@@ -109,8 +114,9 @@ export class Scorer {
                 const weight = problemWeight.get(subtask.id);
                 const numSolved = subtaskSolved.get(subtask);
                 if (weight !== undefined && numSolved !== undefined) {
-                    //here is the function 1/x
-                    score += weight * 1 / numSolved;
+                    //score function: 1/x * (time penalty linear from 1.0 -> 0.9)
+                    const baseScore = weight * 1 / numSolved;
+                    score += baseScore * (0.9 + 0.1 * (round.endTime - solveTime) / (round.endTime - round.startTime));
                 }
             });
             userScores.set(username, score);
