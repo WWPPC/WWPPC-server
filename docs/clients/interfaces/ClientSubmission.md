@@ -16,7 +16,7 @@ Slightly modified version of client Submission
 
 #### Defined in
 
-[clients.ts:553](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L553)
+[clients.ts:553](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L553)
 
 ***
 
@@ -26,7 +26,7 @@ Slightly modified version of client Submission
 
 #### Defined in
 
-[clients.ts:554](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L554)
+[clients.ts:554](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L554)
 
 ***
 
@@ -36,7 +36,7 @@ Slightly modified version of client Submission
 
 #### Defined in
 
-[clients.ts:555](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L555)
+[clients.ts:555](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L555)
 
 ***
 
@@ -46,4 +46,4 @@ Slightly modified version of client Submission
 
 #### Defined in
 
-[clients.ts:552](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L552)
+[clients.ts:552](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L552)

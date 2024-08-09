@@ -16,7 +16,7 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 #### Defined in
 
-[contest.ts:205](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L205)
+[contest.ts:215](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L215)
 
 ***
 
@@ -26,7 +26,7 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 #### Defined in
 
-[contest.ts:202](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L202)
+[contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L212)
 
 ***
 
@@ -36,7 +36,7 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 #### Defined in
 
-[contest.ts:203](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L203)
+[contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L213)
 
 ***
 
@@ -46,4 +46,4 @@ Slightly modified version of [database.Contest](../../database/interfaces/Contes
 
 #### Defined in
 
-[contest.ts:204](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L204)
+[contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L214)

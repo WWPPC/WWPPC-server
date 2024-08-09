@@ -43,7 +43,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:38](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L38)
+[contest.ts:38](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L38)
 
 ## Properties
 
@@ -53,7 +53,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L24)
+[contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L24)
 
 ***
 
@@ -63,7 +63,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L23)
+[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L23)
 
 ***
 
@@ -73,7 +73,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:25](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L25)
+[contest.ts:25](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L25)
 
 ***
 
@@ -83,7 +83,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:26](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L26)
+[contest.ts:26](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L26)
 
 ## Methods
 
@@ -105,7 +105,7 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[contest.ts:92](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L92)
+[contest.ts:94](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L94)
 
 ***
 
@@ -121,4 +121,22 @@ Stops all contests and closes the contest manager
 
 #### Defined in
 
-[contest.ts:188](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L188)
+[contest.ts:198](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L198)
+
+***
+
+### getRunningContests()
+
+> **getRunningContests**(): [`ContestHost`](ContestHost.md)[]
+
+Get a list of running contests
+
+#### Returns
+
+[`ContestHost`](ContestHost.md)[]
+
+the contests
+
+#### Defined in
+
+[contest.ts:191](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L191)

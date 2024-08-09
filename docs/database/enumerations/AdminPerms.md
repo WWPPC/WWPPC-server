@@ -14,11 +14,23 @@ Admin permission level bit flags
 
 > **ADMIN**: `1`
 
-Base admin permission; allows login
+Base admin permission; allows login and general functions
 
 #### Defined in
 
-[database.ts:1306](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1306)
+[database.ts:1418](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1418)
+
+***
+
+### CONTROL\_CONTESTS
+
+> **CONTROL\_CONTESTS**: `16`
+
+Access running contests through exposed ContestHost functions
+
+#### Defined in
+
+[database.ts:1426](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1426)
 
 ***
 
@@ -26,11 +38,11 @@ Base admin permission; allows login
 
 > **MANAGE\_ACCOUNTS**: `2`
 
-Create, delete, and modify accounts
+Create, read, edit, and delete accounts
 
 #### Defined in
 
-[database.ts:1308](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1308)
+[database.ts:1420](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1420)
 
 ***
 
@@ -38,11 +50,11 @@ Create, delete, and modify accounts
 
 > **MANAGE\_ADMINS**: `1073741824`
 
-Manage admin permissions
+Add admins and edit permissions for other admins
 
 #### Defined in
 
-[database.ts:1316](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1316)
+[database.ts:1428](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1428)
 
 ***
 
@@ -50,11 +62,11 @@ Manage admin permissions
 
 > **MANAGE\_CONTESTS**: `8`
 
-Edit contests and control ContestHost functions
+Create, read, edit, and delete contests and rounds
 
 #### Defined in
 
-[database.ts:1312](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1312)
+[database.ts:1424](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1424)
 
 ***
 
@@ -62,20 +74,8 @@ Edit contests and control ContestHost functions
 
 > **MANAGE\_PROBLEMS**: `4`
 
-Edit all problems, both contest and upsolve
+Create, read, edit, and delete problems
 
 #### Defined in
 
-[database.ts:1310](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1310)
-
-***
-
-### MANAGE\_SUBMISSIONS
-
-> **MANAGE\_SUBMISSIONS**: `16`
-
-View and disqualify submissions
-
-#### Defined in
-
-[database.ts:1314](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1314)
+[database.ts:1422](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1422)

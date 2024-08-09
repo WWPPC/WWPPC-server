@@ -18,7 +18,7 @@ Error loading status
 
 #### Defined in
 
-[clients.ts:572](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L572)
+[clients.ts:572](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L572)
 
 ***
 
@@ -30,7 +30,7 @@ Submitted, graded, and failed all subtasks
 
 #### Defined in
 
-[clients.ts:568](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L568)
+[clients.ts:568](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L568)
 
 ***
 
@@ -42,7 +42,7 @@ Submitted, graded, passed at least one subtask and failed at least one subtask
 
 #### Defined in
 
-[clients.ts:570](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L570)
+[clients.ts:570](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L570)
 
 ***
 
@@ -54,7 +54,7 @@ Submitted, graded, and passed all subtasks
 
 #### Defined in
 
-[clients.ts:566](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L566)
+[clients.ts:566](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L566)
 
 ***
 
@@ -66,7 +66,7 @@ Not attempted
 
 #### Defined in
 
-[clients.ts:560](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L560)
+[clients.ts:560](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L560)
 
 ***
 
@@ -78,7 +78,7 @@ Submitted but not graded, submissions locked
 
 #### Defined in
 
-[clients.ts:564](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L564)
+[clients.ts:564](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L564)
 
 ***
 
@@ -90,4 +90,4 @@ Uploaded but not graded, can still be changed
 
 #### Defined in
 
-[clients.ts:562](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L562)
+[clients.ts:562](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L562)

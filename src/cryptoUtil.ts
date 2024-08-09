@@ -129,7 +129,7 @@ export class AESEncryptionHandler {
  * @type {PType} Type of permissions list entries
  * @type {DType} Type of linked data
  */
-export class AccessTokenHandler<PType, DType> {
+export class SessionTokenHandler<PType, DType> {
     readonly #expirationTimers: { time: number, token: string }[] = [];
     readonly #tokens: Map<string, { data: DType, perms: PType[] }> = new Map();
 

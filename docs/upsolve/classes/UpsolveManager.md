@@ -38,7 +38,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L30)
+[upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L30)
 
 ## Properties
 
@@ -48,7 +48,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L18)
+[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L18)
 
 ***
 
@@ -58,7 +58,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L17)
+[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L17)
 
 ***
 
@@ -68,7 +68,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L20)
+[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L20)
 
 ***
 
@@ -78,7 +78,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L19)
+[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L19)
 
 ## Methods
 
@@ -100,7 +100,7 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L127)
+[upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L127)
 
 ***
 
@@ -116,4 +116,4 @@ Closes the upsolve manager
 
 #### Defined in
 
-[upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/upsolve.ts#L258)
+[upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/upsolve.ts#L258)

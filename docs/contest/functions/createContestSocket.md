@@ -20,4 +20,4 @@
 
 ## Defined in
 
-[contest.ts:235](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L235)
+[contest.ts:245](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L245)

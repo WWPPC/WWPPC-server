@@ -18,7 +18,19 @@ Programming languages accepted for submissions (case sensitive, only if "submitS
 
 #### Defined in
 
-[config.ts:88](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L88)
+[config.ts:90](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L90)
+
+***
+
+### directSubmissionDelay
+
+> `readonly` **directSubmissionDelay**: `number`
+
+Submissions when [ContestConfiguration.submitSolver](ContestConfiguration.md#submitsolver) is "false" will be delayed by a number of seconds (usually to discourage spamming) (default: 10)
+
+#### Defined in
+
+[config.ts:88](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L88)
 
 ***
 
@@ -30,7 +42,7 @@ Use grading system to evaluate submissions, otherwise grade manually (default: t
 
 #### Defined in
 
-[config.ts:78](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L78)
+[config.ts:78](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L78)
 
 ***
 
@@ -38,11 +50,11 @@ Use grading system to evaluate submissions, otherwise grade manually (default: t
 
 > `readonly` **maxSubmissionSize**: `number`
 
-Maximum file size of uploaded submission files (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 10240)
+Maximum file size of uploaded submission files (default: 10240)
 
 #### Defined in
 
-[config.ts:90](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L90)
+[config.ts:92](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L92)
 
 ***
 
@@ -54,7 +66,7 @@ Enable round separation (separates contest into multiple sub-contests) (default:
 
 #### Defined in
 
-[config.ts:80](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L80)
+[config.ts:80](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L80)
 
 ***
 
@@ -66,7 +78,7 @@ Enable round separation (separates contest into multiple sub-contests) (default:
 
 #### Defined in
 
-[config.ts:82](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L82)
+[config.ts:82](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L82)
 
 ***
 
@@ -78,7 +90,7 @@ Submissions will be treated as solution code instead of an answer - setting to "
 
 #### Defined in
 
-[config.ts:86](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L86)
+[config.ts:86](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L86)
 
 ***
 
@@ -90,4 +102,4 @@ Withhold submission results for each round until the round ends (submissions are
 
 #### Defined in
 
-[config.ts:84](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L84)
+[config.ts:84](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L84)

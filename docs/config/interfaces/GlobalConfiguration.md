@@ -22,7 +22,7 @@ Contest types and options (no defaults)
 
 #### Defined in
 
-[config.ts:53](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L53)
+[config.ts:53](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L53)
 
 ***
 
@@ -34,7 +34,7 @@ Time in milliseconds before database cache entries expire (default: 60000)
 
 #### Defined in
 
-[config.ts:47](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L47)
+[config.ts:47](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L47)
 
 ***
 
@@ -46,7 +46,7 @@ Time in milliseconds before database cache entries for problems expire (default:
 
 #### Defined in
 
-[config.ts:49](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L49)
+[config.ts:49](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L49)
 
 ***
 
@@ -58,7 +58,7 @@ Enable debug logging (default: false)
 
 #### Defined in
 
-[config.ts:63](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L63)
+[config.ts:63](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L63)
 
 ***
 
@@ -70,7 +70,7 @@ A `data:` URI representing the profile image given to every account on creation
 
 #### Defined in
 
-[config.ts:43](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L43)
+[config.ts:43](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L43)
 
 ***
 
@@ -82,7 +82,7 @@ Sending email address (default: "no-reply@wwppc.tech")
 
 #### Defined in
 
-[config.ts:35](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L35)
+[config.ts:35](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L35)
 
 ***
 
@@ -94,7 +94,7 @@ Directory to load email templates from (default: `../email-templates/`)
 
 #### Defined in
 
-[config.ts:71](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L71)
+[config.ts:71](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L71)
 
 ***
 
@@ -106,7 +106,7 @@ Time in milliseconds before the grading host defaults a grading server to "disco
 
 #### Defined in
 
-[config.ts:51](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L51)
+[config.ts:51](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L51)
 
 ***
 
@@ -118,7 +118,7 @@ Hostname of website to be linked to in emails (default: "wwppc.tech")
 
 #### Defined in
 
-[config.ts:33](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L33)
+[config.ts:33](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L33)
 
 ***
 
@@ -130,7 +130,7 @@ Log information about sent emails (default: true)
 
 #### Defined in
 
-[config.ts:59](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L59)
+[config.ts:59](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L59)
 
 ***
 
@@ -142,7 +142,7 @@ Directory to write logs to - server will also create a `logs` directory there (d
 
 #### Defined in
 
-[config.ts:69](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L69)
+[config.ts:69](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L69)
 
 ***
 
@@ -154,7 +154,7 @@ Ratelimiting - how many new Socket.IO connections can be made from any given IP 
 
 #### Defined in
 
-[config.ts:39](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L39)
+[config.ts:39](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L39)
 
 ***
 
@@ -162,11 +162,11 @@ Ratelimiting - how many new Socket.IO connections can be made from any given IP 
 
 > `readonly` **maxProfileImgSize**: `number`
 
-Maximum file size of uploaded profile images (actually counts the length of the base64 encoded `data:` URI, so it is imperfect) (default: 65535)
+Maximum file size of uploaded profile images (default: 65535)
 
 #### Defined in
 
-[config.ts:45](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L45)
+[config.ts:45](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L45)
 
 ***
 
@@ -178,7 +178,7 @@ Ratelimiting - how many new accounts can be made from any given IP address in 1 
 
 #### Defined in
 
-[config.ts:41](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L41)
+[config.ts:41](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L41)
 
 ***
 
@@ -190,7 +190,7 @@ Maximum amount of previous submissions for a user on a problem kept in the datab
 
 #### Defined in
 
-[config.ts:57](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L57)
+[config.ts:57](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L57)
 
 ***
 
@@ -202,7 +202,7 @@ Same as the `CONFIG_PATH` environment variable (this cannot be edited in `config
 
 #### Defined in
 
-[config.ts:67](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L67)
+[config.ts:67](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L67)
 
 ***
 
@@ -214,7 +214,7 @@ TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 
 #### Defined in
 
-[config.ts:37](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L37)
+[config.ts:37](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L37)
 
 ***
 
@@ -226,7 +226,7 @@ Milliseconds between client RSA keypair rotations (default: 86400000)
 
 #### Defined in
 
-[config.ts:61](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L61)
+[config.ts:61](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L61)
 
 ***
 
@@ -238,4 +238,4 @@ Milliseconds between client RSA keypair rotations (default: 86400000)
 
 #### Defined in
 
-[config.ts:65](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/config.ts#L65)
+[config.ts:65](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/config.ts#L65)

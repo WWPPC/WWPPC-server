@@ -16,7 +16,7 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:210](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L210)
+[contest.ts:220](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L220)
 
 ***
 
@@ -26,7 +26,7 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:214](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L214)
+[contest.ts:224](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L224)
 
 ***
 
@@ -36,7 +36,7 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:209](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L209)
+[contest.ts:219](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L219)
 
 ***
 
@@ -46,7 +46,7 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:211](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L211)
+[contest.ts:221](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L221)
 
 ***
 
@@ -56,7 +56,7 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:212](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L212)
+[contest.ts:222](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L222)
 
 ***
 
@@ -66,4 +66,4 @@ Slightly modified version of [database.Round](../../database/interfaces/Round.md
 
 #### Defined in
 
-[contest.ts:213](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L213)
+[contest.ts:223](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L223)

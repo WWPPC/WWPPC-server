@@ -12,58 +12,58 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 ### contest?
 
-> `optional` **contest**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **contest**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 Contest ID
 
 #### Defined in
 
-[database.ts:1476](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1476)
+[database.ts:1588](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1588)
 
 ***
 
 ### endTime?
 
-> `optional` **endTime**: `number` \| `number`[] \| `object` \| `object` \| `object`
+> `optional` **endTime**: `number` \| `number`[] \| `object` \| `object` \| `object` \| `object`
 
 End of round, UNIX time
 
 #### Defined in
 
-[database.ts:1484](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1484)
+[database.ts:1596](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1596)
 
 ***
 
 ### id?
 
-> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 Round ID
 
 #### Defined in
 
-[database.ts:1480](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1480)
+[database.ts:1592](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1592)
 
 ***
 
 ### round?
 
-> `optional` **round**: `number` \| `number`[] \| `object` \| `object` \| `object`
+> `optional` **round**: `number` \| `number`[] \| `object` \| `object` \| `object` \| `object`
 
 Zero-indexed round within the contest
 
 #### Defined in
 
-[database.ts:1478](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1478)
+[database.ts:1590](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1590)
 
 ***
 
 ### startTime?
 
-> `optional` **startTime**: `number` \| `number`[] \| `object` \| `object` \| `object`
+> `optional` **startTime**: `number` \| `number`[] \| `object` \| `object` \| `object` \| `object`
 
 Start of round, UNIX time
 
 #### Defined in
 
-[database.ts:1482](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1482)
+[database.ts:1594](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1594)

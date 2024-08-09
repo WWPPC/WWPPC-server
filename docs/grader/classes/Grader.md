@@ -42,7 +42,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L32)
+[grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L32)
 
 ## Properties
 
@@ -52,7 +52,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L15)
+[grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L15)
 
 ***
 
@@ -62,7 +62,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L17)
+[grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L17)
 
 ***
 
@@ -72,7 +72,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L16)
+[grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L16)
 
 ## Methods
 
@@ -98,7 +98,7 @@ ID or problem
 
 #### Defined in
 
-[grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L221)
+[grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L221)
 
 ***
 
@@ -114,7 +114,7 @@ Cancels all submissions and stops accepting submissions to the queue
 
 #### Defined in
 
-[grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L264)
+[grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L264)
 
 ***
 
@@ -138,4 +138,4 @@ New submission
 
 #### Defined in
 
-[grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/grader.ts#L203)
+[grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/grader.ts#L203)

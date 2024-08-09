@@ -27,7 +27,7 @@ Parameters
 
 #### Defined in
 
-[database.ts:40](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L40)
+[database.ts:40](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L40)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Resolves when the database is connected.
 
 #### Defined in
 
-[database.ts:31](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L31)
+[database.ts:31](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L31)
 
 ***
 
@@ -49,7 +49,7 @@ Resolves when the database is connected.
 
 #### Defined in
 
-[database.ts:34](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L34)
+[database.ts:34](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L34)
 
 ## Methods
 
@@ -82,7 +82,7 @@ Update status
 
 #### Defined in
 
-[database.ts:385](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L385)
+[database.ts:358](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L358)
 
 ***
 
@@ -115,7 +115,7 @@ Update status
 
 #### Defined in
 
-[database.ts:410](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L410)
+[database.ts:383](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L383)
 
 ***
 
@@ -144,7 +144,7 @@ Check status
 
 #### Defined in
 
-[database.ts:283](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L283)
+[database.ts:256](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L256)
 
 ***
 
@@ -160,7 +160,7 @@ Clears all database account, team, admin, contest, round, problem, and submissio
 
 #### Defined in
 
-[database.ts:1251](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1251)
+[database.ts:1363](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1363)
 
 ***
 
@@ -206,7 +206,7 @@ Creation status
 
 #### Defined in
 
-[database.ts:233](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L233)
+[database.ts:206](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L206)
 
 ***
 
@@ -215,6 +215,7 @@ Creation status
 > **deleteAccount**(`username`, `password`, `adminUsername`?): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
 
 Delete an account. Allows deletion by users and admins with permission level `AdminPerms.MANAGE_ACCOUNTS` if `adminUsername` is given. **Does not validate credentials**.
+*Note: Requires password or admin username to delete to avoid accidental deletion of accounts.*
 
 #### Parameters
 
@@ -238,7 +239,109 @@ Deletion status
 
 #### Defined in
 
-[database.ts:438](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L438)
+[database.ts:412](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L412)
+
+***
+
+### deleteContest()
+
+> **deleteContest**(`id`): `Promise`\<`boolean`\>
+
+Delete a contest from the contests table.
+
+#### Parameters
+
+• **id**: `string`
+
+Contest to delete
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+If the delete was successful
+
+#### Defined in
+
+[database.ts:932](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L932)
+
+***
+
+### deleteProblem()
+
+> **deleteProblem**(`id`): `Promise`\<`boolean`\>
+
+Delete a problem from the problems table.
+
+#### Parameters
+
+• **id**: `string`
+
+Problem to delete
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+If the delete was successful
+
+#### Defined in
+
+[database.ts:1182](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1182)
+
+***
+
+### deleteRound()
+
+> **deleteRound**(`id`): `Promise`\<`boolean`\>
+
+Delete a round from the round table.
+
+#### Parameters
+
+• **id**: `string`
+
+Round to delete
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+If the delete was successful
+
+#### Defined in
+
+[database.ts:1052](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1052)
+
+***
+
+### deleteSubmission()
+
+> **deleteSubmission**(`id`, `username`, `analysis`): `Promise`\<`boolean`\>
+
+Delete a submission from the submission table.
+
+#### Parameters
+
+• **id**: `string`
+
+Problem id linked to submission to delete
+
+• **username**: `string`
+
+Username linked to submission to delete
+
+• **analysis**: `boolean`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+If the delete was successful
+
+#### Defined in
+
+[database.ts:1345](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1345)
 
 ***
 
@@ -256,7 +359,7 @@ A `Promise` representing when the database has disconnected.
 
 #### Defined in
 
-[database.ts:87](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L87)
+[database.ts:87](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L87)
 
 ***
 
@@ -278,7 +381,7 @@ Contest ID to mark as completed
 
 #### Defined in
 
-[database.ts:733](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L733)
+[database.ts:707](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L707)
 
 ***
 
@@ -302,23 +405,25 @@ AccountData or an error code
 
 #### Defined in
 
-[database.ts:307](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L307)
+[database.ts:280](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L280)
 
 ***
 
 ### getAccountList()
 
-> **getAccountList**(): `Promise`\<`null` \| [`AccountData`](../interfaces/AccountData.md)[]\>
+> **getAccountList**(): `Promise`\<`null` \| `string`[]\>
 
-Read a list of all accounts that exist. Bypasses cache.
+Read a list of all account usernames that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| [`AccountData`](../interfaces/AccountData.md)[]\>
+`Promise`\<`null` \| `string`[]\>
+
+List of account usernames, or null if an error occurred
 
 #### Defined in
 
-[database.ts:183](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L183)
+[database.ts:187](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L187)
 
 ***
 
@@ -342,7 +447,7 @@ Team id or an error code
 
 #### Defined in
 
-[database.ts:525](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L525)
+[database.ts:499](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L499)
 
 ***
 
@@ -360,7 +465,7 @@ Paired usernames and permissions, or null if an error cocured.
 
 #### Defined in
 
-[database.ts:805](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L805)
+[database.ts:779](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L779)
 
 ***
 
@@ -382,7 +487,43 @@ Contest id
 
 #### Defined in
 
-[database.ts:761](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L761)
+[database.ts:735](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L735)
+
+***
+
+### getContestList()
+
+> **getContestList**(): `Promise`\<`null` \| `string`[]\>
+
+Read a list of all contest IDs that exist. Bypasses cache.
+
+#### Returns
+
+`Promise`\<`null` \| `string`[]\>
+
+List of contest IDs, or null if an error occurred
+
+#### Defined in
+
+[database.ts:832](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L832)
+
+***
+
+### getProblemList()
+
+> **getProblemList**(): `Promise`\<`null` \| `string`[]\>
+
+Read a list of all problem IDs that exist. Bypasses cache.
+
+#### Returns
+
+`Promise`\<`null` \| `string`[]\>
+
+List of problem IDs, or null if an error occurred
+
+#### Defined in
+
+[database.ts:1071](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1071)
 
 ***
 
@@ -406,7 +547,43 @@ Fetch status
 
 #### Defined in
 
-[database.ts:484](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L484)
+[database.ts:458](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L458)
+
+***
+
+### getRoundList()
+
+> **getRoundList**(): `Promise`\<`null` \| `string`[]\>
+
+Read a list of all round IDs that exist. Bypasses cache.
+
+#### Returns
+
+`Promise`\<`null` \| `string`[]\>
+
+List of round IDs, or null if an error occurred
+
+#### Defined in
+
+[database.ts:951](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L951)
+
+***
+
+### getSubmissionList()
+
+> **getSubmissionList**(): `Promise`\<`null` \| `string`[]\>
+
+Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
+
+#### Returns
+
+`Promise`\<`null` \| `string`[]\>
+
+List of submission ID strings, or null if an error occurred
+
+#### Defined in
+
+[database.ts:1201](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1201)
 
 ***
 
@@ -430,7 +607,7 @@ Team data or an error code
 
 #### Defined in
 
-[database.ts:584](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L584)
+[database.ts:558](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L558)
 
 ***
 
@@ -458,7 +635,7 @@ If the administrator has the permission. Also false if the user is not an admini
 
 #### Defined in
 
-[database.ts:783](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L783)
+[database.ts:757](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L757)
 
 ***
 
@@ -482,7 +659,7 @@ Array of contest data matching the filter criteria
 
 #### Defined in
 
-[database.ts:859](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L859)
+[database.ts:849](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L849)
 
 ***
 
@@ -506,7 +683,7 @@ Array of problems matching the filter criteria. If the query failed the returned
 
 #### Defined in
 
-[database.ts:1030](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1030)
+[database.ts:1088](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1088)
 
 ***
 
@@ -530,7 +707,7 @@ Array of round data matching the filter criteria. If the query failed the return
 
 #### Defined in
 
-[database.ts:944](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L944)
+[database.ts:968](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L968)
 
 ***
 
@@ -554,7 +731,7 @@ Array of submissions matching the filter criteria. If the query failed the retur
 
 #### Defined in
 
-[database.ts:1126](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1126)
+[database.ts:1218](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1218)
 
 ***
 
@@ -582,7 +759,7 @@ Registration status
 
 #### Defined in
 
-[database.ts:653](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L653)
+[database.ts:627](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L627)
 
 ***
 
@@ -614,7 +791,7 @@ Update status
 
 #### Defined in
 
-[database.ts:546](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L546)
+[database.ts:520](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L520)
 
 ***
 
@@ -642,7 +819,7 @@ If writing was successful.
 
 #### Defined in
 
-[database.ts:829](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L829)
+[database.ts:803](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L803)
 
 ***
 
@@ -666,7 +843,7 @@ Registration status
 
 #### Defined in
 
-[database.ts:716](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L716)
+[database.ts:690](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L690)
 
 ***
 
@@ -694,7 +871,7 @@ Registration status
 
 #### Defined in
 
-[database.ts:687](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L687)
+[database.ts:661](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L661)
 
 ***
 
@@ -722,7 +899,7 @@ Update status
 
 #### Defined in
 
-[database.ts:357](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L357)
+[database.ts:330](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L330)
 
 ***
 
@@ -750,7 +927,7 @@ Update status
 
 #### Defined in
 
-[database.ts:625](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L625)
+[database.ts:599](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L599)
 
 ***
 
@@ -778,7 +955,7 @@ Validity
 
 #### Defined in
 
-[database.ts:176](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L176)
+[database.ts:180](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L180)
 
 ***
 
@@ -802,7 +979,7 @@ If the write was successful
 
 #### Defined in
 
-[database.ts:919](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L919)
+[database.ts:909](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L909)
 
 ***
 
@@ -826,7 +1003,7 @@ If the write was successful
 
 #### Defined in
 
-[database.ts:1101](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1101)
+[database.ts:1159](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1159)
 
 ***
 
@@ -850,7 +1027,7 @@ If the write was successful
 
 #### Defined in
 
-[database.ts:1005](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1005)
+[database.ts:1029](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1029)
 
 ***
 
@@ -879,4 +1056,4 @@ If the write was successful
 
 #### Defined in
 
-[database.ts:1211](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1211)
+[database.ts:1303](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1303)

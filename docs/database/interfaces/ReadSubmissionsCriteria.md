@@ -18,7 +18,7 @@ If the submission was submitted through the upsolve system
 
 #### Defined in
 
-[database.ts:1519](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1519)
+[database.ts:1631](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1631)
 
 ***
 
@@ -30,40 +30,40 @@ Contest-based filter including contest, round, problem number, and round ID
 
 #### Defined in
 
-[database.ts:1515](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1515)
+[database.ts:1627](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1627)
 
 ***
 
 ### id?
 
-> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 UUID of problem
 
 #### Defined in
 
-[database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1511)
+[database.ts:1623](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1623)
 
 ***
 
 ### time?
 
-> `optional` **time**: `number` \| `number`[] \| `object` \| `object` \| `object`
+> `optional` **time**: `number` \| `number`[] \| `object` \| `object` \| `object` \| `object`
 
 Time of submission
 
 #### Defined in
 
-[database.ts:1517](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1517)
+[database.ts:1629](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1629)
 
 ***
 
 ### username?
 
-> `optional` **username**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **username**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 Username of submitter
 
 #### Defined in
 
-[database.ts:1513](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1513)
+[database.ts:1625](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1625)

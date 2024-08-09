@@ -16,7 +16,7 @@ Hostname of SMTP server
 
 #### Defined in
 
-[email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L12)
+[email.ts:12](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L12)
 
 ***
 
@@ -28,7 +28,7 @@ Logging instance
 
 #### Defined in
 
-[email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L24)
+[email.ts:24](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L24)
 
 ***
 
@@ -40,7 +40,7 @@ SMTP password
 
 #### Defined in
 
-[email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L20)
+[email.ts:20](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L20)
 
 ***
 
@@ -52,7 +52,7 @@ Port number of SMTP server (default 587)
 
 #### Defined in
 
-[email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L14)
+[email.ts:14](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L14)
 
 ***
 
@@ -64,7 +64,7 @@ Use secure connection
 
 #### Defined in
 
-[email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L16)
+[email.ts:16](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L16)
 
 ***
 
@@ -76,7 +76,7 @@ Path to email templates
 
 #### Defined in
 
-[email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L22)
+[email.ts:22](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L22)
 
 ***
 
@@ -88,4 +88,4 @@ SMTP username
 
 #### Defined in
 
-[email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/email.ts#L18)
+[email.ts:18](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/email.ts#L18)

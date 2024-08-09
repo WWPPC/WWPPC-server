@@ -6,7 +6,7 @@
 
 # Function: attachAdminPortal()
 
-> **attachAdminPortal**(`db`, `expressApp`, `contestManager`, `log`): `void`
+> **attachAdminPortal**(`db`, `expressApp`, `contest`, `log`): `void`
 
 ## Parameters
 
@@ -14,7 +14,7 @@
 
 • **expressApp**: `Express`
 
-• **contestManager**: [`ContestManager`](../../contest/classes/ContestManager.md)
+• **contest**: [`ContestManager`](../../contest/classes/ContestManager.md)
 
 • **log**: [`Logger`](../../log/interfaces/Logger.md)
 
@@ -24,4 +24,4 @@
 
 ## Defined in
 
-[adminPortal.ts:12](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/adminPortal.ts#L12)
+[adminPortal.ts:18](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/adminPortal.ts#L18)

@@ -16,7 +16,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:223](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L223)
+[contest.ts:233](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L233)
 
 ***
 
@@ -34,7 +34,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:225](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L225)
+[contest.ts:235](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L235)
 
 ***
 
@@ -44,7 +44,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:224](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L224)
+[contest.ts:234](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L234)
 
 ***
 
@@ -54,7 +54,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:219](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L219)
+[contest.ts:229](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L229)
 
 ***
 
@@ -64,7 +64,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:218](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L218)
+[contest.ts:228](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L228)
 
 ***
 
@@ -74,7 +74,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:222](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L222)
+[contest.ts:232](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L232)
 
 ***
 
@@ -84,7 +84,7 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:221](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L221)
+[contest.ts:231](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L231)
 
 ***
 
@@ -94,4 +94,4 @@ Slightly modified version of [database.Problem](../../database/interfaces/Proble
 
 #### Defined in
 
-[contest.ts:220](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L220)
+[contest.ts:230](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L230)

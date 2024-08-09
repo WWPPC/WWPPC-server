@@ -4,10 +4,10 @@ import { resolve as pathResolve } from 'path';
 
 import config from './config';
 import ContestManager from './contest';
+import { SessionTokenHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
 import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
-import { AccessTokenHandler } from './cryptoUtil';
 
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
@@ -20,8 +20,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     const app = expressApp;
     const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
-    const sessionTokens = new AccessTokenHandler<never, string>();
-    const accessTokens = new AccessTokenHandler<AdminAccessTokenPerms, undefined>();
+    const sessionTokens = new SessionTokenHandler<never, string>();
+    const accessTokens = new SessionTokenHandler<AdminAccessTokenPerms, undefined>();
     logger.info('Attaching admin portal to /admin/');
 
     // require authentication for everything except login

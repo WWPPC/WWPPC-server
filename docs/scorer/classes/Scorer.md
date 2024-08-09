@@ -19,7 +19,11 @@ Using the function score = 1/cnt where cnt is number of people who solved the pr
 
 • **rounds**: [`Round`](../../database/interfaces/Round.md)[]
 
+Contest rounds
+
 • **logger**: [`Logger`](../../log/interfaces/Logger.md)
+
+Logger instance
 
 #### Returns
 
@@ -27,41 +31,33 @@ Using the function score = 1/cnt where cnt is number of people who solved the pr
 
 #### Defined in
 
-[scorer.ts:28](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L28)
+[scorer.ts:19](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L19)
 
 ## Properties
 
 ### logger
 
-> **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
+> `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
 
 #### Defined in
 
-[scorer.ts:10](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L10)
+[scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L13)
 
-## Methods
+## Accessors
 
-### addRounds()
+### rounds
 
-> **addRounds**(`rounds`): `void`
-
-Add rounds
+> `set` **rounds**(`rounds`): `void`
 
 #### Parameters
 
-• **rounds**: [`Round`](../../database/interfaces/Round.md) \| [`Round`](../../database/interfaces/Round.md)[]
-
-Contest round data
-
-#### Returns
-
-`void`
+• **rounds**: [`Round`](../../database/interfaces/Round.md)[]
 
 #### Defined in
 
-[scorer.ts:45](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L45)
+[scorer.ts:24](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L24)
 
-***
+## Methods
 
 ### getRoundScores()
 
@@ -83,7 +79,7 @@ Mapping of username to score
 
 #### Defined in
 
-[scorer.ts:94](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L94)
+[scorer.ts:72](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L72)
 
 ***
 
@@ -101,29 +97,7 @@ mapping of username to score
 
 #### Defined in
 
-[scorer.ts:147](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L147)
-
-***
-
-### setRounds()
-
-> **setRounds**(`rounds`): `void`
-
-Set rounds data (shouldn't bork anything)
-
-#### Parameters
-
-• **rounds**: [`Round`](../../database/interfaces/Round.md)[]
-
-Contest round data
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[scorer.ts:37](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L37)
+[scorer.ts:125](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L125)
 
 ***
 
@@ -151,4 +125,4 @@ whether it was successful
 
 #### Defined in
 
-[scorer.ts:56](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/scorer.ts#L56)
+[scorer.ts:34](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/scorer.ts#L34)

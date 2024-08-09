@@ -16,7 +16,7 @@ Slightly modified version of client Round
 
 #### Defined in
 
-[clients.ts:531](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L531)
+[clients.ts:531](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L531)
 
 ***
 
@@ -26,7 +26,7 @@ Slightly modified version of client Round
 
 #### Defined in
 
-[clients.ts:535](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L535)
+[clients.ts:535](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L535)
 
 ***
 
@@ -36,7 +36,7 @@ Slightly modified version of client Round
 
 #### Defined in
 
-[clients.ts:532](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L532)
+[clients.ts:532](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L532)
 
 ***
 
@@ -46,7 +46,7 @@ Slightly modified version of client Round
 
 #### Defined in
 
-[clients.ts:533](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L533)
+[clients.ts:533](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L533)
 
 ***
 
@@ -56,4 +56,4 @@ Slightly modified version of client Round
 
 #### Defined in
 
-[clients.ts:534](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L534)
+[clients.ts:534](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L534)

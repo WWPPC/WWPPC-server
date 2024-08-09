@@ -12,13 +12,13 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 ### author?
 
-> `optional` **author**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **author**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 Author username of problem
 
 #### Defined in
 
-[database.ts:1504](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1504)
+[database.ts:1616](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1616)
 
 ***
 
@@ -30,28 +30,28 @@ Contest-based filter including contest, round, problem number, and round ID
 
 #### Defined in
 
-[database.ts:1506](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1506)
+[database.ts:1618](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1618)
 
 ***
 
 ### id?
 
-> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **id**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 UUID of problem
 
 #### Defined in
 
-[database.ts:1500](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1500)
+[database.ts:1612](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1612)
 
 ***
 
 ### name?
 
-> `optional` **name**: `string` \| `string`[] \| `object` \| `object` \| `object`
+> `optional` **name**: `string` \| `string`[] \| `object` \| `object` \| `object` \| `object`
 
 Display name of problem
 
 #### Defined in
 
-[database.ts:1502](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1502)
+[database.ts:1614](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1614)

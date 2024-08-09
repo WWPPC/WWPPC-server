@@ -18,7 +18,7 @@ Author username
 
 #### Defined in
 
-[database.ts:1401](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1401)
+[database.ts:1513](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1513)
 
 ***
 
@@ -42,7 +42,7 @@ Time limit per test case in millseconds
 
 #### Defined in
 
-[database.ts:1405](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1405)
+[database.ts:1517](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1517)
 
 ***
 
@@ -54,7 +54,7 @@ HTML/KaTeX content of problem statement
 
 #### Defined in
 
-[database.ts:1403](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1403)
+[database.ts:1515](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1515)
 
 ***
 
@@ -66,7 +66,7 @@ UUID
 
 #### Defined in
 
-[database.ts:1397](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1397)
+[database.ts:1509](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1509)
 
 ***
 
@@ -78,7 +78,7 @@ Display name
 
 #### Defined in
 
-[database.ts:1399](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1399)
+[database.ts:1511](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1511)
 
 ***
 
@@ -90,4 +90,4 @@ Display name
 
 #### Defined in
 
-[database.ts:1412](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1412)
+[database.ts:1524](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1524)

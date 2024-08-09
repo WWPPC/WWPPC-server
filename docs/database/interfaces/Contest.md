@@ -18,7 +18,7 @@ Time of contest end, UNIX
 
 #### Defined in
 
-[database.ts:1377](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1377)
+[database.ts:1489](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1489)
 
 ***
 
@@ -30,7 +30,7 @@ List of other contest ids that cannot be registered simultaneously
 
 #### Defined in
 
-[database.ts:1371](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1371)
+[database.ts:1483](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1483)
 
 ***
 
@@ -42,7 +42,7 @@ Contest ID, also used as name
 
 #### Defined in
 
-[database.ts:1367](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1367)
+[database.ts:1479](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1479)
 
 ***
 
@@ -54,7 +54,7 @@ Maximum team size allowed to register
 
 #### Defined in
 
-[database.ts:1373](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1373)
+[database.ts:1485](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1485)
 
 ***
 
@@ -66,7 +66,7 @@ If the contest is publicly archived once finished
 
 #### Defined in
 
-[database.ts:1379](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1379)
+[database.ts:1491](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1491)
 
 ***
 
@@ -78,7 +78,7 @@ List of round UUIDs within the contest
 
 #### Defined in
 
-[database.ts:1369](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1369)
+[database.ts:1481](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1481)
 
 ***
 
@@ -90,7 +90,7 @@ Time of contest start, UNIX
 
 #### Defined in
 
-[database.ts:1375](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1375)
+[database.ts:1487](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1487)
 
 ***
 
@@ -102,4 +102,4 @@ The tournament the contest is part of
 
 #### Defined in
 
-[database.ts:1381](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/database.ts#L1381)
+[database.ts:1493](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/database.ts#L1493)

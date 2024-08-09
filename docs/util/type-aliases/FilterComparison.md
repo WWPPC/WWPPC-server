@@ -6,7 +6,7 @@
 
 # Type Alias: FilterComparison\<T\>
 
-> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? `object` \| `object` \| `object` \| `T` \| `T`[] : `never`
+> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? `object` \| `object` \| `object` \| `object` \| `T` \| `T`[] : `never`
 
 Flexible comparison type for filtering items. Allows for primitive comparisons (`=`, `!`),
 numerical comparisons (`>`, `<`, `>=`, `<=`), range comparisons (`><`, `<>`, `=><`, `><=`, `=><=`, `=<>`, `<>=`, `=<>=`),
@@ -68,4 +68,4 @@ If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions
 
 ## Defined in
 
-[util.ts:60](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/util.ts#L60)
+[util.ts:60](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/util.ts#L60)

@@ -24,7 +24,7 @@ Socket.IO connection with a reference to the original "spawning" connection, sim
 
 #### Defined in
 
-[clients.ts:502](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L502)
+[clients.ts:502](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L502)
 
 ***
 
@@ -34,7 +34,7 @@ Socket.IO connection with a reference to the original "spawning" connection, sim
 
 #### Defined in
 
-[contest.ts:232](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/contest.ts#L232)
+[contest.ts:242](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/contest.ts#L242)
 
 ***
 
@@ -48,7 +48,7 @@ Socket.IO connection with a reference to the original "spawning" connection, sim
 
 #### Defined in
 
-[clients.ts:503](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L503)
+[clients.ts:503](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L503)
 
 ## Methods
 
@@ -70,7 +70,7 @@ Socket.IO connection with a reference to the original "spawning" connection, sim
 
 #### Defined in
 
-[clients.ts:500](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L500)
+[clients.ts:500](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L500)
 
 ***
 
@@ -96,4 +96,4 @@ Socket.IO connection with a reference to the original "spawning" connection, sim
 
 #### Defined in
 
-[clients.ts:501](https://github.com/WWPPC/WWPPC-server/blob/64a61903b5a0f4aa306afe641a1ba5b173736b1a/src/clients.ts#L501)
+[clients.ts:501](https://github.com/WWPPC/WWPPC-server/blob/96bcc74e00ec496e35202c4bddfc3a060fa4a556/src/clients.ts#L501)

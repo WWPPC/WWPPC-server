@@ -12,6 +12,7 @@
 
 - [AESEncryptionHandler](classes/AESEncryptionHandler.md)
 - [RSAEncryptionHandler](classes/RSAEncryptionHandler.md)
+- [SessionTokenHandler](classes/SessionTokenHandler.md)
 
 ### Type Aliases
 
