@@ -155,13 +155,17 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultAccountOpMapping(res, await database.updateAccountData(req.params.username, body));
+        logger.info(`Account "${req.params.username}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
-    app.delete('/admin/api/account/:username', async (req, res) => {
+    app.delete('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-        if (!database.validate(req.params.username, '')) {
+        // saving space
+        if (typeof req.body.password != 'string' || !database.validate(req.params.username, req.body.password)) {
             res.sendStatus(400);
             return;
         }
+        defaultAccountOpMapping(res, await database.deleteAccount(req.params.username, req.body.password, sessionTokens.tokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator'));
+        logger.info(`Account "${req.params.username}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.get('/admin/api/team/:username', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
@@ -180,6 +184,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultTeamOpMapping(res, await database.updateTeamData(req.params.username, body));
+        logger.info(`Team "${req.params.username}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // admins (bespoke!!)
     app.get('/admin/api/admins', async (req, res) => {
@@ -227,10 +232,12 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeContest(body));
-    })
+        logger.info(`Contest "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+    });
     app.delete('/admin/api/contest/:id', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultSuccessMapping(res, await database.deleteContest(req.params.id));
+        logger.info(`Contest "${req.params.id}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // rounds
     app.get('/admin/api/roundList', async (req, res) => {
@@ -257,7 +264,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeRound(body));
-    })
+        logger.info(`Round "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+    });
     app.delete('/admin/api/round/:id', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
@@ -265,6 +273,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.deleteRound(req.params.id));
+        logger.info(`Round "${req.params.id}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // problems
     app.get('/admin/api/problemList', async (req, res) => {
@@ -291,7 +300,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeProblem(body));
-    })
+        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+    });
     app.delete('/admin/api/problem/:id', async (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
@@ -299,6 +309,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.deleteProblem(req.params.id));
+        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
@@ -367,6 +378,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         contestHost.reload();
         res.sendStatus(200);
+        logger.info(`ContestHost "${req.params.id}" reloaded by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
 
     // reserve /admin path
