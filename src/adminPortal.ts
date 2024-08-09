@@ -47,7 +47,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
                 secure: true
             });
             res.sendStatus(200);
-            log.info(`[Admin] Admin login by ${req.body.username} (${req.ip ?? req.headers['x-forwarded-for'] ?? 'unknown ip address'})`);
+            log.info(`[Admin] Admin login by ${req.body.username} (${req.headers['x-forwarded-for'] ?? req.ip ?? 'unknown ip address'})`);
         } else {
             res.sendStatus(403);
         }
