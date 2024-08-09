@@ -101,20 +101,19 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // access tokens
     app.get('/admin/accessTokens/ruleset', (req, res) => {
-        res.json(['getContestLeaderboard']);
+        res.json(Object.values(AdminAccessTokenPerms).filter(k => isNaN(Number(k))));
     });
     app.post('/admin/accessTokens/list', (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         res.json(Object.fromEntries(accessTokens.getTokens())); // should this be an array instead of an object?
     });
-    app.post('/admin/accessTokens/create', (req, res) => {
+    app.post('/admin/accessTokens/create', bodyParser.json(), (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || req.body.permissions == undefined || typeof req.body.expiration != 'number') {
-            //also check if its valid permission oof i dont have time aaaa
+        if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions) || req.body.permissions.length == 0 || req.body.permissions.some(p => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
             res.sendStatus(400);
             return;
         }
-        accessTokens.createToken(req.body.permissions, undefined, req.body.expiration);
+        res.json(accessTokens.createToken(req.body.permissions, undefined, req.body.expiration));
     });
     app.delete('/admin/accessTokens/delete/:id', (req, res) => {
         if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
