@@ -27,8 +27,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     // require authentication for everything except login
     app.use('/admin/*', (req, res, next) => {
         if (req.baseUrl == '/admin/login') next();
-        else if (typeof req.cookies.token != 'string') res.sendStatus(401);
-        else if (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token)) res.sendStatus(403);
+        else if (typeof req.cookies.token != 'string' || (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token))) res.sendStatus(401);
         else next();
     });
 
@@ -196,7 +195,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.delete('/admin/api/admin/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || !database.validate(req.params.username, 'a')) {
+        if (!database.validate(req.params.username, 'a')) {
+            console.log(req.params);
             res.sendStatus(400);
             return;
         }
@@ -308,59 +308,14 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
-        const TESTING_CONTESTS = [
-            {
-                "id": "WWPIT Spring 2024 Advanced",
-                "scores": {
-                    "sp": 10120392103092093000,
-                    "the-real-tianmu": 10
-                },
-                "rounds": [
-                    {
-                        "startTime": 1717340400000,
-                        "endTime": 1717344000000
-                    },
-                    {
-                        "startTime": 1717347600000,
-                        "endTime": 1717351200000
-                    },
-                    {
-                        "startTime": 1717351800000,
-                        "endTime": 1717356600000
-                    },
-                ]
-            },
-            {
-                "id": "WWPIT Spring 2024 Novice",
-                "scores": {
-                    "passwordisa": -1,
-                    "susvant": 2147483647
-                },
-                "rounds": [
-                    {
-                        "startTime": 1717340400000,
-                        "endTime": 1717344000000
-                    },
-                    {
-                        "startTime": 1717347600000,
-                        "endTime": 1717351200000
-                    },
-                    {
-                        "startTime": 1717351800000,
-                        "endTime": 1717356600000
-                    },
-                ]
-            }
-        ]
-        res.json(TESTING_CONTESTS);
-        // res.json(contestManager.getRunningContests().map(contest => {return {
-        //     id: contest.id,
-        //     scores: Object.fromEntries(contest.scorer.getScores()),
-        //     rounds: contest.data.rounds.map(round => {return {
-        //         startTime: round.startTime,
-        //         endTime: round.endTime
-        //     }})
-        // }}));
+        res.json(contestManager.getRunningContests().map(contest => {return {
+            id: contest.id,
+            scores: Object.fromEntries(contest.scorer.getScores()),
+            rounds: contest.data.rounds.map(round => {return {
+                startTime: round.startTime,
+                endTime: round.endTime
+            }})
+        }}));
     });
     app.post('/admin/api/reloadContest/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
