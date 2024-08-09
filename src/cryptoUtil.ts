@@ -130,15 +130,13 @@ export class AESEncryptionHandler {
  * @type {DType} Type of linked data
  */
 export class SessionTokenHandler<PType, DType> {
-    readonly #expirationTimers: { time: number, token: string }[] = [];
-    readonly #tokens: Map<string, { data: DType, perms: PType[] }> = new Map();
+    readonly #tokens: Map<string, { data: DType, perms: PType[], expiration?: number }> = new Map();
 
     constructor() {
         setInterval(() => {
-            for (let i = this.#expirationTimers.length - 1; i >= 0; i--) {
-                if (performance.now() >= this.#expirationTimers[i].time) {
-                    this.removeToken(this.#expirationTimers[i].token);
-                    this.#expirationTimers.splice(i, 1);
+            for (const [token, data] of this.#tokens) {
+                if (data.expiration !== undefined && data.expiration < Date.now()) {
+                    this.#tokens.delete(token);
                 }
             }
         }, 1000);
@@ -153,8 +151,7 @@ export class SessionTokenHandler<PType, DType> {
      */
     createToken(perms: PType[], linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.#tokens.set(token, { data: linkedData, perms: perms.slice() });
-        if (expiration !== undefined) this.#expirationTimers.push({ time: performance.now() + (expiration * 1000), token: token });
+        this.#tokens.set(token, { data: linkedData, perms: perms.slice(), expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
         return token;
     }
 
@@ -175,6 +172,15 @@ export class SessionTokenHandler<PType, DType> {
      */
     tokenExists(token: string): boolean {
         return this.#tokens.has(token);
+    }
+
+    /**
+     * Check token expiration time.
+     * @param {string} token Token to check
+     * @returns {number | undefined} Expiration time, if the token exists and has an expiration
+     */
+    tokenExpiration(token: string): number | undefined {
+        return this.tokenExists(token) ? this.#tokens.get(token)!.expiration : undefined;
     }
 
     /**

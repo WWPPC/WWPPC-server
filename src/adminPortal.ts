@@ -26,8 +26,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
 
     // require authentication for everything except login
     app.use('/admin/*', (req, res, next) => {
-        if (req.baseUrl == '/admin/login') next();
-        else if (typeof req.cookies.token != 'string' || (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token))) res.sendStatus(401);
+        if (req.baseUrl == '/admin/login' || req.baseUrl == '/admin/authLogin') next();
+        else if ((typeof req.cookies.token != 'string' && typeof req.cookies.authToken != 'string') || (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.authToken))) res.sendStatus(401);
         else next();
     });
 
@@ -42,7 +42,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
                 expires: new Date(Date.now() + 3600000),
                 path: '/',
                 httpOnly: true,
-                sameSite: "none",
+                sameSite: 'none',
                 secure: true
             });
             res.sendStatus(200);
@@ -51,8 +51,18 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(403);
         }
     });
-    app.get('/admin/login', (req, res) => {
-        // only way to get here is to be logged in
+    app.post('/admin/authLogin', bodyParser.text(), async (req, res) => {
+        if (typeof req.body != 'string' || !accessTokens.tokenExists(req.body)) {
+            res.sendStatus(400);
+            return;
+        }
+        res.cookie('authToken', req.body, {
+            expires: new Date(accessTokens.tokenExpiration(req.body) ?? 2147483647000),
+            path: '/',
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true
+        });
         res.sendStatus(200);
     });
 
@@ -196,7 +206,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     app.delete('/admin/api/admin/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         if (!database.validate(req.params.username, 'a')) {
-            console.log(req.params);
             res.sendStatus(400);
             return;
         }
@@ -307,7 +316,9 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
-        if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
+        if ((req.cookies.authToken == undefined || !accessTokens.tokenHasPermissions(req.cookies.authToken, AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) {
+            return;
+        }
         res.json(contestManager.getRunningContests().map(contest => {return {
             id: contest.id,
             scores: Array.from(contest.scorer.getScores()).map(s => {return { username: s[0], score: s[1] }}),
