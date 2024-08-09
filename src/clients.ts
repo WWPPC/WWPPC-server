@@ -157,7 +157,7 @@ export class ClientHost {
                 if (creds.signupData != undefined) {
                     // spam prevention
                     if ((this.#recentSignups.get(socket.ip) ?? 0) > config.maxSignupPerMinute) {
-                        socket.kick('too many sign-ups');
+                        cb(AccountOpResult.SESSION_EXPIRED);
                         return;
                     }
                     this.#recentSignups.set(socket.ip, (this.#recentSignups.get(socket.ip) ?? 0) + 60);
