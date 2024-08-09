@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import { Express } from 'express';
 import { resolve as pathResolve } from 'path';
-import { read as readLastLines } from 'read-last-lines';
 
 import config from './config';
 import ContestManager from './contest';
@@ -91,13 +90,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     };
 
     // logs
-    const logFile = pathResolve(config.logPath, 'log.log');
-    app.get('/admin/logTail', async (req, res) => {
-        const lines = await readLastLines(logFile, 100, 'utf8');
-        res.type('text').send(lines);
-    });
     app.get('/admin/logs', async (req, res) => {
-        res.sendFile(logFile);
+        res.sendFile(pathResolve(config.logPath, 'log.log'));
     });
     // access tokens
     app.get('/admin/accessTokens/ruleset', (req, res) => {
