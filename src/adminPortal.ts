@@ -27,8 +27,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     // require authentication for everything except login
     app.use('/admin/*', (req, res, next) => {
         if (req.baseUrl == '/admin/login') next();
-        else if (typeof req.cookies.token != 'string') res.sendStatus(401);
-        else if (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token)) res.sendStatus(403);
+        else if (typeof req.cookies.token != 'string' || (!sessionTokens.tokenExists(req.cookies.token) && !accessTokens.tokenExists(req.cookies.token))) res.sendStatus(401);
         else next();
     });
 
@@ -196,7 +195,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.delete('/admin/api/admin/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || !database.validate(req.params.username, 'a')) {
+        if (!database.validate(req.params.username, 'a')) {
+            console.log(req.params);
             res.sendStatus(400);
             return;
         }
