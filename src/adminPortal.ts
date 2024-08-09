@@ -308,14 +308,19 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
-        res.json(contestManager.getRunningContests().map(contest => {return {
-            id: contest.id,
-            scores: Array.from(contest.scorer.getScores()).map(s => {return { username: s[0], score: s[1] }}),
-            rounds: contest.data.rounds.map(round => {return {
-                startTime: round.startTime,
-                endTime: round.endTime
-            }})
-        }}));
+        res.json(contestManager.getRunningContests().map(contest => {
+            const data = contest.data;
+            return {
+                id: contest.id,
+                scores: Array.from(contest.scorer.getScores()).map(s => ({ username: s[0], score: s[1] })),
+                rounds: data.rounds.map(round => ({
+                    startTime: round.startTime,
+                    endTime: round.endTime
+                })),
+                startTime: data.startTime,
+                endTime: data.endTime
+            };
+        }));
     });
     app.post('/admin/api/reloadContest/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
