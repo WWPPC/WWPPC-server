@@ -114,8 +114,7 @@ export class Scorer {
                 const weight = problemWeight.get(subtask.id);
                 const numSolved = subtaskSolved.get(subtask);
                 if (weight !== undefined && numSolved !== undefined) {
-                    //score function: 1 -> 1.3 based on time penalty
-                    score += weight * (1.3 - 0.3 * (solveTime - round.startTime) / (round.endTime - round.startTime));
+                    score += weight * (1-(solveTime - round.startTime) / (1000*60*1000000));
                 }
             });
             userScores.set(username, score);
