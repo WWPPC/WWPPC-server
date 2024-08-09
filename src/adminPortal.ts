@@ -97,20 +97,20 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     app.get('/admin/accessTokens/ruleset', (req, res) => {
         res.json(Object.values(AdminAccessTokenPerms).filter(k => isNaN(Number(k))));
     });
-    app.post('/admin/accessTokens/list', (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+    app.post('/admin/accessTokens/list', async (req, res) => {
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         res.json(Object.fromEntries(accessTokens.getTokens())); // should this be an array instead of an object?
     });
-    app.post('/admin/accessTokens/create', bodyParser.json(), (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+    app.post('/admin/accessTokens/create', bodyParser.json(), async (req, res) => {
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions) || req.body.permissions.length == 0 || req.body.permissions.some(p => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
             res.sendStatus(400);
             return;
         }
         res.json(accessTokens.createToken(req.body.permissions, undefined, req.body.expiration));
     });
-    app.delete('/admin/accessTokens/delete/:id', (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+    app.delete('/admin/accessTokens/delete/:id', async (req, res) => {
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         if (!accessTokens.tokenExists(req.params.id)) {
             res.sendStatus(400);
             return;
@@ -125,11 +125,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // accounts (ADMINS CAN BYPASS RESTRICTIONS LIKE MAXIMUM LENGTHS)
     app.get('/admin/api/accountList', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         defaultObjectMapping(res, await database.getAccountList());
     });
     app.get('/admin/api/account/:username', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         if (!database.validate(req.params.username, '')) {
             res.sendStatus(400);
             return;
@@ -137,7 +137,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         defaultAccountOpMapping(res, await database.getAccountData(req.params.username));
     });
     app.post('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         const body = req.body as AccountData;
         if (body == undefined || body.username !== req.params.username || [body.username, body.email, body.firstName, body.lastName, body.displayName, body.profileImage, body.bio, body.school, body.team].some((v) => typeof v != 'string')
             || [body.grade, body.experience].some((v) => typeof v != 'number') || [body.languages, body.registrations, body.pastRegistrations].some((v) => !Array.isArray(v) || v.some((sv) => typeof sv != 'string'))) {
@@ -152,7 +152,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Account "${req.params.username}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         // saving space
         if (typeof req.body.password != 'string' || !database.validate(req.params.username, req.body.password)) {
             res.sendStatus(400);
@@ -162,11 +162,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Account "${req.params.username}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.get('/admin/api/team/:username', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         defaultTeamOpMapping(res, await database.getTeamData(req.params.username));
     });
     app.post('/admin/api/team/:username', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
         const body = req.body as TeamData;
         if (body == undefined || body.id !== req.params.username || [body.id, body.name, body.bio, body.joinCode].some((v) => typeof v != 'string')
             || !Array.isArray(body.members) || body.members.some((v) => typeof v != 'string')) {
@@ -182,11 +182,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // admins (bespoke!!)
     app.get('/admin/api/admins', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         defaultObjectMapping(res, await database.getAdminList());
     });
     app.post('/admin/api/admin/:username', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         if (req.body == undefined || req.body.permissions == undefined || !database.validate(req.params.username, 'a')) {
             res.sendStatus(400);
             return;
@@ -195,7 +195,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/admin/:username', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
         if (req.body == undefined || !database.validate(req.params.username, 'a')) {
             res.sendStatus(400);
             return;
@@ -205,18 +205,18 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // contests
     app.get('/admin/api/contestList', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultObjectMapping(res, await database.getContestList());
     });
     app.get('/admin/api/contest/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         const stat = await database.readContests({ id: req.params.id });
         if (stat == null) res.sendStatus(500);
         else if (stat.length == 0) res.sendStatus(404);
         else res.json(stat[0]);
     });
     app.post('/admin/api/contest/:id', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         const body = req.body as Contest;
         if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || !Array.isArray(body.rounds)
             || body.rounds.some((id) => !isUUID(id)) || !Array.isArray(body.exclusions) || body.exclusions.some((e) => typeof e != 'string')
@@ -229,17 +229,17 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Contest "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/contest/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultSuccessMapping(res, await database.deleteContest(req.params.id));
         logger.info(`Contest "${req.params.id}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // rounds
     app.get('/admin/api/roundList', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultObjectMapping(res, await database.getRoundList());
     });
     app.get('/admin/api/round/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
             res.sendStatus(400);
             return;
@@ -250,7 +250,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else res.json(stat[0]);
     });
     app.post('/admin/api/round/:id', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         const body = req.body as Round;
         if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || [body.startTime, body.endTime].some((v) => typeof v != 'number')
             || !Array.isArray(body.problems) || body.problems.some((v) => !isUUID(v))) {
@@ -261,7 +261,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Round "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/round/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
             res.sendStatus(400);
             return;
@@ -271,13 +271,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // problems
     app.get('/admin/api/problemList', async (req, res) => {
-        console.log('read problem list')
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-        console.log('check succeeded')
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultObjectMapping(res, await database.getProblemList());
     });
     app.get('/admin/api/problem/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
             res.sendStatus(400);
             return;
@@ -288,7 +286,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else res.json(stat[0]);
     });
     app.post('/admin/api/problem/:id', bodyParser.json(), async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         const body = req.body as Problem;
         if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || [body.name, body.author, body.content].some((v) => typeof v != 'string')
             || typeof body.constraints != 'object' || body.constraints == null || [body.constraints.time, body.constraints.memory].some((v) => typeof v != 'number')) {
@@ -299,7 +297,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/problem/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         if (!isUUID(req.params.id)) {
             res.sendStatus(400);
             return;
@@ -309,7 +307,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
         const TESTING_CONTESTS = [
             {
                 "id": "WWPIT Spring 2024 Advanced",
@@ -365,7 +363,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         // }}));
     });
     app.post('/admin/api/reloadContest/:id', async (req, res) => {
-        if (!checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
+        if (!await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
         const runningContests = contestManager.getRunningContests();
         const contestHost = runningContests.find(c => c.id == req.params.id);
         if (!contestHost) {
