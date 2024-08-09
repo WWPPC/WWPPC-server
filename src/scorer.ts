@@ -114,10 +114,8 @@ export class Scorer {
                 const weight = problemWeight.get(subtask.id);
                 const numSolved = subtaskSolved.get(subtask);
                 if (weight !== undefined && numSolved !== undefined) {
-                    //old score function: 1/x * (time penalty linear from 1.0 -> 0.9)
-                    //new score function: 1 + (end - solveTime in minutes) / 500
-                    const baseScore = weight;
-                    score += baseScore + (round.endTime - solveTime) / 60000 / 500;
+                    //score function: 1.0 -> 0.7 based on time penalty
+                    score += weight * (1 - 0.3 * (solveTime - round.startTime) / (round.endTime - round.startTime));
                 }
             });
             userScores.set(username, score);
