@@ -114,9 +114,9 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     app.get('/admin/accessTokens/ruleset', (req, res) => {
         res.json(Object.values(AdminAccessTokenPerms).filter(k => isNaN(Number(k))));
     });
-    app.post('/admin/accessTokens/list', async (req, res) => {
+    app.get('/admin/accessTokens/list', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        res.json(Object.fromEntries(accessTokens.getTokens())); // should this be an array instead of an object?
+        res.json(Array.from(accessTokens.getTokens()).map(v => ({ id: v[0], perms: v[1].perms })));
     });
     app.post('/admin/accessTokens/create', bodyParser.json(), async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
