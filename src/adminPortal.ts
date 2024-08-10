@@ -52,8 +52,12 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
     });
     app.post('/admin/authLogin', bodyParser.text(), async (req, res) => {
-        if (typeof req.body != 'string' || !accessTokens.tokenExists(req.body)) {
+        if (typeof req.body != 'string') {
             res.sendStatus(400);
+            return;
+        }
+        if (!accessTokens.tokenExists(req.body)) {
+            res.sendStatus(401);
             return;
         }
         res.cookie('authToken', req.body, {
