@@ -322,7 +322,7 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account. *Only uses part of the data*. **Does not validate credentials**.
+     * Overwrite user data for an existing account. *Ignores `username`, `email`, `registrations`, `pastRegistrations`, and `team` fields*. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {AccountData} userData New data (only `firstName`, `lastName`, `displayName`, `profileImage`, `school`, `grade`, `experience`, `languages`, and `bio` fields are updated)
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
@@ -335,10 +335,9 @@ export class Database {
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-            this.#userCache.set(username, {
-                data: structuredClone(userData),
-                expiration: performance.now() + config.dbCacheTime
-            });
+            // cache entry re-fetched from database due to ignored fields not being updated
+            this.#userCache.delete(username);
+            this.getAccountData(username);
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (updateAccountData):', err);

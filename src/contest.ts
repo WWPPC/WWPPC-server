@@ -277,6 +277,7 @@ export class ContestHost {
     readonly #users: Map<string, { sockets: Set<ServerSocket>, internalSockets: Set<ContestSocket> }> = new Map();
     readonly #pendingConnections: Map<string, ServerSocket> = new Map();
     readonly #pendingConnectionsInverse: Map<ServerSocket, string> = new Map();
+    #scoreboards: Map<string, number> = new Map();
 
     readonly #pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
@@ -392,7 +393,6 @@ export class ContestHost {
             this.end();
             return;
         }
-        let userScores: Map<string, number> = new Map();
         const submissions = await this.db.readSubmissions({ contest: { contest: this.#contest.id }, username: users, analysis: false });
         if (submissions === null) {
             this.logger.error(`Database error`);
@@ -406,7 +406,7 @@ export class ContestHost {
             if (sub.time < scoreFreezeCutoffTime) this.scorer.updateUser(sub);
             else frozenSubmissions.push(sub);
         }
-        userScores = this.scorer.getScores();
+        this.#scoreboards = this.scorer.getScores();
         for (const sub of frozenSubmissions) {
             this.scorer.updateUser(sub);
         }
@@ -446,10 +446,13 @@ export class ContestHost {
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (Date.now() < scoreFreezeCutoffTime) userScores = this.scorer.getScores();
-                this.io.emit('scoreboard', Array.from(userScores.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+                if (Date.now() < scoreFreezeCutoffTime) this.#scoreboards = this.scorer.getScores();
+                this.io.emit('scoreboard', Array.from(this.#scoreboards.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
             }
         }, 50);
+    }
+    getScoreboards(): Map<string, number> {
+        return new Map(this.#scoreboards);
     }
 
     /**

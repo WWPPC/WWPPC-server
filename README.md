@@ -151,3 +151,5 @@ Add 5 to the time because cron jobs are UTC
 ```
 0 7 * * * systemctl stop wwppc.service; cd /root/WWPPC-grader && git pull && npm install && npm run compile; git submodule update && cd /root/WWPPC-grader/problems && node compile.js; systemctl start wwppc.service
 ```
+
+This needs to be updated

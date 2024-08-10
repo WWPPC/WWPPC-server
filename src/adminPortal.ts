@@ -329,9 +329,10 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         res.json(contestManager.getRunningContests().map(contest => {
             const data = contest.data;
+            // admin portal should have the frozen scores since it's used for stream
             return {
                 id: contest.id,
-                scores: Array.from(contest.scorer.getScores()).map(s => ({ username: s[0], score: s[1] })),
+                scores: Array.from(contest.getScoreboards()).map(s => ({ username: s[0], score: s[1] })),
                 rounds: data.rounds.map(round => ({
                     startTime: round.startTime,
                     endTime: round.endTime
