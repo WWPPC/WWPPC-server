@@ -104,7 +104,7 @@ export class ClientHost {
         socket.username = '[not signed in]';
         if (config.debugMode) socket.logWithId(this.logger.debug, 'Connection established, sending public key and requesting credentials');
         socket.emit('getCredentials', { key: this.clientEncryption.publicKey, session: this.clientEncryption.sessionID });
-        const checkRecaptcha = async (token: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> => {
+        const checkRecaptcha = async (token: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.ERROR | AccountOpResult.CAPTCHA_FAILED> => {
             const recaptchaResponse = await validateRecaptcha(token, socket.ip);
             if (recaptchaResponse instanceof Error) {
                 this.logger.error('reCAPTCHA verification failed:');
@@ -112,15 +112,12 @@ export class ClientHost {
                 if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
                 return AccountOpResult.ERROR;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
-                if (config.debugMode) {
-                    socket.logWithId(this.logger.debug, 'reCAPTCHA verification failed:');
-                    socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
-                }
-                return AccountOpResult.INCORRECT_CREDENTIALS;
-            } else if (config.debugMode) {
-                socket.logWithId(this.logger.debug, 'reCAPTCHA verification successful:');
-                socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
+                socket.logWithId(this.logger.info, 'reCAPTCHA verification failed:');
+                if (config.debugMode) socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
+                return AccountOpResult.CAPTCHA_FAILED;
             }
+            socket.logWithId(this.logger.debug, 'reCAPTCHA verification successful:');
+            if (config.debugMode) socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
             return AccountOpResult.SUCCESS;
         };
         if (await new Promise((resolve, reject) => {
@@ -139,7 +136,7 @@ export class ClientHost {
                 if (password instanceof Buffer) {
                     // for some reason decoding failed, redirect to login
                     cb(AccountOpResult.INCORRECT_CREDENTIALS);
-                    if (config.debugMode) socket.logWithId(this.logger.debug, 'Credentials failed to decode');
+                    socket.logWithId(this.logger.warn, 'Credentials failed to decode');
                 }
                 if (typeof creds.username != 'string' || typeof password != 'string' || !this.database.validate(creds.username, password) || typeof creds.token != 'string') {
                     socket.kick('invalid credentials');
@@ -169,7 +166,7 @@ export class ClientHost {
                         resolve(true);
                         return;
                     }
-                    if (config.debugMode) socket.logWithId(this.logger.info, 'Signing up');
+                    if (config.debugMode) socket.logWithId(this.logger.debug, 'Signing up: ' + JSON.stringify(creds.signupData));
                     const res = await this.database.createAccount(creds.username, password, {
                         email: creds.signupData.email,
                         firstName: creds.signupData.firstName,
@@ -180,7 +177,7 @@ export class ClientHost {
                         experience: creds.signupData.experience,
                     });
                     cb(res);
-                    if (config.debugMode) socket.logWithId(this.logger.debug, 'Sign up: ' + reverse_enum(AccountOpResult, res));
+                    socket.logWithId(this.logger.info, 'Sign up: ' + reverse_enum(AccountOpResult, res));
                     if (res == 0) {
                         socket.removeAllListeners('credentials');
                         socket.removeAllListeners('requestRecovery');
@@ -191,7 +188,7 @@ export class ClientHost {
                     if (config.debugMode) socket.logWithId(this.logger.info, 'Logging in');
                     const res = await this.database.checkAccount(creds.username, password);
                     cb(res);
-                    if (config.debugMode) socket.logWithId(this.logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
+                    if (config.debugMode || (res != AccountOpResult.SUCCESS && res != AccountOpResult.NOT_EXISTS)) socket.logWithId(this.logger.debug, 'Log in: ' + reverse_enum(AccountOpResult, res));
                     if (res == 0) {
                         socket.removeAllListeners('credentials');
                         socket.removeAllListeners('requestRecovery');
@@ -230,7 +227,7 @@ export class ClientHost {
                 }
                 if (creds.email !== data.email) {
                     cb(AccountOpResult.INCORRECT_CREDENTIALS);
-                    if (config.debugMode) socket.logWithId(this.logger.debug, 'Could not send recovery email: INCORRECT_CREDENTIALS');
+                    socket.logWithId(this.logger.info, 'Could not send recovery email: INCORRECT_CREDENTIALS');
                     return;
                 }
                 socket.logWithId(this.logger.info, 'Account recovery via email password reset started');
@@ -394,7 +391,7 @@ export class ClientHost {
             };
             const recaptchaRes = await checkRecaptcha(data.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
-                respond(recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
+                respond(recaptchaRes == AccountOpResult.CAPTCHA_FAILED ? TeamOpResult.CAPTCHA_FAILED : TeamOpResult.ERROR);
                 return;
             }
             // first join so can check team data
@@ -456,7 +453,7 @@ export class ClientHost {
             };
             const recaptchaRes = await checkRecaptcha(data.token);
             if (recaptchaRes != AccountOpResult.SUCCESS) {
-                respond(recaptchaRes == AccountOpResult.INCORRECT_CREDENTIALS ? TeamOpResult.INCORRECT_CREDENTIALS : TeamOpResult.ERROR);
+                respond(recaptchaRes == AccountOpResult.CAPTCHA_FAILED ? TeamOpResult.CAPTCHA_FAILED : TeamOpResult.ERROR);
                 return;
             }
             const res = await this.database.setAccountTeam(data.user, data.user);

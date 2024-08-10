@@ -107,17 +107,17 @@ export class ContestManager {
                 socket.kick('invalid registerContest payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Registering contest: ' + data.contest);
+            socket.logWithId(this.logger.logger.info, 'Registering for contest: ' + data.contest);
             const recaptchaResponse = await validateRecaptcha(data.token, socket.ip);
             if (recaptchaResponse instanceof Error) {
                 this.logger.error('reCAPTCHA verification failed:');
                 this.logger.error(recaptchaResponse.message);
                 if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
-                cb(TeamOpResult.INCORRECT_CREDENTIALS);
+                cb(TeamOpResult.CAPTCHA_FAILED);
                 return;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
-                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
-                cb(TeamOpResult.INCORRECT_CREDENTIALS);
+                socket.logWithId(this.logger.logger.info, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
+                cb(TeamOpResult.CAPTCHA_FAILED);
                 return;
             } else if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
             // check valid team size and exclusion lists
@@ -125,18 +125,22 @@ export class ContestManager {
             const teamData = await this.db.getTeamData(socket.username);
             const userData = await this.db.getAccountData(socket.username);
             if (contestData == null || contestData.length != 1) {
+                socket.logWithId(this.logger.logger.error, 'Registration failed: Contest not found');
                 cb(TeamOpResult.ERROR);
                 return;
             }
             if (typeof teamData != 'object') {
+                socket.logWithId(this.logger.logger.error, 'Registration failed: Team not found');
                 cb(teamData);
                 return;
             }
             if (typeof userData != 'object') {
+                socket.logWithId(this.logger.logger.error, 'Registration failed: Account not found');
                 cb(userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
                 return;
             }
             if (contestData[0].maxTeamSize < teamData.members.length) {
+                socket.logWithId(this.logger.logger.info, 'Registration failed: Team size too large');
                 cb(TeamOpResult.CONTEST_MEMBER_LIMIT);
                 return;
             }
@@ -144,27 +148,29 @@ export class ContestManager {
             for (const r of userData.registrations) {
                 const contest = await this.db.readContests({ id: r });
                 if (contest == null || contest.length != 1) {
+                    socket.logWithId(this.logger.logger.error, 'Registration failed: Existing registered contest not found');
                     cb(TeamOpResult.ERROR);
                     return;
                 }
                 if (contest[0].exclusions.includes(data.contest)) {
+                    socket.logWithId(this.logger.logger.info, 'Registration failed: Registration excluded by other contest (' + data.contest + ')');
                     cb(TeamOpResult.CONTEST_CONFLICT);
                     return;
                 }
             }
             const res = await this.db.registerContest(socket.username, data.contest);
             cb(res);
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Register contest: ' + reverse_enum(AccountOpResult, res));
+            socket.logWithId(this.logger.logger.info, 'Register contest: ' + reverse_enum(AccountOpResult, res));
         });
         socket.on('unregisterContest', async (data: { contest: string }, cb: (res: TeamOpResult) => any) => {
             if (data == null || typeof data.contest != 'string' || typeof cb != 'function') {
                 socket.kick('invalid unregisterContest payload');
                 return;
             }
-            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Unregistering contest: ' + data.contest);
+            socket.logWithId(this.logger.logger.info, 'Unregistering contest: ' + data.contest);
             const res = await this.db.unregisterContest(socket.username, data.contest);
             cb(res);
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
+            socket.logWithId(this.logger.logger.info, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
         });
 
         // add to contests
@@ -361,6 +367,7 @@ export class ContestHost {
             return;
         }
         this.scorer.rounds = rounds;
+        this.scorer.clearScores();
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);

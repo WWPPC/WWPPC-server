@@ -333,6 +333,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return {
                 id: contest.id,
                 scores: Array.from(contest.getScoreboards()).map(s => ({ username: s[0], score: s[1] })),
+                actualScores: Array.from(contest.scorer.getScores()).map(s => ({ username: s[0], score: s[1] })),
                 rounds: data.rounds.map(round => ({
                     startTime: round.startTime,
                     endTime: round.endTime

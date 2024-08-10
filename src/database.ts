@@ -384,8 +384,8 @@ export class Database {
         try {
             const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
-                this.#rotateRecoveryPassword(username);
-                if (token === this.#dbEncryptor.encrypt(data.rows[0].recoverypass)) {
+                if (token === this.#dbEncryptor.decrypt(data.rows[0].recoverypass)) {
+                    this.#rotateRecoveryPassword(username);
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
                     await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
                     this.logger.info(`Reset password via token for "${username}"`, true);
@@ -1355,7 +1355,6 @@ export class Database {
         }
     }
 
-
     /**
      * Clears all database account, team, admin, contest, round, problem, and submission cache entries.
      */
@@ -1368,7 +1367,7 @@ export class Database {
         this.#problemCache.clear();
         this.#submissionCache.clear();
         if (global.gc) global.gc();
-        if (config.debugMode) this.logger.debug('Cache cleared');
+        this.logger.debug('Cache cleared');
     }
 }
 export default Database;
@@ -1388,7 +1387,9 @@ export enum AccountOpResult {
     /**The operation failed because of an unexpected issue */
     ERROR = 4,
     /**The operation failed because the RSA-OAEP keys expired */
-    SESSION_EXPIRED = 5
+    SESSION_EXPIRED = 5,
+    /**A CAPTCHA check failed */
+    CAPTCHA_FAILED = 6
 }
 
 /**Response codes for operations involving team data */
@@ -1408,7 +1409,9 @@ export enum TeamOpResult {
     /**The operation failed because of an unspecified restriction */
     NOT_ALLOWED = 6,
     /**The operation failed because of an unexpected issue */
-    ERROR = 7
+    ERROR = 7,
+    /**A CAPTCHA check failed */
+    CAPTCHA_FAILED = 8
 }
 
 /**Admin permission level bit flags */

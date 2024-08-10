@@ -136,6 +136,10 @@ export class Scorer {
         }
         return sums;
     }
+
+    clearScores() {
+        this.#userSolvedStatus = new Map();
+    }
 }
 
 /**Subtask */
