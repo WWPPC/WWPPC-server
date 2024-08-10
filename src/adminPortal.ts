@@ -143,7 +143,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.get('/admin/api/account/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-        if (!database.validate(req.params.username, '')) {
+        if (!database.validate(req.params.username, 'a')) {
             res.sendStatus(400);
             return;
         }
@@ -157,7 +157,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(400);
             return;
         }
-        if (!database.validate(req.params.username, '')) {
+        if (!database.validate(req.params.username, 'a')) {
             res.sendStatus(400);
             return;
         }
