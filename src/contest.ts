@@ -360,6 +360,11 @@ export class ContestHost {
             this.end();
             return;
         }
+        if (contest[0].rounds.length == 0) {
+            this.logger.error('Contest has no rounds');
+            this.end();
+            return;
+        }
         const rounds = await this.db.readRounds({ id: contest[0].rounds });
         if (rounds === null) {
             this.logger.error(`Database error`);
@@ -407,7 +412,7 @@ export class ContestHost {
             return;
         }
         // maintain consistency with score freeze time
-        const scoreFreezeCutoffTime = this.#contest.endTime - (config.contests[this.contestType]!.scoreFreezeTime * 60000);
+        const scoreFreezeCutoffTime = this.#contest.rounds[this.#contest.rounds.length - 1].endTime - (config.contests[this.contestType]!.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
             if (sub.time < scoreFreezeCutoffTime) this.scorer.updateUser(sub);
