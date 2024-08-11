@@ -8,7 +8,7 @@ import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult 
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
-import Scorer from './scorer';
+import Scorer, { ScoringFunctionArguments, UserScore } from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
 
 /**
@@ -283,7 +283,8 @@ export class ContestHost {
     readonly #users: Map<string, { sockets: Set<ServerSocket>, internalSockets: Set<ContestSocket> }> = new Map();
     readonly #pendingConnections: Map<string, ServerSocket> = new Map();
     readonly #pendingConnectionsInverse: Map<ServerSocket, string> = new Map();
-    #scoreboards: Map<string, number> = new Map();
+    #scoreboards: Map<string, UserScore> = new Map();
+    #actualScoreboards: Map<string, UserScore> = new Map();
 
     readonly #pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
@@ -303,7 +304,24 @@ export class ContestHost {
         this.io = io.of(`contest-${this.sid}/`);
         this.db = db;
         this.grader = grader;
-        this.scorer = new Scorer([], logger);
+        const scoringFunction = type == 'WWPMI' ? (score: ScoringFunctionArguments) => {
+            return {
+                score: 1 / score.problem.numSubtasks,
+                penalty: score.submission.time
+            }
+        } : type == 'WWPIT' ? (score: ScoringFunctionArguments) => {
+            return {
+                score: 1 / score.problem.numSubtasks,
+                penalty: score.submission.time
+            }
+        } : () => {
+            this.logger.error(`Contest type ${type} not recognized`);
+            return {
+                score: 0,
+                penalty: 0
+            }
+        }
+        this.scorer = new Scorer([], logger, scoringFunction);
         this.logger = new NamedLogger(logger, `ContestHost-${this.contestType}-${this.sid}`);
         this.#contest = {
             id: id,
@@ -415,13 +433,16 @@ export class ContestHost {
         const scoreFreezeCutoffTime = this.#contest.rounds[this.#contest.rounds.length - 1].endTime - (config.contests[this.contestType]!.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
-            if (sub.time < scoreFreezeCutoffTime) this.scorer.updateUser(sub);
+            if (sub.time < scoreFreezeCutoffTime) {
+                this.scorer.updateUser(sub);
+            }
             else frozenSubmissions.push(sub);
         }
         this.#scoreboards = this.scorer.getScores();
         for (const sub of frozenSubmissions) {
             this.scorer.updateUser(sub);
         }
+        this.#actualScoreboards = this.scorer.getScores();
 
         // re-index the contest
         this.#index = -1;
@@ -458,13 +479,28 @@ export class ContestHost {
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (Date.now() < scoreFreezeCutoffTime) this.#scoreboards = this.scorer.getScores();
-                this.io.emit('scoreboard', Array.from(this.#scoreboards.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => b.score - a.score));
+                if (Date.now() < scoreFreezeCutoffTime) this.#actualScoreboards = this.#scoreboards = this.scorer.getScores();
+                else this.#actualScoreboards = this.scorer.getScores();
+                this.io.emit('scoreboard', Array.from(this.#scoreboards.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => {
+                    if (b.score.score == a.score.score) return a.score.penalty - b.score.penalty;
+                    else return b.score.score - a.score.score;
+                }));
             }
         }, 50);
     }
-    getScoreboards(): Map<string, number> {
+
+    /**
+     * Get (possibly frozen) scoreboards
+     */
+    get scoreboards(): Map<string, UserScore> {
         return new Map(this.#scoreboards);
+    }
+
+    /**
+     * Get (never frozen) scoreboards
+     */
+    get actualScoreboards(): Map<string, UserScore> {
+        return new Map(this.#actualScoreboards);
     }
 
     /**
