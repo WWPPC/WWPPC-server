@@ -2,23 +2,64 @@ import { Round, ScoreState, Submission } from './database';
 import Logger, { NamedLogger } from './log';
 import { UUID } from './util';
 
+/**Subtask (as used by Scorer class) */
+interface Subtask {
+    /**Round id */
+    round: UUID
+    /**Problem id */
+    id: UUID
+    /**Subtask id */
+    number: number
+}
+
+/**User score */
+export interface UserScore {
+    /**Score */
+    score: number
+    /**Penalty (useful if a certain score appears many times) */
+    penalty: number
+}
+
+/**Arguments passed into scoringFunction */
+export interface ScoringFunctionArguments {
+    /**Submission information */
+    submission: {
+        time: number
+    }
+    /**Problem information */
+    problem: {
+        /**Number of subtasks in the problem (may break if submission doesn't have all of the problem subtasks) */
+        numSubtasks: number
+    }
+    /**Round information */
+    round: {
+        /**When the round this submission was made in starts */
+        startTime: number
+        /**When the round this submission was made in ends */
+        endTime: number
+    }
+}
+
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
  * Using the function score = 1/cnt where cnt is number of people who solved the problem
  */
 export class Scorer {
     #rounds: Round[];
-    readonly #subtasks: Set<Subtask> = new Set();
     #userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    readonly #subtasks: Set<Subtask> = new Set();
     readonly logger: NamedLogger;
+    readonly scoringFunction: (arg0: ScoringFunctionArguments) => UserScore;
 
     /**
      * @param {Round[]} rounds Contest rounds
      * @param {Logger} logger Logger instance
+     * @param {(arg0: ScoringFunctionArguments) => UserScore} scoringFunction Scoring function
      */
-    constructor(rounds: Round[], logger: Logger) {
+    constructor(rounds: Round[], logger: Logger, scoringFunction: (arg0: ScoringFunctionArguments) => UserScore) {
         this.#rounds = rounds;
         this.logger = new NamedLogger(logger, 'Scorer');
+        this.scoringFunction = scoringFunction;
     }
 
     set rounds(rounds: Round[]) {
@@ -27,8 +68,8 @@ export class Scorer {
 
     /**
      * Process submission and add to leaderboard
-     * @param {Submission} submission the scored submission
-     * @param {UUID} submissionRound (optional) round UUID
+     * @param {Submission} submission The scored submission
+     * @param {UUID} submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
      * @returns {Boolean} whether it was successful
      */
     updateUser(submission: Submission, submissionRound?: UUID): Boolean {
@@ -67,30 +108,23 @@ export class Scorer {
     /**
      * Get standings for a specified round.
      * @param {UUID} roundId Round ID
-     * @returns {Map<string, number>} Mapping of username to score
+     * @returns {Map<string, Score>} Mapping of username to score
      */
-    getRoundScores(roundId: UUID): Map<string, number> {
+    getRoundScores(roundId: UUID): Map<string, UserScore> {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
-        const problemWeight = new Map<UUID, number>(); // how much to weight each problem
-        const userScores = new Map<string, number>(); // final scores of each user
+        const userScores = new Map<string, UserScore>(); // final scores of each user
         const round = this.#rounds.find(r => r.id == roundId);
         if (round == undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }
 
-        //set everything to 0
-        this.#subtasks.forEach((subtask) => {
-            if (subtask.round === roundId) subtaskSolved.set(subtask, 0);
-        });
-
         //find how many users solved each subtask
         this.#userSolvedStatus.forEach((scores) => {
             scores.forEach((solveTime, subtask) => {
-                const c = subtaskSolved.get(subtask);
-                if (c !== undefined) {
-                    subtaskSolved.set(subtask, c + 1);
+                if (subtask.round == roundId) {
+                    subtaskSolved.set(subtask, (subtaskSolved.get(subtask) ?? 0) + 1);
                 }
             })
         });
@@ -98,23 +132,22 @@ export class Scorer {
         //group subtasks by problem id
         subtaskSolved.forEach((numSolved, subtask) => {
             const problem = problemSubtasks.get(subtask.id);
-            //probably no pass by reference issues?
             if (problem === undefined) problemSubtasks.set(subtask.id, [subtask]);
             else problemSubtasks.set(subtask.id, problem.concat([subtask]));
         });
-        //weight subtasks so that problems with more subtasks aren't weighted too high
-        problemSubtasks.forEach((subtasks, problem) => {
-            problemWeight.set(problem, 1 / subtasks.length);
-        });
 
         //calculate actual scores for each user
-        this.#userSolvedStatus.forEach((scores, username) => {
-            let score = 0;
-            scores.forEach((solveTime, subtask) => {
-                const weight = problemWeight.get(subtask.id);
+        this.#userSolvedStatus.forEach((solved, username) => {
+            let score: UserScore = { score: 0, penalty: 0 };
+            solved.forEach((solveTime, subtask) => {
+                const numSubtasks = problemSubtasks.get(subtask.id)?.length;
                 const numSolved = subtaskSolved.get(subtask);
-                if (weight !== undefined && numSolved !== undefined) {
-                    score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
+                //not explicity comparing to undefined is safe because there has to be at least one solve
+                if (numSubtasks && numSolved) {
+                    const subtaskScore = this.scoringFunction({ submission: { time: solveTime }, problem: { numSubtasks }, round: { startTime: round.startTime, endTime: round.endTime } });
+                    score.score += subtaskScore.score;
+                    score.penalty += subtaskScore.penalty;
+                    // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
                 }
             });
             userScores.set(username, score);
@@ -124,13 +157,14 @@ export class Scorer {
 
     /**
      * Get the current standings, adding scores from all rounds together.
-     * @returns {Map<string, number>} mapping of username to score
+     * @returns {Map<string, Score>} mapping of username to score
      */
-    getScores(): Map<string, number> {
-        const sums: Map<string, number> = new Map();
+    getScores(): Map<string, UserScore> {
+        const sums: Map<string, UserScore> = new Map();
         for (const round of this.#rounds) {
             this.getRoundScores(round.id).forEach((score, username) => {
-                if (sums.has(username)) sums.set(username, sums.get(username)! + score);
+                const cur = sums.get(username);
+                if (cur) sums.set(username, { score: cur.score + score.score, penalty: cur.penalty + score.penalty });
                 else sums.set(username, score);
             });
         }
@@ -140,16 +174,6 @@ export class Scorer {
     clearScores() {
         this.#userSolvedStatus = new Map();
     }
-}
-
-/**Subtask */
-export interface Subtask {
-    /**Round id */
-    round: UUID
-    /**Problem id */
-    id: UUID
-    /**Subtask id */
-    number: number
 }
 
 export default Scorer;
