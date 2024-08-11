@@ -721,7 +721,8 @@ export class ContestHost {
                     // use the grading system
                     this.grader.cancelUngraded(teamData.id, submission.id);
                     this.grader.queueUngraded(serverSubmission, async (graded) => {
-                        if (config.debugMode) this.logger.debug(`Submission was returned: ${graded == null ? 'Canceled' : 'Complete'} (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
+                        if (graded == null) this.logger.warn(`Submission grading was canceled! (submitted by ${socket.username}, team ${teamData.id}, for ${submission.id})`);
+                        else if (config.debugMode) this.logger.debug(`Submission was completed (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
                         if (graded != null) writeGraded(graded);
                     });
                 } else {
