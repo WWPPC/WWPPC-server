@@ -113,11 +113,13 @@ export class ClientHost {
                 return AccountOpResult.ERROR;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
                 socket.logWithId(this.logger.info, 'reCAPTCHA verification failed:');
-                if (config.debugMode) socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
+                socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
                 return AccountOpResult.CAPTCHA_FAILED;
             }
-            socket.logWithId(this.logger.debug, 'reCAPTCHA verification successful:');
-            if (config.debugMode) socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
+            if (config.debugMode) {
+                socket.logWithId(this.logger.debug, 'reCAPTCHA verification successful:');
+                socket.logWithId(this.logger.debug, JSON.stringify(recaptchaResponse), true);
+            }
             return AccountOpResult.SUCCESS;
         };
         if (await new Promise((resolve, reject) => {
