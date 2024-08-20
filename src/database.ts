@@ -1270,10 +1270,10 @@ export class Database {
                         file: submission.file,
                         lang: submission.language,
                         scores: submission.scores,
-                        history: submission.history.map((h) => ({
+                        history: submission.history.map((h: any) => ({
                             time: Number(h.time),
                             lang: h.lang,
-                            scores: h.scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
+                            scores: h.scores.map((s: any) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
                         })),
                         analysis: submission.analysis
                     };
@@ -1304,11 +1304,11 @@ export class Database {
         try {
             const existing = await this.#db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
             if (existing.rows.length > 0) {
-                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
+                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h: any) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
                 if (existing.rows[0].scores.length > 0 && !overwrite) history.push({
                     time: Number(existing.rows[0].time),
                     lang: existing.rows[0].language,
-                    scores: existing.rows[0].scores.map((s) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
+                    scores: existing.rows[0].scores.map((s: any) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
                 });
                 while (history.length > config.maxSubmissionHistory) history.shift();
                 await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [

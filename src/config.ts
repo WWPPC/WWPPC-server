@@ -107,7 +107,7 @@ const config: GlobalConfiguration = {
     dbProblemCacheTime: fileConfig.dbProblemCacheTime ?? 600000,
     graderTimeout: fileConfig.graderTimeout ?? 180000,
     // single "line" mapping and validating (validation is crashing if invalid or adding defaults)
-    contests: fileContests != null ? Object.entries(fileContests).reduce((p, [cId, cVal]: [string, any]) => {
+    contests: fileContests != null ? Object.entries(fileContests).reduce((p: Record<string, ContestConfiguration>, [cId, cVal]: [string, any]) => {
         p[cId] = {
             graders: cVal.graders ?? true,
             rounds: cVal.rounds ?? true,

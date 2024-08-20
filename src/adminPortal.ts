@@ -74,7 +74,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         res.sendStatus(200);
     });
 
-    const checkPerms = async (req, res, perms: AdminPerms): Promise<boolean> => {
+    const checkPerms = async (req: any, res: any, perms: AdminPerms): Promise<boolean> => {
         if (!sessionTokens.tokenExists(req.cookies.token)) {
             res.sendStatus(401);
             return false;
@@ -84,7 +84,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         return true;
     };
-    const defaultAccountOpMapping = (res, stat) => {
+    const defaultAccountOpMapping = (res: any, stat: any) => {
         if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);
         else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
         else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
@@ -92,7 +92,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else if (stat == AccountOpResult.ERROR) res.sendStatus(500);
         else res.json(stat);
     };
-    const defaultTeamOpMapping = (res, stat) => {
+    const defaultTeamOpMapping = (res: any, stat: any) => {
         if (stat == TeamOpResult.SUCCESS) res.sendStatus(200);
         else if (stat == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
         else if (stat == TeamOpResult.CONTEST_CONFLICT || stat == TeamOpResult.CONTEST_MEMBER_LIMIT || stat == TeamOpResult.CONTEST_ALREADY_EXISTS || stat == TeamOpResult.NOT_ALLOWED) res.status(409).json(reverse_enum(TeamOpResult, stat));
@@ -100,11 +100,11 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         else if (stat == TeamOpResult.ERROR) res.sendStatus(500);
         else res.json(stat);
     };
-    const defaultObjectMapping = (res, stat) => {
+    const defaultObjectMapping = (res: any, stat: object | null) => {
         if (stat == null) res.sendStatus(500);
         else res.json(stat);
     };
-    const defaultSuccessMapping = (res, stat: boolean) => {
+    const defaultSuccessMapping = (res: any, stat: boolean) => {
         if (stat) res.json(200);
         else res.sendStatus(500);
     };
@@ -123,7 +123,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.post('/admin/accessTokens/create', bodyParser.json(), async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions) || req.body.permissions.length == 0 || req.body.permissions.some(p => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
+        if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions) || req.body.permissions.length == 0 || req.body.permissions.some((p: any) => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
             res.sendStatus(400);
             return;
         }
