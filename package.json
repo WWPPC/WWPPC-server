@@ -2,10 +2,10 @@
     "name": "wwppc-server",
     "private": true,
     "scripts": {
-        "build": "npx tsc",
-        "compile": "npx tsc",
+        "build": "tsc",
+        "compile": "tsc",
         "start": "node build/server.js --expose-gc",
-        "compilerun": "npx tsc && node build/server.js --expose-gc serve_static debug_mode",
+        "compilerun": "tsc && node build/server.js --expose-gc serve_static debug_mode",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown --excludeExternals --externalPattern \"**/node_modules/**\""
     },
     "dependencies": {
