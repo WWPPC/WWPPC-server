@@ -5,7 +5,7 @@
         "build": "npx tsc",
         "compile": "npx tsc",
         "start": "node build/server.js --expose-gc",
-        "compilerun": "npx tsc && node build/server.js --expose-gc serve_static debug_mode",
+        "compilerun": "npx tsc && node build/server.js --expose-gc debug_mode",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown --excludeExternals --externalPattern \"**/node_modules/**\""
     },
     "dependencies": {
