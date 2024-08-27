@@ -2,10 +2,10 @@
     "name": "wwppc-server",
     "private": true,
     "scripts": {
-        "build": "npx tsc",
-        "compile": "npx tsc",
+        "build": "tsc",
+        "compile": "tsc",
         "start": "node build/server.js --expose-gc",
-        "compilerun": "npx tsc && node build/server.js --expose-gc debug_mode",
+        "compilerun": "tsc && node build/server.js --expose-gc debug_mode",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown --excludeExternals --externalPattern \"**/node_modules/**\""
     },
     "dependencies": {
@@ -13,7 +13,6 @@
         "body-parser": "^1.20.2",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
-        "cryptr": "^6.3.0",
         "dotenv": "^16.4.5",
         "express": "^4.18.2",
         "express-rate-limit": "^7.1.5",
@@ -21,14 +20,18 @@
         "inline-css": "^4.0.2",
         "nodemailer": "^6.9.13",
         "pg": "^8.11.3",
-        "read-last-lines": "^1.8.0",
         "socket.io": "^4.7.4",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/cookie-parser": "^1.4.7",
         "@types/express": "^4.17.21",
+        "@types/html-minifier": "^4.0.5",
+        "@types/inline-css": "^3.0.3",
         "@types/nodemailer": "^6.4.14",
         "@types/pg": "^8.11.2",
+        "@types/uuid": "^10.0.0",
         "typedoc": "^0.26.5",
         "typedoc-plugin-markdown": "^4.2.3",
         "typescript": "^5.5.4"

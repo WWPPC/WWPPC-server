@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { Socket as SocketIOSocket } from 'socket.io';
 
-import config from './config';
+import config, { ContestConfiguration } from './config';
 import ContestManager from './contest';
 import { RSAEncrypted, RSAEncryptionHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, Score, TeamData, TeamOpResult } from './database';
@@ -49,7 +49,7 @@ export class ClientHost {
         // general api endpoints
         const clientConfig = {
             maxProfileImgSize: config.maxProfileImgSize,
-            contests: Object.entries(config.contests).reduce((p, [cId, cConfig]) => {
+            contests: Object.entries(config.contests).reduce((p: Record<string, object>, [cId, cConfig]) => {
                 if (cConfig == undefined) return p;
                 p[cId] = {
                     rounds: cConfig.rounds,

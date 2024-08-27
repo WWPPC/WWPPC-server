@@ -165,6 +165,15 @@ const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) 
         if (err.stack) logger.fatal(err.stack);
     } else if (err != undefined) logger.fatal(err);
     if (typeof origin == 'string') logger.fatal(origin);
+    const handleUncaughtError2 = (err: any, origin: string | Promise<unknown>) => {
+        console.error('An exception occured while handling another exception:');
+        console.error(err);
+        if (typeof origin == 'string') console.error(origin);
+    };
+    process.off('uncaughtException', handleUncaughtError);
+    process.off('unhandledRejection', handleUncaughtError);
+    process.on('uncaughtException', handleUncaughtError2);
+    process.on('unhandledRejection', handleUncaughtError2);
     stopServer(1);
 };
 process.on('uncaughtException', handleUncaughtError);

@@ -60,7 +60,7 @@ export interface Logger {
  */
 export class FileLogger implements Logger {
     #file?: number;
-    #activity: Promise<void>[] = [];
+    #activity: Set<Promise<void>> = new Set();
 
     /**
      * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
@@ -150,10 +150,12 @@ export class FileLogger implements Logger {
         }
         let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
         const fd = this.#file;
-        this.#activity.push(new Promise((resolve) => fs.appendFile(fd, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => {
+        const op = new Promise<void>((resolve) => fs.appendFile(fd, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => {
             if (err) console.error(err);
             resolve();
-        })));
+            this.#activity.delete(op);
+        }));
+        this.#activity.add(op);
     }
 
     async destroy() {
