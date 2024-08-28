@@ -187,7 +187,7 @@ export class Database {
     async getAccountList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT users.username FROM users');
+            const data = await this.#db.query('SELECT users.username FROM users ORDER BY username ASC');
             return data.rows.map((r) => r.username);
         } catch (err) {
             this.logger.handleError('Database error (getAccountList):', err);
@@ -560,11 +560,11 @@ export class Database {
             if (this.#teamCache.has(username) && this.#teamCache.get(username)!.expiration < performance.now()) this.#teamCache.delete(username);
             if (this.#teamCache.has(username)) return structuredClone(this.#teamCache.get(username)!.data);
             const data = await this.#db.query(
-                'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
+                'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
                 username
             ]);
             const data2 = await this.#db.query(
-                'SELECT users.username FROM users WHERE users.team=(SELECT users.team FROM users WHERE users.username=$1)', [
+                'SELECT users.username FROM users WHERE users.team=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
                 username
             ]);
             if (data.rows.length > 0) {
@@ -734,7 +734,7 @@ export class Database {
     async getAllRegisteredUsers(contest: string): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))', [
+            const data = await this.#db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations)) ORDER BY username ASC', [
                 contest
             ]);
             return data.rows.map((row) => row.username);
@@ -778,7 +778,7 @@ export class Database {
     async getAdminList(): Promise<{ username: string, permissions: number }[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT username, permissions FROM admins');
+            const data = await this.#db.query('SELECT username, permissions FROM admins ORDER BY username ASC');
             for (const row of data.rows) {
                 this.#adminCache.set(row.username, {
                     permissions: row.permissions,
@@ -831,7 +831,7 @@ export class Database {
     async getContestList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT contests.id FROM contests');
+            const data = await this.#db.query('SELECT contests.id FROM contests ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getContestList):', err);
@@ -873,7 +873,7 @@ export class Database {
                     { name: 'public', value: c.public },
                     { name: 'type', value: c.type }
                 ]);
-                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions}`, bindings);
+                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const contest of data.rows) {
                     const co: Contest = {
                         id: contest.id,
@@ -950,7 +950,7 @@ export class Database {
     async getRoundList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT rounds.id FROM rounds');
+            const data = await this.#db.query('SELECT rounds.id FROM rounds ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getRoundList):', err);
@@ -997,7 +997,7 @@ export class Database {
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime }
                 ]);
-                const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions}`, bindings);
+                const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const round of data.rows) {
                     const r: Round = {
                         id: round.id,
@@ -1070,7 +1070,7 @@ export class Database {
     async getProblemList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT problems.id FROM problems');
+            const data = await this.#db.query('SELECT problems.id FROM problems ORDER BY name ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getProblemList):', err);
@@ -1125,7 +1125,8 @@ export class Database {
                     { name: 'author', value: c.author }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all problems from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.#db.query(`SELECT * FROM problems ${queryConditions}`, bindings);
+                //is order by name best?
+                const data = await this.#db.query(`SELECT * FROM problems ${queryConditions} ORDER BY name ASC`, bindings);
                 for (const problem of data.rows) {
                     const p: Problem = {
                         id: problem.id,
@@ -1200,7 +1201,7 @@ export class Database {
     async getSubmissionList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions');
+            const data = await this.#db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
             return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
         } catch (err) {
             this.logger.handleError('Database error (getSubmissionList):', err);
@@ -1261,7 +1262,7 @@ export class Database {
                     { name: 'analysis', value: c.analysis }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions}`, bindings);
+                const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY username ASC, id ASC, analysis ASC`, bindings);
                 for (const submission of data.rows) {
                     const s: Submission = {
                         username: submission.username,
