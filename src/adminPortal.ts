@@ -39,8 +39,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
             const token = sessionTokens.createToken([], req.body.username, 3600000);
             res.cookie('token', token, {
-                expires: new Date(Date.now() + 3600000),
-                path: '/',
+                expires: new Date(accessTokens.tokenExpiration(req.body) ?? (Date.now() + 3600000)),
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true
@@ -62,7 +61,6 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         res.cookie('authToken', req.body, {
             expires: new Date(accessTokens.tokenExpiration(req.body) ?? 2147483647000),
-            path: '/',
             httpOnly: true,
             sameSite: 'none',
             secure: true

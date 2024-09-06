@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { Socket as SocketIOSocket } from 'socket.io';
 
-import config, { ContestConfiguration } from './config';
+import config from './config';
 import ContestManager from './contest';
 import { RSAEncrypted, RSAEncryptionHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, Score, TeamData, TeamOpResult } from './database';
