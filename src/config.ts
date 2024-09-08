@@ -136,7 +136,7 @@ const config: GlobalConfiguration = {
     debugMode: process.argv.includes('debug_mode') ?? process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false,
     superSecretSecret: fileConfig.superSecretSecret ?? false,
     path: process.env.CONFIG_PATH,
-    logPath: path.resolve(__dirname, process.env.LOG_PATH ?? fileConfig.logPath ?? '../'),
+    logPath: path.resolve(__dirname, process.env.LOG_PATH ?? fileConfig.logPath ?? '../logs/'),
     emailTemplatePath: path.resolve(__dirname, process.env.EMAIL_TEMPLATE_PATH ?? fileConfig.emailTemplatePath ?? '../email-templates'),
 };
 // when writing back to file, prevent environment variables and argument overrides also overwriting file configurations
