@@ -59,8 +59,9 @@ export interface Logger {
  * A simple logging class with timestamps and logging levels that writes to file and stdout.
  */
 export class FileLogger implements Logger {
-    #file?: number;
-    #activity: Set<Promise<void>> = new Set();
+    private readonly file: number;
+    private closed: boolean = false;
+    private activity: Set<Promise<void>> = new Set();
 
     /**
      * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
@@ -71,19 +72,15 @@ export class FileLogger implements Logger {
     constructor(path: string) {
         path = pathResolve(__dirname, path);
         if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
-        try {
-            const date = new Date();
-            let filePath = pathResolve(path, `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}_${date.getUTCHours()}-${date.getUTCMinutes()}-${date.getUTCSeconds()}_log`);
-            if (fs.existsSync(filePath + '.log')) {
-                let i = 1;
-                while (fs.existsSync(filePath + i + '.log')) i++;
-                filePath += i;
-            }
-            this.#file = fs.openSync(filePath + '.log', 'a');
-            this.info('Logger instance created');
-        } catch (err) {
-            console.error(err);
+        const date = new Date();
+        let filePath = pathResolve(path, `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}_${date.getUTCHours()}-${date.getUTCMinutes()}-${date.getUTCSeconds()}_log`);
+        if (fs.existsSync(filePath + '.log')) {
+            let i = 1;
+            while (fs.existsSync(filePath + i + '.log')) i++;
+            filePath += i;
         }
+        this.file = fs.openSync(filePath + '.log', 'a');
+        this.info('Logger instance created');
     }
 
     timestamp(): string {
@@ -101,19 +98,19 @@ export class FileLogger implements Logger {
         return `${time.getFullYear()}-${month}-${day} [${hour}:${minute}:${second}]`;
     }
     debug(text: string, logOnly = false) {
-        this.#append('debug', text, 36, logOnly);
+        this.append('debug', text, 36, logOnly);
     }
     info(text: string, logOnly = false) {
-        this.#append(' info', text, 34, logOnly);
+        this.append(' info', text, 34, logOnly);
     }
     warn(text: string, logOnly = false) {
-        this.#append(' warn', text, 33, logOnly);
+        this.append(' warn', text, 33, logOnly);
     }
     error(text: string, logOnly = false) {
-        this.#append('error', text, 31, logOnly);
+        this.append('error', text, 31, logOnly);
     }
     fatal(text: string, logOnly = false) {
-        this.#append('fatal', text, 35, logOnly);
+        this.append('fatal', text, 35, logOnly);
     }
     handleError(message: string, error: any) {
         this.error(message);
@@ -142,28 +139,28 @@ export class FileLogger implements Logger {
         }
     }
 
-    #append(level: string, text: string, color: number, logOnly = false) {
-        if (this.#file == undefined) return;
+    private append(level: string, text: string, color: number, logOnly = false) {
+        if (this.file == undefined) return;
         if (!logOnly) {
             let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
             process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
         }
         let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
-        const fd = this.#file;
+        const fd = this.file;
         const op = new Promise<void>((resolve) => fs.appendFile(fd, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => {
             if (err) console.error(err);
             resolve();
-            this.#activity.delete(op);
+            this.activity.delete(op);
         }));
-        this.#activity.add(op);
+        this.activity.add(op);
     }
 
     async destroy() {
-        if (this.#file == undefined) return;
+        if (this.closed) return;
         this.info('Logger instance destroyed');
-        await Promise.all(this.#activity);
-        fs.closeSync(this.#file);
-        this.#file = undefined;
+        await Promise.all(this.activity);
+        fs.closeSync(this.file);
+        this.closed = true;
     }
 }
 

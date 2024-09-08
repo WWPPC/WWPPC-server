@@ -10,17 +10,17 @@ import { is_in_enum } from './util';
  * Custom grading system that offloads grading to a network of other servers.
  */
 export class Grader {
-    readonly #nodes: Map<string, GraderNode> = new Map();
+    private readonly nodes: Map<string, GraderNode> = new Map();
 
     readonly app: Express;
     readonly logger: NamedLogger;
     readonly db: Database;
-    readonly #path: string;
-    readonly #password: string;
+    private readonly path: string;
+    private readonly password: string;
 
-    #open = true;
+    private open = true;
 
-    #ungradedSubmissions: SubmissionWithCallback[] = [];
+    private ungradedSubmissions: SubmissionWithCallback[] = [];
 
     /**
      * @param {Database} db Database connection
@@ -30,17 +30,17 @@ export class Grader {
      * @param {Logger} logger Logger instance
      */
     constructor(db: Database, app: Express, path: string, password: string, logger: Logger) {
-        this.#path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
+        this.path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
         this.app = app;
-        this.logger = new NamedLogger(logger, 'Grader@' + this.#path);
+        this.logger = new NamedLogger(logger, 'Grader@' + this.path);
         this.db = db;
-        this.#password = password;
-        this.logger.info('Creating WWPPC Grader under ' + this.#path);
-        this.app.use(this.#path + '/*', bodyParser.json());
+        this.password = password;
+        this.logger.info('Creating WWPPC Grader under ' + this.path);
+        this.app.use(this.path + '/*', bodyParser.json());
         // see docs
-        this.app.get(this.#path + '/get-work', async (req, res) => {
+        this.app.get(this.path + '/get-work', async (req, res) => {
             //fetch work from the server
-            const username = this.#getAuth(req);
+            const username = this.getAuth(req);
             if (typeof username == 'number') {
                 if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
@@ -48,8 +48,8 @@ export class Grader {
                 return;
             }
 
-            if (!this.#nodes.has(username)) {
-                this.#nodes.set(username, {
+            if (!this.nodes.has(username)) {
+                this.nodes.set(username, {
                     username: username,
                     grading: undefined,
                     deadline: -1,
@@ -57,10 +57,10 @@ export class Grader {
                 });
                 this.logger.info(`New grader connection: ${username} (${req.ip})`);
             }
-            const node: GraderNode = this.#nodes.get(username)!;
+            const node: GraderNode = this.nodes.get(username)!;
             node.lastCommunication = Date.now();
             if (node.grading == undefined) {
-                node.grading = this.#ungradedSubmissions.shift();
+                node.grading = this.ungradedSubmissions.shift();
                 if (node.grading == undefined) {
                     res.json(null);
                     if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, no work`, true);
@@ -86,9 +86,9 @@ export class Grader {
             });
             if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, sent submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
         });
-        this.app.post(this.#path + '/return-work', async (req, res) => {
+        this.app.post(this.path + '/return-work', async (req, res) => {
             //return work if you can't grade it for some reason
-            const username = this.#getAuth(req);
+            const username = this.getAuth(req);
             if (typeof username == 'number') {
                 if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
@@ -96,7 +96,7 @@ export class Grader {
                 return;
             }
 
-            const node = this.#nodes.get(username);
+            const node = this.nodes.get(username);
             if (node == undefined || node.grading == undefined) {
                 res.sendStatus(409);
                 if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
@@ -111,18 +111,18 @@ export class Grader {
                     node.grading.cancelled = true;
                     if (node.grading.callback) node.grading.callback(null);
                 } else {
-                    this.#ungradedSubmissions.unshift(node.grading);
+                    this.ungradedSubmissions.unshift(node.grading);
                 }
             }
             if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - returned submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
             node.grading = undefined;
             res.sendStatus(200);
         });
-        this.app.post(this.#path + '/finish-work', async (req, res) => {
+        this.app.post(this.path + '/finish-work', async (req, res) => {
             //return finished batch
             //doesn't validate if it's a valid problem etc
             //we assume that the judgehost is returning grades from the previous get-work
-            const username = this.#getAuth(req);
+            const username = this.getAuth(req);
             if (typeof username == 'number') {
                 if (username == 401) res.set('WWW-Authenticate', 'Basic');
                 res.sendStatus(username);
@@ -130,7 +130,7 @@ export class Grader {
                 return;
             }
 
-            const node = this.#nodes.get(username);
+            const node = this.nodes.get(username);
             if (node == undefined || node.grading == undefined) {
                 res.sendStatus(409);
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
@@ -170,22 +170,22 @@ export class Grader {
         });
 
         // reserve path
-        this.app.use(this.#path + '/*', (req, res) => res.sendStatus(404));
+        this.app.use(this.path + '/*', (req, res) => res.sendStatus(404));
 
         setInterval(() => {
-            this.#nodes.forEach(async (node, username) => {
+            this.nodes.forEach(async (node, username) => {
                 //check if a submission has passed the deadline and return to queue
                 if (node.grading != undefined && node.deadline < Date.now()) {
-                    this.#ungradedSubmissions.unshift(node.grading);
+                    this.ungradedSubmissions.unshift(node.grading);
                     node.grading = undefined;
                     this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
                 }
                 //if they haven't talked to us in a while let's just assume they disconnected
                 if (node.lastCommunication + config.graderTimeout < Date.now()) {
-                    this.#nodes.delete(username);
+                    this.nodes.delete(username);
                     // also return to queue
                     if (node.grading != undefined) {
-                        this.#ungradedSubmissions.unshift(node.grading);
+                        this.ungradedSubmissions.unshift(node.grading);
                         node.grading = undefined;
                         this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
                     } else {
@@ -201,11 +201,11 @@ export class Grader {
      * @param {GraderSubmission} submission New submission
      */
     queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
-        if (!this.#open) {
+        if (!this.open) {
             cb(null);
             return;
         }
-        this.#ungradedSubmissions.push({
+        this.ungradedSubmissions.push({
             submission: structuredClone(submission),
             returnCount: 0,
             callback: cb,
@@ -220,24 +220,24 @@ export class Grader {
      */
     cancelUngraded(username: string, problemId: string): boolean {
         let canceled = 0;
-        this.#nodes.forEach((node) => {
+        this.nodes.forEach((node) => {
             if (node.grading != undefined && node.grading.submission.username == username && node.grading.submission.problemId == problemId) {
                 node.grading.cancelled = true;
                 canceled++;
             }
         });
-        let i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
+        let i = this.ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
         if (i != -1) {
             while (i != -1) {
-                if (this.#ungradedSubmissions[i].callback) {
+                if (this.ungradedSubmissions[i].callback) {
                     try {
-                        this.#ungradedSubmissions[i].callback!(null);
+                        this.ungradedSubmissions[i].callback!(null);
                     } catch (err) {
                         this.logger.handleError('Error occured in submission callback:', err);
                     }
                 }
-                this.#ungradedSubmissions.splice(i, 1);
-                i = this.#ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
+                this.ungradedSubmissions.splice(i, 1);
+                i = this.ungradedSubmissions.findIndex((ungraded) => ungraded.submission.username == username && ungraded.submission.problemId == problemId);
                 canceled++;
             }
             if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions to ${problemId} by ${username}`);
@@ -245,13 +245,13 @@ export class Grader {
         return canceled > 0;
     }
 
-    #getAuth(req: Request): string | number {
+    getAuth(req: Request): string | number {
         const auth = req.get('Authorization');
         if (auth == null) return 401;
         try {
             const [user, pass] = Buffer.from(auth, 'base64').toString().split(':');
             if (user == null || pass == null) return 400;
-            if (pass !== this.#password) return 403;
+            if (pass !== this.password) return 403;
             return user;
         } catch {
             return 400;
@@ -262,12 +262,12 @@ export class Grader {
      * Cancels all submissions and stops accepting submissions to the queue
      */
     close() {
-        this.#open = false;
-        this.app.removeAllListeners(this.#path + '/*');
-        this.app.removeAllListeners(this.#path + '/get-work');
-        this.app.removeAllListeners(this.#path + '/return-work');
-        this.app.removeAllListeners(this.#path + '/finish-work');
-        this.#ungradedSubmissions.forEach((sub) => {
+        this.open = false;
+        this.app.removeAllListeners(this.path + '/*');
+        this.app.removeAllListeners(this.path + '/get-work');
+        this.app.removeAllListeners(this.path + '/return-work');
+        this.app.removeAllListeners(this.path + '/finish-work');
+        this.ungradedSubmissions.forEach((sub) => {
             sub.cancelled = true;
             if (sub.callback != undefined) sub.callback(null);
         });

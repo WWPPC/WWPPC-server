@@ -29,10 +29,10 @@ export class Database {
      * Resolves when the database is connected.
      */
     readonly connectPromise: Promise<any>;
-    readonly #db: Client;
-    readonly #dbEncryptor: AESEncryptionHandler;
+    private readonly db: Client;
+    private readonly dbEncryptor: AESEncryptionHandler;
     readonly logger: NamedLogger;
-    readonly #cacheGarbageCollector: NodeJS.Timeout;
+    private readonly cacheGarbageCollector: NodeJS.Timeout;
 
     /**
      * @param params Parameters
@@ -41,33 +41,33 @@ export class Database {
         const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
         this.connectPromise = new Promise(() => undefined);
-        this.#dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key, 'base64'), logger);
-        this.#db = new Client({
+        this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key, 'base64'), logger);
+        this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
-        this.connectPromise = this.#db.connect().catch(async (err) => {
+        this.connectPromise = this.db.connect().catch(async (err) => {
             this.logger.handleFatal('Could not connect to database:', err);
-            this.logger.fatal('Host: ' + this.#db.host);
+            this.logger.fatal('Host: ' + this.db.host);
             await this.logger.destroy();
             process.exit(1);
         });
         this.connectPromise.then(() => {
             this.logger.info('Database connected');
             if (config.debugMode) {
-                this.logger.debug(`Connected to ${this.#db.host}`);
+                this.logger.debug(`Connected to ${this.db.host}`);
                 this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
             }
         });
-        this.#db.on('error', async (err) => {
+        this.db.on('error', async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
             await this.logger.destroy();
             process.exit(1);
         });
-        this.#cacheGarbageCollector = setInterval(() => {
+        this.cacheGarbageCollector = setInterval(() => {
             let emptied = 0;
-            [this.#userCache, this.#teamCache, this.#adminCache, this.#contestCache, this.#roundCache, this.#problemCache, this.#submissionCache].forEach((cache) => {
+            [this.userCache, this.teamCache, this.adminCache, this.contestCache, this.roundCache, this.problemCache, this.submissionCache].forEach((cache) => {
                 cache.forEach((item: { expiration: number }, key: string) => {
                     if (item.expiration <= performance.now()) {
                         cache.delete(key);
@@ -85,9 +85,9 @@ export class Database {
      * @returns {Promise} A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
-        clearInterval(this.#cacheGarbageCollector);
+        clearInterval(this.cacheGarbageCollector);
         this.clearCache();
-        await this.#db.end();
+        await this.db.end();
         this.logger.info('Disconnected');
     }
 
@@ -96,7 +96,7 @@ export class Database {
      * @param {{ name: string, value: SqlValue | undefined | null }[]} columns Array of columns with conditions to check. If any value is undefined the condition is omitted
      * @returns { queryConditions: string, bindings: SqlValue[] } String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
      */
-    #buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
+    buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
         const conditions: string[] = [];
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
@@ -169,8 +169,8 @@ export class Database {
         };
     }
 
-    readonly #userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
-    readonly #teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
+    readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
+    readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
     /**
      * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
      * @param {string} username Username
@@ -187,7 +187,7 @@ export class Database {
     async getAccountList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT users.username FROM users ORDER BY username ASC');
+            const data = await this.db.query('SELECT users.username FROM users ORDER BY username ASC');
             return data.rows.map((r) => r.username);
         } catch (err) {
             this.logger.handleError('Database error (getAccountList):', err);
@@ -207,24 +207,24 @@ export class Database {
         const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, salt);
-            const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]);
+            const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
             else {
-                await this.#db.query(`
+                await this.db.query(`
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     `, [
-                    username, encryptedPassword, this.#dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                    username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
                 const joinCode = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
-                await this.#db.query(`
+                await this.db.query(`
                     INSERT INTO teams (username, registrations, name, biography, joincode)
                     VALUES ($1, $2, $3, $4, $5)
                     `, [
                     username, [], username, '', joinCode
                 ]);
             }
-            this.#userCache.set(username, {
+            this.userCache.set(username, {
                 data: {
                     ...userData,
                     username: username,
@@ -257,10 +257,10 @@ export class Database {
         const startTime = performance.now();
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
-            const data = await this.#db.query('SELECT password FROM users WHERE username=$1', [username]);
+            const data = await this.db.query('SELECT password FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
                 if (await bcrypt.compare(password, data.rows[0].password)) {
-                    this.#rotateRecoveryPassword(username);
+                    this.rotateRecoveryPassword(username);
                     return AccountOpResult.SUCCESS;
                 } else return AccountOpResult.INCORRECT_CREDENTIALS;
             }
@@ -280,9 +280,9 @@ export class Database {
     async getAccountData(username: string): Promise<AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            if (this.#userCache.has(username) && this.#userCache.get(username)!.expiration < performance.now()) this.#userCache.delete(username);
-            if (this.#userCache.has(username)) return structuredClone(this.#userCache.get(username)!.data);;
-            const data = await this.#db.query(`
+            if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
+            if (this.userCache.has(username)) return structuredClone(this.userCache.get(username)!.data);;
+            const data = await this.db.query(`
                 SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
                 FROM users
                 INNER JOIN teams ON users.team=teams.username
@@ -307,7 +307,7 @@ export class Database {
                     pastRegistrations: data.rows[0].pastregistrations,
                     team: data.rows[0].team
                 };
-                this.#userCache.set(username, {
+                this.userCache.set(username, {
                     data: structuredClone(userData),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -330,13 +330,13 @@ export class Database {
     async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(
+            const res = await this.db.query(
                 'UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             // cache entry re-fetched from database due to ignored fields not being updated
-            this.#userCache.delete(username);
+            this.userCache.delete(username);
             this.getAccountData(username);
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -360,7 +360,7 @@ export class Database {
             const res = await this.checkAccount(username, password);
             if (res != AccountOpResult.SUCCESS) return res;
             const encryptedPassword = await bcrypt.hash(newPassword, salt);
-            await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+            await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
             this.logger.info(`Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
             return AccountOpResult.SUCCESS;
@@ -382,12 +382,12 @@ export class Database {
     async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
+            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
-                if (token === this.#dbEncryptor.decrypt(data.rows[0].recoverypass)) {
-                    this.#rotateRecoveryPassword(username);
+                if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
+                    this.rotateRecoveryPassword(username);
                     const encryptedPassword = await bcrypt.hash(newPassword, salt);
-                    await this.#db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+                    await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
                     this.logger.info(`Reset password via token for "${username}"`, true);
                     return AccountOpResult.SUCCESS;
                 } else return AccountOpResult.INCORRECT_CREDENTIALS;
@@ -416,29 +416,29 @@ export class Database {
                 const res = await this.checkAccount(adminUsername, password);
                 if (res != AccountOpResult.SUCCESS) return res;
                 if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
-                const data = await this.#db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
+                const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
                 if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-                const users = await this.#db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
-                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
-                await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
+                const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
+                await this.db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
-                this.#userCache.delete(username);
+                this.userCache.delete(username);
                 for (const row of users.rows) {
-                    this.#userCache.delete(row.username);
-                    this.#teamCache.delete(row.username);
+                    this.userCache.delete(row.username);
+                    this.teamCache.delete(row.username);
                 }
                 return AccountOpResult.SUCCESS;
             } else {
                 const res = await this.checkAccount(username, password);
                 if (res != AccountOpResult.SUCCESS) return res;
-                const users = await this.#db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
-                await this.#db.query('DELETE FROM users WHERE username=$1', [username]);
-                await this.#db.query('DELETE FROM teams WHERE username=$1', [username]);
+                const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
+                await this.db.query('DELETE FROM users WHERE username=$1', [username]);
+                await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
                 this.logger.info(`Deleted account ${username}`, true);
-                this.#userCache.delete(username);
+                this.userCache.delete(username);
                 for (const row of users.rows) {
-                    this.#userCache.delete(row.username);
-                    this.#teamCache.delete(row.username);
+                    this.userCache.delete(row.username);
+                    this.teamCache.delete(row.username);
                 }
                 return AccountOpResult.SUCCESS;
             }
@@ -457,10 +457,10 @@ export class Database {
     async getRecoveryPassword(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
+            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) {
                 this.logger.info(`Fetched recovery password for ${username}`, true);
-                return this.#dbEncryptor.decrypt(data.rows[0].recoverypass);
+                return this.dbEncryptor.decrypt(data.rows[0].recoverypass);
             }
             return AccountOpResult.NOT_EXISTS;
         } catch (err) {
@@ -475,11 +475,11 @@ export class Database {
      * @param {string} username Username to rotate
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Rotation status
      */
-    async #rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const newPass = this.#dbEncryptor.encrypt(uuidV4());
-            const data = await this.#db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
+            const newPass = this.dbEncryptor.encrypt(uuidV4());
+            const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
             if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             return AccountOpResult.SUCCESS;
         } catch (err) {
@@ -525,21 +525,21 @@ export class Database {
                 if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
             }
             if (useJoinCode) {
-                const res = await this.#db.query(
+                const res = await this.db.query(
                     'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.joincode=$2) RETURNING users.username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             } else {
-                const res = await this.#db.query(
+                const res = await this.db.query(
                     'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.username=$2) RETURNING users.username', [
                     username, team
                 ]);
                 if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             }
-            this.#userCache.delete(username);
-            this.#teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.#teamCache.delete(k);
+            this.userCache.delete(username);
+            this.teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.teamCache.delete(k);
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
@@ -557,13 +557,13 @@ export class Database {
     async getTeamData(username: string): Promise<TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            if (this.#teamCache.has(username) && this.#teamCache.get(username)!.expiration < performance.now()) this.#teamCache.delete(username);
-            if (this.#teamCache.has(username)) return structuredClone(this.#teamCache.get(username)!.data);
-            const data = await this.#db.query(
+            if (this.teamCache.has(username) && this.teamCache.get(username)!.expiration < performance.now()) this.teamCache.delete(username);
+            if (this.teamCache.has(username)) return structuredClone(this.teamCache.get(username)!.data);
+            const data = await this.db.query(
                 'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
                 username
             ]);
-            const data2 = await this.#db.query(
+            const data2 = await this.db.query(
                 'SELECT users.username FROM users WHERE users.team=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
                 username
             ]);
@@ -575,7 +575,7 @@ export class Database {
                     members: data2.rows.map(row => row.username),
                     joinCode: data.rows[0].joincode
                 };
-                this.#teamCache.set(username, {
+                this.teamCache.set(username, {
                     data: structuredClone(teamDat),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -598,13 +598,13 @@ export class Database {
     async updateTeamData(username: string, teamData: TeamData): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(
+            const res = await this.db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            this.#teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.#teamCache.set(k, {
+            this.teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.teamCache.set(k, {
                     data: teamData,
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -626,13 +626,13 @@ export class Database {
     async registerContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const exists = await this.#db.query(
+            const exists = await this.db.query(
                 'SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
                 username
             ]);
             if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return TeamOpResult.CONTEST_ALREADY_EXISTS;
-            const res = await this.#db.query(`
+            const res = await this.db.query(`
                 UPDATE teams SET registrations=(teams.registrations || $2)
                 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
                 RETURNING teams.username
@@ -640,8 +640,8 @@ export class Database {
                 username, [contest]
             ]);
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            this.#teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.#userCache.delete(k);
+            this.teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.userCache.delete(k);
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
@@ -660,7 +660,7 @@ export class Database {
     async unregisterContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query(`
+            const res = await this.db.query(`
             UPDATE teams SET registrations=ARRAY_REMOVE(
                 (SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)),
                 $2
@@ -670,8 +670,8 @@ export class Database {
                 username, contest
             ]);
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            this.#teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.#userCache.delete(k);
+            this.teamCache.forEach((v, k) => {
+                if (v.data.members.includes(username)) this.userCache.delete(k);
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {
@@ -689,7 +689,7 @@ export class Database {
     async unregisterAllContests(username: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.#db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
+            const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
             return TeamOpResult.SUCCESS;
         } catch (err) {
@@ -706,14 +706,14 @@ export class Database {
     async finishContest(contest: string): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query(`
+            await this.db.query(`
                 UPDATE users SET pastRegistrations=(users.pastRegistrations || $1)
                 WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))
                 AND NOT $1=ANY(users.pastRegistrations)
                 `, [
                 contest
             ]);
-            await this.#db.query(`
+            await this.db.query(`
                 UPDATE teams SET registrations=ARRAY_REMOVE(registrations, $1)
             `, [
                 contest
@@ -734,7 +734,7 @@ export class Database {
     async getAllRegisteredUsers(contest: string): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations)) ORDER BY username ASC', [
+            const data = await this.db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations)) ORDER BY username ASC', [
                 contest
             ]);
             return data.rows.map((row) => row.username);
@@ -746,7 +746,7 @@ export class Database {
         }
     }
 
-    readonly #adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
+    readonly adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
      * Check if an administrator has a certain permission.
      * @param {string} username Valid administrator username
@@ -756,10 +756,10 @@ export class Database {
     async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean> {
         const startTime = performance.now();
         try {
-            if (this.#adminCache.has(username) && this.#adminCache.get(username)!.expiration < performance.now()) this.#adminCache.delete(username);
-            if (this.#adminCache.has(username)) return (this.#adminCache.get(username)!.permissions & flag) != 0;
-            const data = await this.#db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
-            if (data.rows.length > 0) this.#adminCache.set(username, {
+            if (this.adminCache.has(username) && this.adminCache.get(username)!.expiration < performance.now()) this.adminCache.delete(username);
+            if (this.adminCache.has(username)) return (this.adminCache.get(username)!.permissions & flag) != 0;
+            const data = await this.db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
+            if (data.rows.length > 0) this.adminCache.set(username, {
                 permissions: data.rows[0].permissions,
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -778,9 +778,9 @@ export class Database {
     async getAdminList(): Promise<{ username: string, permissions: number }[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT username, permissions FROM admins ORDER BY username ASC');
+            const data = await this.db.query('SELECT username, permissions FROM admins ORDER BY username ASC');
             for (const row of data.rows) {
-                this.#adminCache.set(row.username, {
+                this.adminCache.set(row.username, {
                     permissions: row.permissions,
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -804,12 +804,12 @@ export class Database {
         try {
             if ((permissions & AdminPerms.ADMIN) == 0) {
                 // delete instead
-                await this.#db.query('DELETE FROM admins WHERE username=$1', [username]);
-                this.#adminCache.delete(username);
+                await this.db.query('DELETE FROM admins WHERE username=$1', [username]);
+                this.adminCache.delete(username);
             } else {
-                const existing = await this.#db.query('UPDATE admins SET permissions=$2 WHERE username=$1 RETURNING username', [username, permissions]);
-                if (existing.rows.length == 0) await this.#db.query('INSERT INTO admins (username, permissions) VALUES ($1, $2)', [username, permissions]);
-                this.#adminCache.set(username, {
+                const existing = await this.db.query('UPDATE admins SET permissions=$2 WHERE username=$1 RETURNING username', [username, permissions]);
+                if (existing.rows.length == 0) await this.db.query('INSERT INTO admins (username, permissions) VALUES ($1, $2)', [username, permissions]);
+                this.adminCache.set(username, {
                     permissions: permissions,
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -823,7 +823,7 @@ export class Database {
         }
     }
 
-    readonly #contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
+    readonly contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
      * Read a list of all contest IDs that exist. Bypasses cache.
      * @returns {strings[] | null} List of contest IDs, or null if an error occurred
@@ -831,7 +831,7 @@ export class Database {
     async getContestList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT contests.id FROM contests ORDER BY id ASC');
+            const data = await this.db.query('SELECT contests.id FROM contests ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getContestList):', err);
@@ -855,10 +855,10 @@ export class Database {
             }
             const contests: Contest[] = [];
             contestIdSet.forEach((id) => {
-                if (this.#contestCache.has(id) && this.#contestCache.get(id)!.expiration < performance.now()) this.#contestCache.delete(id);
-                if (this.#contestCache.has(id)) {
+                if (this.contestCache.has(id) && this.contestCache.get(id)!.expiration < performance.now()) this.contestCache.delete(id);
+                if (this.contestCache.has(id)) {
                     contestIdSet.delete(id);
-                    const contest = this.#contestCache.get(id)!.contest;
+                    const contest = this.contestCache.get(id)!.contest;
                     if ((c.startTime == undefined || filterCompare<number>(contest.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(contest.endTime, c.endTime)) && (c.public == undefined || contest.public === c.public)) {
                         contests.push(structuredClone(contest));
                     }
@@ -866,14 +866,14 @@ export class Database {
             });
             const contestIdList = Array.from(contestIdSet.values());
             if (contestIdList.length > 0 || c.id == undefined) {
-                const { queryConditions, bindings } = this.#buildColumnConditions([
+                const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: c.id != undefined ? contestIdList : undefined },
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime },
                     { name: 'public', value: c.public },
                     { name: 'type', value: c.type }
                 ]);
-                const data = await this.#db.query(`SELECT * FROM contests ${queryConditions} ORDER BY id ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM contests ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const contest of data.rows) {
                     const co: Contest = {
                         id: contest.id,
@@ -885,7 +885,7 @@ export class Database {
                         public: contest.public,
                         type: contest.type
                     };
-                    this.#contestCache.set(contest.id, {
+                    this.contestCache.set(contest.id, {
                         contest: structuredClone(co),
                         expiration: performance.now() + config.dbCacheTime
                     });
@@ -909,9 +909,9 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize, contest.startTime, contest.endTime, contest.public, contest.type];
-            const update = await this.#db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4, starttime=$5, endtime=$6, public=$7, type=$8 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize, starttime, endtime, public, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
-            this.#contestCache.set(contest.id, {
+            const update = await this.db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4, starttime=$5, endtime=$6, public=$7, type=$8 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize, starttime, endtime, public, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
+            this.contestCache.set(contest.id, {
                 contest: structuredClone(contest),
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -931,8 +931,8 @@ export class Database {
     async deleteContest(id: string): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query('DELETE FROM contests WHERE id=$1', [id]);
-            this.#contestCache.delete(id);
+            await this.db.query('DELETE FROM contests WHERE id=$1', [id]);
+            this.contestCache.delete(id);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (deleteContest):', err);
@@ -942,7 +942,7 @@ export class Database {
         }
     }
 
-    readonly #roundCache: Map<string, { round: Round, expiration: number }> = new Map();
+    readonly roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
      * Read a list of all round IDs that exist. Bypasses cache.
      * @returns {strings[] | null} List of round IDs, or null if an error occurred
@@ -950,7 +950,7 @@ export class Database {
     async getRoundList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT rounds.id FROM rounds ORDER BY id ASC');
+            const data = await this.db.query('SELECT rounds.id FROM rounds ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getRoundList):', err);
@@ -981,10 +981,10 @@ export class Database {
             }
             const rounds: Round[] = [];
             roundIdSet.forEach((id) => {
-                if (this.#roundCache.has(id) && this.#roundCache.get(id)!.expiration < performance.now()) this.#roundCache.delete(id);
-                if (this.#roundCache.has(id)) {
+                if (this.roundCache.has(id) && this.roundCache.get(id)!.expiration < performance.now()) this.roundCache.delete(id);
+                if (this.roundCache.has(id)) {
                     roundIdSet.delete(id);
-                    const round = this.#roundCache.get(id)!.round;
+                    const round = this.roundCache.get(id)!.round;
                     if ((c.startTime == undefined || filterCompare<number>(round.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(round.endTime, c.endTime))) {
                         rounds.push(structuredClone(round));
                     }
@@ -992,12 +992,12 @@ export class Database {
             });
             const roundIdList = Array.from(roundIdSet.values());
             if (roundIdList.length > 0 || (c.id == undefined && c.contest == undefined && c.round == undefined)) {
-                const { queryConditions, bindings } = this.#buildColumnConditions([
+                const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime }
                 ]);
-                const data = await this.#db.query(`SELECT * FROM rounds ${queryConditions} ORDER BY id ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM rounds ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const round of data.rows) {
                     const r: Round = {
                         id: round.id,
@@ -1005,7 +1005,7 @@ export class Database {
                         startTime: Number(round.starttime),
                         endTime: Number(round.endtime)
                     };
-                    this.#roundCache.set(round.id, {
+                    this.roundCache.set(round.id, {
                         round: structuredClone(r),
                         expiration: performance.now() + config.dbCacheTime
                     });
@@ -1029,9 +1029,9 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = [round.id, round.problems, round.startTime, round.endTime];
-            const update = await this.#db.query('UPDATE rounds SET problems=$2, starttime=$3, endtime=$4 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO rounds (id, problems, starttime, endtime) VALUES ($1, $2, $3, $4)', data);
-            this.#roundCache.set(round.id, {
+            const update = await this.db.query('UPDATE rounds SET problems=$2, starttime=$3, endtime=$4 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.db.query('INSERT INTO rounds (id, problems, starttime, endtime) VALUES ($1, $2, $3, $4)', data);
+            this.roundCache.set(round.id, {
                 round: structuredClone(round),
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -1051,8 +1051,8 @@ export class Database {
     async deleteRound(id: UUID): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query('DELETE FROM rounds WHERE id=$1', [id]);
-            this.#roundCache.delete(id);
+            await this.db.query('DELETE FROM rounds WHERE id=$1', [id]);
+            this.roundCache.delete(id);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (deleteRound):', err);
@@ -1062,7 +1062,7 @@ export class Database {
         }
     }
 
-    readonly #problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
+    readonly problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Read a list of all problem IDs that exist. Bypasses cache.
      * @returns {strings[] | null} List of problem IDs, or null if an error occurred
@@ -1070,7 +1070,7 @@ export class Database {
     async getProblemList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT problems.id FROM problems ORDER BY name ASC');
+            const data = await this.db.query('SELECT problems.id FROM problems ORDER BY name ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getProblemList):', err);
@@ -1108,10 +1108,10 @@ export class Database {
             }
             const problems: Problem[] = [];
             problemIdSet.forEach((id) => {
-                if (this.#problemCache.has(id) && this.#problemCache.get(id)!.expiration < performance.now()) this.#problemCache.delete(id);
-                if (this.#problemCache.has(id)) {
+                if (this.problemCache.has(id) && this.problemCache.get(id)!.expiration < performance.now()) this.problemCache.delete(id);
+                if (this.problemCache.has(id)) {
                     problemIdSet.delete(id);
-                    const problem = this.#problemCache.get(id)!.problem;
+                    const problem = this.problemCache.get(id)!.problem;
                     if ((c.name == undefined || filterCompare<string>(problem.name, c.name)) && (c.author == undefined || filterCompare<string>(problem.author, c.author))) {
                         problems.push(structuredClone(problem));
                     }
@@ -1119,14 +1119,14 @@ export class Database {
             });
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
-                const { queryConditions, bindings } = this.#buildColumnConditions([
+                const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
                     { name: 'name', value: c.name },
                     { name: 'author', value: c.author }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all problems from database! This could cause high resource usage and result in a crash! Is this a bug?');
                 //is order by name best?
-                const data = await this.#db.query(`SELECT * FROM problems ${queryConditions} ORDER BY name ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM problems ${queryConditions} ORDER BY name ASC`, bindings);
                 for (const problem of data.rows) {
                     const p: Problem = {
                         id: problem.id,
@@ -1136,7 +1136,7 @@ export class Database {
                         constraints: problem.constraints,
                         solution: problem.solution
                     };
-                    this.#problemCache.set(problem.id, {
+                    this.problemCache.set(problem.id, {
                         problem: structuredClone(p),
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
@@ -1160,9 +1160,9 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.solution];
-            const update = await this.#db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5, solution=$6 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.#db.query('INSERT INTO problems (id, name, content, author, constraints, solution) VALUES ($1, $2, $3, $4, $5, $6)', data);
-            this.#problemCache.set(problem.id, {
+            const update = await this.db.query('UPDATE problems SET name=$2, content=$3, author=$4, constraints=$5, solution=$6 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.db.query('INSERT INTO problems (id, name, content, author, constraints, solution) VALUES ($1, $2, $3, $4, $5, $6)', data);
+            this.problemCache.set(problem.id, {
                 problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
             });
@@ -1182,8 +1182,8 @@ export class Database {
     async deleteProblem(id: UUID): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query('DELETE FROM problems WHERE id=$1', [id]);
-            this.#problemCache.delete(id);
+            await this.db.query('DELETE FROM problems WHERE id=$1', [id]);
+            this.problemCache.delete(id);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (deleteProblem):', err);
@@ -1193,7 +1193,7 @@ export class Database {
         }
     }
 
-    readonly #submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
+    readonly submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
      * @returns {strings[] | null} List of submission ID strings, or null if an error occurred
@@ -1201,7 +1201,7 @@ export class Database {
     async getSubmissionList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.#db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
+            const data = await this.db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
             return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
         } catch (err) {
             this.logger.handleError('Database error (getSubmissionList):', err);
@@ -1243,10 +1243,10 @@ export class Database {
                 if (c.analysis != undefined) ids.push(`${id}:${c.username}:${c.analysis}`);
                 else ids.push(`${id}:${c.username}:true`, `${id}:${c.username}:false`);
                 for (const realId of ids) {
-                    if (this.#submissionCache.has(realId) && this.#submissionCache.get(realId)!.expiration < performance.now()) this.#submissionCache.delete(realId);
-                    if (this.#submissionCache.has(realId)) {
+                    if (this.submissionCache.has(realId) && this.submissionCache.get(realId)!.expiration < performance.now()) this.submissionCache.delete(realId);
+                    if (this.submissionCache.has(realId)) {
                         problemIdSet.delete(id);
-                        const submission = this.#submissionCache.get(realId)!.submission;
+                        const submission = this.submissionCache.get(realId)!.submission;
                         if ((c.username == undefined || filterCompare<string>(submission.username, c.username)) && (c.time == undefined || filterCompare<number>(submission.time, c.time)) && (c.analysis == undefined || submission.analysis === c.analysis)) {
                             submissions.push(structuredClone(submission));
                         }
@@ -1255,14 +1255,14 @@ export class Database {
             });
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
-                const { queryConditions, bindings } = this.#buildColumnConditions([
+                const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
                     { name: 'time', value: c.time },
                     { name: 'analysis', value: c.analysis }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.#db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY username ASC, id ASC, analysis ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY username ASC, id ASC, analysis ASC`, bindings);
                 for (const submission of data.rows) {
                     const s: Submission = {
                         username: submission.username,
@@ -1278,7 +1278,7 @@ export class Database {
                         })),
                         analysis: submission.analysis
                     };
-                    this.#submissionCache.set(`${s.problemId}:${s.username}:${s.analysis}`, {
+                    this.submissionCache.set(`${s.problemId}:${s.username}:${s.analysis}`, {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
@@ -1303,7 +1303,7 @@ export class Database {
     async writeSubmission(submission: Submission, overwrite?: boolean): Promise<boolean> {
         const startTime = performance.now();
         try {
-            const existing = await this.#db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
+            const existing = await this.db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
             if (existing.rows.length > 0) {
                 const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h: any) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
                 if (existing.rows[0].scores.length > 0 && !overwrite) history.push({
@@ -1312,18 +1312,18 @@ export class Database {
                     scores: existing.rows[0].scores.map((s: any) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
                 });
                 while (history.length > config.maxSubmissionHistory) history.shift();
-                await this.#db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [
+                await this.db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history), submission.analysis
                 ]);
-                this.#submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
+                this.submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
                     submission: { ...submission, history: history },
                     expiration: performance.now() + config.dbCacheTime
                 });
             } else {
-                await this.#db.query('INSERT INTO submissions (username, id, file, language, scores, time, history, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [
+                await this.db.query('INSERT INTO submissions (username, id, file, language, scores, time, history, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [
                     submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([]), submission.analysis
                 ]);
-                this.#submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
+                this.submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -1345,8 +1345,8 @@ export class Database {
     async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<boolean> {
         const startTime = performance.now();
         try {
-            await this.#db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3', [id, username, analysis]);
-            this.#problemCache.delete(`${id}:${username}:${analysis}`);
+            await this.db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3', [id, username, analysis]);
+            this.problemCache.delete(`${id}:${username}:${analysis}`);
             return true;
         } catch (err) {
             this.logger.handleError('Database error (deleteSubmission):', err);
@@ -1360,13 +1360,13 @@ export class Database {
      * Clears all database account, team, admin, contest, round, problem, and submission cache entries.
      */
     clearCache() {
-        this.#userCache.clear();
-        this.#teamCache.clear();
-        this.#adminCache.clear();
-        this.#contestCache.clear();
-        this.#roundCache.clear();
-        this.#problemCache.clear();
-        this.#submissionCache.clear();
+        this.userCache.clear();
+        this.teamCache.clear();
+        this.adminCache.clear();
+        this.contestCache.clear();
+        this.roundCache.clear();
+        this.problemCache.clear();
+        this.submissionCache.clear();
         if (global.gc) global.gc();
         this.logger.debug('Cache cleared');
     }

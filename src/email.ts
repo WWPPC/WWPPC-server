@@ -28,24 +28,24 @@ export interface MailerConstructorParams {
  */
 export class Mailer {
     readonly ready: Promise<any>;
-    readonly #transporter: Transporter;
-    readonly #logger: NamedLogger;
-    readonly #templatePathURL: string;
-    readonly #templates: Map<string, string>;
+    private readonly transporter: Transporter;
+    private readonly logger: NamedLogger;
+    private readonly templatePathURL: string;
+    private readonly templates: Map<string, string>;
 
     /**
      * @param params Parameters
      */
     constructor({ host, port = 587, secure = false, username, password, templatePath, logger }: MailerConstructorParams) {
         const startTime = performance.now();
-        this.#logger = new NamedLogger(logger, 'Mailer');
-        this.#templatePathURL = 'file://' + templatePath;
-        this.#templates = new Map();
+        this.logger = new NamedLogger(logger, 'Mailer');
+        this.templatePathURL = 'file://' + templatePath;
+        this.templates = new Map();
         let resolveReadyPromise: (v: any) => any;
         this.ready = new Promise((resolve) => resolveReadyPromise = resolve);
         fs.readdir(templatePath, { withFileTypes: true }, async (err: Error | null, files: fs.Dirent[]) => {
             if (err !== null) {
-                this.#logger.handleError('Email template indexing failed:', err);
+                this.logger.handleError('Email template indexing failed:', err);
                 return;
             }
             const promises: Promise<any>[] = [];
@@ -54,19 +54,19 @@ export class Mailer {
                 promises.push(new Promise((resolve) => {
                     fs.readFile(path.resolve(file.path, file.name), { encoding: 'utf8' }, async (err: Error | null, data: string) => {
                         if (err !== null) {
-                            this.#logger.handleError('Email template read failed:', err);
+                            this.logger.handleError('Email template read failed:', err);
                             return;
                         }
                         const inlined = await inlineCss(data, {
-                            url: this.#templatePathURL,
+                            url: this.templatePathURL,
                             removeHtmlSelectors: true
                         });
                         const minified = htmlMinify(inlined, {
                             collapseBooleanAttributes: true,
                             collapseWhitespace: true
                         });
-                        this.#templates.set(file.name.split('.')[0], minified);
-                        if (config.debugMode) this.#logger.debug('Read email template ' + file.name);
+                        this.templates.set(file.name.split('.')[0], minified);
+                        if (config.debugMode) this.logger.debug('Read email template ' + file.name);
                         resolve(undefined);
                     });
                 }));
@@ -75,7 +75,7 @@ export class Mailer {
             resolveReadyPromise(undefined);
         });
         // no way to async connect without making not-readonly
-        this.#transporter = createTransport({
+        this.transporter = createTransport({
             name: config.hostname,
             host: host,
             port: port,
@@ -86,16 +86,16 @@ export class Mailer {
             },
             debug: config.debugMode
         });
-        this.#logger.info('SMTP server connected');
+        this.logger.info('SMTP server connected');
         if (config.debugMode) {
-            this.#logger.debug(`Connected to ${host}`);
-            this.#logger.debug(`Connection time: ${performance.now() - startTime}ms`);
-            this.#logger.debug('Current sending address: ' + config.emailAddress);
+            this.logger.debug(`Connected to ${host}`);
+            this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
+            this.logger.debug('Current sending address: ' + config.emailAddress);
         }
-        this.#logger.info('Email activity logging is ' + config.logEmailActivity);
-        this.#transporter.on('error', async (err) => {
-            this.#logger.handleFatal('Fatal SMTP error:', err);
-            await this.#logger.destroy();
+        this.logger.info('Email activity logging is ' + config.logEmailActivity);
+        this.transporter.on('error', async (err) => {
+            this.logger.handleFatal('Fatal SMTP error:', err);
+            await this.logger.destroy();
             process.exit(1);
         });
     }
@@ -118,8 +118,8 @@ export class Mailer {
                 collapseBooleanAttributes: true,
                 collapseWhitespace: true
             });
-            if (config.logEmailActivity) this.#logger.info(`Sending email to ${recipients.join(', ')}`);
-            await this.#transporter.sendMail({
+            if (config.logEmailActivity) this.logger.info(`Sending email to ${recipients.join(', ')}`);
+            await this.transporter.sendMail({
                 from: {
                     name: 'WWPPC',
                     address: config.emailAddress
@@ -130,7 +130,7 @@ export class Mailer {
                 html: minified
             });
         } catch (err) {
-            this.#logger.handleError(`Email to ${recipients.join(',')} failed to send:`, err);
+            this.logger.handleError(`Email to ${recipients.join(',')} failed to send:`, err);
             return new Error('' + err);
         }
     }
@@ -146,14 +146,14 @@ export class Mailer {
      */
     async sendFromTemplate(template: string, recipients: string[], subject: string, params: [string, string][], plaintext?: string): Promise<Error | undefined> {
         try {
-            if (this.#templates.has(template)) {
-                let content = this.#templates.get(template)!;
+            if (this.templates.has(template)) {
+                let content = this.templates.get(template)!;
                 params.push(['hostname', 'https://' + config.hostname]);
                 params.forEach(([key, value]) => {
                     content = content.replaceAll(`$${key}$`, value);
                 });
-                if (config.logEmailActivity) this.#logger.info(`Sending email to ${recipients.join(', ')} (template: ${template})`);
-                await this.#transporter.sendMail({
+                if (config.logEmailActivity) this.logger.info(`Sending email to ${recipients.join(', ')} (template: ${template})`);
+                await this.transporter.sendMail({
                     from: {
                         name: 'WWPPC',
                         address: config.emailAddress
@@ -164,11 +164,11 @@ export class Mailer {
                     html: content
                 });
             } else {
-                this.#logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, new Error('Template not found'));
+                this.logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, new Error('Template not found'));
                 return new Error('Template not found');
             }
         } catch (err) {
-            this.#logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, err);
+            this.logger.handleError(`Email (template: ${template}) to ${recipients.join(',')} failed to send:`, err);
             return new Error('' + err);
         }
     }
@@ -177,7 +177,7 @@ export class Mailer {
      * Disconnect from the SMTP server.
      */
     async disconnect() {
-        this.#transporter.close();
+        this.transporter.close();
     }
 }
 

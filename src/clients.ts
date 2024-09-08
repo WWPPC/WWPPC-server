@@ -23,8 +23,8 @@ export class ClientHost {
     readonly mailer: Mailer;
     readonly logger: Logger;
 
-    readonly #recentSignups = new Map<string, number>();
-    readonly #recentPasswordResetEmails = new Set<string>();
+    private readonly recentSignups = new Map<string, number>();
+    private readonly recentPasswordResetEmails = new Set<string>();
 
     readonly ready: Promise<any>;
 
@@ -88,8 +88,8 @@ export class ClientHost {
 
         if (config.rsaKeyRotateInterval < 3600000) logger.warn('rsaKeyRotateInterval is set to a low value! This will result in frequent sign outs! Is this intentional?');
         setInterval(() => this.clientEncryption.rotateKeys(), config.rsaKeyRotateInterval);
-        setInterval(() => this.#recentSignups.forEach((val, key) => this.#recentSignups.set(key, Math.max(val - 1, 0))), 1000);
-        setInterval(() => this.#recentPasswordResetEmails.clear(), 600000);
+        setInterval(() => this.recentSignups.forEach((val, key) => this.recentSignups.set(key, Math.max(val - 1, 0))), 1000);
+        setInterval(() => this.recentPasswordResetEmails.clear(), 600000);
     }
 
     /**
@@ -155,11 +155,11 @@ export class ClientHost {
                 // actually create/check account
                 if (creds.signupData != undefined) {
                     // spam prevention
-                    if ((this.#recentSignups.get(socket.ip) ?? 0) > config.maxSignupPerMinute) {
+                    if ((this.recentSignups.get(socket.ip) ?? 0) > config.maxSignupPerMinute) {
                         cb(AccountOpResult.SESSION_EXPIRED);
                         return;
                     }
-                    this.#recentSignups.set(socket.ip, (this.#recentSignups.get(socket.ip) ?? 0) + 60);
+                    this.recentSignups.set(socket.ip, (this.recentSignups.get(socket.ip) ?? 0) + 60);
                     // even more validation
                     if (typeof creds.signupData.firstName != 'string' || creds.signupData.firstName.length > 32 || typeof creds.signupData.lastName != 'string' || creds.signupData.lastName.length > 32 || typeof creds.signupData.email != 'string'
                         || creds.signupData.email.length > 32 || typeof creds.signupData.school != 'string' || creds.signupData.school.length > 64 || !Array.isArray(creds.signupData.languages) || creds.signupData.languages.find((v) => typeof v != 'string') !== undefined
@@ -233,7 +233,7 @@ export class ClientHost {
                     return;
                 }
                 socket.logWithId(this.logger.info, 'Account recovery via email password reset started');
-                if (this.#recentPasswordResetEmails.has(creds.username)) {
+                if (this.recentPasswordResetEmails.has(creds.username)) {
                     cb(AccountOpResult.ALREADY_EXISTS);
                     socket.logWithId(this.logger.warn, 'Account recovery email could not be sent because of rate limiting');
                     return;
@@ -254,7 +254,7 @@ export class ClientHost {
                     cb(AccountOpResult.ERROR);
                     return;
                 }
-                this.#recentPasswordResetEmails.add(creds.username);
+                this.recentPasswordResetEmails.add(creds.username);
                 cb(AccountOpResult.SUCCESS);
                 socket.logWithId(this.logger.info, `Account recovery email was sent successfully (sent to ${creds.email})`);
                 // remove the listener to try and combat spam some more

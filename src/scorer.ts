@@ -45,9 +45,9 @@ export interface ScoringFunctionArguments {
  * Using the function score = 1/cnt where cnt is number of people who solved the problem
  */
 export class Scorer {
-    #rounds: Round[];
-    #userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
-    readonly #subtasks: Set<Subtask> = new Set();
+    private rounds: Round[];
+    private userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    private readonly subtasks: Set<Subtask> = new Set();
     readonly logger: NamedLogger;
     readonly scoringFunction: (arg0: ScoringFunctionArguments) => UserScore;
 
@@ -57,13 +57,13 @@ export class Scorer {
      * @param {(arg0: ScoringFunctionArguments) => UserScore} scoringFunction Scoring function
      */
     constructor(rounds: Round[], logger: Logger, scoringFunction: (arg0: ScoringFunctionArguments) => UserScore) {
-        this.#rounds = rounds;
+        this.rounds = rounds.slice();
         this.logger = new NamedLogger(logger, 'Scorer');
         this.scoringFunction = scoringFunction;
     }
 
-    set rounds(rounds: Round[]) {
-        this.#rounds = rounds;
+    setRounds(rounds: Round[]) {
+        this.rounds = rounds.slice();
     }
 
     /**
@@ -73,22 +73,22 @@ export class Scorer {
      * @returns {Boolean} whether it was successful
      */
     updateUser(submission: Submission, submissionRound?: UUID): Boolean {
-        const userScores = this.#userSolvedStatus.get(submission.username) ?? new Map<Subtask, number>();
+        const userScores = this.userSolvedStatus.get(submission.username) ?? new Map<Subtask, number>();
         //add new subtasks
         for (const score of submission.scores) {
             let alreadyExists = false;
-            for (const i of this.#subtasks) {
+            for (const i of this.subtasks) {
                 alreadyExists = i.id === submission.problemId && i.number == score.subtask;
                 if (alreadyExists) break;
             }
             if (!alreadyExists) {
                 //if submissionRound isn't passed in, look it up from the loaded rounds
-                submissionRound ??= this.#rounds.find((round) => round.problems.some((id) => id == submission.problemId))?.id;
+                submissionRound ??= this.rounds.find((round) => round.problems.some((id) => id == submission.problemId))?.id;
                 if (submissionRound === undefined) {
                     this.logger.error(`Problem ID (${submission.problemId}) of submission not found in round data`);
                     return false;
                 }
-                this.#subtasks.add({
+                this.subtasks.add({
                     round: submissionRound,
                     id: submission.problemId,
                     number: score.subtask
@@ -96,12 +96,12 @@ export class Scorer {
             }
         }
         //put in the scores from the submission
-        for (const subtask of this.#subtasks) {
+        for (const subtask of this.subtasks) {
             if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.CORRECT)) {
                 userScores.set(subtask, submission.time);
             }
         }
-        this.#userSolvedStatus.set(submission.username, userScores);
+        this.userSolvedStatus.set(submission.username, userScores);
         return true;
     }
 
@@ -114,14 +114,14 @@ export class Scorer {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
         const userScores = new Map<string, UserScore>(); // final scores of each user
-        const round = this.#rounds.find(r => r.id == roundId);
+        const round = this.rounds.find(r => r.id == roundId);
         if (round == undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }
 
         //find how many users solved each subtask
-        this.#userSolvedStatus.forEach((scores) => {
+        this.userSolvedStatus.forEach((scores) => {
             scores.forEach((solveTime, subtask) => {
                 if (subtask.round == roundId) {
                     subtaskSolved.set(subtask, (subtaskSolved.get(subtask) ?? 0) + 1);
@@ -137,7 +137,7 @@ export class Scorer {
         });
 
         //calculate actual scores for each user
-        this.#userSolvedStatus.forEach((solved, username) => {
+        this.userSolvedStatus.forEach((solved, username) => {
             let score: UserScore = { score: 0, penalty: 0 };
             solved.forEach((solveTime, subtask) => {
                 const numSubtasks = problemSubtasks.get(subtask.id)?.length;
@@ -161,7 +161,7 @@ export class Scorer {
      */
     getScores(): Map<string, UserScore> {
         const sums: Map<string, UserScore> = new Map();
-        for (const round of this.#rounds) {
+        for (const round of this.rounds) {
             this.getRoundScores(round.id).forEach((score, username) => {
                 const cur = sums.get(username);
                 if (cur) sums.set(username, { score: cur.score + score.score, penalty: cur.penalty + score.penalty });
@@ -172,7 +172,7 @@ export class Scorer {
     }
 
     clearScores() {
-        this.#userSolvedStatus = new Map();
+        this.userSolvedStatus = new Map();
     }
 }
 

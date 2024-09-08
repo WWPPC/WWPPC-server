@@ -9,38 +9,38 @@ export type RSAEncrypted = Buffer | string;
  * Simple RSA-OAEP-256 asymmetric encryption wrapper.
  */
 export class RSAEncryptionHandler {
-    static #counter = 0;
+    private static counter = 0;
     readonly logger: NamedLogger;
-    #keypair: Promise<webcrypto.CryptoKeyPair>;
-    #publicKey: webcrypto.JsonWebKey | undefined;
-    #session: number;
+    private keypair: Promise<webcrypto.CryptoKeyPair>;
+    private pubKey: webcrypto.JsonWebKey | undefined;
+    private session: number;
     readonly ready: Promise<any>;
 
     /**
      * @param {Logger} logger Logger instance
      */
     constructor(logger: Logger) {
-        this.logger = new NamedLogger(logger, 'RSAEncryptionHandler-' + RSAEncryptionHandler.#counter++);
-        this.#keypair = subtle.generateKey({
+        this.logger = new NamedLogger(logger, 'RSAEncryptionHandler-' + RSAEncryptionHandler.counter++);
+        this.keypair = subtle.generateKey({
             name: "RSA-OAEP",
             modulusLength: 2048,
             publicExponent: new Uint8Array([1, 0, 1]),
             hash: "SHA-256"
         }, false, ['encrypt', 'decrypt']);
         this.ready = new Promise((resolve) => {
-            this.#keypair.then(({ publicKey }) => subtle.exportKey('jwk', publicKey).then((key) => this.#publicKey = key).then(resolve));
+            this.keypair.then(({ publicKey }) => subtle.exportKey('jwk', publicKey).then((key) => this.pubKey = key).then(resolve));
         });
-        this.#session = Math.random();
+        this.session = Math.random();
     }
 
     /**
      * RA-OAEP public key, exported in "jwk" format.
      */
-    get publicKey() { return this.#publicKey; }
+    get publicKey() { return this.pubKey; }
     /**
      * Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` call.
      */
-    get sessionID() { return this.#session; }
+    get sessionID() { return this.session; }
 
     /**
      * Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the public key has been updated.
@@ -54,9 +54,9 @@ export class RSAEncryptionHandler {
         }, false, ['encrypt', 'decrypt']);
         const pKey = await subtle.exportKey('jwk', (await newKeys).publicKey);
         // avoid desync with promises (rare but will cause lots of random issues)
-        this.#keypair = newKeys;
-        this.#publicKey = pKey;
-        this.#session++;
+        this.keypair = newKeys;
+        this.pubKey = pKey;
+        this.session++;
     }
     /**
      * Decrypt a message using the RSA-OAEP private key.
@@ -65,7 +65,7 @@ export class RSAEncryptionHandler {
      */
     async decrypt(buf: RSAEncrypted) {
         try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.#keypair).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
+            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
             return buf;
@@ -77,17 +77,17 @@ export class RSAEncryptionHandler {
  * Simple AES-GCM-256 symmetric encryption wrapper.
  */
 export class AESEncryptionHandler {
-    static #counter: 0;
+    private static counter: 0;
     readonly logger: NamedLogger;
-    readonly #key: Buffer;
+    private readonly key: Buffer;
 
     /**
      * @param {Buffer} key Valid AES key
      * @param {Logger} logger Logger instance
      */
     constructor(key: Buffer, logger: Logger) {
-        this.logger = new NamedLogger(logger, 'AESEncryptionHandler-' + AESEncryptionHandler.#counter++);
-        this.#key = key;
+        this.logger = new NamedLogger(logger, 'AESEncryptionHandler-' + AESEncryptionHandler.counter++);
+        this.key = key;
     }
 
     /**
@@ -98,7 +98,7 @@ export class AESEncryptionHandler {
     encrypt(plaintext: string): string {
         try {
             const initVector = randomBytes(12);
-            const cipher = createCipheriv('aes-256-gcm', this.#key, initVector);
+            const cipher = createCipheriv('aes-256-gcm', this.key, initVector);
             return `${cipher.update(plaintext, 'utf8', 'base64') + cipher.final('base64')}:${initVector.toString('base64')}:${cipher.getAuthTag().toString('base64')}`;
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
@@ -114,7 +114,7 @@ export class AESEncryptionHandler {
     decrypt(encrypted: string): string {
         try {
             const text = encrypted.split(':');
-            const decipher = createDecipheriv('aes-256-gcm', this.#key, Buffer.from(text[1], 'base64'));
+            const decipher = createDecipheriv('aes-256-gcm', this.key, Buffer.from(text[1], 'base64'));
             decipher.setAuthTag(Buffer.from(text[2], 'base64'));
             return decipher.update(text[0], 'base64', 'utf8') + decipher.final('utf8');
         } catch (err) {
@@ -130,13 +130,13 @@ export class AESEncryptionHandler {
  * @type {DType} Type of linked data
  */
 export class SessionTokenHandler<PType, DType> {
-    readonly #tokens: Map<string, { data: DType, perms: PType[], expiration?: number }> = new Map();
+    private readonly tokens: Map<string, { data: DType, perms: PType[], expiration?: number }> = new Map();
 
     constructor() {
         setInterval(() => {
-            for (const [token, data] of this.#tokens) {
+            for (const [token, data] of this.tokens) {
                 if (data.expiration !== undefined && data.expiration < Date.now()) {
-                    this.#tokens.delete(token);
+                    this.tokens.delete(token);
                 }
             }
         }, 1000);
@@ -151,7 +151,7 @@ export class SessionTokenHandler<PType, DType> {
      */
     createToken(perms: PType[], linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.#tokens.set(token, { data: linkedData, perms: perms.slice(), expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
+        this.tokens.set(token, { data: linkedData, perms: perms.slice(), expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
         return token;
     }
 
@@ -161,7 +161,7 @@ export class SessionTokenHandler<PType, DType> {
      */
     getTokens(): Map<string, { data: DType, perms: PType[] }> {
         const ret = new Map<string, { data: DType, perms: PType[] }>();
-        this.#tokens.forEach((v, k) => ret.set(k, { data: v.data, perms: v.perms.slice() }));
+        this.tokens.forEach((v, k) => ret.set(k, { data: v.data, perms: v.perms.slice() }));
         return ret;
     }
 
@@ -171,7 +171,7 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {boolean} If the token is registered
      */
     tokenExists(token: string): boolean {
-        return this.#tokens.has(token);
+        return this.tokens.has(token);
     }
 
     /**
@@ -180,7 +180,7 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {number | undefined} Expiration time, if the token exists and has an expiration
      */
     tokenExpiration(token: string): number | undefined {
-        return this.tokenExists(token) ? this.#tokens.get(token)!.expiration : undefined;
+        return this.tokenExists(token) ? this.tokens.get(token)!.expiration : undefined;
     }
 
     /**
@@ -191,7 +191,7 @@ export class SessionTokenHandler<PType, DType> {
      */
     extendTokenExpiration(token: string, expiration: number): boolean {
         if (!this.tokenExists(token)) return false;
-        this.#tokens.get(token)!.expiration = Date.now() + (expiration * 1000);
+        this.tokens.get(token)!.expiration = Date.now() + (expiration * 1000);
         return true;
     }
 
@@ -201,8 +201,8 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {PType[] | null} Token permissions list or null if not exists
      */
     tokenPermissions(token: string): PType[] | null {
-        if (!this.#tokens.has(token)) return null;
-        return this.#tokens.get(token)!.perms.slice();
+        if (!this.tokens.has(token)) return null;
+        return this.tokens.get(token)!.perms.slice();
     }
 
     /**
@@ -211,8 +211,8 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {DType | null} Token linked data or null if not exists
      */
     tokenData(token: string): DType | null {
-        if (!this.#tokens.has(token)) return null;
-        return this.#tokens.get(token)!.data;
+        if (!this.tokens.has(token)) return null;
+        return this.tokens.get(token)!.data;
     }
 
     /**
@@ -223,8 +223,8 @@ export class SessionTokenHandler<PType, DType> {
      */
     tokenHasPermissions(token: string, perms: PType | PType[]): boolean {
         perms = Array.isArray(perms) ? perms : [perms];
-        if (!this.#tokens.has(token)) return false;
-        const tokenPerms = this.#tokens.get(token)!;
+        if (!this.tokens.has(token)) return false;
+        const tokenPerms = this.tokens.get(token)!;
         return perms.every((perm) => tokenPerms.perms.includes(perm));
     }
 
@@ -234,6 +234,6 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {boolean} If a token was previously registered and is now unregistered
      */
     removeToken(token: string): boolean {
-        return this.#tokens.delete(token);
+        return this.tokens.delete(token);
     }
 }
