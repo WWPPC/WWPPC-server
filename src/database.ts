@@ -1102,7 +1102,7 @@ export class Database {
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => filterCompare<number>(i, n) && v != undefined)).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => v != undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
@@ -1233,7 +1233,7 @@ export class Database {
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => v != undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }

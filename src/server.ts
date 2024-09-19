@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+const start = performance.now();
+
 import { configDotenv } from 'dotenv';
 configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
@@ -10,6 +12,8 @@ if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PAS
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
+const configLoadTime = performance.now() - start;
+
 // start server
 import { FileLogger } from './log';
 const logger = new FileLogger(config.logPath);
@@ -18,6 +22,7 @@ logger.debug('CONFIG_PATH: ' + config.path);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
 logger.debug('Current config:\n' + JSON.stringify(config, null, 4), true);
 if (global.gc) logger.info('Manual garbage collector cleanup is enabled');
+if (config.debugMode) logger.info('Extra debug logging is enabled (disable this if this is not a development environment!)');
 
 // set up networking
 import express from 'express';
@@ -94,19 +99,24 @@ setInterval(() => {
     recentConnectionKicks.clear();
 }, 1000);
 
+const instantiationTime = performance.now() - start;
+
 Promise.all([
     clientHost.ready,
     database.connectPromise,
     mailer.ready
 ]).then(() => {
+    const startTime = performance.now() - start;
     server.listen(config.port);
-    logger.info(`Listening to port ${config.port}`);
+    if (config.debugMode) logger.debug(`Config load: ${configLoadTime}ms; Module instantiation: ${instantiationTime}ms`);
+    logger.info(`Server started in ${startTime}ms, listening to port ${config.port}`);
 });
 
 const stopServer = async (code: number) => {
     logger.info('Stopping server...');
+    const start = performance.now();
     let actuallyStop = () => {
-        logger.info('[!] Forced server close! Skipped waiting for shutdown! [!]');
+        logger.warn('[!] Forced server close! Skipped waiting for shutdown! [!]');
         process.exit(code);
     };
     process.on('SIGTERM', actuallyStop);
@@ -116,6 +126,7 @@ const stopServer = async (code: number) => {
     contestManager.close();
     upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
+    logger.info(`Server stopped, took ${performance.now() - start}ms`);
     await logger.destroy();
     process.exit(code);
 };

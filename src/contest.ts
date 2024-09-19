@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
 import { Express } from 'express';
-import { Namespace as SocketIONamespace, Server as SocketIOServer, Socket as SocketIOSocket } from 'socket.io';
+import { WebSocket, WebSocketServer } from 'ws';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult, ServerSocket } from './clients';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult } from './clients';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
@@ -22,7 +22,7 @@ export class ContestManager {
 
     readonly db: Database;
     readonly app: Express;
-    readonly io: SocketIOServer;
+    readonly io: WebSocketServer;
     readonly logger: NamedLogger;
     readonly #grader: Grader;
 
@@ -31,11 +31,11 @@ export class ContestManager {
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
-     * @param {SocketIOServer} io Socket.IO server
+     * @param {WebSocketServer} io Websocket server
      * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, io: SocketIOServer, grader: Grader, logger: Logger) {
+    constructor(db: Database, app: Express, io: WebSocketServer, grader: Grader, logger: Logger) {
         this.db = db;
         this.app = app;
         this.io = io;

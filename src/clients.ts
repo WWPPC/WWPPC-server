@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { Socket as SocketIOSocket } from 'socket.io';
+import { WebSocketServer } from 'ws';
 
 import config from './config';
 import ContestManager from './contest';
@@ -97,6 +97,7 @@ export class ClientHost {
      * Performs authentication with reCAPTCHA, then adds user-specific endpoints over Socket.IO
      * @param {ServerSocket} s SocketIO connection (with modifications)
      */
+    /*
     async handleSocketConnection(s: ServerSocket): Promise<void> {
         const socket = s;
 
@@ -107,9 +108,7 @@ export class ClientHost {
         const checkRecaptcha = async (token: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.ERROR | AccountOpResult.CAPTCHA_FAILED> => {
             const recaptchaResponse = await validateRecaptcha(token, socket.ip);
             if (recaptchaResponse instanceof Error) {
-                this.logger.error('reCAPTCHA verification failed:');
-                this.logger.error(recaptchaResponse.message);
-                if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
+                this.logger.error('reCAPTCHA verification failed:', recaptchaResponse);
                 return AccountOpResult.ERROR;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
                 socket.logWithId(this.logger.info, 'reCAPTCHA verification failed:');
@@ -490,31 +489,7 @@ export class ClientHost {
         this.contestManager.addUser(socket);
         this.upsolveManager.addUser(socket);
     }
-}
-
-/**
- * Socket.IO connection with username, IP, logging, and kick function.
- */
-export interface ServerSocket extends SocketIOSocket {
-    kick(reason: string): void
-    logWithId(logMethod: (s: string, logOnly?: boolean) => void, message: string, logOnly?: boolean): void
-    ip: string
-    username: string
-}
-
-export function createServerSocket(socket: SocketIOSocket, ip: string, logger: Logger): ServerSocket {
-    const s2 = socket as ServerSocket;
-    s2.kick = function (reason) {
-        this.logWithId(logger.warn, 'Kicked for violating restrictions: ' + reason);
-        socket.removeAllListeners();
-        socket.disconnect();
-    };
-    s2.logWithId = (logMethod, message, logOnly) => {
-        logMethod.call(logger, `${s2.username} @ ${s2.ip} | ${message}`, logOnly);
-    };
-    s2.ip = ip;
-    s2.username = '';
-    return s2;
+    */
 }
 
 // client interfaces that are sometimes used

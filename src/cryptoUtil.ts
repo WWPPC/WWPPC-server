@@ -125,43 +125,46 @@ export class AESEncryptionHandler {
 }
 
 /**
- * Basic access token system with permissions checking and linked data.
- * @type {PType} Type of permissions list entries
+ * Basic access token system with linked data.
  * @type {DType} Type of linked data
  */
-export class SessionTokenHandler<PType, DType> {
-    private readonly tokens: Map<string, { data: DType, perms: PType[], expiration?: number }> = new Map();
+export class SessionTokenHandler<DType> {
+    private readonly tokens: Map<string, { data: DType, expiration?: number }> = new Map();
+    private readonly tokenData: Map<DType, number> = new Map();
 
     constructor() {
         setInterval(() => {
             for (const [token, data] of this.tokens) {
                 if (data.expiration !== undefined && data.expiration < Date.now()) {
                     this.tokens.delete(token);
+                    const refs = this.tokenData.get(data.data);
+                    if (refs == 0 || refs == undefined) this.tokenData.delete(data.data);
+                    else this.tokenData.set(data.data, refs - 1);
                 }
             }
         }, 1000);
     }
 
     /**
-     * Create and register a new token with specified permissions list that optionally expires after some time.
-     * @param {PType[]} perms Permissions list
+     * Create and register a new token that optionally expires after some time.
      * @param {DType} linkedData Data to associate with the new token
      * @param {number | undefined} expiration Seconds until expiration removes the token
      * @returns {string} Access token
      */
-    createToken(perms: PType[], linkedData: DType, expiration?: number): string {
+    createToken(linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.tokens.set(token, { data: linkedData, perms: perms.slice(), expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
+        this.tokens.set(token, { data: linkedData, expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
+        this.tokenData.set(linkedData, (this.tokenData.get(linkedData) ?? 0) + 1);
         return token;
     }
 
     /**
-     * Get a map of all tokens and corresponding permissions lists and data.
-     * @returns {Map<string, { data: DType, perms: PType[] }>} Copy of token map
+     * Get a map of all tokens and corresponding data.
+     * @returns {Map<string, DType>} Copy of token map
      */
-    getTokens(): Map<string, { data: DType, perms: PType[] }> {
-        const ret = new Map<string, { data: DType, perms: PType[] }>();
-        this.tokens.forEach((v, k) => ret.set(k, { data: v.data, perms: v.perms.slice() }));
+    getTokens(): Map<string, DType> {
+        const ret = new Map<string, DType>();
+        this.tokens.forEach((v, k) => ret.set(k, v.data));
         return ret;
     }
 
@@ -196,36 +199,39 @@ export class SessionTokenHandler<PType, DType> {
     }
 
     /**
-     * Get the permissions list for a token if it exists.
-     * @param {string} token Token to check
-     * @returns {PType[] | null} Token permissions list or null if not exists
-     */
-    tokenPermissions(token: string): PType[] | null {
-        if (!this.tokens.has(token)) return null;
-        return this.tokens.get(token)!.perms.slice();
-    }
-
-    /**
      * Get the linked data for a token if it exists.
      * @param {string} token Token to check
      * @returns {DType | null} Token linked data or null if not exists
      */
-    tokenData(token: string): DType | null {
+    getTokenData(token: string): DType | null {
         if (!this.tokens.has(token)) return null;
         return this.tokens.get(token)!.data;
     }
 
     /**
-     * Check if a token has a permission or all permissions in a list of permissions.
+     * Set the linked data for a token if it exists.
      * @param {string} token Token to check
-     * @param {PType | PType[]} perms Permission or list of permissions
-     * @returns {boolean} If the token contains the permission or all permissions from the list
+     * @param {DType} linkedData New data
+     * @returns {boolean} If a token was found and the data updated
      */
-    tokenHasPermissions(token: string, perms: PType | PType[]): boolean {
-        perms = Array.isArray(perms) ? perms : [perms];
-        if (!this.tokens.has(token)) return false;
-        const tokenPerms = this.tokens.get(token)!;
-        return perms.every((perm) => tokenPerms.perms.includes(perm));
+    setTokenData(token: string, linkedData: DType): boolean {
+        const existing = this.tokens.get(token);
+        if (existing == null) return false;
+        existing.data = linkedData;
+        const refs = this.tokenData.get(existing.data);
+        if (refs == 0 || refs == undefined) this.tokenData.delete(existing.data);
+        else this.tokenData.set(existing.data, refs - 1);
+        this.tokenData.set(linkedData, (this.tokenData.get(linkedData) ?? 0) + 1);
+        return true;
+    }
+
+    /**
+     * Check if any token has the linked data requested.
+     * @param {DType} linkedData Data to search for
+     * @returns {boolean} If any token with equal linked data is found
+     */
+    dataExists(linkedData: DType): boolean {
+        return this.tokenData.has(linkedData);
     }
 
     /**
@@ -234,6 +240,11 @@ export class SessionTokenHandler<PType, DType> {
      * @returns {boolean} If a token was previously registered and is now unregistered
      */
     removeToken(token: string): boolean {
+        const data = this.tokens.get(token);
+        if (data == undefined) return false;
+        const refs = this.tokenData.get(data.data);
+        if (refs == 0 || refs == undefined) this.tokenData.delete(data.data);
+        else this.tokenData.set(data.data, refs - 1);
         return this.tokens.delete(token);
     }
 }
