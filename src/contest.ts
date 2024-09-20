@@ -389,7 +389,7 @@ export class ContestHost {
             this.end();
             return;
         }
-        this.scorer.rounds = rounds;
+        this.scorer.setRounds(rounds);
         this.scorer.clearScores();
         const mapped: ContestRound[] = [];
         for (let i in contest[0].rounds) {

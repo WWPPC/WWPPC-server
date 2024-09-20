@@ -49,10 +49,10 @@ app.use(cookieParser());
 app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
+import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';
 import Database from './database';
 import Grader from './grader';
-import { WebSocketServer } from 'ws';
 import ContestManager from './contest';
 import UpsolveManager from './upsolve';
 
@@ -70,9 +70,12 @@ const database = new Database({
     sslCert: process.env.DATABASE_CERT,
     logger: logger
 });
+const io = new SocketIOServer(server, {
+    path: '/web-socketio',
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 const grader = new Grader(database, app, '/judge', process.env.GRADER_PASS!, logger);
-const wss = new WebSocketServer({ server: server, path: '/web-notify'});
-const contestManager = new ContestManager(database, app, wss, grader, logger);
+const contestManager = new ContestManager(database, app, io, grader, logger);
 const upsolveManager = new UpsolveManager(database, app, grader, logger);
 
 // init client handlers and API endpoints
@@ -85,8 +88,41 @@ attachAdminPortal(database, app, contestManager, logger);
 
 // complete networking
 if (config.debugMode) logger.info('Creating Socket.IO server');
+import { createServerSocket } from './clients';
 const recentConnections = new Map<string, number>();
 const recentConnectionKicks = new Set<string>();
+io.on('connection', async (s) => {
+    s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
+    const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
+    const socket = createServerSocket(s, ip, logger);
+    // some spam protection stuff
+    socket.on('error', (e) => socket.kick(e?.toString()));
+    // connection DOS detection
+    recentConnections.set(socket.ip, (recentConnections.get(socket.ip) ?? 0) + 1);
+    if ((recentConnections.get(socket.ip) ?? 0) > config.maxConnectPerSecond) {
+        if (!recentConnectionKicks.has(socket.ip)) socket.kick('too many connections');
+        else {
+            socket.removeAllListeners();
+            socket.disconnect();
+        }
+        recentConnectionKicks.add(socket.ip);
+        return;
+    }
+    // spam DOS protection
+    let packetCount = 0;
+    socket.onAny((event, ...args) => {
+        packetCount++;
+    });
+    const packetcheck = setInterval(async function () {
+        if (!socket.connected) clearInterval(packetcheck);
+        packetCount = Math.max(packetCount - 250, 0);
+        if (packetCount > 0) socket.kick('too many packets');
+    }, 1000);
+    if (config.superSecretSecret) socket.emit('superSecretMessage');
+
+    // hand off to host
+    clientHost.handleSocketConnection(socket);
+});
 setInterval(() => {
     recentConnections.forEach((val, key) => {
         recentConnections.set(key, Math.max(val - 1, 0));
@@ -112,7 +148,7 @@ const stopServer = async (code: number) => {
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
     process.on('SIGINT', actuallyStop);
-    wss.close();
+    io.close();
     contestManager.close();
     upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
