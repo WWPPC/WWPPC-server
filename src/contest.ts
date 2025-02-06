@@ -307,18 +307,18 @@ export class ContestHost {
         const scoringFunction = type == 'WWPMI' ? (score: ScoringFunctionArguments) => {
             return {
                 score: 1 / score.problem.numSubtasks,
-                penalty: score.submission.time
+                penalty: (score.submission.time - score.round.startTime) / 1000 / 60 //convert to minutes
             }
         } : type == 'WWPIT' ? (score: ScoringFunctionArguments) => {
             return {
                 score: 1 / score.problem.numSubtasks,
-                penalty: score.submission.time
+                penalty: (score.submission.time - score.round.startTime) / 1000 / 60 //convert to minutes
             }
-        } : () => {
+        } : (score: ScoringFunctionArguments) => {
             this.logger.error(`Contest type ${type} not recognized`);
             return {
-                score: 0,
-                penalty: 0
+                score: 1 / score.problem.numSubtasks,
+                penalty: (score.submission.time - score.round.startTime) / 1000 / 60 //convert to minutes
             }
         }
         this.scorer = new Scorer([], logger, scoringFunction);
@@ -482,6 +482,8 @@ export class ContestHost {
                 if (Date.now() < scoreFreezeCutoffTime) this.#actualScoreboards = this.#scoreboards = this.scorer.getScores();
                 else this.#actualScoreboards = this.scorer.getScores();
                 this.io.emit('scoreboard', Array.from(this.#scoreboards.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => {
+                    //put higher score, lower penalty first
+                    //TODO: update this on client
                     if (b.score.score == a.score.score) return a.score.penalty - b.score.penalty;
                     else return b.score.score - a.score.score;
                 }));

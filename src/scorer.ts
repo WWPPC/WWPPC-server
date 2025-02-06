@@ -31,6 +31,11 @@ export interface ScoringFunctionArguments {
         /**Number of subtasks in the problem (may break if submission doesn't have all of the problem subtasks) */
         numSubtasks: number
     }
+    /**Subtask information */
+    subtask: {
+        /**Number of solves of this subtask */
+        numSolved: number
+    }
     /**Round information */
     round: {
         /**When the round this submission was made in starts */
@@ -144,7 +149,21 @@ export class Scorer {
                 const numSolved = subtaskSolved.get(subtask);
                 //not explicity comparing to undefined is safe because there has to be at least one solve
                 if (numSubtasks && numSolved) {
-                    const subtaskScore = this.scoringFunction({ submission: { time: solveTime }, problem: { numSubtasks }, round: { startTime: round.startTime, endTime: round.endTime } });
+                    const subtaskScore = this.scoringFunction({
+                        submission: {
+                            time: solveTime
+                        },
+                        problem: {
+                            numSubtasks,
+                        },
+                        subtask: {
+                            numSolved
+                        },
+                        round: {
+                            startTime: round.startTime,
+                            endTime: round.endTime
+                        }
+                    });
                     score.score += subtaskScore.score;
                     score.penalty += subtaskScore.penalty;
                     // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
