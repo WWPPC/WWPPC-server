@@ -5,7 +5,6 @@ import { UUID } from './util';
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
  * Using the function score = 1/cnt where cnt is number of people who solved the problem
- * ^ disabled rn
  */
 export class Scorer {
     #rounds: Round[];
@@ -20,6 +19,10 @@ export class Scorer {
     constructor(rounds: Round[], logger: Logger) {
         this.#rounds = rounds;
         this.logger = new NamedLogger(logger, 'Scorer');
+    }
+
+    set rounds(rounds: Round[]) {
+        this.#rounds = rounds;
     }
 
     /**
@@ -77,17 +80,27 @@ export class Scorer {
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }
 
+        //set everything to 0
+        this.#subtasks.forEach((subtask) => {
+            if (subtask.round === roundId) subtaskSolved.set(subtask, 0);
+        });
+
         //find how many users solved each subtask
         this.#userSolvedStatus.forEach((scores) => {
             scores.forEach((solveTime, subtask) => {
-                subtaskSolved.set(subtask, (subtaskSolved.get(subtask) ?? 0) + 1);
+                const c = subtaskSolved.get(subtask);
+                if (c !== undefined) {
+                    subtaskSolved.set(subtask, c + 1);
+                }
             })
         });
 
         //group subtasks by problem id
         subtaskSolved.forEach((numSolved, subtask) => {
-            const problem = problemSubtasks.get(subtask.id) ?? [];
-            problemSubtasks.set(subtask.id, problem.concat([subtask]));
+            const problem = problemSubtasks.get(subtask.id);
+            //probably no pass by reference issues?
+            if (problem === undefined) problemSubtasks.set(subtask.id, [subtask]);
+            else problemSubtasks.set(subtask.id, problem.concat([subtask]));
         });
         //weight subtasks so that problems with more subtasks aren't weighted too high
         problemSubtasks.forEach((subtasks, problem) => {
@@ -99,9 +112,8 @@ export class Scorer {
             let score = 0;
             scores.forEach((solveTime, subtask) => {
                 const weight = problemWeight.get(subtask.id);
-                if (weight !== undefined && subtaskSolved.get(subtask) !== undefined) {
-                    //ignore scoring function moment
-                    //subtract penalty from the score
+                const numSolved = subtaskSolved.get(subtask);
+                if (weight !== undefined && numSolved !== undefined) {
                     score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
                 }
             });
@@ -115,10 +127,11 @@ export class Scorer {
      * @returns {Map<string, number>} mapping of username to score
      */
     getScores(): Map<string, number> {
-        const sums = new Map<string, number>();
+        const sums: Map<string, number> = new Map();
         for (const round of this.#rounds) {
             this.getRoundScores(round.id).forEach((score, username) => {
-                sums.set(username, (sums.get(username) ?? 0) + score);
+                if (sums.has(username)) sums.set(username, sums.get(username)! + score);
+                else sums.set(username, score);
             });
         }
         return sums;
