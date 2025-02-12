@@ -41,6 +41,7 @@ export class ContestManager {
         this.io = io;
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = grader;
+        // CREATE FUNCTION TO SET UP HTTP HANDLERS
         this.app.get('/api/contestList', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);

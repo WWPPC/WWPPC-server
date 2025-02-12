@@ -1,6 +1,5 @@
 import { Express } from 'express';
 
-import { ServerSocket } from './clients';
 import config from './config';
 import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './clients';
 import Database, { Score, ScoreState, Submission } from './database';

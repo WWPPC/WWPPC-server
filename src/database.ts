@@ -41,7 +41,7 @@ export class Database {
         const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
         this.connectPromise = new Promise(() => undefined);
-        this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key, 'base64'), logger);
+        this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key as string, 'base64'), logger);
         this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',

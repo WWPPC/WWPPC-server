@@ -4,7 +4,7 @@ import { resolve as pathResolve } from 'path';
 
 import config from './config';
 import ContestManager from './contest';
-import { SessionTokenHandler } from './cryptoUtil';
+import { TokenHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
 import Logger, { NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
@@ -20,8 +20,10 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     const app = expressApp;
     const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
-    const sessionTokens = new SessionTokenHandler<never, string>();
-    const accessTokens = new SessionTokenHandler<AdminAccessTokenPerms, undefined>();
+    // session tokens map to usernames, for individual logins
+    // access tokens are similar to temporary credentials
+    const sessionTokens = new TokenHandler<string>();
+    const accessTokens = new TokenHandler<AdminAccessTokenPerms[]>();
     logger.info('Attaching admin portal to /admin/');
 
     // require authentication for everything except login
@@ -37,7 +39,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         if ((await database.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await database.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
-            const token = sessionTokens.createToken([], req.body.username, 3600000);
+            const token = sessionTokens.createToken(req.body.username, 3600000);
             res.cookie('token', token, {
                 expires: new Date(accessTokens.tokenExpiration(req.body) ?? (Date.now() + 3600000)),
                 httpOnly: true,
@@ -76,7 +78,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         if (!sessionTokens.tokenExists(req.cookies.token)) {
             res.sendStatus(401);
             return false;
-        } else if (!(await db.hasAdminPerms(sessionTokens.tokenData(req.cookies.token)!, perms))) {
+        } else if (!(await db.hasAdminPerms(sessionTokens.getTokenData(req.cookies.token)!, perms))) {
             res.sendStatus(403);
             return false;
         }
@@ -117,15 +119,16 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     });
     app.get('/admin/accessTokens/list', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        res.json(Array.from(accessTokens.getTokens()).map(v => ({ id: v[0], perms: v[1].perms })));
+        res.json(Object.entries(accessTokens.getTokens()).map(([token, perms]) => ({ id: token, perms: perms })));
     });
     app.post('/admin/accessTokens/create', bodyParser.json(), async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-        if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions) || req.body.permissions.length == 0 || req.body.permissions.some((p: any) => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
+        if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions)
+            || req.body.permissions.length == 0 || req.body.permissions.some((p: any) => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
             res.sendStatus(400);
             return;
         }
-        res.json(accessTokens.createToken(req.body.permissions, undefined, req.body.expiration));
+        res.json(accessTokens.createToken(req.body.permissions, req.body.expiration));
     });
     app.delete('/admin/accessTokens/delete/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
@@ -167,7 +170,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultAccountOpMapping(res, await database.updateAccountData(req.params.username, body));
-        logger.info(`Account "${req.params.username}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Account "${req.params.username}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
@@ -176,8 +179,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(400);
             return;
         }
-        defaultAccountOpMapping(res, await database.deleteAccount(req.params.username, req.body.password, sessionTokens.tokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator'));
-        logger.info(`Account "${req.params.username}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
+        defaultAccountOpMapping(res, await database.deleteAccount(req.params.username, req.body.password, sessionTokens.getTokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator'));
+        logger.info(`Account "${req.params.username}" deleted by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.get('/admin/api/team/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
@@ -196,7 +199,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultTeamOpMapping(res, await database.updateTeamData(req.params.username, body));
-        logger.info(`Team "${req.params.username}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Team "${req.params.username}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     // admins (bespoke!!)
     app.get('/admin/api/admins', async (req, res) => {
@@ -210,7 +213,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, req.body.permissions));
-        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Administrator list modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/admin/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
@@ -219,7 +222,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, 0));
-        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Administrator list modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     // contests
     app.get('/admin/api/contestList', async (req, res) => {
@@ -244,12 +247,12 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeContest(body));
-        logger.info(`Contest "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Contest "${req.params.id}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/contest/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
         defaultSuccessMapping(res, await database.deleteContest(req.params.id));
-        logger.info(`Contest "${req.params.id}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Contest "${req.params.id}" deleted by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     // rounds
     app.get('/admin/api/roundList', async (req, res) => {
@@ -276,7 +279,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeRound(body));
-        logger.info(`Round "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Round "${req.params.id}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/round/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
@@ -285,7 +288,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.deleteRound(req.params.id));
-        logger.info(`Round "${req.params.id}" deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Round "${req.params.id}" deleted by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     // problems
     app.get('/admin/api/problemList', async (req, res) => {
@@ -312,7 +315,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.writeProblem(body));
-        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     app.delete('/admin/api/problem/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
@@ -321,11 +324,13 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.deleteProblem(req.params.id));
-        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Problem "${req.params.id}" modified by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
     // contest control functions
     app.get('/admin/api/runningContests', async (req, res) => {
-        if ((req.cookies.authToken == undefined || !accessTokens.tokenHasPermissions(req.cookies.authToken, AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) {
+        if ((req.cookies.authToken == undefined
+            || (!(accessTokens.getTokenData(req.cookies.authToken) ?? []).includes(AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await checkPerms(req, res, AdminPerms.CONTROL_CONTESTS))) {
+            // no perms if token doesn't exist
             return;
         }
         res.json(contestManager.getRunningContests().map(contest => {
@@ -354,7 +359,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
         }
         contestHost.reload();
         res.sendStatus(200);
-        logger.info(`ContestHost "${req.params.id}" reloaded by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`ContestHost "${req.params.id}" reloaded by ${sessionTokens.getTokenData(req.cookies.token)}`);
     });
 
     // reserve /admin path

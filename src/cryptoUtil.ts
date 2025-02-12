@@ -128,9 +128,9 @@ export class AESEncryptionHandler {
  * Basic access token system with linked data.
  * @type {DType} Type of linked data
  */
-export class SessionTokenHandler<DType> {
+export class TokenHandler<DType> {
     private readonly tokens: Map<string, { data: DType, expiration?: number }> = new Map();
-    private readonly tokenData: Map<DType, number> = new Map();
+    private readonly tokenData: Map<DType, number> = new Map(); // reference counter optimization
 
     constructor() {
         setInterval(() => {
@@ -162,9 +162,9 @@ export class SessionTokenHandler<DType> {
      * Get a map of all tokens and corresponding data.
      * @returns {Map<string, DType>} Copy of token map
      */
-    getTokens(): Map<string, DType> {
-        const ret = new Map<string, DType>();
-        this.tokens.forEach((v, k) => ret.set(k, v.data));
+    getTokens(): Record<string, DType> {
+        const ret: Record<string, DType> = {};
+        this.tokens.forEach((v, k) => ret[k] = v.data);
         return ret;
     }
 
