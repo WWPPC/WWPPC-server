@@ -76,7 +76,7 @@ export class Database {
                 });
             });
             if (global.gc) global.gc();
-            if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
+            if (config.debugMode && emptied > 0) logger.debug(`Deleted ${emptied} stale entries from cache`);
         }, 300000);
     }
 
