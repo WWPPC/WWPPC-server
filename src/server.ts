@@ -57,7 +57,6 @@ app.get('/wakeup', (req, res) => res.json('ok'));
 import Mailer from './email';
 import Database from './database';
 import Grader from './grader';
-import { WebSocketServer } from 'ws';
 import ContestManager from './contest';
 import UpsolveManager from './upsolve';
 
@@ -76,12 +75,11 @@ const database = new Database({
     logger: logger
 });
 const grader = new Grader(database, app, '/judge', process.env.GRADER_PASS!, logger);
-const wss = new WebSocketServer({ server: server, path: '/web-notify'});
-const contestManager = new ContestManager(database, app, wss, grader, logger);
+const contestManager = new ContestManager(database, app, grader, logger);
 const upsolveManager = new UpsolveManager(database, app, grader, logger);
 
 // init client handlers and API endpoints
-import ClientHost from './clients';
+import ClientHost from './client';
 const clientHost = new ClientHost(database, app, contestManager, upsolveManager, mailer, logger);
 
 // admin portal
@@ -122,7 +120,6 @@ const stopServer = async (code: number) => {
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
     process.on('SIGINT', actuallyStop);
-    wss.close();
     contestManager.close();
     upsolveManager.close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);

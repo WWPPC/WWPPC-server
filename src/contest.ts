@@ -1,8 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Express } from 'express';
-import { WebSocket, WebSocketServer } from 'ws';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult } from './clients';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult } from './client';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
@@ -10,19 +9,19 @@ import Logger, { NamedLogger } from './log';
 import { validateRecaptcha } from './recaptcha';
 import Scorer, { ScoringFunctionArguments, UserScore } from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
+import { LongPollEventEmitter } from './longPolling';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients.
  * It will automatically start and stop contests, advance rounds, and process submissions and leaderboards.
  */
 export class ContestManager {
-    readonly #sockets: Set<ServerSocket> = new Set();
     readonly #contests: Map<string, ContestHost> = new Map();
     readonly #updateLoop: NodeJS.Timeout;
 
     readonly db: Database;
     readonly app: Express;
-    readonly io: WebSocketServer;
+    readonly clientEvents: LongPollEventEmitter<['buh']>;
     readonly logger: NamedLogger;
     readonly #grader: Grader;
 
@@ -31,17 +30,15 @@ export class ContestManager {
     /**
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
-     * @param {WebSocketServer} io Websocket server
      * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, io: WebSocketServer, grader: Grader, logger: Logger) {
+    constructor(db: Database, app: Express, grader: Grader, logger: Logger) {
         this.db = db;
         this.app = app;
-        this.io = io;
+        this.clientEvents = new LongPollEventEmitter(app, '/api/contest/', ['buh']);
         this.logger = new NamedLogger(logger, 'ContestManager');
         this.#grader = grader;
-        // CREATE FUNCTION TO SET UP HTTP HANDLERS
         this.app.get('/api/contestList', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);
@@ -240,26 +237,6 @@ export interface ContestProblem {
     author: string
     content: string
     constraints: { memory: number, time: number }
-}
-
-/**
- * Socket.IO connection with a reference to the original "spawning" connection, similar to ServerSocket but within contest namespace.
- */
-export interface ContestSocket extends ServerSocket {
-    linkedSocket: ServerSocket;
-}
-
-export function createContestSocket(socket: SocketIOSocket, linkedSocket: ServerSocket) {
-    const s2 = socket as ContestSocket;
-    s2.kick = function (reason) {
-        linkedSocket.kick(reason);
-        socket.removeAllListeners();
-        socket.disconnect();
-    };
-    s2.logWithId = linkedSocket.logWithId;
-    s2.ip = linkedSocket.ip;
-    s2.username = linkedSocket.username;
-    return s2;
 }
 
 /**

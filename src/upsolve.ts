@@ -1,7 +1,7 @@
 import { Express } from 'express';
 
 import config from './config';
-import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './clients';
+import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './client';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { NamedLogger } from './log';
@@ -11,7 +11,6 @@ import { isUUID, reverse_enum, UUID } from './util';
  * `UpsolveManager` allows viewing and submitting to problems of past contests.
  */
 export class UpsolveManager {
-    readonly #sockets: Set<ServerSocket> = new Set();
 
     readonly db: Database;
     readonly app: Express;

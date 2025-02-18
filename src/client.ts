@@ -1,5 +1,4 @@
 import { Express } from 'express';
-import { WebSocketServer } from 'ws';
 
 import config from './config';
 import ContestManager from './contest';

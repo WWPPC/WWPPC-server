@@ -152,3 +152,5 @@ export function is_in_enum(v: any, enumeration: any): boolean {
     for (const k in enumeration) if (enumeration[k] === v) return true;
     return false;
 }
+
+export type ElementOf<T extends readonly unknown[]> = T extends readonly (infer Element)[] ? Element : never;
