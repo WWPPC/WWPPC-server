@@ -1,12 +1,10 @@
 import bodyParser from 'body-parser';
 import { Express } from 'express';
-import { resolve as pathResolve } from 'path';
 
-import config from './config';
 import ContestManager from './contest';
 import { SessionTokenHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
-import Logger, { NamedLogger } from './log';
+import Logger, { FileLogger, NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 
 /**Permissions that can be given to access tokens */
@@ -15,7 +13,7 @@ enum AdminAccessTokenPerms {
     READ_LEADERBOARDS = 'readLeaderboards'
 }
 
-export function attachAdminPortal(db: Database, expressApp: Express, contest: ContestManager, log: Logger) {
+export function attachAdminPortal(db: Database, expressApp: Express, contest: ContestManager, log: FileLogger) {
     const database = db;
     const app = expressApp;
     const contestManager = contest;
@@ -109,7 +107,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
 
     // logs
     app.get('/admin/logs', async (req, res) => {
-        res.sendFile(pathResolve(config.logPath, 'log.log'));
+        res.sendFile(log.filePath);
     });
     // access tokens
     app.get('/admin/accessTokens/ruleset', (req, res) => {

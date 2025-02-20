@@ -60,6 +60,7 @@ export interface Logger {
  */
 export class FileLogger implements Logger {
     private readonly file: number;
+    private readonly _filePath: string;
     private closed: boolean = false;
     private activity: Set<Promise<void>> = new Set();
 
@@ -72,15 +73,13 @@ export class FileLogger implements Logger {
     constructor(path: string) {
         path = pathResolve(__dirname, path);
         if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
-        const date = new Date();
-        let filePath = pathResolve(path, `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}_${date.getUTCHours()}-${date.getUTCMinutes()}-${date.getUTCSeconds()}_log`);
-        if (fs.existsSync(filePath + '.log')) {
-            let i = 1;
-            while (fs.existsSync(filePath + i + '.log')) i++;
-            filePath += i;
-        }
-        this.file = fs.openSync(filePath + '.log', 'a');
-        this.info('Logger instance created');
+        this._filePath = pathResolve(path, new Date().toISOString() + '.log');
+        this.file = fs.openSync(this._filePath, 'a');
+        this.info('Logger instance created at ' + this._filePath);
+    }
+
+    public get filePath() {
+        return this._filePath;
     }
 
     timestamp(): string {
