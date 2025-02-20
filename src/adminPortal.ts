@@ -20,8 +20,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
     const app = expressApp;
     const contestManager = contest;
     const logger = new NamedLogger(log, 'AdminPortal');
-    const sessionTokens = new SessionTokenHandler<never, string>();
-    const accessTokens = new SessionTokenHandler<AdminAccessTokenPerms, undefined>();
+    const sessionTokens = new SessionTokenHandler<never, string>(); //map token to username
+    const accessTokens = new SessionTokenHandler<AdminAccessTokenPerms, string>();
     logger.info('Attaching admin portal to /admin/');
 
     // require authentication for everything except login
@@ -125,7 +125,7 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(400);
             return;
         }
-        res.json(accessTokens.createToken(req.body.permissions, undefined, req.body.expiration));
+        res.json(accessTokens.createToken(req.body.permissions, sessionTokens.tokenData(req.cookies.token)!, req.body.expiration));
     });
     app.delete('/admin/accessTokens/delete/:id', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
@@ -210,7 +210,8 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             return;
         }
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, req.body.permissions));
-        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Administrator ${req.params.username} modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        //TODO: update token permissions
     });
     app.delete('/admin/api/admin/:username', async (req, res) => {
         if (!await checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
@@ -218,8 +219,15 @@ export function attachAdminPortal(db: Database, expressApp: Express, contest: Co
             res.sendStatus(400);
             return;
         }
+        //delete the tokens created by the deleted admin
+        sessionTokens.getTokens().forEach((v, k) => {
+            if (v.data == req.params.username) sessionTokens.removeToken(k);
+        })
+        accessTokens.getTokens().forEach((v, k) => {
+            if(v.data == req.params.username) accessTokens.removeToken(k);
+        })
         defaultSuccessMapping(res, await database.setAdminPerms(req.params.username, 0));
-        logger.info(`Administrator list modified by ${sessionTokens.tokenData(req.cookies.token)}`);
+        logger.info(`Administrator ${req.params.username} deleted by ${sessionTokens.tokenData(req.cookies.token)}`);
     });
     // contests
     app.get('/admin/api/contestList', async (req, res) => {

@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID, subtle, webcrypto } from 'crypto';
 
 import Logger, { NamedLogger } from './log';
+import { Session } from 'inspector';
 
 // encryption helpers
 export type RSAEncrypted = Buffer | string;
@@ -139,7 +140,7 @@ export class SessionTokenHandler<PType, DType> {
                     this.tokens.delete(token);
                 }
             }
-        }, 1000);
+        }, 2000);
     }
 
     /**
