@@ -5,7 +5,7 @@ export type primitive = number | string | boolean | undefined | null;
 /**
  * Flexible comparison type for filtering items. Allows for primitive comparisons (`=`, `!`),
  * numerical comparisons (`>`, `<`, `>=`, `<=`), range comparisons (`><`, `<>`, `=><`, `><=`, `=><=`, `=<>`, `<>=`, `=<>=`),
- * as well as list searches using `Array` values.
+ * substring searches (`~`), as well as list searches using `Array` values.
  * 
  * ### To be used with {@link filterCompare}
  * 
@@ -56,6 +56,17 @@ export type primitive = number | string | boolean | undefined | null;
  * {@link filterCompare} will perform two numerical comparisons using `v1` as the lower bound and `v2` as the upper bound for `op` on the value.
  * 
  * `{ op: '=><', v1: 10, v2: 24 }` is satisfied within the range [10, 24) (i.e. greater than or equal to 10 and less than 24).
+ * 
+ * ### Substring Matching
+ * 
+ * ```
+ * {
+ *     op: '~'
+ *     v: string
+ * }
+ * 
+ * {@link filterCompare} will check if `v` is a substring of the value.
+ * 
  * */
 export type FilterComparison<T> = T extends primitive ? ({
     op: '=' | '!'
@@ -106,6 +117,8 @@ export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): bool
             case '!':
                 if (Array.isArray(c.v)) return !c.v.includes(v);
                 return v !== c.v;
+            case '~':
+                return (v as string).includes(c.v);
         }
         if (typeof v == 'number') {
             if ('v' in c) {
