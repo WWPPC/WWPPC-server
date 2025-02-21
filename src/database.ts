@@ -1070,7 +1070,7 @@ export class Database {
     async getProblemList(): Promise<string[] | null> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT problems.id FROM problems ORDER BY name ASC');
+            const data = await this.db.query('SELECT problems.id FROM problems ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getProblemList):', err);
@@ -1125,8 +1125,7 @@ export class Database {
                     { name: 'author', value: c.author }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all problems from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                //is order by name best?
-                const data = await this.db.query(`SELECT * FROM problems ${queryConditions} ORDER BY name ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM problems ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const problem of data.rows) {
                     const p: Problem = {
                         id: problem.id,
