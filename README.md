@@ -13,7 +13,6 @@ After cloning the `WWPPC-server` repo, create a folder `config` in the root dire
 In that, create a new file, `.env`, which contains environment variables:
 * `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string (you can usually get this by copying one from your database provide, but if not, the format is usually `postgresql://username:password@hostname:port/databasename`)
 * `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
-* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key (*NOT* your *SITE* key)
 * `SMTP_HOST`: SMTP service hostname (email server)
 * `SMTP_PORT`: SMTP service port (email server)
 * `SMTP_USER`: SMTP service username (email server)
@@ -48,7 +47,6 @@ WWPPC-server has some required and some optional environment variables.
 ### Required
 * `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string
 * `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
-* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key
 * `SMTP_HOST`: SMTP service hostname (email server)
 * `SMTP_PORT`: SMTP service port (email server)
 * `SMTP_USER`: SMTP service username (email server)

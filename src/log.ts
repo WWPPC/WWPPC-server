@@ -1,88 +1,16 @@
 import fs from 'fs';
 import { resolve as pathResolve } from 'path';
 
-export interface Logger {
+import config from './config';
+
+/**
+ * A simple logging class with log levels.
+ */
+export abstract class Logger {
     /**
      * Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
      * @returns Timestamp in YYYY-MM-DD [HH:MM:SS] format.
      */
-    timestamp(): string
-    /**
-     * Append a debug-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
-    debug(text: string, logOnly?: boolean): void
-    /**
-     * Append an information-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
-    info(text: string, logOnly?: boolean): void
-    /**
-     * Append a warning-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
-    warn(text: string, logOnly?: boolean): void
-    /**
-     * Append an error-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
-    error(text: string, logOnly?: boolean): void
-    /**
-     * Append a fatal-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
-     */
-    fatal(text: string, logOnly?: boolean): void
-    /**
-     * Shorthand for appending `Error` objects as error-level logs.
-     * @param {string} message Accompanying message
-     * @param error `Error` object
-     */
-    handleError(message: string, error: any): void
-    /**
-     * Shorthand for appending `Error` objects as fatal-level logs.
-     * @param {string} message Accompanying message
-     * @param error `Error` object
-     */
-    handleFatal(message: string, error: any): void
-    /**
-     * Safely closes the logging session. May be asynchronous to allow pending operations to finish.
-     */
-    destroy(): void
-}
-
-/**
- * A simple logging class with timestamps and logging levels that writes to file and stdout.
- */
-export class FileLogger implements Logger {
-    private readonly file: number;
-    private closed: boolean = false;
-    private activity: Set<Promise<void>> = new Set();
-
-    /**
-     * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
-     * `logs/` directory. If there already exists a log.log in the directory, moving it in. This means
-     * creating multiple `Loggers` in the same directory will break them.
-     * @param {string} path Path to the log directory
-     */
-    constructor(path: string) {
-        path = pathResolve(__dirname, path);
-        if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
-        const date = new Date();
-        let filePath = pathResolve(path, `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}_${date.getUTCHours()}-${date.getUTCMinutes()}-${date.getUTCSeconds()}_log`);
-        if (fs.existsSync(filePath + '.log')) {
-            let i = 1;
-            while (fs.existsSync(filePath + i + '.log')) i++;
-            filePath += i;
-        }
-        this.file = fs.openSync(filePath + '.log', 'a');
-        this.info('Logger instance created');
-    }
-
     timestamp(): string {
         const time = new Date();
         let month = (time.getMonth() + 1).toString();
@@ -97,6 +25,90 @@ export class FileLogger implements Logger {
         if (second.length == 1) second = 0 + second;
         return `${time.getFullYear()}-${month}-${day} [${hour}:${minute}:${second}]`;
     }
+
+    /**
+     * Append a debug-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    abstract debug(text: string, logOnly?: boolean): void
+    /**
+     * Append an information-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    abstract info(text: string, logOnly?: boolean): void
+    /**
+     * Append a warning-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    abstract warn(text: string, logOnly?: boolean): void
+    /**
+     * Append an error-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    abstract error(text: string, logOnly?: boolean): void
+    /**
+     * Append a fatal-level entry to the log.
+     * @param {string} text Text
+     * @param {boolean} logOnly Only put in logfile, not stdout
+     */
+    abstract fatal(text: string, logOnly?: boolean): void
+    /**
+     * Shorthand for appending `Error` objects as error-level logs.
+     * @param {string} message Accompanying message
+     * @param error `Error` object
+     */
+    abstract handleError(message: string, error: any): void
+    /**
+     * Shorthand for appending `Error` objects as fatal-level logs.
+     * @param {string} message Accompanying message
+     * @param error `Error` object
+     */
+    abstract handleFatal(message: string, error: any): void
+
+    /**
+     * Safely closes the logging session. May be asynchronous to allow pending operations to finish.
+     */
+    abstract destroy(): void
+}
+
+/**
+ * A simple logger with timestamps, logging levels, tail tracking, and formatting that writes to file and stdout.
+ */
+export class FileLogger extends Logger {
+    readonly filePath: string;
+    readonly tailLength: number;
+    private readonly file: number;
+    private readonly tailBuffer: string[] = [];
+    private closed: boolean = false;
+    private activity: Set<Promise<void>> = new Set();
+
+    /**
+     * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
+     * `logs/` directory. If there already exists a log.log in the directory, moving it in. This means
+     * creating multiple `Loggers` in the same directory will break them.
+     * @param {string} path Path to the log directory
+     * @param tailLength Maximum length of buffer for most recent log entries (default 100)
+     */
+    constructor(path: string, tailLength?: number) {
+        super();
+        path = pathResolve(__dirname, path);
+        if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
+        const date = new Date();
+        this.filePath = pathResolve(path, `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}_${date.getUTCHours()}-${date.getUTCMinutes()}-${date.getUTCSeconds()}_log`);
+        if (fs.existsSync(this.filePath + '.log')) {
+            let i = 1;
+            while (fs.existsSync(this.filePath + i + '.log')) i++;
+            this.filePath += i;
+        }
+        this.file = fs.openSync(this.filePath + '.log', 'a');
+        this.tailLength = tailLength ?? 100;
+        this.info('Logger instance created');
+    }
+
     debug(text: string, logOnly = false) {
         this.append('debug', text, 36, logOnly);
     }
@@ -139,15 +151,29 @@ export class FileLogger implements Logger {
         }
     }
 
+    /**
+     * Fetch the most recent log entries, a maximum of {@link tailLength} entries.
+     */
+    tail() {
+        return this.tailBuffer.join('');
+    }
+
     private append(level: string, text: string, color: number, logOnly = false) {
-        if (this.file == undefined) return;
         if (!logOnly) {
-            let prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
+            const prefix1 = `\x1b[0m\x1b[32m${this.timestamp()} \x1b[1m\x1b[${color}m${level.toUpperCase()}\x1b[0m | `;
             process.stdout.write(`${prefix1}${text.toString().replaceAll('\n', `\n\r${prefix1}`)}\n\r`);
         }
-        let prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
+        const prefix2 = `${this.timestamp()} ${level.toUpperCase()} | `;
+        const formatted = `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`;
+        this.tailBuffer.push(formatted);
+        if (this.tailBuffer.length > this.tailLength) this.tailBuffer.shift();
+        if (this.file == undefined) {
+            console.error('Log file could not be opened!');
+            return;
+        }
+        // write to file, operation stored to ensure logs written before process exits
         const fd = this.file;
-        const op = new Promise<void>((resolve) => fs.appendFile(fd, `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`, { encoding: 'utf-8' }, (err) => {
+        const op = new Promise<void>((resolve) => fs.appendFile(fd, formatted, { encoding: 'utf-8' }, (err) => {
             if (err) console.error(err);
             resolve();
             this.activity.delete(op);
@@ -167,7 +193,7 @@ export class FileLogger implements Logger {
 /**
  * An extension of any other `Logger` instance that adds a name prefix to all messages.
  */
-export class NamedLogger implements Logger {
+export class NamedLogger extends Logger {
     readonly logger: Logger;
     readonly name: string;
 
@@ -177,13 +203,11 @@ export class NamedLogger implements Logger {
      * @param name Name prefix, without brackets
      */
     constructor(logger: Logger, name: string) {
+        super();
         this.logger = logger;
         this.name = name;
     }
 
-    timestamp(): string {
-        return this.logger.timestamp();
-    }
     debug(text: string, logOnly = false) {
         this.logger.debug(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
     }
@@ -210,5 +234,7 @@ export class NamedLogger implements Logger {
         await this.logger.destroy();
     }
 }
+
+export const defaultLogger: Logger = new FileLogger(config.logPath);
 
 export default Logger;

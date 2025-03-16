@@ -2,93 +2,61 @@ import { Express } from 'express';
 
 import config from './config';
 import ContestManager from './contest';
-import { RSAEncrypted, RSAEncryptionHandler } from './cryptoUtil';
+import { RSAEncrypted, RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, Score, TeamData, TeamOpResult } from './database';
 import Mailer from './email';
-import Logger from './log';
-import { validateRecaptcha } from './recaptcha';
+import Logger, { defaultLogger, NamedLogger } from './log';
 import UpsolveManager from './upsolve';
 import { reverse_enum } from './util';
 
 /**
- * Bundles code for client networking into a single class.
+ * Bundles code for client authentication into a single class.
  */
-export class ClientHost {
-    readonly clientEncryption: RSAEncryptionHandler;
-    readonly database: Database;
-    readonly app: Express;
-    readonly contestManager: ContestManager;
-    readonly upsolveManager: UpsolveManager;
-    readonly mailer: Mailer;
-    readonly logger: Logger;
+export class ClientAuth {
+    private static instance: ClientAuth | null = null;
 
+    readonly db: Database;
+    readonly app: Express;
+    readonly encryption: RSAEncryptionHandler;
+    readonly logger: NamedLogger;
+
+    private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();;
     private readonly recentSignups = new Map<string, number>();
     private readonly recentPasswordResetEmails = new Set<string>();
 
     readonly ready: Promise<any>;
 
-    /**
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {ContestManager} contests Contest manager instance
-     * @param {UpsolveManager} upsolve Upsolve manager instance
-     * @param {Mailer} mailer SMTP server connection
-     * @param {Logger} logger Logging instance
-     */
-    constructor(db: Database, app: Express, contests: ContestManager, upsolve: UpsolveManager, mailer: Mailer, logger: Logger) {
-        this.database = db;
+    private constructor(db: Database, app: Express) {
+        this.db = db;
         this.app = app;
-        this.contestManager = contests;
-        this.upsolveManager = upsolve;
-        this.mailer = mailer;
-        this.logger = logger;
-        this.clientEncryption = new RSAEncryptionHandler(this.logger);
-        this.ready = Promise.all([this.clientEncryption.ready]);
-
-        // general api endpoints
-        const clientConfig = {
-            maxProfileImgSize: config.maxProfileImgSize,
-            contests: Object.entries(config.contests).reduce((p: Record<string, object>, [cId, cConfig]) => {
-                if (cConfig == undefined) return p;
-                p[cId] = {
-                    rounds: cConfig.rounds,
-                    submitSolver: cConfig.submitSolver,
-                    acceptedSolverLanguages: cConfig.acceptedSolverLanguages,
-                    maxSubmissionSize: cConfig.maxSubmissionSize
-                };
-                return p;
-            }, {})
-        };
-        app.get('/api/config', (req, res) => {
-            res.json(clientConfig);
-        });
-        app.get('/api/userData/:username', async (req, res) => {
-            const data = await this.database.getAccountData(req.params.username);
-            if (data == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
-            else if (data == AccountOpResult.ERROR) res.sendStatus(500);
-            else {
-                const data2 = structuredClone(data);
-                data2.email = '';
-                res.json(data2);
-            }
-        });
-        app.get('/api/teamData/:username', async (req, res) => {
-            const data = await this.database.getTeamData(req.params.username);
-            if (data == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
-            else if (data == TeamOpResult.ERROR) res.sendStatus(500);
-            else {
-                const data2 = structuredClone(data);
-                data2.joinCode = '';
-                res.json(data2);
-            }
-        });
-        // reserve /api path
-        app.use('/api/*', (req, res) => res.sendStatus(404));
-
-        if (config.rsaKeyRotateInterval < 3600000) logger.warn('rsaKeyRotateInterval is set to a low value! This will result in frequent sign outs! Is this intentional?');
-        setInterval(() => this.clientEncryption.rotateKeys(), config.rsaKeyRotateInterval);
+        this.logger = new NamedLogger(defaultLogger, 'ClientAuth');
+        this.encryption = new RSAEncryptionHandler(this.logger);
+        this.ready = Promise.all([this.encryption.ready]);
+        if (config.rsaKeyRotateInterval < 3600000) this.logger.warn('rsaKeyRotateInterval is set to a low value! This will result in frequent sign outs! Is this intentional?');
+        setInterval(() => this.encryption.rotateKeys(), config.rsaKeyRotateInterval);
         setInterval(() => this.recentSignups.forEach((val, key) => this.recentSignups.set(key, Math.max(val - 1, 0))), 1000);
         setInterval(() => this.recentPasswordResetEmails.clear(), 600000);
+    }
+
+    private createEndpoints() {
+
+    }
+
+    /**
+     * Initialize the ClientAuth system.
+     * @param {Database} db Database connection
+     * @param {Express} app Express app (HTTP server) to attach API to
+     */
+    static init(db: Database, app: Express): ClientAuth {
+        return this.instance = this.instance ?? new ClientAuth(db, app);
+    }
+
+    /**
+     * Get the ClientAuth system.
+     */
+    static use(): ClientAuth {
+        if (this.instance === null) throw new TypeError('ClientAuth init() must be called before use()');
+        return this.instance;
     }
 
     /**
@@ -553,4 +521,4 @@ export enum ContestUpdateSubmissionResult {
     ERROR = 4
 }
 
-export default ClientHost;
+export default ClientAuth;

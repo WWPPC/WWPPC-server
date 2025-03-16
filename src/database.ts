@@ -1432,7 +1432,7 @@ export enum AdminPerms {
 }
 
 /**Descriptor for an account */
-export interface AccountData {
+export type AccountData = {
     /**Username */
     readonly username: string
     /**Email */
@@ -1463,7 +1463,7 @@ export interface AccountData {
     team: string
 }
 /**Descriptor for a team */
-export interface TeamData {
+export type TeamData = {
     /**The unique team id which is the team owner/creator's username */
     readonly id: string
     /**The name of the team */
@@ -1477,7 +1477,7 @@ export interface TeamData {
 }
 
 /**Descriptor for a single contest */
-export interface Contest {
+export type Contest = {
     /**Contest ID, also used as name */
     readonly id: string
     /**List of round UUIDs within the contest */
@@ -1496,7 +1496,7 @@ export interface Contest {
     type: string
 }
 /**Descriptor for a single round */
-export interface Round {
+export type Round = {
     /**UUID */
     readonly id: UUID
     /**List of problem UUIDs within the round */
@@ -1507,7 +1507,7 @@ export interface Round {
     endTime: number
 }
 /**Descriptor for a single problem */
-export interface Problem {
+export type Problem = {
     /**UUID */
     readonly id: UUID
     /**Display name */
@@ -1527,7 +1527,7 @@ export interface Problem {
     solution: string | null
 }
 /**Descriptor for a single submission */
-export interface Submission {
+export type Submission = {
     /**Username of submitter */
     readonly username: string
     /**UUID of problem submitted to */
@@ -1553,7 +1553,7 @@ export interface Submission {
     analysis: boolean
 }
 /**Descriptor for the score of a single test case */
-export interface Score {
+export type Score = {
     /**Pass/fail status */
     state: ScoreState
     /**Time used in milliseconds */
@@ -1573,7 +1573,7 @@ export enum ScoreState {
 }
 
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-export interface ReadContestsCriteria {
+export type ReadContestsCriteria = {
     /**Contest ID */
     id?: FilterComparison<string>
     /**Start of contest, UNIX time */
@@ -1586,7 +1586,7 @@ export interface ReadContestsCriteria {
     type?: string
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-export interface ReadRoundsCriteria {
+export type ReadRoundsCriteria = {
     /**Contest ID */
     contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
@@ -1599,7 +1599,7 @@ export interface ReadRoundsCriteria {
     endTime?: FilterComparison<number>
 }
 /**Contest-based filter including contest, round, problem number, and round ID */
-export interface ProblemRoundCriteria {
+export type ProblemRoundCriteria = {
     /**Contest ID */
     contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
@@ -1610,7 +1610,7 @@ export interface ProblemRoundCriteria {
     roundId?: FilterComparison<UUID>
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-export interface ReadProblemsCriteria {
+export type ReadProblemsCriteria = {
     /**UUID of problem */
     id?: FilterComparison<UUID>
     /**Display name of problem */
@@ -1621,7 +1621,7 @@ export interface ReadProblemsCriteria {
     contest?: ProblemRoundCriteria
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
-export interface ReadSubmissionsCriteria {
+export type ReadSubmissionsCriteria = {
     /**UUID of problem */
     id?: FilterComparison<UUID>
     /**Username of submitter */

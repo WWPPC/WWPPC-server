@@ -1,96 +1,108 @@
 import { randomUUID } from 'crypto';
 import { Express } from 'express';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ContestUpdateSubmissionResult } from './client';
+import {
+    ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission,
+    ContestUpdateSubmissionResult
+} from './client';
 import config from './config';
 import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
 import Grader from './grader';
-import Logger, { NamedLogger } from './log';
-import { validateRecaptcha } from './recaptcha';
+import Logger, { defaultLogger, NamedLogger } from './log';
+import { LongPollEventEmitter } from './longPolling';
 import Scorer, { ScoringFunctionArguments, UserScore } from './scorer';
 import { isUUID, reverse_enum, UUID } from './util';
-import { LongPollEventEmitter } from './longPolling';
 
 /**
- * `ContestManager` handles automatic contest running and interfacing with clients.
+ * `ContestManager` handles automatic contest running and interfacing with clients through HTTP.
  * It will automatically start and stop contests, advance rounds, and process submissions and leaderboards.
  */
 export class ContestManager {
-    readonly #contests: Map<string, ContestHost> = new Map();
-    readonly #updateLoop: NodeJS.Timeout;
+    private static instance: ContestManager | null = null;
 
     readonly db: Database;
     readonly app: Express;
-    readonly clientEvents: LongPollEventEmitter<['buh']>;
+    readonly eventEmitter: LongPollEventEmitter<['buh']>;
+    readonly grader: Grader;
     readonly logger: NamedLogger;
-    readonly #grader: Grader;
 
-    #open = true;
+    private readonly contests: Map<string, ContestHost> = new Map();
+    private readonly updateLoop: NodeJS.Timeout;
+
+    private open = true;
+
+    private constructor(db: Database, app: Express, grader: Grader) {
+        this.db = db;
+        this.app = app;
+        this.grader = grader;
+        this.logger = new NamedLogger(defaultLogger, 'ContestManager');
+        this.eventEmitter = new LongPollEventEmitter(app, '/api/contest/', ['buh']);
+        this.initEndpoints();
+        // auto-start contests
+        this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
+        this.checkNewContests();
+    }
 
     /**
+     * Initialize the ContestManager system.
      * @param {Database} db Database connection
      * @param {express} app Express app (HTTP server) to attach API to
      * @param {Grader} grader Grading system to use
-     * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, grader: Grader, logger: Logger) {
-        this.db = db;
-        this.app = app;
-        this.clientEvents = new LongPollEventEmitter(app, '/api/contest/', ['buh']);
-        this.logger = new NamedLogger(logger, 'ContestManager');
-        this.#grader = grader;
-        this.app.get('/api/contestList', async (req, res) => {
+    static init(db: Database, app: Express, grader: Grader): ContestManager {
+        return this.instance = this.instance ?? new ContestManager(db, app, grader);
+    }
+
+    /**
+     * Get the ContestManager system.
+     */
+    static use(): ContestManager {
+        if (this.instance === null) throw new TypeError('ContestManager init() must be called before use()');
+        return this.instance;
+    }
+
+    private async checkNewContests() {
+        // start any contests that haven't been started
+        const contests = await this.db.readContests({
+            startTime: { op: '<=', v: Date.now() },
+            endTime: { op: '>', v: Date.now() },
+        });
+        if (contests == null) {
+            this.logger.error('Could not read contest list!');
+            return;
+        }
+        for (const contest of contests) {
+            if (!this.contests.has(contest.id)) {
+                // check here so no crash
+                if (config.contests[contest.type] === undefined) {
+                    this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
+                    continue;
+                }
+                const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
+                this.contests.set(contest.id, host);
+                host.onended(() => this.contests.delete(contest.id));
+                this.#sockets.forEach(async (socket) => {
+                    const userData = await this.db.getAccountData(socket.username);
+                    if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) {
+                        this.logger.warn(`Could not fetch data for ${socket.username}`);
+                        return;
+                    }
+                    if (userData.registrations.includes(contest.id)) host.addSocket(socket);
+                });
+            }
+        }
+    }
+
+    private initEndpoints() {
+        this.app.get('/api/contest/upcoming', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (data === null) res.sendStatus(500);
             else res.json(data.map((item) => item.id));
         });
-
-        // auto-starting contest
-        let reading = false;
-        const checkNewContests = async () => {
-            if (reading) return;
-            reading = true;
-            // start any contests that haven't been started
-            const contests = await this.db.readContests({
-                startTime: { op: '<=', v: Date.now() },
-                endTime: { op: '>', v: Date.now() },
-            });
-            if (contests == null) {
-                this.logger.error('Could not read contest list!');
-                return;
-            }
-            for (const contest of contests) {
-                if (!this.#contests.has(contest.id)) {
-                    // check here so no crash
-                    if (config.contests[contest.type] === undefined) {
-                        this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
-                        continue;
-                    }
-                    const host = new ContestHost(contest.type, contest.id, this.io, this.db, this.#grader, this.logger.logger);
-                    this.#contests.set(contest.id, host);
-                    host.onended(() => this.#contests.delete(contest.id));
-                    this.#sockets.forEach(async (socket) => {
-                        const userData = await this.db.getAccountData(socket.username);
-                        if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) {
-                            this.logger.warn(`Could not fetch data for ${socket.username}`);
-                            return;
-                        }
-                        if (userData.registrations.includes(contest.id)) host.addSocket(socket);
-                    });
-                }
-            }
-            reading = false;
-        };
-        this.#updateLoop = setInterval(checkNewContests, 60000);
-        checkNewContests();
     }
 
-    /**
-     * Add a username-linked SocketIO connection to the user list.
-     * @param {ServerSocket} s SocketIO connection (with modifications)
-     */
     async addUser(s: ServerSocket): Promise<void> {
-        if (!this.#open) return;
+        if (!this.open) return;
         const socket = s;
 
         // make sure the user actually exists (otherwise bork)
@@ -193,33 +205,29 @@ export class ContestManager {
      * @returns {ContestHost[]} the contests
      */
     getRunningContests(): ContestHost[] {
-        return Array.from(this.#contests.values());
+        return Array.from(this.contests.values());
     }
 
     /**
      * Stops all contests and closes the contest manager
      */
     close() {
-        this.#open = false;
-        this.#contests.forEach((contest) => contest.end());
-        this.#grader.close();
-        this.#sockets.forEach((socket) => {
-            socket.removeAllListeners('registerContest');
-            socket.removeAllListeners('unregisterContest');
-        });
-        clearInterval(this.#updateLoop);
+        this.open = false;
+        this.contests.forEach((contest) => contest.end());
+        this.grader.close();
+        clearInterval(this.updateLoop);
     }
 }
 
 /**Slightly modified version of {@link database.Contest} */
-export interface ContestContest {
+export type ContestContest = {
     readonly id: string
     rounds: ContestRound[]
     startTime: number
     endTime: number
 }
 /**Slightly modified version of {@link database.Round} */
-export interface ContestRound {
+export type ContestRound = {
     readonly id: UUID
     readonly contest: string
     readonly number: number
@@ -228,7 +236,7 @@ export interface ContestRound {
     endTime: number
 }
 /**Slightly modified version of {@link database.Problem} */
-export interface ContestProblem {
+export type ContestProblem = {
     readonly id: string
     readonly contest: string
     readonly round: number
@@ -241,30 +249,27 @@ export interface ContestProblem {
 
 /**
  * Module of `ContestManager` containing hosting for individual contests, including handling submissions.
- * Creates a SocketIO namespace for client contest managers to connect to on top of the default namespace connection.
+ * Communication with clients is handled through ContestManager.
  */
 export class ContestHost {
     readonly sid: string;
     readonly contestType: string;
     readonly id: string;
-    readonly io: SocketIONamespace;
     readonly db: Database;
     readonly grader: Grader;
     readonly scorer: Scorer;
     readonly logger: NamedLogger;
-    #contest: ContestContest;
-    #index: number = 0;
-    #active: boolean = false;
-    #ended: boolean = false;
-    #updateLoop: NodeJS.Timeout | undefined = undefined;
 
-    readonly #users: Map<string, { sockets: Set<ServerSocket>, internalSockets: Set<ContestSocket> }> = new Map();
-    readonly #pendingConnections: Map<string, ServerSocket> = new Map();
-    readonly #pendingConnectionsInverse: Map<ServerSocket, string> = new Map();
-    #scoreboards: Map<string, UserScore> = new Map();
-    #actualScoreboards: Map<string, UserScore> = new Map();
+    private readonly contest: ContestContest;
+    private index: number = 0;
+    private active: boolean = false;
+    private ended: boolean = false;
+    private readonly updateLoop: NodeJS.Timeout | undefined = undefined;
 
-    readonly #pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
+    private scoreboard: Map<string, UserScore> = new Map();
+    private clientScoreboard: Map<string, UserScore> = new Map();
+
+    readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
     /**
      * @param {string} type Contest type Id
@@ -331,12 +336,6 @@ export class ContestHost {
         this.reload();
     }
 
-    /**
-     * Get a copy of the internal data.
-     */
-    get data(): ContestContest {
-        return structuredClone(this.#contest);
-    }
     /**
      * Reload the contest data from the database, also updating clients.
      * Will re-calculate the current round as well.
@@ -682,6 +681,23 @@ export class ContestHost {
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
+            /**
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
+             */
             // submissions are stored under the team
             if (config.contests[this.contestType]!.graders) {
                 const writeGraded = async (graded: Submission) => {

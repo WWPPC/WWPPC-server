@@ -1,35 +1,36 @@
 import { Express } from 'express';
 
-import config from './config';
 import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './client';
+import config from './config';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
-import Logger, { NamedLogger } from './log';
+import Logger, { defaultLogger, NamedLogger } from './log';
+import { LongPollEventEmitter } from './longPolling';
 import { isUUID, reverse_enum, UUID } from './util';
 
 /**
  * `UpsolveManager` allows viewing and submitting to problems of past contests.
  */
 export class UpsolveManager {
+    private static instance: UpsolveManager | null = null;
 
     readonly db: Database;
     readonly app: Express;
-    readonly logger: NamedLogger;
+    readonly eventEmitter: LongPollEventEmitter<['buh']>;
     readonly grader: Grader;
+    readonly logger: NamedLogger;
 
-    #open = true;
+    private open = true;
 
     /**
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {Grader} grader Grading system to use
      * @param {Logger} logger Logger instance
      */
-    constructor(db: Database, app: Express, grader: Grader, logger: Logger) {
+    constructor(db: Database, app: Express, grader: Grader) {
         this.db = db;
         this.app = app;
         this.grader = grader;
-        this.logger = new NamedLogger(logger, 'UpsolveManager');
+        this.logger = new NamedLogger(defaultLogger, 'UpsolveManager');
+        this.eventEmitter = new LongPollEventEmitter(app, '/api/upsolve/', ['buh']);
         // attach api
         this.app.get(`/api/upsolveList/:ctype`, async (req, res) => {
             if (config.contests[req.params.ctype] === undefined) {
@@ -116,6 +117,24 @@ export class UpsolveManager {
         });
         // reserve /api/upsolve
         this.app.use(`/api/upsolve/*`, (req, res) => res.sendStatus(404));
+    }
+
+    /**
+     * Initialize the UpsolveManager system.
+     * @param {Database} db Database connection
+     * @param {Express} app Express app (HTTP server) to attach API to
+     * @param {Grader} grader Grading system to use
+     */
+    static init(db: Database, app: Express, grader: Grader): UpsolveManager {
+        return this.instance = this.instance ?? new UpsolveManager(db, app, grader);
+    }
+
+    /**
+     * Get the UpsolveManager system.
+     */
+    static use(): UpsolveManager {
+        if (this.instance === null) throw new TypeError('UpsolveManager init() must be called before use()');
+        return this.instance;
     }
 
     /**
@@ -262,17 +281,19 @@ export class UpsolveManager {
     }
 }
 
-// slightly modified versions of server interfaces, refer to those for documentation
-export interface UpsolveContest {
+/**Slightly modified version of {@link database.Contest} */
+export type UpsolveContest = {
     readonly id: string
     rounds: UpsolveRound[]
 }
-export interface UpsolveRound {
+/**Slightly modified version of {@link database.Round} */
+export type UpsolveRound = {
     readonly contest: string
     readonly number: number
     problems: UUID[]
 }
-export interface UpsolveProblem {
+/**Slightly modified version of {@link database.Problem} */
+export type UpsolveProblem = {
     readonly id: string
     readonly contest: string
     readonly round: number
@@ -282,7 +303,8 @@ export interface UpsolveProblem {
     content: string
     constraints: { memory: number, time: number }
 }
-export interface UpsolveSubmission {
+/**Slightly modified version of {@link database.Submission} */
+export type UpsolveSubmission = {
     readonly problemId: string
     time: number
     lang: string

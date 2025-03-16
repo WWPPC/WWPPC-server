@@ -8,15 +8,14 @@ configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
 
 // verify environment variables exist
-if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'RECAPTCHA_SECRET', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
 const configLoadTime = performance.now() - start;
 
 // start server
-import { FileLogger } from './log';
-const logger = new FileLogger(config.logPath);
+import { defaultLogger as logger } from './log';
 logger.info('Starting server...');
 logger.debug('CONFIG_PATH: ' + config.path);
 logger.debug('EMAIL_TEMPLATE_PATH: ' + config.emailTemplatePath);
@@ -50,15 +49,16 @@ app.use(cors({
     allowedHeaders: 'Content-Type,Cookie'
 }));
 app.use(cookieParser());
-// in case server is not running
-app.get('/wakeup', (req, res) => res.json('ok'));
 
 // init modules
 import Mailer from './email';
 import Database from './database';
+import ClientAuth from './client';
+import ClientAPI from './api';
 import Grader from './grader';
 import ContestManager from './contest';
 import UpsolveManager from './upsolve';
+import { AdminAPI } from './adminPortal';
 
 const mailer = new Mailer({
     host: process.env.SMTP_HOST!,
@@ -74,33 +74,22 @@ const database = new Database({
     sslCert: process.env.DATABASE_CERT,
     logger: logger
 });
-const grader = new Grader(database, app, '/judge', process.env.GRADER_PASS!, logger);
-const contestManager = new ContestManager(database, app, grader, logger);
-const upsolveManager = new UpsolveManager(database, app, grader, logger);
-
-// init client handlers and API endpoints
-import ClientHost from './client';
-const clientHost = new ClientHost(database, app, contestManager, upsolveManager, mailer, logger);
+ClientAuth.init(database, app);
+ClientAPI.init(database, app);
+const mainGrader = new Grader(database, app, '/judge', process.env.GRADER_PASS!, logger);
+ContestManager.init(database, app, mainGrader);
+UpsolveManager.init(database, app, mainGrader);
 
 // admin portal
-import attachAdminPortal from './adminPortal';
-attachAdminPortal(database, app, contestManager, logger);
+AdminAPI.init(database, app);
 
-// complete networking
-if (config.debugMode) logger.info('Creating Socket.IO server');
-const recentConnections = new Map<string, number>();
-const recentConnectionKicks = new Set<string>();
-setInterval(() => {
-    recentConnections.forEach((val, key) => {
-        recentConnections.set(key, Math.max(val - 1, 0));
-    });
-    recentConnectionKicks.clear();
-}, 1000);
+// reserve /api path
+app.use('/api/*', (req, res) => res.sendStatus(404));
 
 const instantiationTime = performance.now() - start;
 
 Promise.all([
-    clientHost.ready,
+    ClientAuth.use().ready,
     database.connectPromise,
     mailer.ready
 ]).then(() => {
@@ -120,8 +109,8 @@ const stopServer = async (code: number) => {
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
     process.on('SIGINT', actuallyStop);
-    contestManager.close();
-    upsolveManager.close();
+    ContestManager.use().close();
+    UpsolveManager.use().close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);
     logger.info(`Server stopped, took ${performance.now() - start}ms`);
     await logger.destroy();
