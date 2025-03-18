@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
+import { randomUUID as cryptoRandomUUID } from 'crypto';
 import { Client } from 'pg';
-import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
 import { AESEncryptionHandler } from './cryptoUtil';
@@ -41,7 +41,7 @@ export class Database {
         const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
         this.connectPromise = new Promise(() => undefined);
-        this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key, 'base64'), logger);
+        this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key as string, 'base64'), logger);
         this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
@@ -214,7 +214,7 @@ export class Database {
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     `, [
-                    username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                    username, encryptedPassword, this.dbEncryptor.encrypt(cryptoRandomUUID()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
                 ]);
                 const joinCode = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
                 await this.db.query(`
@@ -478,7 +478,7 @@ export class Database {
     async rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const newPass = this.dbEncryptor.encrypt(uuidV4());
+            const newPass = this.dbEncryptor.encrypt(cryptoRandomUUID());
             const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
             if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
             return AccountOpResult.SUCCESS;
