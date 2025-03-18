@@ -4,7 +4,7 @@ import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './c
 import config from './config';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
-import Logger, { defaultLogger, NamedLogger } from './log';
+import { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter } from './longPolling';
 import { isUUID, reverse_enum, UUID } from './util';
 

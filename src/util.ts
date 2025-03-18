@@ -1,3 +1,6 @@
+import Express from 'express';
+import rateLimit, { Options as RateLimitOptions, RateLimitRequestHandler } from 'express-rate-limit';
+import { extendMessages as nivExtendMessages, extend as nivExtend } from 'node-input-validator';
 import { validate } from 'uuid';
 
 // important comparator (streamlines filtering everywhere)
@@ -142,6 +145,35 @@ export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): bool
         }
     }
     return c === v;
+}
+
+// these are used in a couple places
+nivExtend('lowerAlphaNumDash', ({ value }: any) => {
+    if (typeof value != 'string') return false;
+    return /^[a-z0-9-_]+$/.test(value);
+});
+nivExtendMessages({
+    lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores'
+});
+
+/**
+ * Create an instance of `express-rate-limit` IP rate limiter, with a handler
+ * for the first trigger of the rate limiter per window.
+ * @param options Options to configure the rate limiter.
+ * @param cb Callback handler for the first trigger
+ * @returns 
+ */
+export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'handler'>>, cb: (req: Express.Request, res: Express.Response) => any): RateLimitRequestHandler {
+    const window = options.windowMs ?? 60000;
+    const recentTriggers: Map<string, number> = new Map();
+    return rateLimit({
+        ...options,
+        handler: async (req, res, next, options) => {
+            if (recentTriggers.get(req.ip!) ?? -Infinity < performance.now() - window) await cb(req, res);
+            recentTriggers.set(req.ip!, performance.now());
+            res.status(options.statusCode).send(options.message);
+        }
+    });
 }
 
 // more helpers

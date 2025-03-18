@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { Express } from 'express';
+import Express from 'express';
 import { resolve as pathResolve } from 'path';
 
 import config from './config';
@@ -22,12 +22,12 @@ export class AdminAPI {
     private static instance: AdminAPI | null = null;
 
     readonly db: Database;
-    readonly app: Express;
+    readonly app: Express.Express;
     readonly logger: NamedLogger;
     private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();
     private readonly accessTokens: TokenHandler<AdminAccessTokenPerms[]> = new TokenHandler<AdminAccessTokenPerms[]>();
 
-    private constructor(db: Database, app: Express) {
+    private constructor(db: Database, app: Express.Express) {
         this.db = db;
         this.app = app;
         this.logger = new NamedLogger(defaultLogger, 'AdminAPI');
@@ -42,7 +42,7 @@ export class AdminAPI {
             else if ((typeof req.cookies.token != 'string' || !this.sessionTokens.tokenExists(req.cookies.token)) && (typeof req.cookies.authToken != 'string' || !this.accessTokens.tokenExists(req.cookies.authToken))) res.sendStatus(401);
             else next();
         });
-    
+
         this.app.post('/admin/login', bodyParser.json(), async (req, res) => {
             if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
                 res.sendStatus(400);
@@ -83,16 +83,16 @@ export class AdminAPI {
             // can only reach this by being logged in
             res.sendStatus(200);
         });
-    
-        const defaultAccountOpMapping = (res: any, stat: any) => {
-            if (stat == AccountOpResult.SUCCESS) res.sendStatus(200);
+
+        const defaultAccountOpMapping = (res: Express.Response, stat: any) => {
+            if (stat == AccountOpResult.SUCCESS) res.send(200);
             else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
             else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
             else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
             else if (stat == AccountOpResult.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultTeamOpMapping = (res: any, stat: any) => {
+        const defaultTeamOpMapping = (res: Express.Response, stat: any) => {
             if (stat == TeamOpResult.SUCCESS) res.sendStatus(200);
             else if (stat == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
             else if (stat == TeamOpResult.CONTEST_CONFLICT || stat == TeamOpResult.CONTEST_MEMBER_LIMIT || stat == TeamOpResult.CONTEST_ALREADY_EXISTS || stat == TeamOpResult.NOT_ALLOWED) res.status(409).json(reverse_enum(TeamOpResult, stat));
@@ -100,15 +100,15 @@ export class AdminAPI {
             else if (stat == TeamOpResult.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultObjectMapping = (res: any, stat: object | null) => {
+        const defaultObjectMapping = (res: Express.Response, stat: object | null) => {
             if (stat == null) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultSuccessMapping = (res: any, stat: boolean) => {
+        const defaultSuccessMapping = (res: Express.Response, stat: boolean) => {
             if (stat) res.json(200);
             else res.sendStatus(500);
         };
-    
+
         // logs
         this.app.get('/admin/logTail', async (req, res) => {
             if (this.logger.logger instanceof FileLogger)
@@ -135,7 +135,9 @@ export class AdminAPI {
                 res.sendStatus(400);
                 return;
             }
-            res.json(this.accessTokens.createToken(req.body.permissions, req.body.expiration));
+            const token = this.accessTokens.createToken(req.body.permissions, req.body.expiration);
+            res.json(token);
+            this.logger.info(`Access token ${token} created by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         this.app.delete('/admin/accessTokens/delete/:id', async (req, res) => {
             if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
@@ -145,6 +147,7 @@ export class AdminAPI {
             }
             this.accessTokens.removeToken(req.params.id);
             res.sendStatus(200);
+            this.logger.info(`Access token ${req.params.id} deleted by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // general functions
         this.app.post('/admin/api/clearCache', async (req, res) => {
@@ -368,12 +371,12 @@ export class AdminAPI {
             res.sendStatus(200);
             this.logger.info(`ContestHost "${req.params.id}" reloaded by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-    
+
         // reserve /admin path
         this.app.use('/admin/*', (req, res) => res.sendStatus(404));
     }
 
-    private async checkPerms (req: any, res: any, perms: AdminPerms): Promise<boolean> {
+    private async checkPerms(req: any, res: any, perms: AdminPerms): Promise<boolean> {
         if (!this.sessionTokens.tokenExists(req.cookies.token)) {
             res.sendStatus(401);
             return false;

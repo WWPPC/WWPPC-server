@@ -27,7 +27,7 @@ if (config.debugMode) logger.info('Extra debug logging is enabled (disable this 
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import { rateLimit } from 'express-rate-limit';
+import { rateLimitWithTrigger } from './util';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 const app = express();
@@ -35,14 +35,11 @@ const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.crea
     key: fs.readFileSync(path.resolve(config.path, 'cert-key.pem')),
     cert: fs.readFileSync(path.resolve(config.path, 'cert.pem'))
 }, app) : http.createServer(app);
-const limiter = rateLimit({
+app.use(rateLimitWithTrigger({
     windowMs: 100,
     max: 100,
-    handler: (req, res, next) => {
-        logger.warn('Rate limiting triggered by ' + (req.ip ?? req.socket.remoteAddress));
-    }
-});
-app.use(limiter);
+    message: 'Too many requests'
+}, (req, res) => logger.warn(`Rate limiting triggered by ${req.ip}`)));
 app.use(cors({
     origin: [/https:\/\/(?:.+\.)*wwppc\.tech/, /https?:\/\/localhost:[0-9]{1,5}/],
     credentials: true,
@@ -74,8 +71,8 @@ const database = new Database({
     sslCert: process.env.DATABASE_CERT,
     logger: logger
 });
-ClientAuth.init(database, app);
-ClientAPI.init(database, app);
+ClientAuth.init(database, app, mailer);
+ClientAPI.init(database, app, mailer);
 const mainGrader = new Grader(database, app, '/judge', process.env.GRADER_PASS!, logger);
 ContestManager.init(database, app, mainGrader);
 UpsolveManager.init(database, app, mainGrader);

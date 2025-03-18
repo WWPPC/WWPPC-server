@@ -3,6 +3,7 @@ import { Client } from 'pg';
 import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
+import { randomUUID as cryptoRandomUUID } from 'crypto';
 import { AESEncryptionHandler } from './cryptoUtil';
 import Logger, { NamedLogger } from './log';
 import { filterCompare, FilterComparison, isUUID, UUID } from './util';
@@ -172,15 +173,6 @@ export class Database {
 
     readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
     readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
-    /**
-     * Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
-     * @param {string} username Username
-     * @param {string} password Password
-     * @returns {boolean} Validity
-     */
-    validate(username: string, password: string): boolean {
-        return username.trim().length > 0 && password.trim().length > 0 && username.length <= 16 && password.length <= 1024 && /^[a-z0-9-_]+$/.test(username);
-    }
     /**
      * Read a list of all account usernames that exist. Bypasses cache.
      * @returns {strings[] | null} List of account usernames, or null if an error occurred
@@ -1386,11 +1378,7 @@ export enum AccountOpResult {
     /**The operation failed because of an authentication failure */
     INCORRECT_CREDENTIALS = 3,
     /**The operation failed because of an unexpected issue */
-    ERROR = 4,
-    /**The operation failed because the RSA-OAEP keys expired */
-    SESSION_EXPIRED = 5,
-    /**A CAPTCHA check failed */
-    CAPTCHA_FAILED = 6
+    ERROR = 4
 }
 
 /**Response codes for operations involving team data */

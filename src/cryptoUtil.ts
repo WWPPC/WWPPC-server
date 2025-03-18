@@ -2,9 +2,6 @@ import { createCipheriv, createDecipheriv, randomBytes, randomUUID, subtle, webc
 
 import Logger, { NamedLogger } from './log';
 
-// encryption helpers
-export type RSAEncrypted = Buffer | string;
-
 /**
  * Simple RSA-OAEP-256 asymmetric encryption wrapper.
  */
@@ -30,22 +27,22 @@ export class RSAEncryptionHandler {
         this.ready = new Promise((resolve) => {
             this.keypair.then(({ publicKey }) => subtle.exportKey('jwk', publicKey).then((key) => this.pubKey = key).then(resolve));
         });
-        this.session = Math.random();
+        this.session = Date.now();
     }
 
     /**
      * RA-OAEP public key, exported in "jwk" format.
      */
-    get publicKey() { return this.pubKey; }
+    get publicKey(): webcrypto.JsonWebKey | undefined { return this.pubKey; }
     /**
      * Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` call.
      */
-    get sessionID() { return this.session; }
+    get sessionID(): number { return this.session; }
 
     /**
      * Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the public key has been updated.
      */
-    async rotateKeys() {
+    async rotateKeys(): Promise<void> {
         const newKeys = subtle.generateKey({
             name: "RSA-OAEP",
             modulusLength: 2048,
@@ -63,9 +60,9 @@ export class RSAEncryptionHandler {
      * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns {string} Decrypted string
      */
-    async decrypt(buf: RSAEncrypted) {
+    async decrypt(buf: Buffer): Promise<string | Buffer> {
         try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, buf).catch(() => new Uint8Array([30]))) : buf;
+            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, buf)) : buf;
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
             return buf;

@@ -1,8 +1,9 @@
 import { Express } from 'express';
 
-import Database, { AccountOpResult, TeamOpResult } from './database';
-import Logger, { defaultLogger, NamedLogger } from './log';
 import config from './config';
+import Database, { AccountOpResult, TeamOpResult } from './database';
+import Mailer from './email';
+import { defaultLogger, NamedLogger } from './log';
 
 /**
  * Bundles general API functions into a single class.
@@ -12,6 +13,7 @@ export class ClientAPI {
 
     readonly db: Database;
     readonly app: Express;
+    readonly mailer: Mailer;
     readonly logger: NamedLogger;
 
     private readonly clientConfig = {
@@ -28,9 +30,10 @@ export class ClientAPI {
         }, {})
     };
 
-    private constructor(db: Database, app: Express) {
+    private constructor(db: Database, app: Express, mailer: Mailer) {
         this.db = db;
         this.app = app;
+        this.mailer = mailer;
         this.logger = new NamedLogger(defaultLogger, 'ClientAPI');
         this.createEndpoints();
     }
@@ -59,15 +62,19 @@ export class ClientAPI {
                 res.json(data2);
             }
         });
+        this.app.get('/api/coffee', (req, res) => {
+            res.sendStatus(418);
+        });
     }
 
     /**
      * Initialize the client API.
      * @param {Database} db Database connection
      * @param {Express} app Express app (HTTP server) to attach API to
+     * @param {Mailer} mailer SMTP mailing server connection
      */
-    static init(db: Database, app: Express): ClientAPI {
-        return this.instance = this.instance ?? new ClientAPI(db, app);
+    static init(db: Database, app: Express, mailer: Mailer): ClientAPI {
+        return this.instance = this.instance ?? new ClientAPI(db, app, mailer);
     }
 
     /**
