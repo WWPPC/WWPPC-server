@@ -3,12 +3,11 @@ import { Client } from 'pg';
 import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
-import { randomUUID as cryptoRandomUUID } from 'crypto';
 import { AESEncryptionHandler } from './cryptoUtil';
 import Logger, { NamedLogger } from './log';
 import { filterCompare, FilterComparison, isUUID, UUID } from './util';
 
-const salt = 5;
+const bcryptRounds = 8;
 
 export interface DatabaseConstructorParams {
     /**Valid PostgreSQL connection URI (postgresql://username:password@host:port/database) */
@@ -199,7 +198,7 @@ export class Database {
     async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
-            const encryptedPassword = await bcrypt.hash(password, salt);
+            const encryptedPassword = await bcrypt.hash(password, bcryptRounds);
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
             else {
@@ -352,7 +351,7 @@ export class Database {
         try {
             const res = await this.checkAccount(username, password);
             if (res != AccountOpResult.SUCCESS) return res;
-            const encryptedPassword = await bcrypt.hash(newPassword, salt);
+            const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
             await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
             this.logger.info(`Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
@@ -379,7 +378,7 @@ export class Database {
             if (data.rows.length > 0) {
                 if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
                     this.rotateRecoveryPassword(username);
-                    const encryptedPassword = await bcrypt.hash(newPassword, salt);
+                    const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
                     await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
                     this.logger.info(`Reset password via token for "${username}"`, true);
                     return AccountOpResult.SUCCESS;
