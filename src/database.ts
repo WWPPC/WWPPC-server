@@ -193,14 +193,14 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} password Valid password
      * @param {AccountData} userData Initial user data
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR} Creation status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR} Creation status
      */
-    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<AccountOpResult.SUCCESS | AccountOpResult.ALREADY_EXISTS | AccountOpResult.ERROR> {
+    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, bcryptRounds);
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
-            if (data.rows.length > 0) return AccountOpResult.ALREADY_EXISTS;
+            if (data.rows.length > 0) return DatabaseOpCode.ALREADY_EXISTS;
             else {
                 await this.db.query(`
                     INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
@@ -230,10 +230,10 @@ export class Database {
                 expiration: performance.now() + config.dbCacheTime
             });
             this.logger.info(`Created account "${username}"`, true);
-            return AccountOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (createAccount):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`createAccount in ${performance.now() - startTime}ms`, true);
         }
@@ -243,9 +243,9 @@ export class Database {
      * If successful, the `recoverypass` field is rotated to a new random string.
      * @param {string} username Valid username
      * @param {string} password Valid password
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Check status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Check status
      */
-    async checkAccount(username: string, password: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async checkAccount(username: string, password: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
@@ -253,13 +253,13 @@ export class Database {
             if (data.rows.length > 0) {
                 if (await bcrypt.compare(password, data.rows[0].password)) {
                     this.rotateRecoveryPassword(username);
-                    return AccountOpResult.SUCCESS;
-                } else return AccountOpResult.INCORRECT_CREDENTIALS;
+                    return DatabaseOpCode.SUCCESS;
+                } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
             }
-            return AccountOpResult.NOT_EXISTS;
+            return DatabaseOpCode.NOT_EXISTS;
         } catch (err) {
             this.logger.handleError('Database error (checkAccount):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`checkAccount in ${performance.now() - startTime}ms`, true);
         }
@@ -267,9 +267,9 @@ export class Database {
     /**
      * Get user data for an account. Registrations are fetched through team alias. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} AccountData or an error code
+     * @returns {AccountData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} AccountData or an error code
      */
-    async getAccountData(username: string): Promise<AccountData | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async getAccountData(username: string): Promise<AccountData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
@@ -305,10 +305,10 @@ export class Database {
                 });
                 return userData;
             }
-            return AccountOpResult.NOT_EXISTS;
+            return DatabaseOpCode.NOT_EXISTS;
         } catch (err) {
             this.logger.handleError('Database error (getAccountData):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountData in ${performance.now() - startTime}ms`, true);
         }
@@ -317,16 +317,16 @@ export class Database {
      * Overwrite user data for an existing account. Cannot be used to update "email", "registrations", "pastRegistrations", or "team". **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {AccountData} userData New data
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Update status
      */
-    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'registrations' | 'pastRegistrations' | 'team'>): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'registrations' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
                 'UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
-            if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             const dat = structuredClone(userData);
             if (this.userCache.has(username)) {
                 const entry = this.userCache.get(username)!;
@@ -336,10 +336,10 @@ export class Database {
                 };
                 entry.expiration = performance.now() + config.dbCacheTime;
             }
-            return AccountOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (updateAccountData):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`updateAccountData in ${performance.now() - startTime}ms`, true);
         }
@@ -350,21 +350,21 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} password Valid current password
      * @param {string} newPassword Valid new password
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Update status
      */
-    async changeAccountPassword(username: string, password: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async changeAccountPassword(username: string, password: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.checkAccount(username, password);
-            if (res != AccountOpResult.SUCCESS) return res;
+            if (res != DatabaseOpCode.SUCCESS) return res;
             const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
             await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
             this.logger.info(`Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
-            return AccountOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (changeAccountPassword):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`changeAccountPassword in ${performance.now() - startTime}ms`, true);
         }
@@ -375,9 +375,9 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} token Alternative rotating password
      * @param {string} newPassword Valid new password
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Update status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Update status
      */
-    async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
@@ -387,13 +387,13 @@ export class Database {
                     const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
                     await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
                     this.logger.info(`Reset password via token for "${username}"`, true);
-                    return AccountOpResult.SUCCESS;
-                } else return AccountOpResult.INCORRECT_CREDENTIALS;
+                    return DatabaseOpCode.SUCCESS;
+                } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
             }
-            return AccountOpResult.NOT_EXISTS;
+            return DatabaseOpCode.NOT_EXISTS;
         } catch (err) {
             this.logger.handleError('Database error (changeAccountPasswordToken):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
         }
@@ -404,18 +404,18 @@ export class Database {
      * @param {string} username Valid username
      * @param {string} password Valid password of user, or admin password if `adminUsername` is given
      * @param {string} adminUsername Valid username of administrator
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR} Deletion status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Deletion status
      */
-    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.INCORRECT_CREDENTIALS | AccountOpResult.ERROR> {
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (adminUsername != undefined) {
                 this.logger.warn(`"${adminUsername}" is trying to delete account "${username}"!`);
                 const res = await this.checkAccount(adminUsername, password);
-                if (res != AccountOpResult.SUCCESS) return res;
-                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return AccountOpResult.INCORRECT_CREDENTIALS; // no perms = incorrect creds
+                if (res != DatabaseOpCode.SUCCESS) return res;
+                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.INCORRECT_CREDENTIALS; // no perms = incorrect creds
                 const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
-                if (data.rows.length == null || data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
+                if (data.rows.length == null || data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
                 const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
                 await this.db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
@@ -425,10 +425,10 @@ export class Database {
                     this.userCache.delete(row.username);
                     this.teamCache.delete(row.username);
                 }
-                return AccountOpResult.SUCCESS;
+                return DatabaseOpCode.SUCCESS;
             } else {
                 const res = await this.checkAccount(username, password);
-                if (res != AccountOpResult.SUCCESS) return res;
+                if (res != DatabaseOpCode.SUCCESS) return res;
                 const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
                 await this.db.query('DELETE FROM users WHERE username=$1', [username]);
                 await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
@@ -438,11 +438,11 @@ export class Database {
                     this.userCache.delete(row.username);
                     this.teamCache.delete(row.username);
                 }
-                return AccountOpResult.SUCCESS;
+                return DatabaseOpCode.SUCCESS;
             }
         } catch (err) {
             this.logger.handleError('Database error (deleteAccount):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteAccount in ${performance.now() - startTime}ms`, true);
         }
@@ -450,9 +450,9 @@ export class Database {
     /**
      * Get the alternative rotating password for an account. **Does not validate credentials**
      * @param {string} username Valid username
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Fetch status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Fetch status
      */
-    async getRecoveryPassword(username: string): Promise<string | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async getRecoveryPassword(username: string): Promise<string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
@@ -460,10 +460,10 @@ export class Database {
                 this.logger.info(`Fetched recovery password for ${username}`, true);
                 return this.dbEncryptor.decrypt(data.rows[0].recoverypass);
             }
-            return AccountOpResult.NOT_EXISTS;
+            return DatabaseOpCode.NOT_EXISTS;
         } catch (err) {
             this.logger.handleError('Database error (getRecoveryPassword):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
@@ -471,18 +471,18 @@ export class Database {
     /**
      * Rotates the recovery password of an account to a new random string.
      * @param {string} username Username to rotate
-     * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Rotation status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Rotation status
      */
-    async rotateRecoveryPassword(username: string): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async rotateRecoveryPassword(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const newPass = this.dbEncryptor.encrypt(uuidV4());
             const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
-            if (data.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-            return AccountOpResult.SUCCESS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (rotateRecoveryPassword):', err);
-            return AccountOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
@@ -491,18 +491,18 @@ export class Database {
     /**
      * Get the id of a user's team (the team creator's username). **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {string | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Team id or an error code
+     * @returns {string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Team id or an error code
      */
-    async getAccountTeam(username: string): Promise<string | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async getAccountTeam(username: string): Promise<string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.getAccountData(username);
-            if (data == AccountOpResult.NOT_EXISTS) return TeamOpResult.NOT_EXISTS;
-            if (data == AccountOpResult.ERROR) return TeamOpResult.ERROR;
+            if (data == DatabaseOpCode.NOT_EXISTS) return DatabaseOpCode.NOT_EXISTS;
+            if (data == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
             return data.team;
         } catch (err) {
             this.logger.handleError('Database error (getAccountTeam):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountTeam in ${performance.now() - startTime}ms`, true);
         }
@@ -510,39 +510,39 @@ export class Database {
     /**
      * Set the id of a user's team (the team creator's username). Also clears existing registrations to avoid incorrect registration reporting. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {string} team Valid username (of team) OR join code
+     * @param {string} teamOrCode Valid username (of team) OR join code
      * @param {boolean} useJoinCode If should search by join code instead (default false)
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.NOT_ALLOWED | TeamOpResult.ERROR} Update status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR} Update status
      */
-    async setAccountTeam(username: string, team: string, useJoinCode: boolean = false): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.NOT_ALLOWED | TeamOpResult.ERROR> {
+    async setAccountTeam(username: string, teamOrCode: string, useJoinCode: boolean = false): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            if (team != username || useJoinCode) {
+            if (teamOrCode != username || useJoinCode) {
                 const existingUserData = await this.getAccountData(username);
-                if (typeof existingUserData != 'object') return existingUserData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR;
-                if (existingUserData.team != username) return TeamOpResult.NOT_ALLOWED;
+                if (typeof existingUserData != 'object') return existingUserData == DatabaseOpCode.NOT_EXISTS ? DatabaseOpCode.NOT_EXISTS : DatabaseOpCode.ERROR;
+                if (existingUserData.team != username) return DatabaseOpCode.NOT_ALLOWED;
             }
             if (useJoinCode) {
                 const res = await this.db.query(
                     'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.joincode=$2) RETURNING users.username', [
-                    username, team
+                    username, teamOrCode
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             } else {
                 const res = await this.db.query(
                     'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.username=$2) RETURNING users.username', [
-                    username, team
+                    username, teamOrCode
                 ]);
-                if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+                if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             }
             this.userCache.delete(username);
             this.teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.teamCache.delete(k);
             });
-            return TeamOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (setAccountTeam):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`setAccountTeam in ${performance.now() - startTime}ms`, true);
         }
@@ -550,9 +550,9 @@ export class Database {
     /**
      * Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Team data or an error code
+     * @returns {TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Team data or an error code
      */
-    async getTeamData(username: string): Promise<TeamData | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async getTeamData(username: string): Promise<TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.teamCache.has(username) && this.teamCache.get(username)!.expiration < performance.now()) this.teamCache.delete(username);
@@ -579,10 +579,10 @@ export class Database {
                 });
                 return teamDat;
             }
-            return TeamOpResult.NOT_EXISTS;
+            return DatabaseOpCode.NOT_EXISTS;
         } catch (err) {
             this.logger.handleError('Database error (getTeamData):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getTeamData in ${performance.now() - startTime}ms`, true);
         }
@@ -591,16 +591,16 @@ export class Database {
      * Update the team data for an existing team. Cannot be used to update "members" or "joinCode".**Does not validate credentials**.
      * @param {string} username Valid username
      * @param {TeamData} teamData New data
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Update status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Update status
      */
-    async updateTeamData(username: string, teamData: Omit<TeamData, 'id' | 'members' | 'joinCode'>): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async updateTeamData(username: string, teamData: Omit<TeamData, 'id' | 'members' | 'joinCode'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
                 username, teamData.name, teamData.bio
             ]);
-            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             const dat = structuredClone(teamData);
             for (const [key, entry] of this.teamCache) {
                 if (entry.data.members.includes(username)) {
@@ -613,10 +613,10 @@ export class Database {
             }
             this.teamCache.forEach((entry) => {
             });
-            return TeamOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (updateTeamData):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`updateTeamData in ${performance.now() - startTime}ms`, true);
         }
@@ -625,17 +625,17 @@ export class Database {
      * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. Does not prevent registering a team that is too large. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.ERROR} Registration status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.CONTEST_ALREADY_EXISTS | DatabaseOpCode.ERROR} Registration status
      */
-    async registerContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.CONTEST_ALREADY_EXISTS | TeamOpResult.ERROR> {
+    async registerContest(username: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const exists = await this.db.query(
                 'SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
                 username
             ]);
-            if (exists.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            if (exists.rows[0].registrations.includes(contest)) return TeamOpResult.CONTEST_ALREADY_EXISTS;
+            if (exists.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.ALREADY_EXISTS;
             const res = await this.db.query(`
                 UPDATE teams SET registrations=(teams.registrations || $2)
                 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
@@ -643,14 +643,14 @@ export class Database {
                 `, [
                 username, [contest]
             ]);
-            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             this.teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.userCache.delete(k);
             });
-            return TeamOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (registerContest):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`registerContest in ${performance.now() - startTime}ms`, true);
         }
@@ -659,9 +659,9 @@ export class Database {
      * Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
      * @param {string} username Valid username
      * @param {string} contest Contest id
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Registration status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Registration status
      */
-    async unregisterContest(username: string, contest: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async unregisterContest(username: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(`
@@ -673,14 +673,14 @@ export class Database {
             `, [
                 username, contest
             ]);
-            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             this.teamCache.forEach((v, k) => {
                 if (v.data.members.includes(username)) this.userCache.delete(k);
             });
-            return TeamOpResult.SUCCESS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (unregisterContest):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`unregisterContest in ${performance.now() - startTime}ms`, true);
         }
@@ -688,23 +688,23 @@ export class Database {
     /**
      * Unregister an account for all contests (shortcut method), also unregistering all other accounts on the same team. **Does not validate credentials**.
      * @param {string} username Valid username
-     * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Registration status
+     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Registration status
      */
-    async unregisterAllContests(username: string): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async unregisterAllContests(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
-            if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            return TeamOpResult.SUCCESS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (unregisterAllContests):', err);
-            return TeamOpResult.ERROR;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`unregisterAllContests in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
-     * Moves all instances of a contest from upcoming registrations to the past registrations of every team.
+     * Moves all instances of a contest from upcoming registrations of every team to the past registrations of every member.
      * @param {string} contest Contest ID to mark as completed
      */
     async finishContest(contest: string): Promise<boolean> {
@@ -1379,39 +1379,19 @@ export default Database;
 export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
 
 /**Response codes for operations involving account data */
-export enum AccountOpResult {
-    /**The operation was completed successfully */
-    SUCCESS = 0,
-    /**The operation failed because database cannot not overwrite existing account */
-    ALREADY_EXISTS = 1,
-    /**The operation failed because the requested account does not exist */
-    NOT_EXISTS = 2,
+export enum DatabaseOpCode {
+    /**The operation succeeded */
+    SUCCESS = 200,
+    /**The operation failed because the database cannot not overwrite existing data */
+    ALREADY_EXISTS = 409,
+    /**The operation failed because the database could not find the requested data */
+    NOT_EXISTS = 404,
     /**The operation failed because of an authentication failure */
-    INCORRECT_CREDENTIALS = 3,
+    INCORRECT_CREDENTIALS = 401,
+    /**The operation failed because the requested action is restricted*/
+    NOT_ALLOWED = 403,
     /**The operation failed because of an unexpected issue */
-    ERROR = 4
-}
-
-/**Response codes for operations involving team data */
-export enum TeamOpResult {
-    /**The operation was completed successfully */
-    SUCCESS = 0,
-    /**The operation failed because the reqested account, team, or contest does not exist */
-    NOT_EXISTS = 1,
-    /**The operation failed because the requested contest is on exclude list of other registration */
-    CONTEST_CONFLICT = 2,
-    /**The operation failed because the member count exceeds limits in a registration */
-    CONTEST_MEMBER_LIMIT = 3,
-    /**The operation failed because the requested contest is already a registration */
-    CONTEST_ALREADY_EXISTS = 4,
-    /**The operation failed because of an authentication failure */
-    INCORRECT_CREDENTIALS = 5,
-    /**The operation failed because of an unspecified restriction */
-    NOT_ALLOWED = 6,
-    /**The operation failed because of an unexpected issue */
-    ERROR = 7,
-    /**A CAPTCHA check failed */
-    CAPTCHA_FAILED = 8
+    ERROR = 503
 }
 
 /**Admin permission level bit flags */
