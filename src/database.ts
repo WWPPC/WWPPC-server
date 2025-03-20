@@ -314,12 +314,12 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account. *Ignores `username`, `email`, `registrations`, `pastRegistrations`, and `team` fields*. **Does not validate credentials**.
+     * Overwrite user data for an existing account. Cannot be used to update "email", "registrations", "pastRegistrations", or "team". **Does not validate credentials**.
      * @param {string} username Valid username
-     * @param {AccountData} userData New data (only `firstName`, `lastName`, `displayName`, `profileImage`, `school`, `grade`, `experience`, `languages`, and `bio` fields are updated)
+     * @param {AccountData} userData New data
      * @returns {AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR} Update status
      */
-    async updateAccountData(username: string, userData: AccountData): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
+    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'registrations' | 'pastRegistrations' | 'team'>): Promise<AccountOpResult.SUCCESS | AccountOpResult.NOT_EXISTS | AccountOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
@@ -327,9 +327,15 @@ export class Database {
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return AccountOpResult.NOT_EXISTS;
-            // cache entry re-fetched from database due to ignored fields not being updated
-            this.userCache.delete(username);
-            this.getAccountData(username);
+            const dat = structuredClone(userData);
+            if (this.userCache.has(username)) {
+                const entry = this.userCache.get(username)!;
+                entry.data = {
+                    ...entry.data,
+                    ...dat
+                };
+                entry.expiration = performance.now() + config.dbCacheTime;
+            }
             return AccountOpResult.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (updateAccountData):', err);
@@ -582,12 +588,12 @@ export class Database {
         }
     }
     /**
-     * Overwrite the team data for an existing team. **Does not validate credentials**.
+     * Update the team data for an existing team. Cannot be used to update "members" or "joinCode".**Does not validate credentials**.
      * @param {string} username Valid username
      * @param {TeamData} teamData New data
      * @returns {TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR} Update status
      */
-    async updateTeamData(username: string, teamData: TeamData): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
+    async updateTeamData(username: string, teamData: Omit<TeamData, 'id' | 'members' | 'joinCode'>): Promise<TeamOpResult.SUCCESS | TeamOpResult.NOT_EXISTS | TeamOpResult.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
@@ -595,11 +601,17 @@ export class Database {
                 username, teamData.name, teamData.bio
             ]);
             if (res.rows.length == 0) return TeamOpResult.NOT_EXISTS;
-            this.teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.teamCache.set(k, {
-                    data: teamData,
-                    expiration: performance.now() + config.dbCacheTime
-                });
+            const dat = structuredClone(teamData);
+            for (const [key, entry] of this.teamCache) {
+                if (entry.data.members.includes(username)) {
+                    entry.data = {
+                        ...entry.data,
+                        ...dat
+                    };
+                    entry.expiration = performance.now() + config.dbCacheTime;
+                }
+            }
+            this.teamCache.forEach((entry) => {
             });
             return TeamOpResult.SUCCESS;
         } catch (err) {

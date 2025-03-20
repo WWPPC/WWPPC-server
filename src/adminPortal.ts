@@ -1,12 +1,10 @@
 import bodyParser from 'body-parser';
 import Express from 'express';
-import { resolve as pathResolve } from 'path';
 
-import config from './config';
 import ContestManager from './contest';
 import { TokenHandler } from './cryptoUtil';
 import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
-import Logger, { defaultLogger, FileLogger, NamedLogger } from './log';
+import { defaultLogger, FileLogger, NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 
 /**Permissions that can be given to access tokens */
