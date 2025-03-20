@@ -50,7 +50,7 @@ app.use(cookieParser());
 // init modules
 import Mailer from './email';
 import Database from './database';
-import ClientAuth from './client';
+import ClientAuth from './auth';
 import ClientAPI from './api';
 import Grader from './grader';
 import ContestManager from './contest';

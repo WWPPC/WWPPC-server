@@ -4,9 +4,9 @@ import { Express } from 'express';
 import {
     ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission,
     ContestUpdateSubmissionResult
-} from './client';
+} from './auth';
 import config from './config';
-import { AccountOpResult, Database, Score, ScoreState, Submission, TeamOpResult } from './database';
+import { DatabaseOpCode, Database, Score, ScoreState, Submission, DatabaseOpCode } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter } from './longPolling';
@@ -83,7 +83,7 @@ export class ContestManager {
                 host.onended(() => this.contests.delete(contest.id));
                 this.#sockets.forEach(async (socket) => {
                     const userData = await this.db.getAccountData(socket.username);
-                    if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) {
+                    if (userData == DatabaseOpCode.NOT_EXISTS || userData == DatabaseOpCode.ERROR) {
                         this.logger.warn(`Could not fetch data for ${socket.username}`);
                         return;
                     }
@@ -107,12 +107,12 @@ export class ContestManager {
 
         // make sure the user actually exists (otherwise bork)
         const userData = await this.db.getAccountData(socket.username);
-        if (userData == AccountOpResult.NOT_EXISTS || userData == AccountOpResult.ERROR) return;
+        if (userData == DatabaseOpCode.NOT_EXISTS || userData == DatabaseOpCode.ERROR) return;
 
         // new event handlers
         socket.removeAllListeners('registerContest');
         socket.removeAllListeners('unregisterContest');
-        socket.on('registerContest', async (data: { contest: string, token: string }, cb: (res: TeamOpResult) => any) => {
+        socket.on('registerContest', async (data: { contest: string, token: string }, cb: (res: DatabaseOpCode) => any) => {
             if (data == null || typeof data.contest != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
                 socket.kick('invalid registerContest payload');
                 return;
@@ -123,11 +123,11 @@ export class ContestManager {
                 this.logger.error('reCAPTCHA verification failed:');
                 this.logger.error(recaptchaResponse.message);
                 if (recaptchaResponse.stack) this.logger.error(recaptchaResponse.stack);
-                cb(TeamOpResult.CAPTCHA_FAILED);
+                cb(DatabaseOpCode.CAPTCHA_FAILED);
                 return;
             } else if (recaptchaResponse == undefined || recaptchaResponse.success !== true || recaptchaResponse.score < 0.8) {
                 socket.logWithId(this.logger.logger.info, `reCAPTCHA verification failed:\n${JSON.stringify(recaptchaResponse)}`);
-                cb(TeamOpResult.CAPTCHA_FAILED);
+                cb(DatabaseOpCode.CAPTCHA_FAILED);
                 return;
             } else if (config.debugMode) socket.logWithId(this.logger.logger.debug, `reCAPTCHA verification successful:\n${JSON.stringify(recaptchaResponse)}`);
             // check valid team size and exclusion lists
@@ -136,7 +136,7 @@ export class ContestManager {
             const userData = await this.db.getAccountData(socket.username);
             if (contestData == null || contestData.length != 1) {
                 socket.logWithId(this.logger.logger.error, 'Registration failed: Contest not found');
-                cb(TeamOpResult.ERROR);
+                cb(DatabaseOpCode.ERROR);
                 return;
             }
             if (typeof teamData != 'object') {
@@ -146,12 +146,12 @@ export class ContestManager {
             }
             if (typeof userData != 'object') {
                 socket.logWithId(this.logger.logger.error, 'Registration failed: Account not found');
-                cb(userData == AccountOpResult.NOT_EXISTS ? TeamOpResult.NOT_EXISTS : TeamOpResult.ERROR);
+                cb(userData == DatabaseOpCode.NOT_EXISTS ? DatabaseOpCode.NOT_EXISTS : DatabaseOpCode.ERROR);
                 return;
             }
             if (contestData[0].maxTeamSize < teamData.members.length) {
                 socket.logWithId(this.logger.logger.info, 'Registration failed: Team size too large');
-                cb(TeamOpResult.CONTEST_MEMBER_LIMIT);
+                cb(DatabaseOpCode.CONTEST_MEMBER_LIMIT);
                 return;
             }
             // very long code to check for conflicts
@@ -159,20 +159,20 @@ export class ContestManager {
                 const contest = await this.db.readContests({ id: r });
                 if (contest == null || contest.length != 1) {
                     socket.logWithId(this.logger.logger.error, 'Registration failed: Existing registered contest not found');
-                    cb(TeamOpResult.ERROR);
+                    cb(DatabaseOpCode.ERROR);
                     return;
                 }
                 if (contest[0].exclusions.includes(data.contest)) {
                     socket.logWithId(this.logger.logger.info, 'Registration failed: Registration excluded by other contest (' + data.contest + ')');
-                    cb(TeamOpResult.CONTEST_CONFLICT);
+                    cb(DatabaseOpCode.CONTEST_CONFLICT);
                     return;
                 }
             }
             const res = await this.db.registerContest(socket.username, data.contest);
             cb(res);
-            socket.logWithId(this.logger.logger.info, 'Register contest: ' + reverse_enum(AccountOpResult, res));
+            socket.logWithId(this.logger.logger.info, 'Register contest: ' + reverse_enum(DatabaseOpCode, res));
         });
-        socket.on('unregisterContest', async (data: { contest: string }, cb: (res: TeamOpResult) => any) => {
+        socket.on('unregisterContest', async (data: { contest: string }, cb: (res: DatabaseOpCode) => any) => {
             if (data == null || typeof data.contest != 'string' || typeof cb != 'function') {
                 socket.kick('invalid unregisterContest payload');
                 return;
@@ -180,7 +180,7 @@ export class ContestManager {
             socket.logWithId(this.logger.logger.info, 'Unregistering contest: ' + data.contest);
             const res = await this.db.unregisterContest(socket.username, data.contest);
             cb(res);
-            socket.logWithId(this.logger.logger.info, 'Unregister contest: ' + reverse_enum(AccountOpResult, res));
+            socket.logWithId(this.logger.logger.info, 'Unregister contest: ' + reverse_enum(DatabaseOpCode, res));
         });
 
         // add to contests
@@ -662,7 +662,7 @@ export class ContestHost {
             }
             const teamData = await this.db.getTeamData(socket.username);
             if (typeof teamData != 'object') {
-                this.logger.handleError(`Could not fetch team data (for ${socket.username})!`, `Result ${reverse_enum(AccountOpResult, teamData)}`);
+                this.logger.handleError(`Could not fetch team data (for ${socket.username})!`, `Result ${reverse_enum(DatabaseOpCode, teamData)}`);
                 respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }

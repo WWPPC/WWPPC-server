@@ -1,7 +1,11 @@
-import Express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import rateLimit, { Options as RateLimitOptions, RateLimitRequestHandler } from 'express-rate-limit';
-import { extendMessages as nivExtendMessages, extend as nivExtend } from 'node-input-validator';
+import { extend as nivExtend, extendMessages as nivExtendMessages, Validator } from 'node-input-validator';
 import { validate } from 'uuid';
+
+import config from './config';
+import Logger from './log';
+import Database, { DatabaseOpCode } from './database';
 
 // important comparator (streamlines filtering everywhere)
 export type primitive = number | string | boolean | undefined | null;
@@ -157,13 +161,12 @@ nivExtendMessages({
 });
 
 /**
- * Create an instance of `express-rate-limit` IP rate limiter, with a handler
+ * Create an instance of `express-rate-limit` IP rate limiter, with a handler.
  * for the first trigger of the rate limiter per window.
- * @param options Options to configure the rate limiter.
- * @param cb Callback handler for the first trigger
- * @returns 
+ * @param {RateLimitOptions} options Options to configure the rate limiter.
+ * @param {Function} cb Callback handler for the first trigger
  */
-export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'handler'>>, cb: (req: Express.Request, res: Express.Response) => any): RateLimitRequestHandler {
+export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'handler'>>, cb: (req: Request, res: Response) => any): RateLimitRequestHandler {
     const window = options.windowMs ?? 60000;
     const recentTriggers: Map<string, number> = new Map();
     return rateLimit({
@@ -174,6 +177,49 @@ export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'ha
             res.status(options.statusCode).send(options.message);
         }
     });
+}
+/**
+ * Returns middleware that validates the request body using the node-input-validator package.
+ * @param {object} rules Input validation rules
+ * @param {Logger} logger Logging instance
+ */
+export function validateRequestBody(rules: object, logger?: Logger): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+    return async (req, res, next) => {
+        const validator = new Validator(req.body, rules);
+        validator.doBail = !config.debugMode;
+        if (await validator.check()) {
+            next();
+        } else {
+            if (config.debugMode && logger !== undefined) logger.warn(`${req.path} fail: ${validator.errors} (${req.ip})`);
+            res.status(400).send(validator.errors);
+        }
+    };
+}
+const defaultDbResMessages: Record<DatabaseOpCode, string> = {
+    [DatabaseOpCode.SUCCESS]: 'Success',
+    [DatabaseOpCode.ALREADY_EXISTS]: 'Already exists',
+    [DatabaseOpCode.NOT_EXISTS]: 'Not found',
+    [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Unauthorized',
+    [DatabaseOpCode.NOT_ALLOWED]: 'Forbidden',
+    [DatabaseOpCode.ERROR]: 'Internal error'
+};
+export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, username: string, messages: Partial<Record<DatabaseOpCode, string>>, logger: Logger): void {
+    if (config.debugMode) logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, code)} (${username}, ${req.ip})`);
+    switch (code) {
+        case DatabaseOpCode.SUCCESS:
+        case DatabaseOpCode.ALREADY_EXISTS:
+        case DatabaseOpCode.NOT_EXISTS:
+        case DatabaseOpCode.INCORRECT_CREDENTIALS:
+        case DatabaseOpCode.NOT_ALLOWED:
+            res.status(code).send(messages[code] ?? defaultDbResMessages[code]);
+        case DatabaseOpCode.ERROR:
+            logger.error(`${req.path} error (${username}, ${req.ip})`);
+            res.sendStatus(503);
+            break;
+        default:
+            logger.error(`${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);
+            res.sendStatus(503);
+    }
 }
 
 // more helpers
@@ -186,7 +232,7 @@ export function isUUID(id: any): id is UUID {
 /**
  * Look up the name of an enumeration based on the value
  */
-export function reverse_enum(enumeration: any, v: any): string {
+export function reverse_enum(enumeration: any, v: any): any {
     for (const k in enumeration) if (enumeration[k] === v) return k;
     return v;
 }

@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
-import Express from 'express';
+import { Express, Request, Response } from 'express';
 
 import ContestManager from './contest';
 import { TokenHandler } from './cryptoUtil';
-import Database, { AccountData, AccountOpResult, AdminPerms, Contest, Problem, Round, TeamData, TeamOpResult } from './database';
+import Database, { AccountData, DatabaseOpCode, AdminPerms, Contest, Problem, Round, TeamData, DatabaseOpCode } from './database';
 import { defaultLogger, FileLogger, NamedLogger } from './log';
 import { isUUID, reverse_enum } from './util';
 
@@ -20,15 +20,16 @@ export class AdminAPI {
     private static instance: AdminAPI | null = null;
 
     readonly db: Database;
-    readonly app: Express.Express;
+    readonly app: Express;
     readonly logger: NamedLogger;
     private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();
     private readonly accessTokens: TokenHandler<AdminAccessTokenPerms[]> = new TokenHandler<AdminAccessTokenPerms[]>();
 
-    private constructor(db: Database, app: Express.Express) {
+    private constructor(db: Database, app: Express) {
         this.db = db;
         this.app = app;
         this.logger = new NamedLogger(defaultLogger, 'AdminAPI');
+        this.createEndpoints();
     }
 
     private createEndpoints() {
@@ -46,7 +47,7 @@ export class AdminAPI {
                 res.sendStatus(400);
                 return;
             }
-            if ((await this.db.checkAccount(req.body.username, req.body.password)) == AccountOpResult.SUCCESS && await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
+            if ((await this.db.checkAccount(req.body.username, req.body.password)) == DatabaseOpCode.SUCCESS && await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
                 const token = this.sessionTokens.createToken(req.body.username, 3600000);
                 res.cookie('token', token, {
                     expires: new Date(this.accessTokens.tokenExpiration(req.body) ?? (Date.now() + 3600000)),
@@ -82,27 +83,27 @@ export class AdminAPI {
             res.sendStatus(200);
         });
 
-        const defaultAccountOpMapping = (res: Express.Response, stat: any) => {
-            if (stat == AccountOpResult.SUCCESS) res.send(200);
-            else if (stat == AccountOpResult.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == AccountOpResult.ALREADY_EXISTS) res.sendStatus(409);
-            else if (stat == AccountOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
-            else if (stat == AccountOpResult.ERROR) res.sendStatus(500);
+        const defaultAccountOpMapping = (res: Response, stat: any) => {
+            if (stat == DatabaseOpCode.SUCCESS) res.send(200);
+            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
+            else if (stat == DatabaseOpCode.ALREADY_EXISTS) res.sendStatus(409);
+            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
+            else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultTeamOpMapping = (res: Express.Response, stat: any) => {
-            if (stat == TeamOpResult.SUCCESS) res.sendStatus(200);
-            else if (stat == TeamOpResult.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == TeamOpResult.CONTEST_CONFLICT || stat == TeamOpResult.CONTEST_MEMBER_LIMIT || stat == TeamOpResult.CONTEST_ALREADY_EXISTS || stat == TeamOpResult.NOT_ALLOWED) res.status(409).json(reverse_enum(TeamOpResult, stat));
-            else if (stat == TeamOpResult.INCORRECT_CREDENTIALS) res.sendStatus(403);
-            else if (stat == TeamOpResult.ERROR) res.sendStatus(500);
+        const defaultTeamOpMapping = (res: Response, stat: any) => {
+            if (stat == DatabaseOpCode.SUCCESS) res.sendStatus(200);
+            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
+            else if (stat == DatabaseOpCode.CONTEST_CONFLICT || stat == DatabaseOpCode.CONTEST_MEMBER_LIMIT || stat == DatabaseOpCode.CONTEST_ALREADY_EXISTS || stat == DatabaseOpCode.NOT_ALLOWED) res.status(409).json(reverse_enum(DatabaseOpCode, stat));
+            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
+            else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultObjectMapping = (res: Express.Response, stat: object | null) => {
+        const defaultObjectMapping = (res: Response, stat: object | null) => {
             if (stat == null) res.sendStatus(500);
             else res.json(stat);
         };
-        const defaultSuccessMapping = (res: Express.Response, stat: boolean) => {
+        const defaultSuccessMapping = (res: Response, stat: boolean) => {
             if (stat) res.json(200);
             else res.sendStatus(500);
         };

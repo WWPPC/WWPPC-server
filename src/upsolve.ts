@@ -1,6 +1,6 @@
 import { Express } from 'express';
 
-import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './client';
+import { ClientProblemCompletionState, ContestUpdateSubmissionResult } from './auth';
 import config from './config';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
