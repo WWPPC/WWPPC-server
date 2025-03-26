@@ -25,10 +25,9 @@ export interface DatabaseConstructorParams {
  * Has a short-term cache to reduce repetitive database calls.
  */
 export class Database {
-    /**
-     * Resolves when the database is connected.
-     */
-    readonly connectPromise: Promise<any>;
+    /**Length of team join keys (changing this will break existing teams!) */
+    static readonly teamJoinKeyLength = 6;
+
     private readonly db: Client;
     private readonly dbEncryptor: AESEncryptionHandler;
     readonly logger: NamedLogger;
@@ -38,27 +37,12 @@ export class Database {
      * @param params Parameters
      */
     constructor({ uri, key, sslCert, logger }: DatabaseConstructorParams) {
-        const startTime = performance.now();
         this.logger = new NamedLogger(logger, 'Database');
-        this.connectPromise = new Promise(() => undefined);
         this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key as string, 'base64'), logger);
         this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
             ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
-        });
-        this.connectPromise = this.db.connect().catch(async (err) => {
-            this.logger.handleFatal('Could not connect to database:', err);
-            this.logger.fatal('Host: ' + this.db.host);
-            await this.logger.destroy();
-            process.exit(1);
-        });
-        this.connectPromise.then(() => {
-            this.logger.info('Database connected');
-            if (config.debugMode) {
-                this.logger.debug(`Connected to ${this.db.host}`);
-                this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
-            }
         });
         this.db.on('error', async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
@@ -80,9 +64,26 @@ export class Database {
         }, 300000);
     }
 
+    async connect(): Promise<void> {
+        const startTime = performance.now();
+        try {
+            await this.db.connect();
+            this.logger.info('Database connected');
+            if (config.debugMode) {
+                this.logger.debug(`Connected to ${this.db.host}`);
+                this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
+            }
+        } catch (err) {
+            this.logger.handleFatal('Could not connect to database:', err);
+            this.logger.fatal('Host: ' + this.db.host);
+            await this.logger.destroy();
+            process.exit(1);
+        }
+    }
+
     /**
      * Disconnect from the PostgreSQL database.
-     * @returns {Promise} A `Promise` representing when the database has disconnected.
+     * @returns A `Promise` representing when the database has disconnected.
      */
     async disconnect(): Promise<void> {
         clearInterval(this.cacheGarbageCollector);
@@ -94,8 +95,8 @@ export class Database {
     /**
      * Transform a list of possible conditions into a string with SQL conditions and bindings. Allows for blank inputs to be treated as wildcards (by omitting the condition)
      * For `FilterComparison`s, see {@link FilterComparison}.
-     * @param {{ name: string, value: SqlValue | undefined | null }[]} columns Array of columns with conditions to check. If any value is undefined the condition is omitted
-     * @returns { queryConditions: string, bindings: SqlValue[] } String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
+     * @param columns Array of columns with conditions to check. If any value is undefined the condition is omitted
+     * @returns String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
      */
     buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
         const conditions: string[] = [];
@@ -171,10 +172,9 @@ export class Database {
     }
 
     readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
-    readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
     /**
      * Read a list of all account usernames that exist. Bypasses cache.
-     * @returns {strings[] | null} List of account usernames, or null if an error occurred
+     * @returns List of account usernames, or null if an error occurred
      */
     async getAccountList(): Promise<string[] | null> {
         const startTime = performance.now();
@@ -190,10 +190,10 @@ export class Database {
     }
     /**
      * Create an account. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {string} password Valid password
-     * @param {AccountData} userData Initial user data
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR} Creation status
+     * @param username Valid username
+     * @param password Valid password
+     * @param userData Initial user data
+     * @returns Creation status
      */
     async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
@@ -201,21 +201,12 @@ export class Database {
             const encryptedPassword = await bcrypt.hash(password, bcryptRounds);
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return DatabaseOpCode.ALREADY_EXISTS;
-            else {
-                await this.db.query(`
-                    INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-                    `, [
-                    username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
-                ]);
-                const joinCode = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
-                await this.db.query(`
-                    INSERT INTO teams (username, registrations, name, biography, joincode)
-                    VALUES ($1, $2, $3, $4, $5)
-                    `, [
-                    username, [], username, '', joinCode
-                ]);
-            }
+            else await this.db.query(`
+                INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                `, [
+                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+            ]);
             this.userCache.set(username, {
                 data: {
                     ...userData,
@@ -223,7 +214,6 @@ export class Database {
                     displayName: `${userData.firstName} ${userData.lastName}`.substring(0, 64),
                     profileImage: config.defaultProfileImg,
                     bio: '',
-                    registrations: [],
                     pastRegistrations: [],
                     team: username
                 },
@@ -241,22 +231,22 @@ export class Database {
     /**
      * Check credentials against an existing account. **Does not validate credentials**.
      * If successful, the `recoverypass` field is rotated to a new random string.
-     * @param {string} username Valid username
-     * @param {string} password Valid password
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Check status
+     * @param username Valid username
+     * @param password Valid password
+     * @returns Check status
      */
     async checkAccount(username: string, password: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
-            const data = await this.db.query('SELECT password FROM users WHERE username=$1', [username]);
-            if (data.rows.length > 0) {
-                if (await bcrypt.compare(password, data.rows[0].password)) {
-                    this.rotateRecoveryPassword(username);
-                    return DatabaseOpCode.SUCCESS;
-                } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
-            }
-            return DatabaseOpCode.NOT_EXISTS;
+            const data = await this.db.query('SELECT password FROM users WHERE username=$1', [
+                username
+            ]);
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (await bcrypt.compare(password, data.rows[0].password)) {
+                this.rotateRecoveryPassword(username);
+                return DatabaseOpCode.SUCCESS;
+            } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
         } catch (err) {
             this.logger.handleError('Database error (checkAccount):', err);
             return DatabaseOpCode.ERROR;
@@ -266,8 +256,8 @@ export class Database {
     }
     /**
      * Get user data for an account. Registrations are fetched through team alias. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @returns {AccountData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} AccountData or an error code
+     * @param username Valid username
+     * @returns AccountData or an error code
      */
     async getAccountData(username: string): Promise<AccountData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
@@ -275,37 +265,33 @@ export class Database {
             if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
             if (this.userCache.has(username)) return structuredClone(this.userCache.get(username)!.data);;
             const data = await this.db.query(`
-                SELECT users.username, users.email, users.firstname, users.lastname, users.displayname, users.profileimg, users.biography, users.school, users.grade, users.experience, users.languages, users.pastregistrations, users.team, teams.registrations
+                SELECT username, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team
                 FROM users
-                INNER JOIN teams ON users.team=teams.username
                 WHERE users.username=$1
                 `, [
                 username
             ]);
-            if (data.rows.length > 0) {
-                const userData: AccountData = {
-                    username: data.rows[0].username,
-                    email: data.rows[0].email,
-                    firstName: data.rows[0].firstname,
-                    lastName: data.rows[0].lastname,
-                    displayName: data.rows[0].displayname,
-                    profileImage: data.rows[0].profileimg,
-                    bio: data.rows[0].biography,
-                    school: data.rows[0].school,
-                    grade: data.rows[0].grade,
-                    experience: data.rows[0].experience,
-                    languages: data.rows[0].languages,
-                    registrations: data.rows[0].registrations,
-                    pastRegistrations: data.rows[0].pastregistrations,
-                    team: data.rows[0].team
-                };
-                this.userCache.set(username, {
-                    data: structuredClone(userData),
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                return userData;
-            }
-            return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            const userData: AccountData = {
+                username: data.rows[0].username,
+                email: data.rows[0].email,
+                firstName: data.rows[0].firstname,
+                lastName: data.rows[0].lastname,
+                displayName: data.rows[0].displayname,
+                profileImage: data.rows[0].profileimg,
+                bio: data.rows[0].biography,
+                school: data.rows[0].school,
+                grade: data.rows[0].grade,
+                experience: data.rows[0].experience,
+                languages: data.rows[0].languages,
+                pastRegistrations: data.rows[0].pastregistrations,
+                team: data.rows[0].team
+            };
+            this.userCache.set(username, {
+                data: structuredClone(userData),
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return userData;
         } catch (err) {
             this.logger.handleError('Database error (getAccountData):', err);
             return DatabaseOpCode.ERROR;
@@ -314,12 +300,12 @@ export class Database {
         }
     }
     /**
-     * Overwrite user data for an existing account. Cannot be used to update "email", "registrations", "pastRegistrations", or "team". **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {AccountData} userData New data
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Update status
+     * Overwrite user data for an existing account. Cannot be used to update "email", "pastRegistrations", or "team". **Does not validate credentials**.
+     * @param username Valid username
+     * @param userData New data
+     * @returns Update status
      */
-    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'registrations' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
@@ -347,10 +333,10 @@ export class Database {
     /**
      * Change the password of an account. Requires that the existing password is correct. **Does not validate credentials**.
      * If successful, the `recoverypass` field is rotated to a new random string.
-     * @param {string} username Valid username
-     * @param {string} password Valid current password
-     * @param {string} newPassword Valid new password
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Update status
+     * @param username Valid username
+     * @param password Valid current password
+     * @param newPassword Valid new password
+     * @returns Update status
      */
     async changeAccountPassword(username: string, password: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
@@ -358,7 +344,9 @@ export class Database {
             const res = await this.checkAccount(username, password);
             if (res != DatabaseOpCode.SUCCESS) return res;
             const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
-            await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
+            await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [
+                username, encryptedPassword
+            ]);
             this.logger.info(`Reset password via password for "${username}"`, true);
             // recovery password already rotated in checkAccount
             return DatabaseOpCode.SUCCESS;
@@ -372,25 +360,27 @@ export class Database {
     /**
      * Change the password of an account using the alternative rotating password. Requires that the alternative rotating password is correct. **Does not validate credentials**.
      * If successful, the `recoverypass` field is rotated to a new random string.
-     * @param {string} username Valid username
-     * @param {string} token Alternative rotating password
-     * @param {string} newPassword Valid new password
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Update status
+     * @param username Valid username
+     * @param token Alternative rotating password
+     * @param newPassword Valid new password
+     * @returns Update status
      */
     async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
-            if (data.rows.length > 0) {
-                if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
-                    this.rotateRecoveryPassword(username);
-                    const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
-                    await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [username, encryptedPassword]);
-                    this.logger.info(`Reset password via token for "${username}"`, true);
-                    return DatabaseOpCode.SUCCESS;
-                } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
-            }
-            return DatabaseOpCode.NOT_EXISTS;
+            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [
+
+                username]);
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
+                this.rotateRecoveryPassword(username);
+                const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
+                await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [
+                    username, encryptedPassword
+                ]);
+                this.logger.info(`Reset password via token for "${username}"`, true);
+                return DatabaseOpCode.SUCCESS;
+            } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
         } catch (err) {
             this.logger.handleError('Database error (changeAccountPasswordToken):', err);
             return DatabaseOpCode.ERROR;
@@ -399,63 +389,16 @@ export class Database {
         }
     }
     /**
-     * Delete an account. Allows deletion by users and admins with permission level `AdminPerms.MANAGE_ACCOUNTS` if `adminUsername` is given. **Does not validate credentials**.
-     * *Note: Requires password or admin username to delete to avoid accidental deletion of accounts.*
-     * @param {string} username Valid username
-     * @param {string} password Valid password of user, or admin password if `adminUsername` is given
-     * @param {string} adminUsername Valid username of administrator
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR} Deletion status
-     */
-    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
-        const startTime = performance.now();
-        try {
-            if (adminUsername != undefined) {
-                this.logger.warn(`"${adminUsername}" is trying to delete account "${username}"!`);
-                const res = await this.checkAccount(adminUsername, password);
-                if (res != DatabaseOpCode.SUCCESS) return res;
-                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.INCORRECT_CREDENTIALS; // no perms = incorrect creds
-                const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]); // still have to check account exists
-                if (data.rows.length == null || data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-                const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
-                await this.db.query('DELETE FROM users WHERE username=$1', [username]);
-                await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
-                this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
-                this.userCache.delete(username);
-                for (const row of users.rows) {
-                    this.userCache.delete(row.username);
-                    this.teamCache.delete(row.username);
-                }
-                return DatabaseOpCode.SUCCESS;
-            } else {
-                const res = await this.checkAccount(username, password);
-                if (res != DatabaseOpCode.SUCCESS) return res;
-                const users = await this.db.query('UPDATE users SET team=username WHERE team=$1 RETURNING username', [username]);
-                await this.db.query('DELETE FROM users WHERE username=$1', [username]);
-                await this.db.query('DELETE FROM teams WHERE username=$1', [username]);
-                this.logger.info(`Deleted account ${username}`, true);
-                this.userCache.delete(username);
-                for (const row of users.rows) {
-                    this.userCache.delete(row.username);
-                    this.teamCache.delete(row.username);
-                }
-                return DatabaseOpCode.SUCCESS;
-            }
-        } catch (err) {
-            this.logger.handleError('Database error (deleteAccount):', err);
-            return DatabaseOpCode.ERROR;
-        } finally {
-            if (config.debugMode) this.logger.debug(`deleteAccount in ${performance.now() - startTime}ms`, true);
-        }
-    }
-    /**
      * Get the alternative rotating password for an account. **Does not validate credentials**
-     * @param {string} username Valid username
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Fetch status
+     * @param username Valid username
+     * @returns Fetch status
      */
     async getRecoveryPassword(username: string): Promise<string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [username]);
+            const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [
+                username
+            ]);
             if (data.rows.length > 0) {
                 this.logger.info(`Fetched recovery password for ${username}`, true);
                 return this.dbEncryptor.decrypt(data.rows[0].recoverypass);
@@ -470,14 +413,16 @@ export class Database {
     }
     /**
      * Rotates the recovery password of an account to a new random string.
-     * @param {string} username Username to rotate
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Rotation status
+     * @param username Username to rotate
+     * @returns Rotation status
      */
     async rotateRecoveryPassword(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const newPass = this.dbEncryptor.encrypt(uuidV4());
-            const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [username, newPass]);
+            const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [
+                username, newPass
+            ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -487,13 +432,97 @@ export class Database {
             if (config.debugMode) this.logger.debug(`rotateRecoveryPassword in ${performance.now() - startTime}ms`, true);
         }
     }
+    /**
+     * Delete an account. Allows deletion by users and admins with permission level {@link AdminPerms.MANAGE_ACCOUNTS} if `adminUsername` is given. **Does not validate credentials**.
+     * *Note: Requires password or admin username and password to delete to avoid accidental deletion of accounts.*
+     * @param username Valid username
+     * @param password Valid user password, or admin password if `adminUsername` is given
+     * @param adminUsername Valid username of administrator
+     * @returns Deletion status
+     */
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            if (adminUsername !== undefined) {
+                this.logger.warn(`"${adminUsername}" is trying to delete account "${username}"!`);
+                const check = await this.checkAccount(adminUsername, password);
+                if (check != DatabaseOpCode.SUCCESS) return check;
+                // no perms = incorrect creds
+                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.INCORRECT_CREDENTIALS;
+            } else {
+                const res = await this.checkAccount(username, password);
+                if (res != DatabaseOpCode.SUCCESS) return res;
+                // account exists check handled by checkAccount
+            }
+            const res = await this.db.query('DELETE FROM users WHERE username=$1 RETURNING team', [
+                username
+            ]);
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (adminUsername !== undefined) {
+                this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
+            } else {
+                this.logger.info(`Deleted account "${username}"`, true);
+            }
+            this.userCache.delete(username);
+            // also have to check if team is empty, and delete it if it is
+            const teamData = await this.getTeamData(res.rows[0].team);
+            if (typeof teamData != 'object') return teamData;
+            if (teamData.members.length == 0) return this.deleteTeam(teamData.id);
+            return DatabaseOpCode.SUCCESS;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteAccount):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteAccount in ${performance.now() - startTime}ms`, true);
+        }
+    }
 
+    readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
+    /**
+     * Create a team.
+     * @param name Name of team (optional, default 'Team')
+     * @returns Newly created team's ID, or an error code
+     */
+    async createTeam(name?: string): Promise<string | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            // actual team ID is sequentially generated, handled by the postgres db
+            const joinKey = Array.from({ length: Database.teamJoinKeyLength }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
+            const res = await this.db.query(`
+                INSERT INTO teams (registrations, name, biography, joinkey)
+                VALUES ($1, $2, $3, $4)
+                RETURNING id
+                `, [
+                [], name ?? 'Team', '', joinKey
+            ]);
+            if (res.rows.length == 0) return DatabaseOpCode.ERROR;
+            const teamId = (res.rows[0].id as number).toString(36);
+            this.teamCache.set(teamId, {
+                data: {
+                    id: teamId,
+                    name: name ?? 'Team',
+                    bio: '',
+                    members: [],
+                    registrations: [],
+                    joinKey: joinKey
+                },
+                expiration: performance.now() + config.dbCacheTime
+            });
+            this.logger.info(`Created team "${teamId}"`, true);
+            return teamId;
+        } catch (err) {
+            this.logger.handleError('Database error (createTeam):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`createTeam in ${performance.now() - startTime}ms`, true);
+        }
+    }
     /**
      * Get the id of a user's team (the team creator's username). **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @returns {string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Team id or an error code
+     * @param username Valid username
+     * @returns Team ID, null if not on a team, or an error code
      */
-    async getAccountTeam(username: string): Promise<string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getAccountTeam(username: string): Promise<string | null | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.getAccountData(username);
@@ -508,36 +537,25 @@ export class Database {
         }
     }
     /**
-     * Set the id of a user's team (the team creator's username). Also clears existing registrations to avoid incorrect registration reporting. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {string} teamOrCode Valid username (of team) OR join code
-     * @param {boolean} useJoinCode If should search by join code instead (default false)
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR} Update status
+     * Change the team affiliation of a user. Since registrations are stored by team, this will change the user's registrations. **Does not validate credentials**.
+     * @param username Valid username
+     * @param team Team ID, or null to remove the user from all teams
+     * @returns Update status
      */
-    async setAccountTeam(username: string, teamOrCode: string, useJoinCode: boolean = false): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
+    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            if (teamOrCode != username || useJoinCode) {
-                const existingUserData = await this.getAccountData(username);
-                if (typeof existingUserData != 'object') return existingUserData == DatabaseOpCode.NOT_EXISTS ? DatabaseOpCode.NOT_EXISTS : DatabaseOpCode.ERROR;
-                if (existingUserData.team != username) return DatabaseOpCode.NOT_ALLOWED;
-            }
-            if (useJoinCode) {
-                const res = await this.db.query(
-                    'UPDATE users SET team=(SELECT teams.username FROM teams WHERE teams.joincode=$2) WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.joincode=$2) RETURNING users.username', [
-                    username, teamOrCode
-                ]);
-                if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            } else {
-                const res = await this.db.query(
-                    'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.username FROM teams WHERE teams.username=$2) RETURNING users.username', [
-                    username, teamOrCode
-                ]);
-                if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            }
-            this.userCache.delete(username);
+            const existingUserData = await this.getAccountData(username);
+            if (typeof existingUserData != 'object') return existingUserData;
+            const res = await this.db.query(
+                'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
+                username, team
+            ]);
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            // getAccountData refreshed cache entry before this
+            if (this.userCache.has(username)) this.userCache.get(username)!.data.team = team;
             this.teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.teamCache.delete(k);
+                if (v.data.members.includes(username)) v.data.members.splice(v.data.members.indexOf(username), 1);
             });
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -548,38 +566,37 @@ export class Database {
         }
     }
     /**
-     * Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @returns {TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Team data or an error code
+     * Get the team data for a team.
+     * @param team Team ID
+     * @returns Team data or an error code
      */
-    async getTeamData(username: string): Promise<TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getTeamData(team: string): Promise<TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            if (this.teamCache.has(username) && this.teamCache.get(username)!.expiration < performance.now()) this.teamCache.delete(username);
-            if (this.teamCache.has(username)) return structuredClone(this.teamCache.get(username)!.data);
+            if (this.teamCache.has(team) && this.teamCache.get(team)!.expiration < performance.now()) this.teamCache.delete(team);
+            if (this.teamCache.has(team)) return structuredClone(this.teamCache.get(team)!.data);
             const data = await this.db.query(
-                'SELECT teams.username, teams.name, teams.biography, teams.joincode FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
-                username
+                'SELECT id, name, biography, registrations joinkey FROM teams WHERE id=$1', [
+                team
             ]);
-            const data2 = await this.db.query(
-                'SELECT users.username FROM users WHERE users.team=(SELECT users.team FROM users WHERE users.username=$1) ORDER BY username ASC', [
-                username
+            const memberData = await this.db.query(
+                'SELECT username FROM users WHERE team=$1 ORDER BY username ASC', [
+                team
             ]);
-            if (data.rows.length > 0) {
-                const teamDat: TeamData = {
-                    id: data.rows[0].username,
-                    name: data.rows[0].name,
-                    bio: data.rows[0].biography,
-                    members: data2.rows.map(row => row.username),
-                    joinCode: data.rows[0].joincode
-                };
-                this.teamCache.set(username, {
-                    data: structuredClone(teamDat),
-                    expiration: performance.now() + config.dbCacheTime
-                });
-                return teamDat;
-            }
-            return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            const teamDat: TeamData = {
+                id: data.rows[0].username,
+                name: data.rows[0].name,
+                bio: data.rows[0].biography,
+                members: memberData.rows.map(row => row.username),
+                registrations: data.rows[0].registrations,
+                joinKey: data.rows[0].joinkey
+            };
+            this.teamCache.set(team, {
+                data: structuredClone(teamDat),
+                expiration: performance.now() + config.dbCacheTime
+            });
+            return teamDat;
         } catch (err) {
             this.logger.handleError('Database error (getTeamData):', err);
             return DatabaseOpCode.ERROR;
@@ -588,31 +605,25 @@ export class Database {
         }
     }
     /**
-     * Update the team data for an existing team. Cannot be used to update "members" or "joinCode".**Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {TeamData} teamData New data
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Update status
+     * Update the team data for an existing team. Cannot be used to update "members", "registrations", or "joinKey".
+     * @param team Team ID
+     * @param teamData New data
+     * @returns Update status
      */
-    async updateTeamData(username: string, teamData: Omit<TeamData, 'id' | 'members' | 'joinCode'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async updateTeamData(team: string, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
-                'UPDATE teams SET name=$2, biography=$3 WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1) RETURNING teams.username', [
-                username, teamData.name, teamData.bio
+                'UPDATE teams SET name=$2, biography=$3 WHERE id=$1 RETURNING id', [
+                team, teamData.name, teamData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            const dat = structuredClone(teamData);
-            for (const [key, entry] of this.teamCache) {
-                if (entry.data.members.includes(username)) {
-                    entry.data = {
-                        ...entry.data,
-                        ...dat
-                    };
-                    entry.expiration = performance.now() + config.dbCacheTime;
-                }
+            if (this.teamCache.has(team)) {
+                // this doesn't count as cache refresh, just patching cache here
+                const entry = this.teamCache.get(team)!;
+                entry.data.name = teamData.name;
+                entry.data.bio = teamData.bio;
             }
-            this.teamCache.forEach((entry) => {
-            });
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (updateTeamData):', err);
@@ -622,31 +633,28 @@ export class Database {
         }
     }
     /**
-     * Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. Does not prevent registering a team that is too large. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {string} contest Contest id
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.CONTEST_ALREADY_EXISTS | DatabaseOpCode.ERROR} Registration status
+     * Register a team for a contest, registering all users on that team as well. Prevents duplicate registrations. **Does not prevent registering a team that is too large.**
+     * @param team Team ID
+     * @param contest Contest ID
+     * @returns Registration status
      */
-    async registerContest(username: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
+    async registerContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const exists = await this.db.query(
-                'SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)', [
-                username
+            const exists = await this.db.query('SELECT teams.registrations FROM teams WHERE teams.id=$1', [
+                team
             ]);
             if (exists.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.ALREADY_EXISTS;
-            const res = await this.db.query(`
-                UPDATE teams SET registrations=(teams.registrations || $2)
-                WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
-                RETURNING teams.username
-                `, [
-                username, [contest]
+            const res = await this.db.query('UPDATE teams SET registrations=(teams.registrations || $2) WHERE id=$1 RETURNING id', [
+                team, [contest]
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            this.teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.userCache.delete(k);
-            });
+            if (this.teamCache.has(team)) {
+                // cache patch, not a refresh
+                const entry = this.teamCache.get(team)!;
+                entry.data.registrations.push(contest);
+            }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (registerContest):', err);
@@ -656,27 +664,29 @@ export class Database {
         }
     }
     /**
-     * Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @param {string} contest Contest id
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Registration status
+     * Unregister an entire team for a contest.
+     * @param team Team ID
+     * @param contest Contest ID
+     * @returns Registration status
      */
-    async unregisterContest(username: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async unregisterContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(`
             UPDATE teams SET registrations=ARRAY_REMOVE(
-                (SELECT teams.registrations FROM teams WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)),
+                (SELECT registrations FROM teams WHERE id=$1),
                 $2
-            ) WHERE teams.username=(SELECT users.team FROM users WHERE users.username=$1)
-            RETURNING teams.username
+            ) WHERE id=$1
+            RETURNING id
             `, [
-                username, contest
+                team, contest
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            this.teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) this.userCache.delete(k);
-            });
+            if (this.teamCache.has(team)) {
+                // cache patch, not a refresh
+                const entry = this.teamCache.get(team)!;
+                if (entry.data.registrations.includes(contest)) entry.data.registrations.splice(entry.data.registrations.indexOf(contest), 1);
+            }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (unregisterContest):', err);
@@ -686,14 +696,14 @@ export class Database {
         }
     }
     /**
-     * Unregister an account for all contests (shortcut method), also unregistering all other accounts on the same team. **Does not validate credentials**.
-     * @param {string} username Valid username
-     * @returns {DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR} Registration status
+     * Unregister an entire team for all contests.
+     * @param team Team ID
+     * @returns Registration status
      */
-    async unregisterAllContests(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async unregisterAllContests(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE username=$1 RETURNING username', [username]);
+            const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE id=$1 RETURNING id', [team]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -704,15 +714,38 @@ export class Database {
         }
     }
     /**
-     * Moves all instances of a contest from upcoming registrations of every team to the past registrations of every member.
-     * @param {string} contest Contest ID to mark as completed
+     * Delete a team and remove all members from it.
+     * @param team Team ID
+     * @returns Deletion status
      */
-    async finishContest(contest: string): Promise<boolean> {
+    async deleteTeam(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            const res = await this.db.query('DELETE FROM teams WHERE id=$1 RETURNING id', [
+                team
+            ]);
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            this.logger.info(`Deleted team "${team}"`, true);
+            this.teamCache.delete(team);
+            return DatabaseOpCode.SUCCESS;
+        } catch (err) {
+            this.logger.handleError('Database error (deleteTeam):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`deleteTeam in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Moves all instances of a contest from upcoming registrations of every team to the past registrations of every member.
+     * @param contest Contest ID to mark as completed
+     * @returns status
+     */
+    async finishContest(contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             await this.db.query(`
                 UPDATE users SET pastRegistrations=(users.pastRegistrations || $1)
-                WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations))
+                WHERE users.team=ANY(SELECT teams.id FROM teams WHERE $1=ANY(teams.registrations))
                 AND NOT $1=ANY(users.pastRegistrations)
                 `, [
                 contest
@@ -722,64 +755,71 @@ export class Database {
             `, [
                 contest
             ]);
-            return true;
+            // these don't count as cache refreshes
+            for (const [team, entry] of this.teamCache) {
+                const set = new Set(entry.data.registrations);
+                set.delete(contest);
+                entry.data.registrations = [...set];
+            }
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (finishContest):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`finishContest in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Get a list of all users that are registered for a contest.
-     * @param {string} contest Contest id
-     * @return {string[]}
+     * @param contest Contest ID
+     * @returns Array of usernames with registrations for the contest, or an error code
      */
-    async getAllRegisteredUsers(contest: string): Promise<string[] | null> {
+    async getAllRegisteredUsers(contest: string): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.username FROM teams WHERE $1=ANY(teams.registrations)) ORDER BY username ASC', [
+            const data = await this.db.query('SELECT users.username FROM users WHERE users.team=ANY(SELECT teams.id FROM teams WHERE $1=ANY(teams.registrations)) ORDER BY username ASC', [
                 contest
             ]);
             return data.rows.map((row) => row.username);
         } catch (err) {
-            this.logger.handleError('Database error (finishContest):', err);
-            return null;
+            this.logger.handleError('Database error (getAllRegisteredUsers):', err);
+            return DatabaseOpCode.ERROR;
         } finally {
-            if (config.debugMode) this.logger.debug(`finishContest in ${performance.now() - startTime}ms`, true);
+            if (config.debugMode) this.logger.debug(`getAllRegisteredUsers in ${performance.now() - startTime}ms`, true);
         }
     }
 
     readonly adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
      * Check if an administrator has a certain permission.
-     * @param {string} username Valid administrator username
-     * @param {AdminPerms} flag Permission flag to check against
-     * @returns {boolean} If the administrator has the permission. Also false if the user is not an administrator.
+     * @param username Valid administrator username
+     * @param flag Permission flag to check against
+     * @returns If the administrator has the permission, or an error code
      */
-    async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean> {
+    async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.adminCache.has(username) && this.adminCache.get(username)!.expiration < performance.now()) this.adminCache.delete(username);
             if (this.adminCache.has(username)) return (this.adminCache.get(username)!.permissions & flag) != 0;
             const data = await this.db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
-            if (data.rows.length > 0) this.adminCache.set(username, {
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            this.adminCache.set(username, {
                 permissions: data.rows[0].permissions,
                 expiration: performance.now() + config.dbCacheTime
             });
-            return data.rows.length > 0 && (data.rows[0].permissions & flag) != 0;
+            return (data.rows[0].permissions & flag) != 0;
         } catch (err) {
             this.logger.handleError('Database error (hasAdminPerms):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`hasAdminPerms in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Get a list of all administrators and their boolean permission flags.
-     * @returns {{ username: string, permissions: number }[] | null} Paired usernames and permissions, or null if an error cocured.
+     * @returns Paired usernames and permissions, or an error code
      */
-    async getAdminList(): Promise<{ username: string, permissions: number }[] | null> {
+    async getAdminList(): Promise<{ username: string, permissions: number }[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT username, permissions FROM admins ORDER BY username ASC');
@@ -792,18 +832,18 @@ export class Database {
             return data.rows;
         } catch (err) {
             this.logger.handleError('Database error (getAdminList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAdminList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Set the permission bit flags of an administrator, or add a new administrator. If permissions bit 0 is false (not admin), the administrator is removed.
-     * @param {string} username Valid username
-     * @param {number} permissions Permission flags, as a number (boolean OR)
-     * @returns {boolean} If writing was successful.
+     * @param username Valid username
+     * @param permissions Permission flags, as a number (boolean OR)
+     * @returns Write status
      */
-    async setAdminPerms(username: string, permissions: number): Promise<boolean> {
+    async setAdminPerms(username: string, permissions: number): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if ((permissions & AdminPerms.ADMIN) == 0) {
@@ -818,10 +858,10 @@ export class Database {
                     expiration: performance.now() + config.dbCacheTime
                 });
             }
-            return true;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (setAdminPerms):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`setAdminPerms in ${performance.now() - startTime}ms`, true);
         }
@@ -830,26 +870,26 @@ export class Database {
     readonly contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
      * Read a list of all contest IDs that exist. Bypasses cache.
-     * @returns {strings[] | null} List of contest IDs, or null if an error occurred
+     * @returns List of contest IDs, or an error code
      */
-    async getContestList(): Promise<string[] | null> {
+    async getContestList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT contests.id FROM contests ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getContestList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getContestList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Filter and get a list of contest data from the contests table according to a criteria.
-     * @param {ReadContestsCriteria} c Filter criteria. Leaving one undefined removes the criteria
-     * @returns {Contest[] | null} Array of contest data matching the filter criteria
+     * @param c Filter criteria. Leaving one undefined removes the criteria
+     * @returns Array of contest data matching the filter criteria, or an error code
      */
-    async readContests(c: ReadContestsCriteria = {}): Promise<Contest[] | null> {
+    async readContests(c: ReadContestsCriteria = {}): Promise<Contest[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const contestIdSet: Set<string> = new Set();
@@ -899,17 +939,17 @@ export class Database {
             return contests;
         } catch (err) {
             this.logger.handleError('Database error (readContests):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`readContests in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Write a contest to the contests table.
-     * @param {Contest} contest Contest to write
-     * @returns {boolean} If the write was successful
+     * @param contest Contest to write
+     * @returns Write status
      */
-    async writeContest(contest: Contest): Promise<boolean> {
+    async writeContest(contest: Contest): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize, contest.startTime, contest.endTime, contest.public, contest.type];
@@ -919,28 +959,29 @@ export class Database {
                 contest: structuredClone(contest),
                 expiration: performance.now() + config.dbCacheTime
             });
-            return true;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (writeContest):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`writeContest in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Delete a contest from the contests table.
-     * @param {string} id Contest to delete
-     * @returns {boolean} If the delete was successful
+     * @param id Contest to delete
+     * @returns Deletion status
      */
-    async deleteContest(id: string): Promise<boolean> {
+    async deleteContest(id: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            await this.db.query('DELETE FROM contests WHERE id=$1', [id]);
+            const res = await this.db.query('DELETE FROM contests WHERE id=$1 RETURNING id', [id]);
             this.contestCache.delete(id);
-            return true;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteContest):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteContest in ${performance.now() - startTime}ms`, true);
         }
@@ -949,26 +990,26 @@ export class Database {
     readonly roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
      * Read a list of all round IDs that exist. Bypasses cache.
-     * @returns {strings[] | null} List of round IDs, or null if an error occurred
+     * @returns List of round IDs, or an error code
      */
-    async getRoundList(): Promise<string[] | null> {
+    async getRoundList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT rounds.id FROM rounds ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getRoundList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getRoundList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Filter and get a list of round data from the rounds table according to a criteria.
-     * @param {ReadRoundsCriteria} c Filter criteria. Leaving one undefined removes the criteria
-     * @returns {Round[] | null} Array of round data matching the filter criteria. If the query failed the returned value is `null`
+     * @param c Filter criteria. Leaving one undefined removes the criteria
+     * @returns Array of round data matching the filter criteria, or an error code
      */
-    async readRounds(c: ReadRoundsCriteria = {}): Promise<Round[] | null> {
+    async readRounds(c: ReadRoundsCriteria = {}): Promise<Round[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const roundIdSet: Set<string> = new Set();
@@ -978,7 +1019,7 @@ export class Database {
             }
             if (c.contest != undefined) {
                 const contests = await this.readContests({ id: c.contest });
-                if (contests === null) return null;
+                if (contests == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
                 contests.flatMap((c) => c.rounds).forEach((v, i) => {
                     if (c.round == undefined || filterCompare<number>(i, c.round)) roundIdSet.add(v);
                 });
@@ -1019,17 +1060,17 @@ export class Database {
             return rounds;
         } catch (err) {
             this.logger.handleError('Database error (readRounds):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`readRounds in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Write a round to the rounds table.
-     * @param {Round} round Round to write
-     * @returns {boolean} If the write was successful
+     * @param round Round to write
+     * @returns Write status
      */
-    async writeRound(round: Round): Promise<boolean> {
+    async writeRound(round: Round): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = [round.id, round.problems, round.startTime, round.endTime];
@@ -1039,28 +1080,29 @@ export class Database {
                 round: structuredClone(round),
                 expiration: performance.now() + config.dbCacheTime
             });
-            return true;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (writeRound):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`writeRound in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Delete a round from the round table.
-     * @param {UUID} id Round to delete
-     * @returns {boolean} If the delete was successful
+     * @param id Round to delete
+     * @returns Deletion status
      */
-    async deleteRound(id: UUID): Promise<boolean> {
+    async deleteRound(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            await this.db.query('DELETE FROM rounds WHERE id=$1', [id]);
+            const res = await this.db.query('DELETE FROM rounds WHERE id=$1', [id]);
             this.roundCache.delete(id);
-            return true;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteRound):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteRound in ${performance.now() - startTime}ms`, true);
         }
@@ -1069,26 +1111,26 @@ export class Database {
     readonly problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Read a list of all problem IDs that exist. Bypasses cache.
-     * @returns {strings[] | null} List of problem IDs, or null if an error occurred
+     * @returns List of problem IDs, or an error code
      */
-    async getProblemList(): Promise<string[] | null> {
+    async getProblemList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT problems.id FROM problems ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getProblemList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getProblemList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Filter and get a list of problems from the problems table according to a criteria.
-     * @param {ReadProblemsCriteria} c Filter criteria. Leaving one undefined removes the criteria
-     * @returns {Problem[] | null} Array of problems matching the filter criteria. If the query failed the returned value is `null`
+     * @param c Filter criteria. Leaving one undefined removes the criteria
+     * @returns Array of problems matching the filter criteria, or an error code
      */
-    async readProblems(c: ReadProblemsCriteria = {}): Promise<Problem[] | null> {
+    async readProblems(c: ReadProblemsCriteria = {}): Promise<Problem[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
@@ -1102,7 +1144,7 @@ export class Database {
                     round: c.contest.round,
                     id: c.contest.roundId
                 });
-                if (rounds === null) return null;
+                if (rounds == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
@@ -1149,17 +1191,17 @@ export class Database {
             return problems;
         } catch (err) {
             this.logger.handleError('Database error (readProblems):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`readProblems in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Write a problem to the problems table.
-     * @param {Problem} problem Problem to write
-     * @returns {boolean} If the write was successful
+     * @param problem Problem to write
+     * @returns Write status
      */
-    async writeProblem(problem: Problem): Promise<boolean> {
+    async writeProblem(problem: Problem): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = [problem.id, problem.name, problem.content, problem.author, JSON.stringify(problem.constraints), problem.solution];
@@ -1169,28 +1211,29 @@ export class Database {
                 problem: structuredClone(problem),
                 expiration: performance.now() + config.dbProblemCacheTime
             });
-            return true;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (writeProblem):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`writeProblem in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Delete a problem from the problems table.
-     * @param {UUID} id Problem to delete
-     * @returns {boolean} If the delete was successful
+     * @param id Problem to delete
+     * @returns Deletion status
      */
-    async deleteProblem(id: UUID): Promise<boolean> {
+    async deleteProblem(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            await this.db.query('DELETE FROM problems WHERE id=$1', [id]);
+            const res = await this.db.query('DELETE FROM problems WHERE id=$1', [id]);
             this.problemCache.delete(id);
-            return true;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteProblem):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteProblem in ${performance.now() - startTime}ms`, true);
         }
@@ -1199,26 +1242,26 @@ export class Database {
     readonly submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
-     * @returns {strings[] | null} List of submission ID strings, or null if an error occurred
+     * @returns List of submission ID strings, or an error code
      */
-    async getSubmissionList(): Promise<string[] | null> {
+    async getSubmissionList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
             return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
         } catch (err) {
             this.logger.handleError('Database error (getSubmissionList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getSubmissionList in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Filter and get a list of submissions from the submissions table according to a criteria.
-     * @param {ReadSubmissionsCriteria} c Filter criteria. Leaving one undefined removes the criteria
-     * @returns {Submission[] | null} Array of submissions matching the filter criteria. If the query failed the returned value is `null`
+     * @param c Filter criteria. Leaving one undefined removes the criteria
+     * @returns Array of submissions matching the filter criteria, or an error code
      */
-    async readSubmissions(c: ReadSubmissionsCriteria = {}): Promise<Submission[] | null> {
+    async readSubmissions(c: ReadSubmissionsCriteria = {}): Promise<Submission[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
@@ -1232,7 +1275,7 @@ export class Database {
                     round: c.contest.round,
                     id: c.contest.roundId
                 });
-                if (rounds === null) return null;
+                if (rounds == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
                 if (c.contest.number != undefined) {
                     const n = c.contest.number;
                     if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
@@ -1291,7 +1334,7 @@ export class Database {
             return submissions;
         } catch (err) {
             this.logger.handleError('Database error (readSubmissions):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`readSubmissions in ${performance.now() - startTime}ms`, true);
         }
@@ -1299,11 +1342,11 @@ export class Database {
     /**
      * Write a submission to the submissions table. The `history` field is ignored.
      * If the most recent submission has an empty `scores` field, the submission will be overwritten instead of appended to history.
-     * @param {Submission} submission Submission to write
-     * @param {boolean} overwrite Force overwriting of most recent submission
-     * @returns {boolean} If the write was successful
+     * @param submission Submission to write
+     * @param overwrite Force overwriting of most recent submission
+     * @returns Write status
      */
-    async writeSubmission(submission: Submission, overwrite?: boolean): Promise<boolean> {
+    async writeSubmission(submission: Submission, overwrite?: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const existing = await this.db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
@@ -1331,29 +1374,30 @@ export class Database {
                     expiration: performance.now() + config.dbCacheTime
                 });
             }
-            return true;
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (writeSubmission):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`writeSubmission in ${performance.now() - startTime}ms`, true);
         }
     }
     /**
      * Delete a submission from the submission table.
-     * @param {UUID} id Problem id linked to submission to delete
-     * @param {UUID} username Username linked to submission to delete
-     * @returns {boolean} If the delete was successful
+     * @param id Problem id linked to submission to delete
+     * @param username Username linked to submission to delete
+     * @returns Deletion status
      */
-    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<boolean> {
+    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            await this.db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3', [id, username, analysis]);
+            const res = await this.db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3 RETURNING id', [id, username, analysis]);
             this.problemCache.delete(`${id}:${username}:${analysis}`);
-            return true;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS
+            return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteSubmission):', err);
-            return false;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`deleteSubmission in ${performance.now() - startTime}ms`, true);
         }
@@ -1434,16 +1478,14 @@ export type AccountData = {
     experience: number
     /**Known languages, in file extension form */
     languages: string[]
-    /**List of registrations */
-    registrations: string[]
-    /**Past list of registrations for previous contests that have already ended */
+    /**List of contests that have ended that were registered for */
     pastRegistrations: string[]
-    /**The teamid which is the username of the team owner */
-    team: string
+    /**ID of team, or null if not on any team */
+    team: string | null
 }
 /**Descriptor for a team */
 export type TeamData = {
-    /**The unique team id which is the team owner/creator's username */
+    /**Unique team id, a base36 integer, postfixing with `joinKey` creates the join code */
     readonly id: string
     /**The name of the team */
     name: string
@@ -1451,8 +1493,10 @@ export type TeamData = {
     bio: string
     /**List of usernames of team members */
     members: string[]
-    /**Numerical join code */
-    joinCode: string
+    /**List of registered contests */
+    registrations: string[]
+    /**A random 6-character alphanumeric string, prefixing with `id` creates the join code */
+    joinKey: string
 }
 
 /**Descriptor for a single contest */
