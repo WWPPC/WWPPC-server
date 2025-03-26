@@ -151,6 +151,7 @@ export class ClientAPI {
             const username = req.cookies.tempUsername;
             // join the team first to be able to check rules for joining (a bit buh)
             const joinCheck = await this.db.setAccountTeam(username, req.body.code, true);
+            
         });
         const socket = s;
         socket.on('joinTeam', async (data: { code: string, token: string }, cb: (res: DatabaseOpCode) => any) => {
@@ -236,9 +237,9 @@ export class ClientAPI {
 
     /**
      * Initialize the client API.
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {Mailer} mailer SMTP mailing server connection
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
+     * @param mailer SMTP mailing server connection
      */
     static init(db: Database, app: Express, mailer: Mailer): ClientAPI {
         return this.instance = this.instance ?? new ClientAPI(db, app, mailer);

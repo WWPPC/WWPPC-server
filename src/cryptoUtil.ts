@@ -14,7 +14,7 @@ export class RSAEncryptionHandler {
     readonly ready: Promise<any>;
 
     /**
-     * @param {Logger} logger Logger instance
+     * @param logger Logger instance
      */
     constructor(logger: Logger) {
         this.logger = new NamedLogger(logger, 'RSAEncryptionHandler-' + RSAEncryptionHandler.counter++);
@@ -57,8 +57,8 @@ export class RSAEncryptionHandler {
     }
     /**
      * Decrypt a message using the RSA-OAEP private key.
-     * @param {ArrayBuffer | string} buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
-     * @returns {string} Decrypted string
+     * @param buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
+     * @returns  Decrypted string
      */
     async decrypt(buf: Buffer): Promise<string | Buffer> {
         try {
@@ -79,8 +79,8 @@ export class AESEncryptionHandler {
     private readonly key: Buffer;
 
     /**
-     * @param {Buffer} key Valid AES key
-     * @param {Logger} logger Logger instance
+     * @param key Valid AES key
+     * @param logger Logger instance
      */
     constructor(key: Buffer, logger: Logger) {
         this.logger = new NamedLogger(logger, 'AESEncryptionHandler-' + AESEncryptionHandler.counter++);
@@ -89,8 +89,8 @@ export class AESEncryptionHandler {
 
     /**
      * Symmetrically encrypt a plaintext string to a formatted string.
-     * @param {string} plaintext Plaintext string
-     * @returns {string} Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext string if there was an error)
+     * @param plaintext Plaintext string
+     * @returns  Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag (the plaintext string if there was an error)
      */
     encrypt(plaintext: string): string {
         try {
@@ -105,8 +105,8 @@ export class AESEncryptionHandler {
 
     /**
      * Symmetrically decrypt a formatted encrypted string to a plaintext string.
-     * @param {string} encrypted Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
-     * @returns {string} Plaintext string (the formatted encrypted string if there was an error)
+     * @param encrypted Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
+     * @returns  Plaintext string (the formatted encrypted string if there was an error)
      */
     decrypt(encrypted: string): string {
         try {
@@ -144,9 +144,9 @@ export class TokenHandler<DType> {
 
     /**
      * Create and register a new token that optionally expires after some time.
-     * @param {DType} linkedData Data to associate with the new token
-     * @param {number | undefined} expiration Seconds until expiration removes the token
-     * @returns {string} Access token
+     * @param linkedData Data to associate with the new token
+     * @param expiration Seconds until expiration removes the token
+     * @returns  Access token
      */
     createToken(linkedData: DType, expiration?: number): string {
         const token = randomUUID();
@@ -157,7 +157,7 @@ export class TokenHandler<DType> {
 
     /**
      * Get a map of all tokens and corresponding data.
-     * @returns {Map<string, DType>} Copy of token map
+     * @returns  Copy of token map
      */
     getTokens(): Record<string, DType> {
         const ret: Record<string, DType> = {};
@@ -167,8 +167,8 @@ export class TokenHandler<DType> {
 
     /**
      * Check if a token is registered.
-     * @param {string} token Token to check
-     * @returns {boolean} If the token is registered
+     * @param token Token to check
+     * @returns  If the token is registered
      */
     tokenExists(token: string): boolean {
         return this.tokens.has(token);
@@ -176,8 +176,8 @@ export class TokenHandler<DType> {
 
     /**
      * Check token expiration time.
-     * @param {string} token Token to check
-     * @returns {number | undefined} Expiration time, if the token exists and has an expiration
+     * @param token Token to check
+     * @returns  Expiration time, if the token exists and has an expiration
      */
     tokenExpiration(token: string): number | undefined {
         return this.tokenExists(token) ? this.tokens.get(token)!.expiration : undefined;
@@ -185,9 +185,9 @@ export class TokenHandler<DType> {
 
     /**
      * Update token expiration time.
-     * @param {string} token Token to update
-     * @param {number} expiration New expiration duration in seconds, added onto the current time
-     * @returns {boolean} If a token was found and the expiration time updated
+     * @param token Token to update
+     * @param expiration New expiration duration in seconds, added onto the current time
+     * @returns  If a token was found and the expiration time updated
      */
     extendTokenExpiration(token: string, expiration: number): boolean {
         if (!this.tokenExists(token)) return false;
@@ -197,8 +197,8 @@ export class TokenHandler<DType> {
 
     /**
      * Get the linked data for a token if it exists.
-     * @param {string} token Token to check
-     * @returns {DType | null} Token linked data or null if not exists
+     * @param token Token to check
+     * @returns  Token linked data or null if not exists
      */
     getTokenData(token: string): DType | null {
         if (!this.tokens.has(token)) return null;
@@ -207,9 +207,9 @@ export class TokenHandler<DType> {
 
     /**
      * Set the linked data for a token if it exists.
-     * @param {string} token Token to check
-     * @param {DType} linkedData New data
-     * @returns {boolean} If a token was found and the data updated
+     * @param token Token to check
+     * @param linkedData New data
+     * @returns  If a token was found and the data updated
      */
     setTokenData(token: string, linkedData: DType): boolean {
         const existing = this.tokens.get(token);
@@ -224,8 +224,8 @@ export class TokenHandler<DType> {
 
     /**
      * Check if any token has the linked data requested.
-     * @param {DType} linkedData Data to search for
-     * @returns {boolean} If any token with equal linked data is found
+     * @param linkedData Data to search for
+     * @returns  If any token with equal linked data is found
      */
     dataExists(linkedData: DType): boolean {
         return this.tokenData.has(linkedData);
@@ -233,8 +233,8 @@ export class TokenHandler<DType> {
 
     /**
      * Unregister a token for all permissions.
-     * @param {string} token Token to unregister
-     * @returns {boolean} If a token was previously registered and is now unregistered
+     * @param token Token to unregister
+     * @returns  If a token was previously registered and is now unregistered
      */
     removeToken(token: string): boolean {
         const data = this.tokens.get(token);

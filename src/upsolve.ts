@@ -23,7 +23,7 @@ export class UpsolveManager {
     private open = true;
 
     /**
-     * @param {Logger} logger Logger instance
+     * @param logger Logger instance
      */
     constructor(db: Database, app: Express, grader: Grader) {
         this.db = db;
@@ -121,9 +121,9 @@ export class UpsolveManager {
 
     /**
      * Initialize the UpsolveManager system.
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {Grader} grader Grading system to use
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
+     * @param grader Grading system to use
      */
     static init(db: Database, app: Express, grader: Grader): UpsolveManager {
         return this.instance = this.instance ?? new UpsolveManager(db, app, grader);
@@ -139,7 +139,7 @@ export class UpsolveManager {
 
     /**
      * Add a username-linked SocketIO connection to the user list.
-     * @param {ServerSocket} s SocketIO connection (with modifications)
+     * @param s SocketIO connection (with modifications)
      */
     async addUser(s: ServerSocket): Promise<void> {
         if (!this.#open) return;

@@ -284,9 +284,9 @@ export class ClientAuth {
 
     /**
      * Initialize the ClientAuth system.
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {Mailer} mailer SMTP mailing server connection
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
+     * @param mailer SMTP mailing server connection
      */
     static init(db: Database, app: Express, mailer: Mailer): ClientAuth {
         return this.instance = this.instance ?? new ClientAuth(db, app, mailer);

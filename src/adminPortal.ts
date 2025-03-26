@@ -388,8 +388,8 @@ export class AdminAPI {
 
     /**
      * Initialize the admin API.
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
      */
     static init(db: Database, app: Express): AdminAPI {
         return this.instance = this.instance ?? new AdminAPI(db, app);

@@ -52,9 +52,9 @@ export class Scorer {
     readonly scoringFunction: (arg0: ScoringFunctionArguments) => UserScore;
 
     /**
-     * @param {Round[]} rounds Contest rounds
-     * @param {Logger} logger Logger instance
-     * @param {(arg0: ScoringFunctionArguments) => UserScore} scoringFunction Scoring function
+     * @param rounds Contest rounds
+     * @param logger Logger instance
+     * @param scoringFunction Scoring function
      */
     constructor(rounds: Round[], logger: Logger, scoringFunction: (arg0: ScoringFunctionArguments) => UserScore) {
         this.rounds = rounds.slice();
@@ -68,9 +68,9 @@ export class Scorer {
 
     /**
      * Process submission and add to leaderboard
-     * @param {Submission} submission The scored submission
-     * @param {UUID} submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
-     * @returns {Boolean} whether it was successful
+     * @param submission The scored submission
+     * @param submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
+     * @returns  whether it was successful
      */
     updateUser(submission: Submission, submissionRound?: UUID): Boolean {
         const userScores = this.userSolvedStatus.get(submission.username) ?? new Map<Subtask, number>();
@@ -107,8 +107,8 @@ export class Scorer {
 
     /**
      * Get standings for a specified round.
-     * @param {UUID} roundId Round ID
-     * @returns {Map<string, Score>} Mapping of username to score
+     * @param roundId Round ID
+     * @returns  Mapping of username to score
      */
     getRoundScores(roundId: UUID): Map<string, UserScore> {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
@@ -157,7 +157,7 @@ export class Scorer {
 
     /**
      * Get the current standings, adding scores from all rounds together.
-     * @returns {Map<string, Score>} mapping of username to score
+     * @returns  mapping of username to score
      */
     getScores(): Map<string, UserScore> {
         const sums: Map<string, UserScore> = new Map();

@@ -45,9 +45,9 @@ export class ContestManager {
 
     /**
      * Initialize the ContestManager system.
-     * @param {Database} db Database connection
-     * @param {express} app Express app (HTTP server) to attach API to
-     * @param {Grader} grader Grading system to use
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
+     * @param grader Grading system to use
      */
     static init(db: Database, app: Express, grader: Grader): ContestManager {
         return this.instance = this.instance ?? new ContestManager(db, app, grader);
@@ -202,7 +202,7 @@ export class ContestManager {
 
     /**
      * Get a list of running contests
-     * @returns {ContestHost[]} the contests
+     * @returns  the contests
      */
     getRunningContests(): ContestHost[] {
         return Array.from(this.contests.values());
@@ -272,12 +272,12 @@ export class ContestHost {
     readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
     /**
-     * @param {string} type Contest type Id
-     * @param {string} id Contest id of contest
-     * @param {SocketIOServer} io Socket.IO server to use for client broadcasting
-     * @param {Database} db Database connection
-     * @param {Grader} grader Grader management instance to use for grading
-     * @param {Logger} logger Logger instance
+     * @param type Contest type ID
+     * @param id Contest ID of contest
+     * @param io Socket.IO server to use for client broadcasting
+     * @param db Database connection
+     * @param grader Grader management instance to use for grading
+     * @param logger Logger instance
      */
     constructor(type: string, id: string, io: SocketIOServer, db: Database, grader: Grader, logger: Logger) {
         this.sid = Array.from(new Array(8), () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
@@ -488,7 +488,7 @@ export class ContestHost {
     }
     /**
      * Get if a particular problem ID is submittable.
-     * @param {UUID} id Problem ID
+     * @param id Problem ID
      * @returns 
      */
     problemSubmittable(id: UUID): boolean {
@@ -502,7 +502,7 @@ export class ContestHost {
     }
     /**
      * Only update users under a team with the latest contest data.
-     * @param {string} username Username
+     * @param username Username
      */
     async updateUser(username: string): Promise<void> {
         if (this.#users.has(username)) {
@@ -594,7 +594,7 @@ export class ContestHost {
 
     /**
      * Add a username-linked SocketIO connection to the user list.
-     * @param {ServerSocket} s SocketIO connection (with modifications)
+     * @param s SocketIO connection (with modifications)
      */
     addSocket(s: ServerSocket): void {
         const socket = s;
@@ -615,7 +615,7 @@ export class ContestHost {
     }
     /**
      * Add an internal SocketIO connection (within the contest namespace) to the user list.
-     * @param {ContestSocket} s SocketIO connection within the namespace (with modifications)
+     * @param s SocketIO connection within the namespace (with modifications)
      */
     #addInternalSocket(s: ContestSocket): void {
         if (s.nsp.name !== this.io.name) throw new TypeError(`Socket supplied is not within the ContestHost namespace (expected "${this.io.name}", got"${s.nsp.name}`);
@@ -769,8 +769,8 @@ export class ContestHost {
     }
     /**
      * Remove a previously-added username-linked SocketIO connection from the user list.
-     * @param {ServerSocket} socket SocketIO connection (with modifications)
-     * @returns {boolean} If the socket was previously within the list of connections
+     * @param socket SocketIO connection (with modifications)
+     * @returns  If the socket was previously within the list of connections
      */
     removeSocket(socket: ServerSocket): boolean {
         if (!this.#users.has(socket.username)) return false;
@@ -793,8 +793,8 @@ export class ContestHost {
     }
     /**
      * Remove a previously-added internal SocketIO connection from the user list.
-     * @param {ContestSocket} socket SocketIO connection (with modifications)
-     * @returns {boolean} If the socket was previously within the list of connections
+     * @param socket SocketIO connection (with modifications)
+     * @returns  If the socket was previously within the list of connections
      */
     #removeInternalSocket(socket: ContestSocket): boolean {
         if (!this.#users.has(socket.username)) return false;
@@ -812,7 +812,7 @@ export class ContestHost {
     #endListeners: Set<() => any> = new Set();
     /**
      * Stop the running contest and remove all users.
-     * @param {boolean} complete Mark the contest as ended in database (contest cannot be restarted)
+     * @param complete Mark the contest as ended in database (contest cannot be restarted)
      */
     end(complete?: boolean) {
         if (this.#ended) return;
@@ -826,7 +826,7 @@ export class ContestHost {
     }
     /**
      * Add a listener for when the contest ends.
-     * @param {() => any} cb Callback listener
+     * @param cb Callback listener
      */
     onended(cb: () => any) {
         this.#endListeners.add(cb);

@@ -23,11 +23,11 @@ export class Grader {
     private ungradedSubmissions: SubmissionWithCallback[] = [];
 
     /**
-     * @param {Database} db Database connection
-     * @param {Express} app Express app (HTTP server) to attach API to
-     * @param {string} path Path of API
-     * @param {string} password Global password for graders to authenticate with
-     * @param {Logger} logger Logger instance
+     * @param db Database connection
+     * @param app Express app (HTTP server) to attach API to
+     * @param path Path of API
+     * @param password Global password for graders to authenticate with
+     * @param logger Logger instance
      */
     constructor(db: Database, app: Express, path: string, password: string, logger: Logger) {
         this.path = path.match(/\/[^\/]+/g)?.join('') ?? '/judge';
@@ -198,7 +198,7 @@ export class Grader {
 
     /**
      * Add a submission to the ungraded queue of submissions.
-     * @param {GraderSubmission} submission New submission
+     * @param submission New submission
      */
     queueUngraded(submission: Submission, cb: (graded: Submission | null) => any) {
         if (!this.open) {

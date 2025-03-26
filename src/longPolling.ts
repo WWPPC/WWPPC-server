@@ -15,11 +15,11 @@ export class LongPollEventEmitter<EventList extends readonly string[] = []> {
     readonly timeoutMs: number;
 
     /**
-     * @param {express} app Express app (HTTP server) to attach events to
-     * @param {string} path URI path to place all events under (`path/event`)
-     * @param {string[]} events List of GET endpoint events to create, must not contain subpaths
+     * @param app Express app (HTTP server) to attach events to
+     * @param path URI path to place all events under (`path/event`)
+     * @param events List of GET endpoint events to create, must not contain subpaths
      *          (Array must have "as const" declaration so TypeScript can enforce event types for `emit`)
-     * @param {number} timeoutMs Time in milliseconds before a long-polling request will resolve with
+     * @param timeoutMs Time in milliseconds before a long-polling request will resolve with
      *          an empty response (Higher values may cause issues with some browsers; default: 10000)
      */
     constructor(app: Express, path: string, events: typeof this.eventList, timeoutMs?: number) {

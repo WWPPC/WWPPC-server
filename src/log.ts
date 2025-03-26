@@ -28,43 +28,43 @@ export abstract class Logger {
 
     /**
      * Append a debug-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
+     * @param text Text
+     * @param logOnly Only put in logfile, not stdout
      */
     abstract debug(text: string, logOnly?: boolean): void
     /**
      * Append an information-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
+     * @param text Text
+     * @param logOnly Only put in logfile, not stdout
      */
     abstract info(text: string, logOnly?: boolean): void
     /**
      * Append a warning-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
+     * @param text Text
+     * @param logOnly Only put in logfile, not stdout
      */
     abstract warn(text: string, logOnly?: boolean): void
     /**
      * Append an error-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
+     * @param text Text
+     * @param logOnly Only put in logfile, not stdout
      */
     abstract error(text: string, logOnly?: boolean): void
     /**
      * Append a fatal-level entry to the log.
-     * @param {string} text Text
-     * @param {boolean} logOnly Only put in logfile, not stdout
+     * @param text Text
+     * @param logOnly Only put in logfile, not stdout
      */
     abstract fatal(text: string, logOnly?: boolean): void
     /**
      * Shorthand for appending `Error` objects as error-level logs.
-     * @param {string} message Accompanying message
+     * @param message Accompanying message
      * @param error `Error` object
      */
     abstract handleError(message: string, error: any): void
     /**
      * Shorthand for appending `Error` objects as fatal-level logs.
-     * @param {string} message Accompanying message
+     * @param message Accompanying message
      * @param error `Error` object
      */
     abstract handleFatal(message: string, error: any): void
@@ -90,7 +90,7 @@ export class FileLogger extends Logger {
      * Create a new `FileLogger` in a specified directory. Creating a `FileLogger` will also create a
      * `logs/` directory. If there already exists a log.log in the directory, moving it in. This means
      * creating multiple `Loggers` in the same directory will break them.
-     * @param {string} path Path to the log directory
+     * @param path Path to the log directory
      * @param tailLength Maximum length of buffer for most recent log entries (default 100)
      */
     constructor(path: string, tailLength?: number) {

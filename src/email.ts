@@ -102,11 +102,11 @@ export class Mailer {
 
     /**
      * Send and email from no-reply@wwppc.tech.
-     * @param {string[]} recipients List of recipient emails
-     * @param {string} subject Subject line of email
-     * @param {string} content HTML content of email
-     * @param {string | undefined} plaintext Plaintext version of email
-     * @returns {Promise<Error | undefined>} `undefined` if email was sent succesfully. Otherwise, an Error
+     * @param recipients List of recipient emails
+     * @param subject Subject line of email
+     * @param content HTML content of email
+     * @param plaintext Plaintext version of email
+     * @returns  `undefined` if email was sent succesfully. Otherwise, an Error
      */
     async send(recipients: string[], subject: string, content: string, plaintext?: string): Promise<Error | undefined> {
         try {
@@ -137,12 +137,12 @@ export class Mailer {
 
     /**
      * Send an email using a template from no-reply@wwppc.tech.
-     * @param {string} template  Name of template (matches file name, without extension)
-     * @param {string[]} recipients List of recipient emails
-     * @param {string} subject Subject line of email
-     * @param {[string, string][]} params Replacements for parameters in email, in key-value pairs
-     * @param {string | undefined} plaintext Plaintext version (does not use template)
-     * @returns {Promise<Error | undefined>} `undefined` if email was sent succesfully. Otherwise, an Error
+     * @param template  Name of template (matches file name, without extension)
+     * @param recipients List of recipient emails
+     * @param subject Subject line of email
+     * @param params Replacements for parameters in email, in key-value pairs
+     * @param plaintext Plaintext version (does not use template)
+     * @returns  `undefined` if email was sent succesfully. Otherwise, an Error
      */
     async sendFromTemplate(template: string, recipients: string[], subject: string, params: [string, string][], plaintext?: string): Promise<Error | undefined> {
         try {

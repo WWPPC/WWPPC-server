@@ -108,9 +108,9 @@ export type FilterComparison<T> = T extends primitive ? ({
  * filterCompare<number>(-5, { op: '<>', v1: -1, v2: 1}); // true, since -5 is out of the range (-1, 1)
  * ```
  * 
- * @param {primitive} v Value to compare
- * @param {FilterComparison<primitive>} c Comparison
- * @returns {boolean} Comparison result
+ * @param v Value to compare
+ * @param c Comparison
+ * @returns  Comparison result
  */
 export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): boolean {
     if (c === null || c === undefined) return c === v;
@@ -163,8 +163,8 @@ nivExtendMessages({
 /**
  * Create an instance of `express-rate-limit` IP rate limiter, with a handler.
  * for the first trigger of the rate limiter per window.
- * @param {RateLimitOptions} options Options to configure the rate limiter.
- * @param {Function} cb Callback handler for the first trigger
+ * @param options Options to configure the rate limiter.
+ * @param cb Callback handler for the first trigger
  */
 export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'handler'>>, cb: (req: Request, res: Response) => any): RateLimitRequestHandler {
     const window = options.windowMs ?? 60000;
@@ -180,8 +180,8 @@ export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'ha
 }
 /**
  * Returns middleware that validates the request body using the node-input-validator package.
- * @param {object} rules Input validation rules
- * @param {Logger} logger Logging instance
+ * @param rules Input validation rules
+ * @param logger Logging instance
  */
 export function validateRequestBody(rules: object, logger?: Logger): (req: Request, res: Response, next: NextFunction) => Promise<void> {
     return async (req, res, next) => {
