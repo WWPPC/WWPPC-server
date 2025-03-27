@@ -98,7 +98,7 @@ export class Database {
      * @param columns Array of columns with conditions to check. If any value is undefined the condition is omitted
      * @returns String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
      */
-    buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
+    private buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
         const conditions: string[] = [];
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
@@ -171,7 +171,7 @@ export class Database {
         };
     }
 
-    readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
+    private readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
     /**
      * Read a list of all account usernames that exist. Bypasses cache.
      * @returns List of account usernames, or null if an error occurred
@@ -205,7 +205,7 @@ export class Database {
                 INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                 `, [
-                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], username
+                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, '', userData.school, userData.grade, userData.experience, userData.languages, [], null
             ]);
             this.userCache.set(username, {
                 data: {
@@ -215,7 +215,7 @@ export class Database {
                     profileImage: config.defaultProfileImg,
                     bio: '',
                     pastRegistrations: [],
-                    team: username
+                    team: null
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
@@ -285,7 +285,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: data.rows[0].team
+                team: (data.rows[0].team as number).toString(36)
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -434,13 +434,13 @@ export class Database {
     }
     /**
      * Delete an account. Allows deletion by users and admins with permission level {@link AdminPerms.MANAGE_ACCOUNTS} if `adminUsername` is given. **Does not validate credentials**.
-     * *Note: Requires password or admin username and password to delete to avoid accidental deletion of accounts.*
+     * *Note: Requires password or admin username and password with sufficient permissions to delete to avoid accidental deletion of accounts.*
      * @param username Valid username
      * @param password Valid user password, or admin password if `adminUsername` is given
      * @param adminUsername Valid username of administrator
-     * @returns Deletion status
+     * @returns Deletion status ({@link DatabaseOpCode.NOT_ALLOWED} is returned when an admin has insufficient permissions)
      */
-    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (adminUsername !== undefined) {
@@ -448,7 +448,7 @@ export class Database {
                 const check = await this.checkAccount(adminUsername, password);
                 if (check != DatabaseOpCode.SUCCESS) return check;
                 // no perms = incorrect creds
-                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.INCORRECT_CREDENTIALS;
+                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.NOT_ALLOWED;
             } else {
                 const res = await this.checkAccount(username, password);
                 if (res != DatabaseOpCode.SUCCESS) return res;
@@ -467,7 +467,7 @@ export class Database {
             // also have to check if team is empty, and delete it if it is
             const teamData = await this.getTeamData(res.rows[0].team);
             if (typeof teamData != 'object') return teamData;
-            if (teamData.members.length == 0) return this.deleteTeam(teamData.id);
+            if (teamData.members.length == 0) return await this.deleteTeam(teamData.id);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteAccount):', err);
@@ -477,7 +477,7 @@ export class Database {
         }
     }
 
-    readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
+    private readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
     /**
      * Create a team.
      * @param name Name of team (optional, default 'Team')
@@ -537,26 +537,31 @@ export class Database {
         }
     }
     /**
-     * Change the team affiliation of a user. Since registrations are stored by team, this will change the user's registrations. **Does not validate credentials**.
+     * Change the team of a user. Since registrations are stored by team, this will change the user's registrations. **Does not validate credentials**.
      * @param username Valid username
      * @param team Team ID, or null to remove the user from all teams
      * @returns Update status
      */
-    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
+    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const existingUserData = await this.getAccountData(username);
             if (typeof existingUserData != 'object') return existingUserData;
+            const oldTeam = existingUserData.team;
+            // database teams are numbers
+            const teamNumId = team !== null ? parseInt(team, 36) : null;
+            if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const res = await this.db.query(
                 'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
-                username, team
+                username, teamNumId
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             // getAccountData refreshed cache entry before this
             if (this.userCache.has(username)) this.userCache.get(username)!.data.team = team;
-            this.teamCache.forEach((v, k) => {
-                if (v.data.members.includes(username)) v.data.members.splice(v.data.members.indexOf(username), 1);
-            });
+            if (oldTeam !== null && this.teamCache.has(oldTeam)) {
+                const entry = this.teamCache.get(oldTeam)!;
+                if (entry.data.members.includes(username)) entry.data.members.splice(entry.data.members.indexOf(username));
+            }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (setAccountTeam):', err);
@@ -575,13 +580,15 @@ export class Database {
         try {
             if (this.teamCache.has(team) && this.teamCache.get(team)!.expiration < performance.now()) this.teamCache.delete(team);
             if (this.teamCache.has(team)) return structuredClone(this.teamCache.get(team)!.data);
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const data = await this.db.query(
                 'SELECT id, name, biography, registrations joinkey FROM teams WHERE id=$1', [
-                team
+                teamNumId
             ]);
             const memberData = await this.db.query(
                 'SELECT username FROM users WHERE team=$1 ORDER BY username ASC', [
-                team
+                teamNumId
             ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             const teamDat: TeamData = {
@@ -613,9 +620,11 @@ export class Database {
     async updateTeamData(team: string, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const res = await this.db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE id=$1 RETURNING id', [
-                team, teamData.name, teamData.bio
+                teamNumId, teamData.name, teamData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             if (this.teamCache.has(team)) {
@@ -641,13 +650,15 @@ export class Database {
     async registerContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const exists = await this.db.query('SELECT teams.registrations FROM teams WHERE teams.id=$1', [
-                team
+                teamNumId
             ]);
             if (exists.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.ALREADY_EXISTS;
             const res = await this.db.query('UPDATE teams SET registrations=(teams.registrations || $2) WHERE id=$1 RETURNING id', [
-                team, [contest]
+                teamNumId, [contest]
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             if (this.teamCache.has(team)) {
@@ -672,6 +683,8 @@ export class Database {
     async unregisterContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const res = await this.db.query(`
             UPDATE teams SET registrations=ARRAY_REMOVE(
                 (SELECT registrations FROM teams WHERE id=$1),
@@ -679,7 +692,7 @@ export class Database {
             ) WHERE id=$1
             RETURNING id
             `, [
-                team, contest
+                teamNumId, contest
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             if (this.teamCache.has(team)) {
@@ -703,7 +716,11 @@ export class Database {
     async unregisterAllContests(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE id=$1 RETURNING id', [team]);
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE id=$1 RETURNING id', [
+                teamNumId
+            ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -721,8 +738,10 @@ export class Database {
     async deleteTeam(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
+            const teamNumId = parseInt(team, 36);
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
             const res = await this.db.query('DELETE FROM teams WHERE id=$1 RETURNING id', [
-                team
+                teamNumId
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
             this.logger.info(`Deleted team "${team}"`, true);
@@ -789,7 +808,7 @@ export class Database {
         }
     }
 
-    readonly adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
+    private readonly adminCache: Map<string, { permissions: number, expiration: number }> = new Map();
     /**
      * Check if an administrator has a certain permission.
      * @param username Valid administrator username
@@ -867,7 +886,7 @@ export class Database {
         }
     }
 
-    readonly contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
+    private readonly contestCache: Map<string, { contest: Contest, expiration: number }> = new Map();
     /**
      * Read a list of all contest IDs that exist. Bypasses cache.
      * @returns List of contest IDs, or an error code
@@ -987,7 +1006,7 @@ export class Database {
         }
     }
 
-    readonly roundCache: Map<string, { round: Round, expiration: number }> = new Map();
+    private readonly roundCache: Map<string, { round: Round, expiration: number }> = new Map();
     /**
      * Read a list of all round IDs that exist. Bypasses cache.
      * @returns List of round IDs, or an error code
@@ -1108,7 +1127,7 @@ export class Database {
         }
     }
 
-    readonly problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
+    private readonly problemCache: Map<string, { problem: Problem, expiration: number }> = new Map();
     /**
      * Read a list of all problem IDs that exist. Bypasses cache.
      * @returns List of problem IDs, or an error code
@@ -1239,7 +1258,7 @@ export class Database {
         }
     }
 
-    readonly submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
+    private readonly submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
      * Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
      * @returns List of submission ID strings, or an error code

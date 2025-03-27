@@ -203,18 +203,27 @@ const defaultDbResMessages: Record<DatabaseOpCode, string> = {
     [DatabaseOpCode.NOT_ALLOWED]: 'Forbidden',
     [DatabaseOpCode.ERROR]: 'Internal error'
 };
-export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, username: string, messages: Partial<Record<DatabaseOpCode, string>>, logger: Logger): void {
-    if (config.debugMode) logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, code)} (${username}, ${req.ip})`);
+/**
+ * Send a response code and message based on a `DatabaseOpCode`, with logging of responses.
+ * @param req Express request
+ * @param res Express response
+ * @param code Response code
+ * @param messages Optional override messages for each code
+ * @param logger Logging instance
+ * @param username Username of request sender (optional)
+ * @param messagePrefix Optional prefix for response messages
+ */
+export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, messages: Partial<Record<DatabaseOpCode, string>>, logger: Logger, username?: string, messagePrefix?: string): void {
+    if (config.debugMode) logger.debug(`${req.path}: ${messagePrefix ? messagePrefix + ' - ' : ''}${reverse_enum(DatabaseOpCode, code)} (${username !== undefined ? `${username}, ` : ''}${req.ip})`);
     switch (code) {
+        case DatabaseOpCode.ERROR:
+            logger.error(`${req.path} error (${username}, ${req.ip})`);
         case DatabaseOpCode.SUCCESS:
         case DatabaseOpCode.ALREADY_EXISTS:
         case DatabaseOpCode.NOT_EXISTS:
         case DatabaseOpCode.INCORRECT_CREDENTIALS:
         case DatabaseOpCode.NOT_ALLOWED:
-            res.status(code).send(messages[code] ?? defaultDbResMessages[code]);
-        case DatabaseOpCode.ERROR:
-            logger.error(`${req.path} error (${username}, ${req.ip})`);
-            res.sendStatus(503);
+            res.status(code).send((messagePrefix ? messagePrefix + ' - ' : '') + (messages[code] ?? defaultDbResMessages[code]));
             break;
         default:
             logger.error(`${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);

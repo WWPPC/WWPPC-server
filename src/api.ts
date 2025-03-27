@@ -55,27 +55,23 @@ export class ClientAPI {
         this.app.get('/api/config', (req, res) => res.json(this.clientConfig));
         this.app.get('/api/userData/:username', async (req, res) => {
             const data = await this.db.getAccountData(req.params.username);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${typeof data == 'object' ? 'SUCCESS' : reverse_enum(DatabaseOpCode, data)} (${req.ip})`);
-            if (data == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (data == DatabaseOpCode.ERROR) res.sendStatus(500);
-            else {
+            if (typeof data == 'object') {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
                 const data2 = structuredClone(data);
                 data2.email = '';
                 res.json(data2);
-            }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/teamData/:username', async (req, res) => {
             const data = await this.db.getTeamData(req.params.username);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${typeof data == 'object' ? 'SUCCESS' : reverse_enum(DatabaseOpCode, data)} (${req.ip})`);
-            if (data == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (data == DatabaseOpCode.ERROR) res.sendStatus(500);
-            else {
+            if (typeof data == 'object') {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
                 const data2 = structuredClone(data);
-                data2.joinCode = '';
+                data2.joinKey = '';
                 res.json(data2);
-            }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/coffee', (req, res) => {
             this.logger.warn(`Attempt to brew coffee using teapot (${req.ip})`);
@@ -97,8 +93,10 @@ export class ClientAPI {
             const username = req.cookies.tempUsername;
             const data = await this.db.getAccountData(username);
             if (config.debugMode) this.logger.debug(`${req.path}: ${typeof data == 'object' ? 'SUCCESS' : reverse_enum(DatabaseOpCode, data)} (${req.ip})`);
-            if (typeof data == 'object') res.json(data);
-            else sendDatabaseResponse(req, res, data, username, {}, this.logger);
+            if (typeof data == 'object') {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
         this.app.put('/api/self/userData', parseBodyJson(), validateRequestBody({
             firstName: 'required|string|length:32,1',
@@ -124,14 +122,15 @@ export class ClientAPI {
                 grade: req.body.grade,
                 experience: req.body.experience
             });
-            sendDatabaseResponse(req, res, check, username, {}, this.logger);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.get('/api/self/teamData', async (req, res) => {
             const username = req.cookies.tempUsername;
             const data = await this.db.getTeamData(username);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${typeof data == 'object' ? 'SUCCESS' : reverse_enum(DatabaseOpCode, data)} (${req.ip})`);
-            if (typeof data == 'object') res.json(data);
-            else sendDatabaseResponse(req, res, data, username, {}, this.logger);
+            if (typeof data == 'object') {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
         this.app.put('/api/self/teamData', parseBodyJson(), validateRequestBody({
             teamName: 'required|string|length:32,1',
@@ -142,96 +141,105 @@ export class ClientAPI {
                 name: req.body.teamName,
                 bio: req.body.teamBio
             });
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
-            sendDatabaseResponse(req, res, check, username, {}, this.logger);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
-        this.app.post('/api/self/joinTeam', parseBodyJson(), validateRequestBody({
-            code: 'required|alphaDash|length:6,6'
+        this.app.post('/api/self/team', parseBodyJson(), validateRequestBody({
+            name: `required|string|length:32,1`
         }), async (req, res) => {
             const username = req.cookies.tempUsername;
-            // join the team first to be able to check rules for joining (a bit buh)
-            const joinCheck = await this.db.setAccountTeam(username, req.body.code, true);
-            
+            // create & join new team
+            const existing = await this.db.getAccountTeam(username);
+            if (existing !== null) {
+                if (typeof existing == 'string') {
+                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot create team while on a team (${username}, ${req.ip})`);
+                    res.status(403).send('Cannot create team while on a team');
+                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+                return;
+            }
+            const teamId = await this.db.createTeam(req.body.name);
+            if (typeof teamId != 'string') {
+                sendDatabaseResponse(req, res, teamId, {}, this.logger, username, 'Create team');
+                return;
+            }
+            const check = await this.db.setAccountTeam(username, teamId);
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.NOT_EXISTS]: 'Team not found after creation' }, this.logger, username, 'Set team');
         });
-        const socket = s;
-        socket.on('joinTeam', async (data: { code: string, token: string }, cb: (res: DatabaseOpCode) => any) => {
-            if (data == null || typeof data.code != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
-                socket.kick('invalid joinTeam payload');
-            }
-            if (config.debugMode) socket.logWithId(this.logger.info, 'Joining team: ' + data.code);
-            const respond = (code: DatabaseOpCode) => {
-                cb(code);
-                if (config.debugMode) socket.logWithId(this.logger.info, 'Join team: ' + reverse_enum(DatabaseOpCode, code));
-            };
-            const recaptchaRes = await checkRecaptcha(data.token);
-            if (recaptchaRes != DatabaseOpCode.SUCCESS) {
-                respond(recaptchaRes == DatabaseOpCode.CAPTCHA_FAILED ? DatabaseOpCode.CAPTCHA_FAILED : DatabaseOpCode.ERROR);
+        this.app.put('/api/self/team', parseBodyJson(), validateRequestBody({
+            code: `required|alphaDash|length:${Database.teamJoinKeyLength + 6},${Database.teamJoinKeyLength + 1}`
+        }), async (req, res) => {
+            const username = req.cookies.tempUsername;
+            const joinCode = req.body.code as string;
+            // join existing team
+            const existing = await this.db.getAccountTeam(username);
+            if (existing !== null) {
+                if (typeof existing == 'string') {
+                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot join team while on a team (${username}, ${req.ip})`);
+                    res.status(403).send('Cannot join team while on a team');
+                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
-            // first join so can check team data
-            const res = await this.db.setAccountTeam(socket.username, data.code, true);
-            if (res != DatabaseOpCode.SUCCESS) { respond(res); return; }
-            const userData = await this.db.getAccountData(socket.username);
-            const teamData = await this.db.getTeamData(socket.username);
-            if (typeof teamData != 'object') { respond(teamData); return; }
-            const resetTeam = async () => {
-                const res2 = await this.db.setAccountTeam(socket.username, socket.username);
-                if (res2 != DatabaseOpCode.SUCCESS) socket.logWithId(this.logger.warn, 'Join team failed but could not reset team! Code: ' + reverse_enum(DatabaseOpCode, res2));
-            };
-            if (typeof userData != 'object') {
-                respond(userData == DatabaseOpCode.NOT_EXISTS ? DatabaseOpCode.NOT_EXISTS : DatabaseOpCode.ERROR);
-                await resetTeam();
+            const teamId = joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength);
+            const joinKey = joinCode.substring(joinCode.length - Database.teamJoinKeyLength);
+            const teamData = await this.db.getTeamData(teamId);
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
                 return;
             }
-            // nonexistent teams
-            if (teamData.members.length == 1) {
-                respond(DatabaseOpCode.NOT_EXISTS);
-                await resetTeam();
-                return;
+            if (teamData.joinKey != joinKey) {
+                if (config.debugMode) this.logger.debug(`${req.path}: Not found (incorrect join key) (${username}, ${req.ip})`);
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_EXISTS, {}, this.logger, username, 'Check team');
             }
-            // make sure won't violate restrictions
-            const contests = await this.db.readContests({ id: userData.registrations });
-            if (contests == null) { respond(DatabaseOpCode.ERROR); resetTeam(); return; }
-            if (contests.some((c) => c.maxTeamSize < teamData.members.length)) {
-                respond(DatabaseOpCode.CONTEST_MEMBER_LIMIT);
-                await resetTeam();
-                return;
-            }
-            const res2 = await this.db.unregisterAllContests(socket.username);
-            if (res2 != DatabaseOpCode.SUCCESS) {
-                respond(res2);
-                await resetTeam();
-                return;
-            }
-            // already set team before
-            respond(DatabaseOpCode.SUCCESS);
-            // update join code here
-            if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
+            const check = await this.db.setAccountTeam(username, teamId);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
-        socket.on('leaveTeam', async (cb: (res: DatabaseOpCode) => any) => {
-            if (typeof cb != 'function')
-                if (config.debugMode) socket.logWithId(this.logger.info, 'Leaving team');
-            const res = await this.db.setAccountTeam(socket.username, socket.username);
-            cb(res);
-            const teamData = await this.db.getTeamData(socket.username);
-            if (typeof teamData == 'object') socket.emit('teamJoinCode', teamData.joinCode);
-        });
-        socket.on('kickTeam', async (data: { user: string, token: string }, cb: (res: DatabaseOpCode) => any) => {
-            if (data == null || typeof data.user != 'string' || typeof data.token != 'string' || typeof cb != 'function') {
-                socket.kick('invalid kickTeam payload');
-            }
-            if (config.debugMode) socket.logWithId(this.logger.info, 'Kicking user from team: ' + data.user);
-            const respond = (code: DatabaseOpCode) => {
-                cb(res);
-                if (config.debugMode) socket.logWithId(this.logger.info, 'Kick user: ' + reverse_enum(DatabaseOpCode, code));
-            };
-            const recaptchaRes = await checkRecaptcha(data.token);
-            if (recaptchaRes != DatabaseOpCode.SUCCESS) {
-                respond(recaptchaRes == DatabaseOpCode.CAPTCHA_FAILED ? DatabaseOpCode.CAPTCHA_FAILED : DatabaseOpCode.ERROR);
+        this.app.delete('/api/self/team', async (req, res) => {
+            const username = req.cookies.tempUsername;
+            // leave current team
+            const existing = await this.db.getAccountTeam(username);
+            if (typeof existing != 'string') {
+                if (existing == null) {
+                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot leave team without a team (${username}, ${req.ip})`);
+                    res.status(403).send('Cannot leave team without a team');
+                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
-            const res = await this.db.setAccountTeam(data.user, data.user);
-            respond(res);
+            const check = await this.db.setAccountTeam(username, null);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Leave team');
+            // deletion check is only a warning, extra teams have no impact and can be removed later
+            const teamData = await this.db.getTeamData(existing);
+            if (typeof teamData != 'object') {
+                this.logger.warn(`${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
+                return;
+            }
+            if (teamData.members.length == 0) {
+                const delCheck = await this.db.deleteTeam(teamData.id);
+                if (delCheck != DatabaseOpCode.SUCCESS) this.logger.warn(`${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
+                else if (config.debugMode) this.logger.debug(`${req.path}: Removed empty team after leaving`);
+            }
+        });
+        this.app.delete('/api/self/team/:member', async (req, res) => {
+            const username = req.cookies.tempUsername;
+            const member = req.params.member;
+            if (username == member) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_ALLOWED, { [DatabaseOpCode.NOT_ALLOWED]: 'Cannot kick self' }, this.logger, username);
+                return;
+            }
+            const selfTeam = await this.db.getAccountTeam(username);
+            const memberTeam = await this.db.getAccountTeam(member);
+            if (typeof selfTeam != 'string' && selfTeam !== null) {
+                sendDatabaseResponse(req, res, selfTeam, {}, this.logger, username, 'Check team');
+                return;
+            }
+            if (typeof memberTeam != 'string' && memberTeam !== null) {
+                sendDatabaseResponse(req, res, memberTeam, {}, this.logger, username, 'Check team');
+                return;
+            }
+            if (memberTeam != selfTeam) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_EXISTS, { [DatabaseOpCode.NOT_EXISTS]: 'User not on team' }, this.logger, username, 'Set team');
+                return;
+            }
+            const check = await this.db.setAccountTeam(member, null);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
     }
 

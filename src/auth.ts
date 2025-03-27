@@ -89,8 +89,7 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.checkAccount(req.body.username, password);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
-            sendDatabaseResponse(req, res, check, username, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect password' }, this.logger);
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect password' }, this.logger, username);
         });
         this.app.post('/auth/signup', rateLimitWithTrigger({
             windowMs: 60000,
@@ -130,13 +129,12 @@ export class ClientAuth {
                 experience: req.body.experience,
                 languages: req.body.languages
             });
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
             if (check == DatabaseOpCode.SUCCESS) {
                 this.logger.info(`Created account: ${username} (${req.ip})`);
                 const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
                 res.cookie('sessionToken', token);
             }
-            sendDatabaseResponse(req, res, check, username, {}, this.logger);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.post('/auth/requestRecovery', rateLimitWithTrigger({
             windowMs: 1000,
@@ -167,11 +165,11 @@ export class ClientAuth {
             this.recentPasswordResetEmails.set(username, performance.now());
             const data = await this.db.getAccountData(username);
             if (typeof data != 'object') {
-                sendDatabaseResponse(req, res, data, username, {}, this.logger);
+                sendDatabaseResponse(req, res, data, {}, this.logger, username, 'Check account');
                 return;
             }
             if (email != data.email) {
-                res.status(401).send('Incorrect email');
+                sendDatabaseResponse(req, res, DatabaseOpCode.INCORRECT_CREDENTIALS, {}, this.logger, username, 'Check account');
                 return;
             }
             this.logger.info(`Account recovery via email started: ${username} (${req.ip})`);
@@ -189,11 +187,11 @@ export class ClientAuth {
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
             if (mailErr !== undefined) {
                 this.logger.error(`${req.path} fail: email error ${mailErr.message} (${username}, ${req.ip})`);
-                res.status(503).send('Internal email error');
+                res.status(503).send('Send email - Internal email error');
                 return;
             }
-            this.logger.info(`${req.path} success: sent email to ${email} for ${username} (${req.ip})`);
-            res.send(200);
+            this.logger.info(`${req.path}: SUCCESS - sent email to ${email} for ${username} (${req.ip})`);
+            res.status(200).send('Send email - Success');
         });
         this.app.post('/auth/recovery', rateLimitWithTrigger({
             windowMs: 1000,
@@ -218,11 +216,8 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.changeAccountPasswordToken(username, recoveryPassword, newPassword);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
-            if (check == DatabaseOpCode.SUCCESS) {
-                this.logger.info(`${req.path} success: Account recovered, password reset for ${username} (${req.ip})`);
-            }
-            sendDatabaseResponse(req, res, check, username, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Account recovered, password reset for ${username} (${req.ip})`);
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger, username);
         });
         this.app.put('/auth/changePassword', parseBodyJson(), validateRequestBody({
             password: 'required|encryptedLen:1024,1',
@@ -242,11 +237,8 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.changeAccountPassword(username, password, newPassword);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
-            if (check == DatabaseOpCode.SUCCESS) {
-                this.logger.info(`${req.path} success: Password changed for ${username} (${req.ip})`);
-            }
-            sendDatabaseResponse(req, res, check, username, {}, this.logger);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Password changed for ${username} (${req.ip})`);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.delete('/auth/delete', parseBodyJson(), validateRequestBody({
             password: 'required|encryptedLen:1024,1'
@@ -264,11 +256,8 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.deleteAccount(username, password);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${reverse_enum(DatabaseOpCode, check)} (${username}, ${req.ip})`);
-            if (check == DatabaseOpCode.SUCCESS) {
-                this.logger.info(`${req.path} success: Deleted ${username} (${req.ip})`);
-            }
-            sendDatabaseResponse(req, res, check, username, {}, this.logger);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Deleted ${username} (${req.ip})`);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         // reserve /auth path
         this.app.use('/auth/*', (req, res) => res.sendStatus(404));
