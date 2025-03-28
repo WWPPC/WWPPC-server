@@ -5,7 +5,7 @@ import config from './config';
 import Database, { Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import { defaultLogger, NamedLogger } from './log';
-import { LongPollEventEmitter } from './longPolling';
+import { LongPollEventEmitter } from './netUtil';
 import { isUUID, reverse_enum, UUID } from './util';
 
 /**
@@ -281,18 +281,18 @@ export class UpsolveManager {
     }
 }
 
-/**Slightly modified version of {@link database.Contest} */
+/**Slightly modified version of {@link Database.Contest} */
 export type UpsolveContest = {
     readonly id: string
     rounds: UpsolveRound[]
 }
-/**Slightly modified version of {@link database.Round} */
+/**Slightly modified version of {@link Database.Round} */
 export type UpsolveRound = {
     readonly contest: string
     readonly number: number
     problems: UUID[]
 }
-/**Slightly modified version of {@link database.Problem} */
+/**Slightly modified version of {@link Database.Problem} */
 export type UpsolveProblem = {
     readonly id: string
     readonly contest: string
@@ -303,7 +303,7 @@ export type UpsolveProblem = {
     content: string
     constraints: { memory: number, time: number }
 }
-/**Slightly modified version of {@link database.Submission} */
+/**Slightly modified version of {@link Database.Submission} */
 export type UpsolveSubmission = {
     readonly problemId: string
     time: number

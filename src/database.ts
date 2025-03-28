@@ -1564,7 +1564,7 @@ export type Problem = {
         time: number
         /**Memory limit per test case in megabytes */
         memory: number
-    },
+    }
     /**"Correct" answer used in contests with answer grading ({@link config.ContestConfiguration.submitSolver} is false) */
     solution: string | null
 }

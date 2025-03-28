@@ -3,10 +3,10 @@ import { Express } from 'express';
 
 import ClientAuth from './auth';
 import config from './config';
-import Database, { DatabaseOpCode } from './database';
+import Database, { DatabaseOpCode, Score } from './database';
 import Mailer from './email';
 import { defaultLogger, NamedLogger } from './log';
-import { reverse_enum, sendDatabaseResponse, validateRequestBody } from './util';
+import { reverse_enum, sendDatabaseResponse, UUID, validateRequestBody } from './util';
 
 /**
  * Bundles general API functions into a single class.
@@ -189,6 +189,18 @@ export class ClientAPI {
                 if (config.debugMode) this.logger.debug(`${req.path}: Not found (incorrect join key) (${username}, ${req.ip})`);
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_EXISTS, {}, this.logger, username, 'Check team');
             }
+            // make sure doesn't violate registration restrictions
+            const contests = await this.db.readContests({ id: teamData.registrations });
+            if (typeof contests != 'object') {
+                sendDatabaseResponse(req, res, contests, {}, this.logger, username, 'Check team');
+                return;
+            }
+            for (const contest of contests) {
+                if (teamData.members.length >= contest.maxTeamSize) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.NOT_ALLOWED, {[DatabaseOpCode.NOT_ALLOWED]: 'Forbidden by registrations'}, this.logger, username, 'Check team');
+                    return;
+                }
+            }
             const check = await this.db.setAccountTeam(username, teamId);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
@@ -260,6 +272,62 @@ export class ClientAPI {
         if (this.instance === null) throw new TypeError('ClientAPI init() must be called before use()');
         return this.instance;
     }
+}
+
+/**Descriptor for a single contest as represented by the client */
+export type ClientContest = {
+    readonly id: string
+    rounds: ClientRound[]
+    startTime: number
+    endTime: number
+    type: string
+}
+/**Descriptor for a single round as represented by the client */
+export type ClientRound = {
+    readonly contest: string
+    readonly round: number
+    problems: UUID[]
+    startTime: number
+    endTime: number
+}
+/**Descriptor for a single problem as represented by the client */
+export type ClientProblem = {
+    readonly id: UUID
+    readonly contest: string
+    readonly round: number
+    readonly number: number
+    name: string
+    author: string
+    content: string
+    constraints: {
+        time: number
+        memory: number
+    }
+    submissions: ClientSubmission[]
+}
+/**Descriptor for a single submission as represented by the client */
+export type ClientSubmission = {
+    time: number
+    lang: string
+    scores: Score[]
+    status: ClientProblemCompletionState
+}
+/**Client enum for completion state of problems */
+export enum ClientProblemCompletionState {
+    /**Not attempted */
+    NOT_UPLOADED = 0,
+    /**Uploaded but not graded, can still be changed */
+    UPLOADED = 1,
+    /**Submitted but not graded, submissions locked */
+    SUBMITTED = 2,
+    /**Submitted, graded, and passed all subtasks */
+    GRADED_PASS = 3,
+    /**Submitted, graded, and failed all subtasks */
+    GRADED_FAIL = 4,
+    /**Submitted, graded, passed at least one subtask and failed at least one subtask */
+    GRADED_PARTIAL = 5,
+    /**Error loading status */
+    ERROR = 6
 }
 
 export default ClientAPI;

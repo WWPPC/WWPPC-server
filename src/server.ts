@@ -106,6 +106,7 @@ const stopServer = async (code: number) => {
     process.on('SIGTERM', actuallyStop);
     process.on('SIGQUIT', actuallyStop);
     process.on('SIGINT', actuallyStop);
+    server.close();
     ContestManager.use().close();
     UpsolveManager.use().close();
     await Promise.all([mailer.disconnect(), database.disconnect()]);

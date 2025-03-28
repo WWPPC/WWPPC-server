@@ -5,7 +5,7 @@ import { extend as nivExtend, extendMessages as nivExtendMessages, Validator } f
 import ClientAPI from './api';
 import config from './config';
 import { RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
-import Database, { DatabaseOpCode, Score } from './database';
+import Database, { DatabaseOpCode } from './database';
 import Mailer from './email';
 import { defaultLogger, NamedLogger } from './log';
 import { validateRequestBody, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse } from './util';
@@ -288,68 +288,6 @@ export class ClientAuth {
         if (this.instance === null) throw new TypeError('ClientAuth init() must be called before use()');
         return this.instance;
     }
-}
-
-// client interfaces that are sometimes used
-/**Slightly modified version of client Contest */
-export interface ClientContest {
-    readonly id: string
-    rounds: ClientRound[]
-    startTime: number
-    endTime: number
-}
-/**Slightly modified version of client Round */
-export interface ClientRound {
-    readonly contest: string
-    readonly number: number
-    problems: ClientProblem[]
-    startTime: number
-    endTime: number
-}
-/**Slightly modified version of client Problem */
-export interface ClientProblem {
-    readonly id: string
-    readonly contest: string
-    readonly round: number
-    readonly number: number
-    name: string
-    author: string
-    content: string
-    constraints: { memory: number, time: number }
-    submissions: ClientSubmission[]
-    status: ClientProblemCompletionState
-}
-/**Slightly modified version of client Submission */
-export interface ClientSubmission {
-    time: number
-    lang: string
-    scores: Score[]
-    status: ClientProblemCompletionState
-}
-/**Client enum for completion state of problems */
-export enum ClientProblemCompletionState {
-    /**Not attempted */
-    NOT_UPLOADED = 0,
-    /**Uploaded but not graded, can still be changed */
-    UPLOADED = 1,
-    /**Submitted but not graded, submissions locked */
-    SUBMITTED = 2,
-    /**Submitted, graded, and passed all subtasks */
-    GRADED_PASS = 3,
-    /**Submitted, graded, and failed all subtasks */
-    GRADED_FAIL = 4,
-    /**Submitted, graded, passed at least one subtask and failed at least one subtask */
-    GRADED_PARTIAL = 5,
-    /**Error loading status */
-    ERROR = 6
-}
-/**Client enum for submission response codes */
-export enum ContestUpdateSubmissionResult {
-    SUCCESS = 0,
-    FILE_TOO_LARGE = 1,
-    LANGUAGE_NOT_ACCEPTABLE = 2,
-    PROBLEM_NOT_SUBMITTABLE = 3,
-    ERROR = 4
 }
 
 export default ClientAuth;
