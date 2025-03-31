@@ -81,7 +81,7 @@ export class Scorer {
         }
         //put in the scores from the submission
         for (const subtask of this.subtasks) {
-            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.CORRECT)) {
+            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.PASS)) {
                 userScores.set(subtask, submission.time);
             }
         }

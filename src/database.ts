@@ -1607,7 +1607,7 @@ export type Score = {
     subtask: number
 }
 export enum ScoreState {
-    CORRECT = 1,
+    PASS = 1,
     INCORRECT = 2,
     TIME_LIM_EXCEEDED = 3,
     MEM_LIM_EXCEEDED = 4,
