@@ -87,7 +87,7 @@ const instantiationTime = performance.now() - start;
 
 Promise.all([
     ClientAuth.use().ready,
-    database.connectPromise,
+    database.connect(),
     mailer.ready
 ]).then(() => {
     const startTime = performance.now() - start;
