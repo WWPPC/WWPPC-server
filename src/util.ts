@@ -197,10 +197,10 @@ export function validateRequestBody(rules: object, logger?: Logger): (req: Reque
 }
 const defaultDbResMessages: Record<DatabaseOpCode, string> = {
     [DatabaseOpCode.SUCCESS]: 'Success',
-    [DatabaseOpCode.ALREADY_EXISTS]: 'Already exists',
-    [DatabaseOpCode.NOT_EXISTS]: 'Not found',
-    [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Unauthorized',
-    [DatabaseOpCode.NOT_ALLOWED]: 'Forbidden',
+    [DatabaseOpCode.CONFLICT]: 'Already exists',
+    [DatabaseOpCode.NOT_FOUND]: 'Not found',
+    [DatabaseOpCode.UNAUTHORIZED]: 'Unauthorized',
+    [DatabaseOpCode.FORBIDDEN]: 'Forbidden',
     [DatabaseOpCode.ERROR]: 'Internal error'
 };
 /**
@@ -219,10 +219,10 @@ export function sendDatabaseResponse(req: Request, res: Response, code: Database
         case DatabaseOpCode.ERROR:
             logger.error(`${req.path} error (${username}, ${req.ip})`);
         case DatabaseOpCode.SUCCESS:
-        case DatabaseOpCode.ALREADY_EXISTS:
-        case DatabaseOpCode.NOT_EXISTS:
-        case DatabaseOpCode.INCORRECT_CREDENTIALS:
-        case DatabaseOpCode.NOT_ALLOWED:
+        case DatabaseOpCode.CONFLICT:
+        case DatabaseOpCode.NOT_FOUND:
+        case DatabaseOpCode.UNAUTHORIZED:
+        case DatabaseOpCode.FORBIDDEN:
             res.status(code).send((messagePrefix ? messagePrefix + ' - ' : '') + (messages[code] ?? defaultDbResMessages[code]));
             break;
         default:

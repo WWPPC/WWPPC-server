@@ -89,7 +89,7 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.checkAccount(req.body.username, password);
-            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect password' }, this.logger, username);
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect password' }, this.logger, username);
         });
         this.app.post('/auth/signup', rateLimitWithTrigger({
             windowMs: 60000,
@@ -169,7 +169,7 @@ export class ClientAuth {
                 return;
             }
             if (email != data.email) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.INCORRECT_CREDENTIALS, {}, this.logger, username, 'Check account');
+                sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger, username, 'Check account');
                 return;
             }
             this.logger.info(`Account recovery via email started: ${username} (${req.ip})`);
@@ -217,7 +217,7 @@ export class ClientAuth {
             }
             const check = await this.db.changeAccountPasswordToken(username, recoveryPassword, newPassword);
             if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Account recovered, password reset for ${username} (${req.ip})`);
-            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.INCORRECT_CREDENTIALS]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger, username);
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger, username);
         });
         this.app.put('/auth/changePassword', parseBodyJson(), validateRequestBody({
             password: 'required|encryptedLen:1024,1',

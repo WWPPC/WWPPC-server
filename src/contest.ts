@@ -1,18 +1,14 @@
 import { randomUUID } from 'crypto';
-import { Express, Request, Response, NextFunction } from 'express';
+import { Express } from 'express';
 
-import {
-    ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission
-} from './api';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
 import ClientAuth from './auth';
 import config from './config';
-import {
-    Contest, Database, DatabaseOpCode, Problem, Round, Score, ScoreState, Submission
-} from './database';
+import { Database, DatabaseOpCode, Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { NamespacedLongPollEventEmitter } from './netUtil';
-import Scorer, { ScoringFunctionArguments, UserScore } from './scorer';
+import Scorer, { UserScore } from './scorer';
 import { isUUID, reverse_enum, sendDatabaseResponse, UUID } from './util';
 
 /**
@@ -36,8 +32,9 @@ export class ContestManager {
         this.app = app;
         this.grader = grader;
         this.logger = new NamedLogger(defaultLogger, 'ContestManager');
-        this.eventEmitter = new NamespacedLongPollEventEmitter(app, '/api/contest/', ['data', 'submissionData'] as const, []);
+        // this order is very important!! createEndpoints has contest registration checks that block event access if not registered
         this.createEndpoints();
+        this.eventEmitter = new NamespacedLongPollEventEmitter(app, '/api/contest/', ['data', 'submissionData'] as const, []);
         // auto-start contests
         this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
         this.checkNewContests();
@@ -90,61 +87,127 @@ export class ContestManager {
         // upcoming = not started, however registering for running contests is still allowed
         this.app.get('/api/contest/upcoming', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
-            if (data == DatabaseOpCode.ERROR) res.sendStatus(503);
-            else res.json(data.map((item) => item.id));
+            if (Array.isArray(data)) {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                res.json(data.map((item) => item.id));
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/api/contest/registerList', async (req, res) => {
+        this.app.get('/api/contest/openRegistrations', async (req, res) => {
             const data = await this.db.readContests({ endTime: { op: '>', v: Date.now() } });
-            if (data == DatabaseOpCode.ERROR) res.sendStatus(503);
-            else res.json(data.map((item) => item.id));
+            if (Array.isArray(data)) {
+                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                res.json(data.map((item) => item.id));
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        // registrations
+        this.app.get('/api/contest/info/:contest', async (req, res) => {
+            const data = await this.db.readContests({ id: req.params.contest });
+            if (Array.isArray(data)) {
+                if (data.length != 1) sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger);
+                else {
+                    if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                    // non-public contests lose archive visibility but this info is still visible
+                    const contest: any = data[0];
+                    // again remove internal data (max team size, exclusions are fine)
+                    delete contest.public;
+                    delete contest.rounds;
+                    res.json(contest);
+                }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
+        });
+        // registrations - requires authentication
         const auth = ClientAuth.use();
-        const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+        const sessionUsername = Symbol('username');
+        const sessionTeam = Symbol('team');
+        this.app.use('/api/contest/:contest/*', async (req, res, next) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
                 // save username so don't have to check if token disappeared between this and later handlers
-                const username = auth.getTokenUsername(req.cookies.sessionToken);
-                const team = await this.db.getAccountTeam(req.cookies.tempUsername);
+                const username = auth.getTokenUsername(req.cookies.sessionToken)!;
+                const team = await this.db.getAccountTeam(username);
                 if (team !== null && typeof team != 'string') {
-                    sendDatabaseResponse(req, res, team, {}, this.logger, req.cookies.tempUsername, 'Auth team');
+                    sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Auth team');
                     return;
                 }
-                req.cookies.tempUsername = username;
-                req.cookies.tempTeam = team;
+                req.cookies[sessionUsername] = username;
+                req.cookies[sessionTeam] = team;
                 next();
             } else {
-                if (config.debugMode) this.logger.debug(`${req.path}: 401 Unauthorized`);
-                res.sendStatus(401);
+                sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
             }
-        };
-        this.app.get('/api/contest/registrations', checkAuth, async (req, res) => {
-            const username = req.cookies.tempUsername;
-            const team = req.cookies.tempTeam;
-            if (typeof team != 'string') {
-                sendDatabaseResponse(req, res, team, {}, this.logger, username);
+        });
+        this.app.post('/api/contest/:contest/register', async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot register without a team' }, this.logger, username);
+                return;
+            }
+            const contestRes = await this.db.readContests({ id: req.params.contest });
+            if (!Array.isArray(contestRes)) {
+                sendDatabaseResponse(req, res, contestRes, {}, this.logger, username, 'Fetch contest');
+                return;
+            }
+            if (contestRes.length != 1) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+                return;
+            }
+            const contest = contestRes[0];
+            const teamData = await this.db.getTeamData(team);
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            if (teamData.members.length > contest.maxTeamSize) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many team members; max size ' + contest.maxTeamSize }, this.logger, username, 'Check contest');
+                return;
+            }
+            const restrictedContestRes = await this.db.readContests({ id: contest.exclusions });
+            if (!Array.isArray(restrictedContestRes)) {
+                sendDatabaseResponse(req, res, restrictedContestRes, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            if (restrictedContestRes.some((contest) => teamData.registrations.includes(contest.id))) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Conflict with existing registrations' }, this.logger, username, 'Check contest');
+                return;
+            }
+            const check = await this.db.registerContest(team, contest.id);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
+        });
+        this.app.delete('/api/contest/:contest/register', async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot unregister without a team' }, this.logger, username);
                 return;
             }
             const teamData = await this.db.getTeamData(team);
-            if (typeof teamData == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${username}, ${req.ip})`);
-                res.json(teamData.registrations);
-            } else sendDatabaseResponse(req, res, teamData, {}, this.logger, username);
-        });
-        this.app.post('/api/contest/:contest/register', checkAuth, async (req, res) => {
-            const username = req.cookies.tempUsername;
-            const team = req.cookies.tempTeam;
-
-
-        });
-        this.app.delete('/api/contest/:contest/register', checkAuth, async (req, res) => {
-            const username = req.cookies.tempUsername;
-            const team = req.cookies.tempTeam;
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
+                return;
+            }
+            if (!teamData.registrations.includes(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not registered' }, this.logger, username, 'Check team');
+                return;
+            }
+            const check = await this.db.unregisterContest(team, req.params.contest);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
 
         });
-        this.app.get('/api/contest/:contest/info', checkAuth, async (req, res) => {
-            const username = req.cookies.tempUsername;
-            const team = req.cookies.tempTeam;
-
+        // requires registration for contest
+        this.app.use('/api/contest/:contest/*', async (req, res, next) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string;
+            const teamData = await this.db.getTeamData(team);
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check registration');
+                return;
+            }
+            if (!teamData.registrations.includes(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {
+                    [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} ${req.path} when not registered for ${req.params.contest}`
+                }, this.logger, username, 'Check registration');
+                return;
+            }
+            next();
         });
     }
 
@@ -172,7 +235,6 @@ export class ContestManager {
  * Communication with clients is handled through ContestManager.
  */
 export class ContestHost {
-    readonly sid: string;
     readonly contestType: string;
     readonly id: string;
     readonly db: Database;
@@ -180,7 +242,7 @@ export class ContestHost {
     readonly scorer: Scorer;
     readonly logger: NamedLogger;
 
-    private readonly contest: Omit<Contest, 'rounds'> & { rounds: Omit<Round, 'problems'> & { problems: Problem[] } };
+    private readonly contest: ClientContest;
     private index: number = 0;
     private active: boolean = false;
     private ended: boolean = false;
@@ -199,58 +261,25 @@ export class ContestHost {
      * @param logger Logger instance
      */
     constructor(type: string, id: string, db: Database, grader: Grader, logger: Logger) {
-        this.sid = Array.from(new Array(8), () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
         if (config.contests[type] === undefined) throw new ReferenceError(`Contest type "${type}" does not exist in configuration`);
         this.contestType = type;
         this.id = id;
-        this.io = io.of(`contest-${this.sid}/`);
         this.db = db;
         this.grader = grader;
-        const scoringFunction = type == 'WWPMI' ? (score: ScoringFunctionArguments) => {
+        this.scorer = new Scorer([], logger, (submission, problem, round) => {
             return {
-                score: 1 / score.problem.numSubtasks,
-                penalty: score.submission.time
-            }
-        } : type == 'WWPIT' ? (score: ScoringFunctionArguments) => {
-            return {
-                score: 1 / score.problem.numSubtasks,
-                penalty: score.submission.time
-            }
-        } : () => {
-            this.logger.error(`Contest type ${type} not recognized`);
-            return {
-                score: 0,
-                penalty: 0
-            }
-        }
-        this.scorer = new Scorer([], logger, scoringFunction);
-        this.logger = new NamedLogger(logger, `ContestHost-${this.contestType}-${this.sid}`);
+                score: 1 / problem.numSubtasks,
+                penalty: submission.time
+            };
+        });
+        this.logger = new NamedLogger(logger, `ContestHost-${this.id}`);
         this.contest = {
             id: id,
+            type: this.contestType,
             rounds: [],
             startTime: Infinity,
             endTime: Infinity
         };
-        this.io.on('connection', async (s) => {
-            s.handshake.headers['x-forwarded-for'] ??= '127.0.0.1';
-            const ip = typeof s.handshake.headers['x-forwarded-for'] == 'string' ? s.handshake.headers['x-forwarded-for'].split(',')[0].trim() : s.handshake.headers['x-forwarded-for'][0].trim();
-            s.once('auth', (auth: { username: string, token: string }, cb: (res: boolean) => any) => {
-                if (auth == null || typeof auth.username != 'string' || typeof auth.token != 'string' || !this.pendingConnections.has(auth.token)
-                    || auth.username !== this.pendingConnections.get(auth.token)!.username || typeof cb != 'function') {
-                    this.logger.logger.warn(`${auth?.username} @ ${ip} | Kicked for violating restrictions: invalid ContestHost namespace authentication`);
-                    s.removeAllListeners();
-                    s.disconnect();
-                    return;
-                }
-                const socket = createContestSocket(s, this.pendingConnections.get(auth.token)!);
-                this.pendingConnectionsInverse.delete(this.pendingConnections.get(auth.token)!);
-                this.pendingConnections.delete(auth.token);
-
-                this.addInternalSocket(socket);
-                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Joined ContestHost namespace "contest-${this.sid}"`);
-                cb(true);
-            });
-        });
         this.logger.info('Starting contest');
         this.reload();
     }
@@ -287,7 +316,7 @@ export class ContestHost {
         }
         this.scorer.setRounds(rounds);
         this.scorer.clearScores();
-        const mapped: ContestRound[] = [];
+        const mapped: ClientRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id === contest[0].rounds[i]);
             if (round === undefined) {
@@ -296,31 +325,42 @@ export class ContestHost {
                 return;
             }
             mapped.push({
-                id: round.id,
                 contest: this.id,
-                number: Number(i),
+                round: Number(i),
                 problems: round.problems,
                 startTime: round.startTime,
                 endTime: round.endTime
             });
         }
-        this.contest = {
-            id: this.id,
-            rounds: mapped,
-            startTime: contest[0].startTime,
-            endTime: contest[0].endTime
-        };
-        this.updateAllUsers();
+        this.contest.rounds = mapped;
+        this.contest.startTime = contest[0].startTime;
+        this.contest.endTime = contest[0].endTime;
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
+        // EMIT UPDATE FOR DATA
 
         // reload the scoreboard too
         const users = await this.db.getAllRegisteredUsers(this.id);
-        if (users == null) {
+        if (users == DatabaseOpCode.ERROR) {
             this.logger.error(`Database error`);
             this.end();
             return;
         }
         const submissions = await this.db.readSubmissions({ contest: { contest: this.contest.id }, username: users, analysis: false });
-        if (submissions === null) {
+        if (submissions == DatabaseOpCode.ERROR) {
             this.logger.error(`Database error`);
             this.end();
             return;
@@ -334,7 +374,7 @@ export class ContestHost {
             }
             else frozenSubmissions.push(sub);
         }
-        this.scoreboards = this.scorer.getScores();
+        this.scoreboard = this.scorer.getScores();
         for (const sub of frozenSubmissions) {
             this.scorer.updateUser(sub);
         }
@@ -370,17 +410,35 @@ export class ContestHost {
                 this.active = true;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} start`);
             }
-            if (updated) this.updateAllUsers();
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
+            // EMIT UPDATE FOR DATA
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
-                if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboards = this.scorer.getScores();
-                else this.clientScoreboard = this.scorer.getScores();
-                this.io.emit('scoreboard', Array.from(this.scoreboards.entries()).map((([u, s]) => ({ username: u, score: s }))).sort((a, b) => {
-                    if (b.score.score == a.score.score) return a.score.penalty - b.score.penalty;
-                    else return b.score.score - a.score.score;
-                }));
+                if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
+                else this.scoreboard = this.scorer.getScores();
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
+                // EMIT UPDATE FOR SCOREBOARDS
             }
         }, 50);
     }
@@ -405,6 +463,7 @@ export class ContestHost {
     get round(): number {
         return this.index;
     }
+    
     /**
      * Get if a particular problem ID is submittable.
      * @param id Problem ID
@@ -413,97 +472,17 @@ export class ContestHost {
     problemSubmittable(id: UUID): boolean {
         return this.active && this.contest.rounds[this.index].problems.includes(id);
     }
-    /**
-     * Update all users in contest with latest contest data.
-     */
-    async updateAllUsers(): Promise<void> {
-        await Promise.all(Array.from(this.users.keys()).map((username) => this.updateUser(username)));
-    }
-    /**
-     * Only update users under a team with the latest contest data.
-     * @param username Username
-     */
-    async updateUser(username: string): Promise<void> {
-        if (this.users.has(username)) {
-            try {
-                const team = await this.db.getAccountTeam(username);
-                if (typeof team != 'string') throw new Error(`Database error while reading team data (${username})`);
-                const userRounds: ClientRound[] = await Promise.all(this.contest.rounds.map(async (round): Promise<ClientRound> => {
-                    if (round.number <= this.index) {
-                        const userProblems: ClientProblem[] = await Promise.all(round.problems.map(async (id, i): Promise<ClientProblem> => {
-                            // submissions go under team names
-                            const problemData = await this.db.readProblems({ id: id });
-                            const submissionData = await this.db.readSubmissions({ id: id, username: team, analysis: false });
-                            if (problemData == null || submissionData == null) throw new Error(`Database error while reading problems and submissions (Round ${round.id} Problem ${id})`);
-                            if (problemData.length == 0) throw new Error(`Problem not found (Round ${round.id} Problem ${id})`);
-                            // mapping submissions is messy, submissions empty of there are no past submissions
-                            // otherwise concatenate with reverse history array
-                            return {
-                                id: problemData[0].id,
-                                contest: this.contest.id,
-                                round: round.number,
-                                number: i,
-                                name: problemData[0].name,
-                                author: problemData[0].author,
-                                content: problemData[0].content,
-                                constraints: problemData[0].constraints,
-                                submissions: (submissionData.length > 0) ? [{
-                                    time: submissionData[0].time,
-                                    lang: submissionData[0].lang,
-                                    scores: submissionData[0].scores,
-                                    status: this.getCompletionState(round.number, submissionData[0].scores)
-                                }, ...submissionData[0].history.reverse().map((sub): ClientSubmission => ({
-                                    time: sub.time,
-                                    lang: sub.lang,
-                                    scores: sub.scores,
-                                    status: this.getCompletionState(round.number, sub.scores)
-                                }))] : [],
-                                status: this.getCompletionState(round.number, submissionData[0]?.scores)
-                            };
-                        }));
-                        return {
-                            contest: round.contest,
-                            number: round.number,
-                            problems: userProblems,
-                            startTime: round.startTime,
-                            endTime: round.endTime
-                        };
-                    } else {
-                        return {
-                            contest: round.contest,
-                            number: round.number,
-                            problems: [],
-                            startTime: round.startTime,
-                            endTime: round.endTime
-                        };
-                    }
-                }));
-                const userContest: ClientContest = {
-                    id: this.contest.id,
-                    rounds: userRounds,
-                    startTime: this.contest.startTime,
-                    endTime: this.contest.endTime
-                };
-                this.io.to(username).emit('contestData', userContest);
-                try {
-                    if (global.gc) global.gc();
-                } catch { }
-            } catch (err) {
-                this.logger.handleError('Error while sending updated contest data to client', err);
-            }
-        }
-    }
 
     private getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
-        // will not reveal verdict until round ends!
+        // will not reveal verdict until round ends
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (config.contests[this.contestType]!.withholdResults && round == this.index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         const subtasks = new Map<number, boolean>();
+        for (const score of scores) {
+            if (subtasks.get(score.subtask) !== false) subtasks.set(score.subtask, score.state == ScoreState.CORRECT);
+        }
         scores.forEach((score) => {
-            if (subtasks.get(score.subtask) !== false) {
-                subtasks.set(score.subtask, score.state == ScoreState.CORRECT);
-            }
         });
         const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask) === true);
         const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
@@ -734,7 +713,7 @@ export class ContestHost {
      * Stop the running contest and remove all users.
      * @param complete Mark the contest as ended in database (contest cannot be restarted)
      */
-    end(complete?: boolean) {
+    end(complete: boolean = false) {
         if (this.ended) return;
         this.ended = true;
         if (complete) {

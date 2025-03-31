@@ -195,12 +195,12 @@ export class Database {
      * @param userData Initial user data
      * @returns Creation status
      */
-    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
+    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, bcryptRounds);
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
-            if (data.rows.length > 0) return DatabaseOpCode.ALREADY_EXISTS;
+            if (data.rows.length > 0) return DatabaseOpCode.CONFLICT;
             else await this.db.query(`
                 INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
@@ -235,18 +235,18 @@ export class Database {
      * @param password Valid password
      * @returns Check status
      */
-    async checkAccount(username: string, password: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
+    async checkAccount(username: string, password: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.UNAUTHORIZED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             // cache not needed for sign-in as password is inexpensive and not frequent enough
             const data = await this.db.query('SELECT password FROM users WHERE username=$1', [
                 username
             ]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (await bcrypt.compare(password, data.rows[0].password)) {
                 this.rotateRecoveryPassword(username);
                 return DatabaseOpCode.SUCCESS;
-            } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
+            } else return DatabaseOpCode.UNAUTHORIZED;
         } catch (err) {
             this.logger.handleError('Database error (checkAccount):', err);
             return DatabaseOpCode.ERROR;
@@ -259,7 +259,7 @@ export class Database {
      * @param username Valid username
      * @returns AccountData or an error code
      */
-    async getAccountData(username: string): Promise<AccountData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getAccountData(username: string): Promise<AccountData | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
@@ -271,7 +271,7 @@ export class Database {
                 `, [
                 username
             ]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const userData: AccountData = {
                 username: data.rows[0].username,
                 email: data.rows[0].email,
@@ -305,14 +305,14 @@ export class Database {
      * @param userData New data
      * @returns Update status
      */
-    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async updateAccountData(username: string, userData: Omit<AccountData, 'username' | 'email' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
                 'UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const dat = structuredClone(userData);
             if (this.userCache.has(username)) {
                 const entry = this.userCache.get(username)!;
@@ -338,7 +338,7 @@ export class Database {
      * @param newPassword Valid new password
      * @returns Update status
      */
-    async changeAccountPassword(username: string, password: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
+    async changeAccountPassword(username: string, password: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.UNAUTHORIZED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.checkAccount(username, password);
@@ -365,13 +365,13 @@ export class Database {
      * @param newPassword Valid new password
      * @returns Update status
      */
-    async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.ERROR> {
+    async changeAccountPasswordToken(username: string, token: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.UNAUTHORIZED | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [
 
                 username]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
                 this.rotateRecoveryPassword(username);
                 const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
@@ -380,7 +380,7 @@ export class Database {
                 ]);
                 this.logger.info(`Reset password via token for "${username}"`, true);
                 return DatabaseOpCode.SUCCESS;
-            } else return DatabaseOpCode.INCORRECT_CREDENTIALS;
+            } else return DatabaseOpCode.UNAUTHORIZED;
         } catch (err) {
             this.logger.handleError('Database error (changeAccountPasswordToken):', err);
             return DatabaseOpCode.ERROR;
@@ -393,7 +393,7 @@ export class Database {
      * @param username Valid username
      * @returns Fetch status
      */
-    async getRecoveryPassword(username: string): Promise<string | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getRecoveryPassword(username: string): Promise<string | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [
@@ -403,7 +403,7 @@ export class Database {
                 this.logger.info(`Fetched recovery password for ${username}`, true);
                 return this.dbEncryptor.decrypt(data.rows[0].recoverypass);
             }
-            return DatabaseOpCode.NOT_EXISTS;
+            return DatabaseOpCode.NOT_FOUND;
         } catch (err) {
             this.logger.handleError('Database error (getRecoveryPassword):', err);
             return DatabaseOpCode.ERROR;
@@ -416,14 +416,14 @@ export class Database {
      * @param username Username to rotate
      * @returns Rotation status
      */
-    async rotateRecoveryPassword(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async rotateRecoveryPassword(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const newPass = this.dbEncryptor.encrypt(uuidV4());
             const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [
                 username, newPass
             ]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (rotateRecoveryPassword):', err);
@@ -438,9 +438,9 @@ export class Database {
      * @param username Valid username
      * @param password Valid user password, or admin password if `adminUsername` is given
      * @param adminUsername Valid username of administrator
-     * @returns Deletion status ({@link DatabaseOpCode.NOT_ALLOWED} is returned when an admin has insufficient permissions)
+     * @returns Deletion status ({@link DatabaseOpCode.FORBIDDEN} is returned when an admin has insufficient permissions)
      */
-    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.INCORRECT_CREDENTIALS | DatabaseOpCode.NOT_ALLOWED | DatabaseOpCode.ERROR> {
+    async deleteAccount(username: string, password: string, adminUsername?: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.UNAUTHORIZED | DatabaseOpCode.FORBIDDEN | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (adminUsername !== undefined) {
@@ -448,7 +448,7 @@ export class Database {
                 const check = await this.checkAccount(adminUsername, password);
                 if (check != DatabaseOpCode.SUCCESS) return check;
                 // no perms = incorrect creds
-                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.NOT_ALLOWED;
+                if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.FORBIDDEN;
             } else {
                 const res = await this.checkAccount(username, password);
                 if (res != DatabaseOpCode.SUCCESS) return res;
@@ -457,7 +457,7 @@ export class Database {
             const res = await this.db.query('DELETE FROM users WHERE username=$1 RETURNING team', [
                 username
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (adminUsername !== undefined) {
                 this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
             } else {
@@ -522,11 +522,11 @@ export class Database {
      * @param username Valid username
      * @returns Team ID, null if not on a team, or an error code
      */
-    async getAccountTeam(username: string): Promise<string | null | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getAccountTeam(username: string): Promise<string | null | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.getAccountData(username);
-            if (data == DatabaseOpCode.NOT_EXISTS) return DatabaseOpCode.NOT_EXISTS;
+            if (data == DatabaseOpCode.NOT_FOUND) return DatabaseOpCode.NOT_FOUND;
             if (data == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
             return data.team;
         } catch (err) {
@@ -542,7 +542,7 @@ export class Database {
      * @param team Team ID, or null to remove the user from all teams
      * @returns Update status
      */
-    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const existingUserData = await this.getAccountData(username);
@@ -550,12 +550,12 @@ export class Database {
             const oldTeam = existingUserData.team;
             // database teams are numbers
             const teamNumId = team !== null ? parseInt(team, 36) : null;
-            if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query(
                 'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
                 username, teamNumId
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             // getAccountData refreshed cache entry before this
             if (this.userCache.has(username)) this.userCache.get(username)!.data.team = team;
             if (oldTeam !== null && this.teamCache.has(oldTeam)) {
@@ -575,13 +575,13 @@ export class Database {
      * @param team Team ID
      * @returns Team data or an error code
      */
-    async getTeamData(team: string): Promise<TeamData | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async getTeamData(team: string): Promise<TeamData | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.teamCache.has(team) && this.teamCache.get(team)!.expiration < performance.now()) this.teamCache.delete(team);
             if (this.teamCache.has(team)) return structuredClone(this.teamCache.get(team)!.data);
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const data = await this.db.query(
                 'SELECT id, name, biography, registrations joinkey FROM teams WHERE id=$1', [
                 teamNumId
@@ -590,8 +590,8 @@ export class Database {
                 'SELECT username FROM users WHERE team=$1 ORDER BY username ASC', [
                 teamNumId
             ]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            const teamDat: TeamData = {
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
+            const teamData: TeamData = {
                 id: data.rows[0].username,
                 name: data.rows[0].name,
                 bio: data.rows[0].biography,
@@ -600,10 +600,10 @@ export class Database {
                 joinKey: data.rows[0].joinkey
             };
             this.teamCache.set(team, {
-                data: structuredClone(teamDat),
+                data: structuredClone(teamData),
                 expiration: performance.now() + config.dbCacheTime
             });
-            return teamDat;
+            return teamData;
         } catch (err) {
             this.logger.handleError('Database error (getTeamData):', err);
             return DatabaseOpCode.ERROR;
@@ -617,16 +617,16 @@ export class Database {
      * @param teamData New data
      * @returns Update status
      */
-    async updateTeamData(team: string, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async updateTeamData(team: string, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE id=$1 RETURNING id', [
                 teamNumId, teamData.name, teamData.bio
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
                 // this doesn't count as cache refresh, just patching cache here
                 const entry = this.teamCache.get(team)!;
@@ -642,25 +642,26 @@ export class Database {
         }
     }
     /**
-     * Register a team for a contest, registering all users on that team as well. Prevents duplicate registrations. **Does not prevent registering a team that is too large.**
+     * Register a team for a contest, registering all users on that team as well. Prevents duplicate registrations.
+     * **Does not prevent registering a team that is too large or registering in conflict with existing registrations.**
      * @param team Team ID
      * @param contest Contest ID
      * @returns Registration status
      */
-    async registerContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ALREADY_EXISTS | DatabaseOpCode.ERROR> {
+    async registerContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const exists = await this.db.query('SELECT teams.registrations FROM teams WHERE teams.id=$1', [
                 teamNumId
             ]);
-            if (exists.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
-            if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.ALREADY_EXISTS;
+            if (exists.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
+            if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.CONFLICT;
             const res = await this.db.query('UPDATE teams SET registrations=(teams.registrations || $2) WHERE id=$1 RETURNING id', [
                 teamNumId, [contest]
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
                 // cache patch, not a refresh
                 const entry = this.teamCache.get(team)!;
@@ -675,16 +676,16 @@ export class Database {
         }
     }
     /**
-     * Unregister an entire team for a contest.
+     * Unregister a team for a contest.
      * @param team Team ID
      * @param contest Contest ID
      * @returns Registration status
      */
-    async unregisterContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async unregisterContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query(`
             UPDATE teams SET registrations=ARRAY_REMOVE(
                 (SELECT registrations FROM teams WHERE id=$1),
@@ -694,7 +695,7 @@ export class Database {
             `, [
                 teamNumId, contest
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
                 // cache patch, not a refresh
                 const entry = this.teamCache.get(team)!;
@@ -713,15 +714,15 @@ export class Database {
      * @param team Team ID
      * @returns Registration status
      */
-    async unregisterAllContests(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async unregisterAllContests(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE id=$1 RETURNING id', [
                 teamNumId
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (unregisterAllContests):', err);
@@ -735,15 +736,15 @@ export class Database {
      * @param team Team ID
      * @returns Deletion status
      */
-    async deleteTeam(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async deleteTeam(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_EXISTS;
+            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query('DELETE FROM teams WHERE id=$1 RETURNING id', [
                 teamNumId
             ]);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             this.logger.info(`Deleted team "${team}"`, true);
             this.teamCache.delete(team);
             return DatabaseOpCode.SUCCESS;
@@ -815,13 +816,13 @@ export class Database {
      * @param flag Permission flag to check against
      * @returns If the administrator has the permission, or an error code
      */
-    async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async hasAdminPerms(username: string, flag: AdminPerms): Promise<boolean | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.adminCache.has(username) && this.adminCache.get(username)!.expiration < performance.now()) this.adminCache.delete(username);
             if (this.adminCache.has(username)) return (this.adminCache.get(username)!.permissions & flag) != 0;
             const data = await this.db.query('SELECT permissions FROM admins WHERE username=$1', [username]);
-            if (data.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             this.adminCache.set(username, {
                 permissions: data.rows[0].permissions,
                 expiration: performance.now() + config.dbCacheTime
@@ -991,12 +992,12 @@ export class Database {
      * @param id Contest to delete
      * @returns Deletion status
      */
-    async deleteContest(id: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async deleteContest(id: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query('DELETE FROM contests WHERE id=$1 RETURNING id', [id]);
             this.contestCache.delete(id);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteContest):', err);
@@ -1112,12 +1113,12 @@ export class Database {
      * @param id Round to delete
      * @returns Deletion status
      */
-    async deleteRound(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async deleteRound(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query('DELETE FROM rounds WHERE id=$1', [id]);
             this.roundCache.delete(id);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteRound):', err);
@@ -1243,12 +1244,12 @@ export class Database {
      * @param id Problem to delete
      * @returns Deletion status
      */
-    async deleteProblem(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async deleteProblem(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query('DELETE FROM problems WHERE id=$1', [id]);
             this.problemCache.delete(id);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS;
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteProblem):', err);
@@ -1407,12 +1408,12 @@ export class Database {
      * @param username Username linked to submission to delete
      * @returns Deletion status
      */
-    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_EXISTS | DatabaseOpCode.ERROR> {
+    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const res = await this.db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3 RETURNING id', [id, username, analysis]);
             this.problemCache.delete(`${id}:${username}:${analysis}`);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_EXISTS
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteSubmission):', err);
@@ -1445,14 +1446,14 @@ export type SqlValue = number | string | boolean | number[] | string[] | boolean
 export enum DatabaseOpCode {
     /**The operation succeeded */
     SUCCESS = 200,
-    /**The operation failed because the database cannot not overwrite existing data */
-    ALREADY_EXISTS = 409,
+    /**The operation failed because the database found existing data that conflicts */
+    CONFLICT = 409,
     /**The operation failed because the database could not find the requested data */
-    NOT_EXISTS = 404,
+    NOT_FOUND = 404,
     /**The operation failed because of an authentication failure */
-    INCORRECT_CREDENTIALS = 401,
+    UNAUTHORIZED = 401,
     /**The operation failed because the requested action is restricted*/
-    NOT_ALLOWED = 403,
+    FORBIDDEN = 403,
     /**The operation failed because of an unexpected issue */
     ERROR = 503
 }
@@ -1470,7 +1471,7 @@ export enum AdminPerms {
     /**Access running contests through exposed ContestHost functions */
     CONTROL_CONTESTS = 1 << 4,
     /**Add admins and edit permissions for other admins */
-    MANAGE_ADMINS = 1 << 30 // only 31 bits available
+    MANAGE_ADMINS = 1 << 30 // only 31 bits available due to js/pg working differently
 }
 
 /**Descriptor for an account */
@@ -1522,6 +1523,8 @@ export type TeamData = {
 export type Contest = {
     /**Contest ID, also used as name */
     readonly id: string
+    /**The tournament the contest is part of */
+    type: string
     /**List of round UUIDs within the contest */
     rounds: UUID[]
     /**List of other contest ids that cannot be registered simultaneously */
@@ -1532,10 +1535,8 @@ export type Contest = {
     startTime: number
     /**Time of contest end, UNIX */
     endTime: number
-    /**If the contest is publicly archived once finished */
+    /**If the contest is publicly archived once finished (problems remain accessible through upsolve) */
     public: boolean
-    /**The tournament the contest is part of */
-    type: string
 }
 /**Descriptor for a single round */
 export type Round = {

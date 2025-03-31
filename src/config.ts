@@ -89,8 +89,8 @@ export interface ContestConfiguration {
     readonly directSubmissionDelay: number
     /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedSolverLanguages: string[]
-    /**Maximum file size of uploaded submission files (default: 10240) */
-    readonly maxSubmissionSize: number
+    /**Maximum file size of uploaded submission files (default: 10kb) */
+    readonly maxSubmissionSize: string
 };
 /**
  * Global configuration, loaded from `config.json` in the config folder.

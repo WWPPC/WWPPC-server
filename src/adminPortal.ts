@@ -85,17 +85,17 @@ export class AdminAPI {
 
         const defaultAccountOpMapping = (res: Response, stat: any) => {
             if (stat == DatabaseOpCode.SUCCESS) res.send(200);
-            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == DatabaseOpCode.ALREADY_EXISTS) res.sendStatus(409);
-            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
+            else if (stat == DatabaseOpCode.NOT_FOUND) res.sendStatus(404);
+            else if (stat == DatabaseOpCode.CONFLICT) res.sendStatus(409);
+            else if (stat == DatabaseOpCode.UNAUTHORIZED) res.sendStatus(403);
             else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
         const defaultTeamOpMapping = (res: Response, stat: any) => {
             if (stat == DatabaseOpCode.SUCCESS) res.sendStatus(200);
-            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == DatabaseOpCode.CONTEST_CONFLICT || stat == DatabaseOpCode.CONTEST_MEMBER_LIMIT || stat == DatabaseOpCode.CONTEST_ALREADY_EXISTS || stat == DatabaseOpCode.NOT_ALLOWED) res.status(409).json(reverse_enum(DatabaseOpCode, stat));
-            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
+            else if (stat == DatabaseOpCode.NOT_FOUND) res.sendStatus(404);
+            else if (stat == DatabaseOpCode.CONTEST_CONFLICT || stat == DatabaseOpCode.CONTEST_MEMBER_LIMIT || stat == DatabaseOpCode.CONTEST_ALREADY_EXISTS || stat == DatabaseOpCode.FORBIDDEN) res.status(409).json(reverse_enum(DatabaseOpCode, stat));
+            else if (stat == DatabaseOpCode.UNAUTHORIZED) res.sendStatus(403);
             else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
             else res.json(stat);
         };
