@@ -154,7 +154,7 @@ export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): bool
 // these are used in a couple places
 nivExtend('lowerAlphaNumDash', ({ value }: any) => {
     if (typeof value != 'string') return false;
-    return /^[a-z0-9-_]+$/.test(value);
+    return /^[a-z]([a-z0-9-]*[a-z0-9])?$/.test(value);
 });
 nivExtend('uuid', ({ value }: any) => {
     return validate(value);
