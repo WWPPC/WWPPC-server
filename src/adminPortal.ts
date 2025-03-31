@@ -243,7 +243,7 @@ export class AdminAPI {
             type: `required|string|in:${Object.keys(config.contests).join()}`,
             maxTeamSize: 'required|integer|min:1',
             startTime: 'required|integer|min:0',
-            endTime: 'required|integer|min:0',
+            endTime: 'required|integer|gte:startTime',
             public: 'required|boolean'
         }, this.logger), async (req, res) => {
             const check = await this.db.writeContest({ id: req.params.id, ...req.body });
