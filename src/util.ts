@@ -156,8 +156,12 @@ nivExtend('lowerAlphaNumDash', ({ value }: any) => {
     if (typeof value != 'string') return false;
     return /^[a-z0-9-_]+$/.test(value);
 });
+nivExtend('uuid', ({ value }: any) => {
+    return validate(value);
+});
 nivExtendMessages({
-    lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores'
+    lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores',
+    uuid: 'The :attribute must be a valid UUID'
 });
 
 /**
