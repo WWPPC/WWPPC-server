@@ -75,9 +75,13 @@ export class ContestManager {
                     this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
                     continue;
                 }
+                this.eventEmitter.addNamespace(contest.id);
                 const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
                 this.contests.set(contest.id, host);
-                host.onended(() => this.contests.delete(contest.id));
+                host.onended(() => {
+                    this.contests.delete(contest.id);
+                    this.eventEmitter.removeNamespace(contest.id);
+                });
             }
         }
     }
@@ -463,7 +467,7 @@ export class ContestHost {
     get round(): number {
         return this.index;
     }
-    
+
     /**
      * Get if a particular problem ID is submittable.
      * @param id Problem ID
@@ -478,91 +482,38 @@ export class ContestHost {
         if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (config.contests[this.contestType]!.withholdResults && round == this.index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
+        // all cases in subtask must be solved to be correct
         const subtasks = new Map<number, boolean>();
         for (const score of scores) {
-            if (subtasks.get(score.subtask) !== false) subtasks.set(score.subtask, score.state == ScoreState.CORRECT);
+            if (subtasks.get(score.subtask) !== false) subtasks.set(score.subtask, score.state == ScoreState.PASS);
         }
-        scores.forEach((score) => {
-        });
-        const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask) === true);
-        const hasFail = scores.some((score) => score.state != ScoreState.CORRECT);
+        const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask));
+        const hasFail = scores.some((score) => score.state != ScoreState.PASS);
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
         return ClientProblemCompletionState.GRADED_FAIL;
     }
 
     /**
-     * Add a username-linked SocketIO connection to the user list.
-     * @param s SocketIO connection (with modifications)
-     */
-    addSocket(s: ServerSocket): void {
-        const socket = s;
-
-        if (this.users.has(socket.username)) this.users.get(socket.username)!.sockets.add(socket);
-        else this.users.set(socket.username, { sockets: new Set([socket]), internalSockets: new Set() });
-        socket.join(this.sid);
-        socket.on('disconnect', () => this.removeSocket(socket));
-        socket.on('timeout', () => this.removeSocket(socket));
-        socket.on('error', () => this.removeSocket(socket));
-
-        // prompt connection to namespace
-        const authToken = randomUUID();
-        this.pendingConnections.set(authToken, socket);
-        this.pendingConnectionsInverse.set(socket, authToken);
-        socket.emit('joinContestHost', { type: this.contestType, sid: this.sid, token: authToken });
-        if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Prompted to join ContestHost namespace "contest-${this.sid}"`);
-    }
-    /**
      * Add an internal SocketIO connection (within the contest namespace) to the user list.
      * @param s SocketIO connection within the namespace (with modifications)
      */
-    addInternalSocket(s: ContestSocket): void {
-        if (s.nsp.name !== this.io.name) throw new TypeError(`Socket supplied is not within the ContestHost namespace (expected "${this.io.name}", got"${s.nsp.name}`);
-
+    addInternalSocket(s: any): void {
         const socket = s;
-
-        socket.join(socket.username);
-        if (this.users.has(socket.username)) this.users.get(socket.username)!.internalSockets.add(socket);
-        else this.users.set(socket.username, { sockets: new Set(), internalSockets: new Set([socket]) });
-        socket.on('disconnect', () => this.removeInternalSocket(socket));
-        socket.on('timeout', () => this.removeInternalSocket(socket));
-        socket.on('error', () => this.removeInternalSocket(socket));
 
         // make sure no accidental duping
         socket.removeAllListeners('updateSubmission');
         socket.removeAllListeners('getSubmissionCode');
-        socket.on('updateSubmission', async (submission: { id: string, file: string, lang: string }, cb: (res: ContestUpdateSubmissionResult) => any) => {
-            if (submission == null || typeof submission.id != 'string' || typeof submission.file != 'string' || typeof submission.lang != 'string' || !isUUID(submission.id) || typeof cb != 'function') {
-                socket.kick('invalid updateSubmission payload');
-                return;
-            }
-            if (config.debugMode) socket.logWithId(this.logger.logger.debug, 'Update submission: ' + submission.id);
-            const respond = (res: ContestUpdateSubmissionResult) => {
-                if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${submission.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
-                cb(res);
-            };
-            if (Buffer.byteLength(submission.file, 'base64url') > config.contests[this.contestType]!.maxSubmissionSize) {
-                respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
-                return;
-            }
-            if (config.contests[this.contestType]!.submitSolver && !config.contests[this.contestType]!.acceptedSolverLanguages.includes(submission.lang)) {
-                respond(ContestUpdateSubmissionResult.LANGUAGE_NOT_ACCEPTABLE);
-                return;
-            }
-            if (!this.problemSubmittable(submission.id)) {
-                respond(ContestUpdateSubmissionResult.PROBLEM_NOT_SUBMITTABLE);
-                return;
-            }
+        socket.on('updateSubmission', async (submission: { id: string, file: string, lang: string }, cb: (res: any) => any) => {
+            
             const problems = await this.db.readProblems({ id: submission.id });
-            if (problems === null || problems.length != 1) {
-                this.logger.handleError(`Could not load problem "${submission.id}"`, `Fetched ${problems?.length ?? 'null'} results`);
-                respond(ContestUpdateSubmissionResult.ERROR);
+            if (problems === DatabaseOpCode.ERROR || problems.length != 1) {
+                // this.logger.handleError(`Could not load problem "${submission.id}"`, `Fetched ${problems?.length ?? 'null'} results`);
                 return;
             }
             const teamData = await this.db.getTeamData(socket.username);
             if (typeof teamData != 'object') {
                 this.logger.handleError(`Could not fetch team data (for ${socket.username})!`, `Result ${reverse_enum(DatabaseOpCode, teamData)}`);
-                respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             const serverSubmission: Submission = {
@@ -577,7 +528,6 @@ export class ContestHost {
             };
             if (!(await this.db.writeSubmission(serverSubmission, config.contests[this.contestType]!.withholdResults))) {
                 this.logger.error(`Failed to write submission for ${serverSubmission.problemId} by ${socket.username}`);
-                respond(ContestUpdateSubmissionResult.ERROR);
                 return;
             }
             /**
@@ -606,9 +556,9 @@ export class ContestHost {
                     // make sure it gets to all the team
                     const teamData = await this.db.getTeamData(socket.username);
                     if (typeof teamData != 'object') this.logger.error(`Could not fetch team data (for ${socket.username})! Was the account deleted?`);
-                    else teamData.members.forEach((username) => this.updateUser(username));
+                    // else teamData.members.forEach((username) => this.updateUser(username));
                     // score it too (after grading)
-                    this.scorer.updateUser(graded, this.contest.rounds[this.index].id);
+                    // this.scorer.updateUser(graded, this.contest.rounds[this.index].id);
                 }
                 if (config.contests[this.contestType]!.submitSolver) {
                     // use the grading system
@@ -630,7 +580,7 @@ export class ContestHost {
                     if (this.pendingDirectSubmissions.has(subId)) clearTimeout(this.pendingDirectSubmissions.get(subId));
                     const timeout = setTimeout(() => {
                         serverSubmission.scores.push({
-                            state: submission.file === problems[0].solution ? ScoreState.CORRECT : ScoreState.INCORRECT,
+                            state: submission.file === problems[0].solution ? ScoreState.PASS : ScoreState.INCORRECT,
                             time: 0,
                             memory: 0,
                             subtask: 0
@@ -644,10 +594,6 @@ export class ContestHost {
                 // idk what to do here
                 this.logger.error(`Could not grade submission for ${submission.id} (from ${socket.username}):\nUnimplemented manual grading system used`);
             }
-            respond(ContestUpdateSubmissionResult.SUCCESS);
-            // update whole team
-            teamData.members.forEach((username) => this.updateUser(username));
-            this.logger.info(`Accepted submission for ${submission.id} by ${socket.username} (team ${teamData.id})`);
         });
         socket.on('getSubmissionCode', async (data: { id: string }, cb: (res: string) => any) => {
             if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
@@ -662,50 +608,8 @@ export class ContestHost {
             }
             // same as having null checks
             const submission = await this.db.readSubmissions({ username: teamData.id, id: data.id, analysis: false });
-            cb(submission?.at(0)?.file ?? '');
+            // cb(submission?.at(0)?.file ?? '');
         });
-        this.updateUser(socket.username);
-    }
-    /**
-     * Remove a previously-added username-linked SocketIO connection from the user list.
-     * @param socket SocketIO connection (with modifications)
-     * @returns  If the socket was previously within the list of connections
-     */
-    removeSocket(socket: ServerSocket): boolean {
-        if (!this.users.has(socket.username)) return false;
-        const user = this.users.get(socket.username)!;
-        if (user.sockets.has(socket)) {
-            socket.leave(this.sid);
-            user.sockets.delete(socket);
-            if (this.pendingConnectionsInverse.has(socket)) {
-                this.pendingConnections.delete(this.pendingConnectionsInverse.get(socket)!);
-                this.pendingConnectionsInverse.delete(socket);
-            }
-            if (user.sockets.size == 0) {
-                // there shouldn't be extra internal sockets, but delete anyway
-                user.internalSockets.forEach((s) => this.removeInternalSocket(s));
-                this.users.delete(socket.username);
-            }
-            return true;
-        }
-        return false;
-    }
-    /**
-     * Remove a previously-added internal SocketIO connection from the user list.
-     * @param socket SocketIO connection (with modifications)
-     * @returns  If the socket was previously within the list of connections
-     */
-    removeInternalSocket(socket: ContestSocket): boolean {
-        if (!this.users.has(socket.username)) return false;
-        const user = this.users.get(socket.username)!;
-        if (user.internalSockets.has(socket)) {
-            socket.removeAllListeners('updateSubmission');
-            socket.removeAllListeners('getSubmissionCode');
-            socket.leave(socket.username);
-            user.internalSockets.delete(socket);
-            return true;
-        }
-        return false;
     }
 
     private readonly endListeners: Set<() => any> = new Set();
@@ -720,7 +624,6 @@ export class ContestHost {
             this.logger.info(`Ending contest "${this.id}"`);
             this.db.finishContest(this.id);
         }
-        this.users.forEach((s) => s.sockets.forEach((u) => this.removeSocket(u)));
         this.endListeners.forEach((cb) => cb());
     }
     /**
