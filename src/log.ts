@@ -80,17 +80,17 @@ export abstract class Logger {
      * @param message Accompanying message
      * @param error Error data
      */
-    static appendErrorLog(appendFunc: (text: string, logOnly?: boolean) => void, message: string, error: any) {
-        appendFunc(message);
+    static appendErrorLog(this: Logger, appendFunc: (text: string, logOnly?: boolean) => void, message: string, error: any) {
+        appendFunc.call(this, message);
         if (error instanceof Error) {
-            appendFunc(error.message);
+            appendFunc.call(this, error.message);
             if (error.stack == undefined) Error.captureStackTrace(error);
-            if (error.stack) appendFunc(error.stack);
+            if (error.stack) appendFunc.call(this, error.stack);
         } else {
-            appendFunc('' + error);
+            appendFunc.call(this, '' + error);
             const stack: { stack?: string } = {};
             Error.captureStackTrace(stack);
-            if (stack.stack) appendFunc(stack.stack);
+            if (stack.stack) appendFunc.call(this, stack.stack);
         }
     }
 }
@@ -197,10 +197,10 @@ export class FileLogger extends Logger {
         this.append('fatal', text, 35, logOnly);
     }
     handleError(message: string, error: any) {
-        Logger.appendErrorLog(this.error, message, error);
+        Logger.appendErrorLog.call(this, this.error, message, error);
     }
     handleFatal(message: string, error: any) {
-        Logger.appendErrorLog(this.fatal, message, error);
+        Logger.appendErrorLog.call(this, this.fatal, message, error);
     }
 
     /**
@@ -276,10 +276,10 @@ export class NamedLogger extends Logger {
         this.logger.fatal(`[${this.name}] ${text.replaceAll('\n', `\n[${this.name}] `)}`, logOnly);
     }
     handleError(message: string, error: any) {
-        Logger.appendErrorLog(this.error, message, error);
+        Logger.appendErrorLog.call(this, this.error, message, error);
     }
     handleFatal(message: string, error: any) {
-        Logger.appendErrorLog(this.fatal, message, error);
+        Logger.appendErrorLog.call(this, this.fatal, message, error);
     }
 
     async destroy() {
