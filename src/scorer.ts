@@ -20,43 +20,27 @@ export interface UserScore {
     penalty: number
 }
 
-/**Arguments passed into scoringFunction */
-export interface ScoringFunctionArguments {
-    /**Submission information */
-    submission: {
-        time: number
-    }
-    /**Problem information */
-    problem: {
-        /**Number of subtasks in the problem (may break if submission doesn't have all of the problem subtasks) */
-        numSubtasks: number
-    }
-    /**Round information */
-    round: {
-        /**When the round this submission was made in starts */
-        startTime: number
-        /**When the round this submission was made in ends */
-        endTime: number
-    }
-}
+/**
+ * Function used by `Scorer` to assign point values to submissions.
+ */
+export type ScoringFunction = (submission: { time: number }, problem: { numSubtasks: number }, round: { startTime: number, endTime: number }) => UserScore;
 
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
- * Using the function score = 1/cnt where cnt is number of people who solved the problem
  */
 export class Scorer {
     private rounds: Round[];
-    private userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    private readonly userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
     private readonly subtasks: Set<Subtask> = new Set();
+    readonly scoringFunction: ScoringFunction;
     readonly logger: NamedLogger;
-    readonly scoringFunction: (arg0: ScoringFunctionArguments) => UserScore;
 
     /**
      * @param rounds Contest rounds
      * @param logger Logger instance
      * @param scoringFunction Scoring function
      */
-    constructor(rounds: Round[], logger: Logger, scoringFunction: (arg0: ScoringFunctionArguments) => UserScore) {
+    constructor(rounds: Round[], logger: Logger, scoringFunction: ScoringFunction) {
         this.rounds = rounds.slice();
         this.logger = new NamedLogger(logger, 'Scorer');
         this.scoringFunction = scoringFunction;
@@ -67,7 +51,7 @@ export class Scorer {
     }
 
     /**
-     * Process submission and add to leaderboard
+     * Process submission and add to leaderboard.
      * @param submission The scored submission
      * @param submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
      * @returns  whether it was successful
@@ -97,7 +81,7 @@ export class Scorer {
         }
         //put in the scores from the submission
         for (const subtask of this.subtasks) {
-            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.CORRECT)) {
+            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.PASS)) {
                 userScores.set(subtask, submission.time);
             }
         }
@@ -144,7 +128,7 @@ export class Scorer {
                 const numSolved = subtaskSolved.get(subtask);
                 //not explicity comparing to undefined is safe because there has to be at least one solve
                 if (numSubtasks && numSolved) {
-                    const subtaskScore = this.scoringFunction({ submission: { time: solveTime }, problem: { numSubtasks }, round: { startTime: round.startTime, endTime: round.endTime } });
+                    const subtaskScore = this.scoringFunction({ time: solveTime }, { numSubtasks }, { startTime: round.startTime, endTime: round.endTime });
                     score.score += subtaskScore.score;
                     score.penalty += subtaskScore.penalty;
                     // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
@@ -171,8 +155,11 @@ export class Scorer {
         return sums;
     }
 
+    /**
+     * Remove all existing scores.
+     */
     clearScores() {
-        this.userSolvedStatus = new Map();
+        this.userSolvedStatus.clear();
     }
 }
 

@@ -58,9 +58,8 @@ export class ClientAPI {
             if (typeof data == 'object') {
                 if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
-                const data2 = structuredClone(data);
-                data2.email = '';
-                res.json(data2);
+                data.email = '';
+                res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/teamData/:username', async (req, res) => {
@@ -68,9 +67,8 @@ export class ClientAPI {
             if (typeof data == 'object') {
                 if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
-                const data2 = structuredClone(data);
-                data2.joinKey = '';
-                res.json(data2);
+                data.joinKey = '';
+                res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/coffee', (req, res) => {
@@ -79,20 +77,19 @@ export class ClientAPI {
         });
         // account & team management
         const auth = ClientAuth.use();
+        const sessionUsername = Symbol('username');
         this.app.use('/api/self/*', (req, res, next) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
                 // save username so don't have to check if token disappeared between this and later handlers
-                req.cookies.tempUsername = auth.getTokenUsername(req.cookies.sessionToken);
+                req.cookies[sessionUsername] = auth.getTokenUsername(req.cookies.sessionToken)!;
                 next();
             } else {
-                if (config.debugMode) this.logger.debug(`${req.path}: 401 Unauthorized`);
-                res.sendStatus(401);
+                sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
             }
         });
         this.app.get('/api/self/userData', async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const data = await this.db.getAccountData(username);
-            if (config.debugMode) this.logger.debug(`${req.path}: ${typeof data == 'object' ? 'SUCCESS' : reverse_enum(DatabaseOpCode, data)} (${req.ip})`);
             if (typeof data == 'object') {
                 if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 res.json(data);
@@ -110,7 +107,7 @@ export class ClientAPI {
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const check = await this.db.updateAccountData(username, {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
@@ -125,7 +122,7 @@ export class ClientAPI {
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.get('/api/self/teamData', async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const data = await this.db.getTeamData(username);
             if (typeof data == 'object') {
                 if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
@@ -136,7 +133,7 @@ export class ClientAPI {
             teamName: 'required|string|length:32,1',
             teamBio: 'required|string|length:1024'
         }, this.logger), async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const check = await this.db.updateTeamData(username, {
                 name: req.body.teamName,
                 bio: req.body.teamBio
@@ -146,7 +143,7 @@ export class ClientAPI {
         this.app.post('/api/self/team', parseBodyJson(), validateRequestBody({
             name: `required|string|length:32,1`
         }), async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             // create & join new team
             const existing = await this.db.getAccountTeam(username);
             if (existing !== null) {
@@ -162,12 +159,12 @@ export class ClientAPI {
                 return;
             }
             const check = await this.db.setAccountTeam(username, teamId);
-            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.NOT_EXISTS]: 'Team not found after creation' }, this.logger, username, 'Set team');
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.NOT_FOUND]: 'Team not found after creation' }, this.logger, username, 'Set team');
         });
         this.app.put('/api/self/team', parseBodyJson(), validateRequestBody({
             code: `required|alphaDash|length:${Database.teamJoinKeyLength + 6},${Database.teamJoinKeyLength + 1}`
         }), async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const joinCode = req.body.code as string;
             // join existing team
             const existing = await this.db.getAccountTeam(username);
@@ -187,7 +184,7 @@ export class ClientAPI {
             }
             if (teamData.joinKey != joinKey) {
                 if (config.debugMode) this.logger.debug(`${req.path}: Not found (incorrect join key) (${username}, ${req.ip})`);
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_EXISTS, {}, this.logger, username, 'Check team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check team');
             }
             // make sure doesn't violate registration restrictions
             const contests = await this.db.readContests({ id: teamData.registrations });
@@ -197,7 +194,7 @@ export class ClientAPI {
             }
             for (const contest of contests) {
                 if (teamData.members.length >= contest.maxTeamSize) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.NOT_ALLOWED, {[DatabaseOpCode.NOT_ALLOWED]: 'Forbidden by registrations'}, this.logger, username, 'Check team');
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {[DatabaseOpCode.FORBIDDEN]: 'Forbidden by registrations'}, this.logger, username, 'Check team');
                     return;
                 }
             }
@@ -205,7 +202,7 @@ export class ClientAPI {
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
         this.app.delete('/api/self/team', async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             // leave current team
             const existing = await this.db.getAccountTeam(username);
             if (typeof existing != 'string') {
@@ -230,10 +227,10 @@ export class ClientAPI {
             }
         });
         this.app.delete('/api/self/team/:member', async (req, res) => {
-            const username = req.cookies.tempUsername;
+            const username = req.cookies[sessionUsername] as string;
             const member = req.params.member;
             if (username == member) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_ALLOWED, { [DatabaseOpCode.NOT_ALLOWED]: 'Cannot kick self' }, this.logger, username);
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot kick self' }, this.logger, username);
                 return;
             }
             const selfTeam = await this.db.getAccountTeam(username);
@@ -247,12 +244,14 @@ export class ClientAPI {
                 return;
             }
             if (memberTeam != selfTeam) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_EXISTS, { [DatabaseOpCode.NOT_EXISTS]: 'User not on team' }, this.logger, username, 'Set team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'User not on team' }, this.logger, username, 'Set team');
                 return;
             }
             const check = await this.db.setAccountTeam(member, null);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
+        // reserve the /api/self path
+        this.app.use('/api/self/*', (req, res) => res.sendStatus(404));
     }
 
     /**
@@ -277,10 +276,10 @@ export class ClientAPI {
 /**Descriptor for a single contest as represented by the client */
 export type ClientContest = {
     readonly id: string
+    type: string
     rounds: ClientRound[]
     startTime: number
     endTime: number
-    type: string
 }
 /**Descriptor for a single round as represented by the client */
 export type ClientRound = {

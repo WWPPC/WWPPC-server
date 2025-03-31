@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import { Express, Request } from 'express';
 
 import config from './config';
-import { Database, Score, ScoreState, Submission } from './database';
+import { Database, DatabaseOpCode, Score, ScoreState, Submission } from './database';
 import Logger, { NamedLogger } from './log';
 import { is_in_enum } from './util';
 
@@ -72,7 +72,7 @@ export class Grader {
                 return;
             }
             const problems = await this.db.readProblems({ id: node.grading.submission.problemId });
-            if (problems == null || problems.length != 1) {
+            if (problems == DatabaseOpCode.ERROR || problems.length != 1) {
                 res.sendStatus(500);
                 if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 500, database error`, true);
                 return;
