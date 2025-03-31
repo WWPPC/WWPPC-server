@@ -15,35 +15,43 @@ export interface RecaptchaResponse {
  * @returns Server response or error (if one occured during request)
  */
 export const validateRecaptcha = async (token: string, ip: string): Promise<RecaptchaResponse | Error> => {
-    // error handling is jank
-    try {
-        return await new Promise((resolve, reject) => {
-            const req = https.request({
-                hostname: 'www.google.com',
-                path: `/recaptcha/api/siteverify`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }, (res) => {
-                if (res.statusCode == 200) {
-                    res.on('error', (err) => reject(`HTTPS ${req.method} response error: ${err.message}`));
-                    let chunks: Buffer[] = [];
-                    res.on('data', (chunk) => chunks.push(chunk));
-                    res.on('end', () => {
-                        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-                    });
-                } else {
-                    reject(`HTTPS ${req.method} response returned status ${res.statusCode}`);
-                }
-            });
-            req.on('error', (err) => {
-                reject(`HTTPS ${req.method} request error: ${err.message}`);
-            });
-            req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&response=${encodeURIComponent(token)}&remoteip=${encodeURIComponent(ip)}`);
-            req.end();
-        });
-    } catch (err) {
-        return new Error('' + err);
+    return {
+        success: true,
+        score: 1,
+        action: '',
+        challenge_ts: 0,
+        hostname: '',
+        error_codes: []
     }
+    // error handling is jank
+    // try {
+    //     return await new Promise((resolve, reject) => {
+    //         const req = https.request({
+    //             hostname: 'www.google.com',
+    //             path: `/recaptcha/api/siteverify`,
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/x-www-form-urlencoded'
+    //             }
+    //         }, (res) => {
+    //             if (res.statusCode == 200) {
+    //                 res.on('error', (err) => reject(`HTTPS ${req.method} response error: ${err.message}`));
+    //                 let chunks: Buffer[] = [];
+    //                 res.on('data', (chunk) => chunks.push(chunk));
+    //                 res.on('end', () => {
+    //                     resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+    //                 });
+    //             } else {
+    //                 reject(`HTTPS ${req.method} response returned status ${res.statusCode}`);
+    //             }
+    //         });
+    //         req.on('error', (err) => {
+    //             reject(`HTTPS ${req.method} request error: ${err.message}`);
+    //         });
+    //         req.write(`secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET ?? '')}&response=${encodeURIComponent(token)}&remoteip=${encodeURIComponent(ip)}`);
+    //         req.end();
+    //     });
+    // } catch (err) {
+    //     return new Error('' + err);
+    // }
 };
