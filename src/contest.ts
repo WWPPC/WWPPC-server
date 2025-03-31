@@ -1,7 +1,6 @@
-import { randomUUID } from 'crypto';
 import { Express } from 'express';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
+import { ClientContest, ClientProblemCompletionState, ClientRound } from './api';
 import ClientAuth from './auth';
 import config from './config';
 import { Database, DatabaseOpCode, Score, ScoreState, Submission } from './database';

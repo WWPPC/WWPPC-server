@@ -5,7 +5,7 @@ import { validate } from 'uuid';
 
 import config from './config';
 import Logger from './log';
-import Database, { DatabaseOpCode } from './database';
+import { DatabaseOpCode } from './database';
 
 // important comparator (streamlines filtering everywhere)
 export type primitive = number | string | boolean | undefined | null;

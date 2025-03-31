@@ -6,7 +6,7 @@ import Database, { DatabaseOpCode, Score, ScoreState, Submission } from './datab
 import Grader from './grader';
 import { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter } from './netUtil';
-import { isUUID, reverse_enum, UUID } from './util';
+import { UUID } from './util';
 
 /**
  * `UpsolveManager` allows viewing and submitting to problems of past contests.

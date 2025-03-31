@@ -1,12 +1,13 @@
 import bodyParser from 'body-parser';
 import { Express, NextFunction, Request, Response } from 'express';
 
+import ClientAPI from './api';
+import config from './config';
 import ContestManager from './contest';
 import { TokenHandler } from './cryptoUtil';
-import Database, { AccountData, DatabaseOpCode, AdminPerms, Contest, Problem, Round, TeamData } from './database';
+import Database, { AdminPerms, DatabaseOpCode } from './database';
 import { defaultLogger, FileLogger, NamedLogger } from './log';
-import { isUUID, reverse_enum, sendDatabaseResponse, validateRequestBody } from './util';
-import config from './config';
+import { isUUID, sendDatabaseResponse, validateRequestBody } from './util';
 
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
@@ -25,12 +26,6 @@ export class AdminAPI {
     readonly logger: NamedLogger;
     private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();
     private readonly accessTokens: TokenHandler<AdminAccessTokenPerms[]> = new TokenHandler<AdminAccessTokenPerms[]>();
-
-    static readonly validAccountData = {
-        languages: ['python', 'c', 'cpp', 'cs', 'java', 'js', 'sql', 'asm', 'php', 'swift', 'pascal', 'ruby', 'rust', 'scratch', 'g', 'ktx', 'lua', 'bash'] as const,
-        grades: [8, 9, 10, 11, 12, 13, 14] as const,
-        experienceLevels: [0, 1, 2, 3, 4] as const
-    } as const;
 
     private constructor(db: Database, app: Express) {
         this.db = db;
@@ -152,9 +147,9 @@ export class AdminAPI {
             bio: 'required|string|length:2048',
             school: 'required|string|length:64,1',
             languages: 'required|arrayUnique|length:32',
-            'languages.*': `required|string|in:${AdminAPI.validAccountData.languages.join()}`,
-            grade: `required|integer|in:${AdminAPI.validAccountData.grades.join()}`,
-            experience: `required|integer|in:${AdminAPI.validAccountData.experienceLevels.join()}`
+            'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
+            grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
+            experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             const check = await this.db.updateAccountData(req.params.username, {
                 firstName: req.body.firstName,

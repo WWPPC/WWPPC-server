@@ -64,15 +64,17 @@ export class Database {
         }, 300000);
     }
 
+    /**
+     * Connect to the PostgreSQL database.
+     * @returns A `Promise` resolving when the database has connected
+     */
     async connect(): Promise<void> {
         const startTime = performance.now();
         try {
             await this.db.connect();
             this.logger.info('Database connected');
-            if (config.debugMode) {
-                this.logger.debug(`Connected to ${this.db.host}`);
-                this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
-            }
+            this.logger.debug(`Connected to ${this.db.host}, ${this.db.database}`);
+            if (config.debugMode) this.logger.debug(`Connection time: ${performance.now() - startTime}ms`);
         } catch (err) {
             this.logger.handleFatal('Could not connect to database:', err);
             this.logger.fatal('Host: ' + this.db.host);
@@ -83,7 +85,7 @@ export class Database {
 
     /**
      * Disconnect from the PostgreSQL database.
-     * @returns A `Promise` representing when the database has disconnected.
+     * @returns A `Promise` resolving when the database has disconnected
      */
     async disconnect(): Promise<void> {
         clearInterval(this.cacheGarbageCollector);
