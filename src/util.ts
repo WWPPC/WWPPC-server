@@ -217,7 +217,7 @@ export function sendDatabaseResponse(req: Request, res: Response, code: Database
     if (config.debugMode) logger.debug(`${req.path}: ${messagePrefix ? messagePrefix + ' - ' : ''}${reverse_enum(DatabaseOpCode, code)} (${username !== undefined ? `${username}, ` : ''}${req.ip})`);
     switch (code) {
         case DatabaseOpCode.ERROR:
-            logger.error(`${req.path} error (${username}, ${req.ip})`);
+            logger.error(`${req.path} error (${username !== undefined ? `${username}, ` : ''}, ${req.ip})`);
         case DatabaseOpCode.SUCCESS:
         case DatabaseOpCode.ALREADY_EXISTS:
         case DatabaseOpCode.NOT_EXISTS:

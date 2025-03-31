@@ -174,16 +174,16 @@ export class Database {
     private readonly userCache: Map<string, { data: AccountData, expiration: number }> = new Map();
     /**
      * Read a list of all account usernames that exist. Bypasses cache.
-     * @returns List of account usernames, or null if an error occurred
+     * @returns List of account usernames, or DatabaseOpCode.ERROR if an error occurred
      */
-    async getAccountList(): Promise<string[] | null> {
+    async getAccountList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT users.username FROM users ORDER BY username ASC');
             return data.rows.map((r) => r.username);
         } catch (err) {
             this.logger.handleError('Database error (getAccountList):', err);
-            return null;
+            return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAccountList in ${performance.now() - startTime}ms`, true);
         }

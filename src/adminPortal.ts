@@ -1,11 +1,12 @@
 import bodyParser from 'body-parser';
-import { Express, Request, Response } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
 
 import ContestManager from './contest';
 import { TokenHandler } from './cryptoUtil';
-import Database, { AccountData, DatabaseOpCode, AdminPerms, Contest, Problem, Round, TeamData, DatabaseOpCode } from './database';
+import Database, { AccountData, DatabaseOpCode, AdminPerms, Contest, Problem, Round, TeamData } from './database';
 import { defaultLogger, FileLogger, NamedLogger } from './log';
-import { isUUID, reverse_enum } from './util';
+import { isUUID, reverse_enum, sendDatabaseResponse, validateRequestBody } from './util';
+import config from './config';
 
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
@@ -24,6 +25,12 @@ export class AdminAPI {
     readonly logger: NamedLogger;
     private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();
     private readonly accessTokens: TokenHandler<AdminAccessTokenPerms[]> = new TokenHandler<AdminAccessTokenPerms[]>();
+
+    static readonly validAccountData = {
+        languages: ['python', 'c', 'cpp', 'cs', 'java', 'js', 'sql', 'asm', 'php', 'swift', 'pascal', 'ruby', 'rust', 'scratch', 'g', 'ktx', 'lua', 'bash'] as const,
+        grades: [8, 9, 10, 11, 12, 13, 14] as const,
+        experienceLevels: [0, 1, 2, 3, 4] as const
+    } as const;
 
     private constructor(db: Database, app: Express) {
         this.db = db;
@@ -83,31 +90,6 @@ export class AdminAPI {
             res.sendStatus(200);
         });
 
-        const defaultAccountOpMapping = (res: Response, stat: any) => {
-            if (stat == DatabaseOpCode.SUCCESS) res.send(200);
-            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == DatabaseOpCode.ALREADY_EXISTS) res.sendStatus(409);
-            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
-            else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
-            else res.json(stat);
-        };
-        const defaultTeamOpMapping = (res: Response, stat: any) => {
-            if (stat == DatabaseOpCode.SUCCESS) res.sendStatus(200);
-            else if (stat == DatabaseOpCode.NOT_EXISTS) res.sendStatus(404);
-            else if (stat == DatabaseOpCode.CONTEST_CONFLICT || stat == DatabaseOpCode.CONTEST_MEMBER_LIMIT || stat == DatabaseOpCode.CONTEST_ALREADY_EXISTS || stat == DatabaseOpCode.NOT_ALLOWED) res.status(409).json(reverse_enum(DatabaseOpCode, stat));
-            else if (stat == DatabaseOpCode.INCORRECT_CREDENTIALS) res.sendStatus(403);
-            else if (stat == DatabaseOpCode.ERROR) res.sendStatus(500);
-            else res.json(stat);
-        };
-        const defaultObjectMapping = (res: Response, stat: object | null) => {
-            if (stat == null) res.sendStatus(500);
-            else res.json(stat);
-        };
-        const defaultSuccessMapping = (res: Response, stat: boolean) => {
-            if (stat) res.json(200);
-            else res.sendStatus(500);
-        };
-
         // logs
         this.app.get('/admin/logTail', async (req, res) => {
             if (this.logger.logger instanceof FileLogger)
@@ -123,23 +105,19 @@ export class AdminAPI {
         this.app.get('/admin/accessTokens/ruleset', (req, res) => {
             res.json(Object.values(AdminAccessTokenPerms).filter(k => isNaN(Number(k))));
         });
-        this.app.get('/admin/accessTokens/list', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        this.app.get('/admin/accessTokens/list', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
             res.json(Object.entries(this.accessTokens.getTokens()).map(([token, perms]) => ({ id: token, perms: perms })));
         });
-        this.app.post('/admin/accessTokens/create', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-            if (req.body == undefined || req.body.permissions == undefined || !Array.isArray(req.body.permissions)
-                || req.body.permissions.length == 0 || req.body.permissions.some((p: any) => !Object.values(AdminAccessTokenPerms).includes(p)) || typeof req.body.expiration != 'number') {
-                res.sendStatus(400);
-                return;
-            }
+        this.app.post('/admin/accessTokens/create', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
+            permissions: 'required|array',
+            'permissions.*': `required|string|in:${Object.values(AdminAccessTokenPerms).join()}`,
+            expiration: 'required|integer|min:0',
+        }, this.logger), async (req, res) => {
             const token = this.accessTokens.createToken(req.body.permissions, req.body.expiration);
             res.json(token);
             this.logger.info(`Access token ${token} created by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/accessTokens/delete/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
+        this.app.delete('/admin/accessTokens/delete/:id', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
             if (!this.accessTokens.tokenExists(req.params.id)) {
                 res.sendStatus(400);
                 return;
@@ -154,212 +132,236 @@ export class AdminAPI {
             res.sendStatus(200);
         });
         // accounts (ADMINS CAN BYPASS RESTRICTIONS LIKE MAXIMUM LENGTHS)
-        this.app.get('/admin/api/accountList', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            defaultObjectMapping(res, await this.db.getAccountList());
+        this.app.get('/admin/api/accountList', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
+            const data = await this.db.getAccountList();
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/admin/api/account/:username', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            if (!this.db.validate(req.params.username, 'a')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultAccountOpMapping(res, await this.db.getAccountData(req.params.username));
+        this.app.get('/admin/api/account/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
+            const data = await this.db.getAccountData(req.params.username);
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            const body = req.body as AccountData;
-            if (body == undefined || body.username !== req.params.username || [body.username, body.email, body.firstName, body.lastName, body.displayName, body.profileImage, body.bio, body.school, body.team].some((v) => typeof v != 'string')
-                || [body.grade, body.experience].some((v) => typeof v != 'number') || [body.languages, body.registrations, body.pastRegistrations].some((v) => !Array.isArray(v) || v.some((sv) => typeof sv != 'string'))) {
-                res.sendStatus(400);
-                return;
-            }
-            if (!this.db.validate(req.params.username, 'a')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultAccountOpMapping(res, await this.db.updateAccountData(req.params.username, body));
+        this.app.post('/admin/api/account/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+            firstName: 'required|string|length:32,1',
+            lastName: 'required|string|length:32,1',
+            displayName: 'required|string|length:64,1',
+            profileImage: `required|mime:jpg,png,webp|size:${config.maxProfileImgSize}`,
+            bio: 'required|string|length:2048',
+            school: 'required|string|length:64,1',
+            languages: 'required|arrayUnique|length:32',
+            'languages.*': `required|string|in:${AdminAPI.validAccountData.languages.join()}`,
+            grade: `required|integer|in:${AdminAPI.validAccountData.grades.join()}`,
+            experience: `required|integer|in:${AdminAPI.validAccountData.experienceLevels.join()}`
+        }, this.logger), async (req, res) => {
+            const check = await this.db.updateAccountData(req.params.username, {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                displayName: req.body.displayName,
+                profileImage: req.body.profileImage,
+                bio: req.body.bio,
+                school: req.body.school,
+                languages: req.body.languages,
+                grade: req.body.grade,
+                experience: req.body.experience
+            });
+            sendDatabaseResponse(req, res, check, {}, this.logger);
+            //TODO: make this only log on success
             this.logger.info(`Account "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/account/:username', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            // saving space
-            if (typeof req.body.password != 'string' || !this.db.validate(req.params.username, req.body.password)) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultAccountOpMapping(res, await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator'));
+        this.app.delete('/admin/api/account/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+            username: 'required|lowerAlphaNumDash|length:16,1',
+            password: 'required|encryptedLen:1024,1',
+        }, this.logger), async (req, res) => {
+            const data = await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator');
+            sendDatabaseResponse(req, res, data, {}, this.logger);
             this.logger.info(`Account "${req.params.username}" deleted by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.get('/admin/api/team/:username', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            defaultTeamOpMapping(res, await this.db.getTeamData(req.params.username));
+        this.app.get('/admin/api/team/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
+            const data = await this.db.getTeamData(req.params.username);
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/team/:username', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ACCOUNTS)) return;
-            const body = req.body as TeamData;
-            if (body == undefined || body.id !== req.params.username || [body.id, body.name, body.bio, body.joinCode].some((v) => typeof v != 'string')
-                || !Array.isArray(body.members) || body.members.some((v) => typeof v != 'string')) {
-                res.sendStatus(400);
-                return;
-            }
-            if (!this.db.validate(req.params.username, '')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultTeamOpMapping(res, await this.db.updateTeamData(req.params.username, body));
+        this.app.post('/admin/api/team/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+            teamName: 'required|string|length:32,1',
+            teamBio: 'required|string|length:1024'
+        }, this.logger), async (req, res) => {
+            const check = await this.db.updateTeamData(req.params.username, {
+                name: req.body.teamName,
+                bio: req.body.teamBio
+            });
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Team "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // admins (bespoke!!)
-        this.app.get('/admin/api/admins', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-            defaultObjectMapping(res, await this.db.getAdminList());
+        this.app.get('/admin/api/admins', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
+            const data = await this.db.getAdminList();
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/admin/:username', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-            if (req.body == undefined || req.body.permissions == undefined || !this.db.validate(req.params.username, 'a')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultSuccessMapping(res, await this.db.setAdminPerms(req.params.username, req.body.permissions));
-            this.logger.info(`Administrator list modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
+        this.app.post('/admin/api/admin/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
+            username: 'required|lowerAlphaNumDash|length:16,1',
+            permissions: 'required|integer|min:1',
+        }, this.logger), async (req, res) => {
+            const check = await this.db.setAdminPerms(req.params.username, req.body.permissions);
+            sendDatabaseResponse(req, res, check, {}, this.logger);
+            this.logger.info(`Administrator ${req.params.username} modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/admin/:username', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_ADMINS)) return;
-            if (!this.db.validate(req.params.username, 'a')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultSuccessMapping(res, await this.db.setAdminPerms(req.params.username, 0));
-            this.logger.info(`Administrator list modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
+        this.app.delete('/admin/api/admin/:username', this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
+            username: 'required|lowerAlphaNumDash|length:16,1',
+        }, this.logger), async (req, res) => {
+            const check = await this.db.setAdminPerms(req.params.username, 0);
+            sendDatabaseResponse(req, res, check, {}, this.logger);
+            this.logger.info(`Administrator ${req.params.username} deleted by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // contests
-        this.app.get('/admin/api/contestList', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            defaultObjectMapping(res, await this.db.getContestList());
+        this.app.get('/admin/api/contestList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
+            const data = await this.db.getContestList();
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/admin/api/contest/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            const stat = await this.db.readContests({ id: req.params.id });
-            if (stat == null) res.sendStatus(500);
-            else if (stat.length == 0) res.sendStatus(404);
-            else res.json(stat[0]);
+        this.app.get('/admin/api/contest/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
+            const data = await this.db.readContests({ id: req.params.id });
+            if (Array.isArray(data)) {
+                if (data.length == 0) {
+                    res.sendStatus(404);
+                } else {
+                    res.json(data[0]);
+                }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/contest/:id', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            const body = req.body as Contest;
-            if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || !Array.isArray(body.rounds)
-                || body.rounds.some((id) => !isUUID(id)) || !Array.isArray(body.exclusions) || body.exclusions.some((e) => typeof e != 'string')
-                || [body.id, body.type].some((v) => typeof v != 'string') || [body.maxTeamSize, body.startTime, body.endTime].some((v) => typeof v != 'number')
-                || typeof body.public != 'boolean') {
-                res.sendStatus(400);
-                return;
-            }
-            defaultSuccessMapping(res, await this.db.writeContest(body));
+        this.app.post('/admin/api/contest/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+            rounds: 'required|array',
+            'rounds.*': 'required|uuid',
+            exclusions: 'required|array',
+            'exclusions.*': 'required|string',
+            type: `required|string|in:${Object.keys(config.contests).join()}`,
+            maxTeamSize: 'required|integer|min:1',
+            startTime: 'required|integer|min:0',
+            endTime: 'required|integer|min:0',
+            public: 'required|boolean'
+        }, this.logger), async (req, res) => {
+            const check = await this.db.writeContest({ id: req.params.id, ...req.body });
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Contest "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/contest/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            defaultSuccessMapping(res, await this.db.deleteContest(req.params.id));
+        this.app.delete('/admin/api/contest/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
+            const check = await this.db.deleteContest(req.params.id);
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Contest "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // rounds
-        this.app.get('/admin/api/roundList', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            defaultObjectMapping(res, await this.db.getRoundList());
+        this.app.get('/admin/api/roundList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
+            const data = await this.db.getRoundList();
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/admin/api/round/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        this.app.get('/admin/api/round/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
                 res.sendStatus(400);
                 return;
             }
-            const stat = await this.db.readRounds({ id: req.params.id });
-            if (stat == null) res.sendStatus(500);
-            else if (stat.length == 0) res.sendStatus(404);
-            else res.json(stat[0]);
+            const data = await this.db.readRounds({ id: req.params.id });
+            if (Array.isArray(data)) {
+                if (data.length == 0) {
+                    res.sendStatus(404);
+                } else {
+                    res.json(data[0]);
+                }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/round/:id', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            const body = req.body as Round;
-            if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || [body.startTime, body.endTime].some((v) => typeof v != 'number')
-                || !Array.isArray(body.problems) || body.problems.some((v) => !isUUID(v))) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultSuccessMapping(res, await this.db.writeRound(body));
+        //TODO: move the body parser after checkPerms cuz we dont need it to check perms
+        this.app.post('/admin/api/round/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+            problems: 'required|array',
+            'problems.*': 'required|uuid',
+            startTime: 'required|integer|min:0',
+            endTime: 'required|integer|gte:startTime',
+        }, this.logger), async (req, res) => {
+            const check = await this.db.writeRound({ id: req.params.id, ...req.body });
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Round "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/round/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        this.app.delete('/admin/api/round/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
                 res.sendStatus(400);
                 return;
             }
-            defaultSuccessMapping(res, await this.db.deleteRound(req.params.id));
+            const check = await this.db.deleteRound(req.params.id);
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Round "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // problems
-        this.app.get('/admin/api/problemList', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            defaultObjectMapping(res, await this.db.getProblemList());
+        this.app.get('/admin/api/problemList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
+            const data = await this.db.getProblemList();
+            if (typeof data == 'object') {
+                res.json(data);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/admin/api/problem/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        this.app.get('/admin/api/problem/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
                 res.sendStatus(400);
                 return;
             }
-            const stat = await this.db.readProblems({ id: req.params.id });
-            if (stat == null) res.sendStatus(500);
-            else if (stat.length == 0) res.sendStatus(404);
-            else res.json(stat[0]);
+            const data = await this.db.readProblems({ id: req.params.id });
+            if (Array.isArray(data)) {
+                if (data.length == 0) {
+                    res.sendStatus(404);
+                } else {
+                    res.json(data[0]);
+                }
+            } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/problem/:id', bodyParser.json(), async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
-            const body = req.body as Problem;
-            if (body == undefined || typeof body.id != 'string' || req.params.id !== body.id || [body.name, body.author, body.content].some((v) => typeof v != 'string')
-                || typeof body.constraints != 'object' || body.constraints == null || [body.constraints.time, body.constraints.memory].some((v) => typeof v != 'number')) {
-                res.sendStatus(400);
-                return;
-            }
-            defaultSuccessMapping(res, await this.db.writeProblem(body));
+        this.app.post('/admin/api/problem/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+            name: 'required|string',
+            author: 'required|string',
+            content: 'required|string',
+            constraints: 'required|object',
+            'constraints.time': 'required|integer|min:1',
+            'constraints.memory': 'required|integer|min:1'
+        }, this.logger), async (req, res) => {
+            const check = await this.db.writeProblem({ id: req.params.id, ...req.body });
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/problem/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.MANAGE_CONTESTS)) return;
+        this.app.delete('/admin/api/problem/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
                 res.sendStatus(400);
                 return;
             }
-            defaultSuccessMapping(res, await this.db.deleteProblem(req.params.id));
+            const check = await this.db.deleteProblem(req.params.id);
+            sendDatabaseResponse(req, res, check, {}, this.logger);
             this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
         // contest control functions
-        this.app.get('/admin/api/runningContests', async (req, res) => {
-            if ((req.cookies.authToken == undefined
-                || (!(this.accessTokens.getTokenData(req.cookies.authToken) ?? []).includes(AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await this.checkPerms(req, res, AdminPerms.CONTROL_CONTESTS))) {
-                // no perms if token doesn't exist
-                return;
-            }
-            res.json(contestManager.getRunningContests().map(contest => {
-                const data = contest.data;
-                // admin portal should have the frozen scores since it's used for stream
-                return {
-                    id: contest.id,
-                    scores: Array.from(contest.scoreboards).map(s => ({ username: s[0], score: s[1] })),
-                    actualScores: Array.from(contest.actualScoreboards).map(s => ({ username: s[0], score: s[1] })),
-                    rounds: data.rounds.map(round => ({
-                        startTime: round.startTime,
-                        endTime: round.endTime
-                    })),
-                    startTime: data.startTime,
-                    endTime: data.endTime
-                };
-            }));
-        });
-        this.app.post('/admin/api/reloadContest/:id', async (req, res) => {
-            if (!await this.checkPerms(req, res, AdminPerms.CONTROL_CONTESTS)) return;
+        //fix contest.ts first before finishing this
+        // this.app.get('/admin/api/runningContests', async (req, res) => {
+        //     if ((req.cookies.authToken == undefined
+        //         || (!(this.accessTokens.getTokenData(req.cookies.authToken) ?? []).includes(AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await this.checkPerms(AdminPerms.CONTROL_CONTESTS))) {
+        //         // no perms if token doesn't exist
+        //         return;
+        //     }
+        //     res.json(contestManager.getRunningContests().map(host => {
+        //         // admin portal should have the frozen scores since it's used for stream
+        //         return {
+        //             id: host.id,
+        //             scores: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
+        //             actualScores: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
+        //             rounds: host.rounds.map(round => ({
+        //                 startTime: round.startTime,
+        //                 endTime: round.endTime
+        //             })),
+        //             startTime: data.startTime,
+        //             endTime: data.endTime
+        //         };
+        //     }));
+        // });
+        this.app.post('/admin/api/reloadContest/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS), async (req, res) => {
             const runningContests = contestManager.getRunningContests();
             const contestHost = runningContests.find(c => c.id == req.params.id);
             if (!contestHost) {
@@ -375,15 +377,20 @@ export class AdminAPI {
         this.app.use('/admin/*', (req, res) => res.sendStatus(404));
     }
 
-    private async checkPerms(req: any, res: any, perms: AdminPerms): Promise<boolean> {
-        if (!this.sessionTokens.tokenExists(req.cookies.token)) {
-            res.sendStatus(401);
-            return false;
-        } else if (!(await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.token)!, perms))) {
-            res.sendStatus(403);
-            return false;
-        }
-        return true;
+    /**
+     * Middleware to check that the request sender has the admin permission
+     * @param perms perm to check
+     * @returns the middleware function
+     */
+    private checkPerms(perms: AdminPerms): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+        return async (req, res, next) => {
+            if (!this.sessionTokens.tokenExists(req.cookies.token)) {
+                res.sendStatus(401);
+            } else if (!(await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.token)!, perms))) {
+                res.sendStatus(403);
+            }
+            next();
+        };
     }
 
     /**
