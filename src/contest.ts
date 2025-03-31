@@ -7,7 +7,7 @@ import config from './config';
 import { Database, DatabaseOpCode, Score, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
-import { NamespacedLongPollEventEmitter } from './netUtil';
+import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
 import Scorer, { UserScore } from './scorer';
 import { isUUID, reverse_enum, sendDatabaseResponse, UUID } from './util';
 
@@ -20,6 +20,7 @@ export class ContestManager {
 
     readonly db: Database;
     readonly app: Express;
+    readonly startEventEmitter: LongPollEventEmitter<['contests']>;
     readonly eventEmitter: NamespacedLongPollEventEmitter<['data', 'submissionData']>;
     readonly grader: Grader;
     readonly logger: NamedLogger;
@@ -34,7 +35,8 @@ export class ContestManager {
         this.logger = new NamedLogger(defaultLogger, 'ContestManager');
         // this order is very important!! createEndpoints has contest registration checks that block event access if not registered
         this.createEndpoints();
-        this.eventEmitter = new NamespacedLongPollEventEmitter(app, '/api/contest/', ['data', 'submissionData'] as const, []);
+        this.startEventEmitter = new LongPollEventEmitter(app, '/api/contest/', ['contests']);
+        this.eventEmitter = new NamespacedLongPollEventEmitter(app, '/api/contest/', ['data', 'submissionData'], []);
         // auto-start contests
         this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
         this.checkNewContests();
@@ -196,7 +198,7 @@ export class ContestManager {
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
 
         });
-        // requires registration for contest
+        // requires registration for contest & contest is running
         this.app.use('/api/contest/:contest/*', async (req, res, next) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string;
