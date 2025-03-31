@@ -287,6 +287,31 @@ export class NamedLogger extends Logger {
     }
 }
 
+/**
+ * Drops all log entries into nowhere.
+ */
+export class NullLogger extends Logger {
+    constructor() {
+        super();
+    }
+    debug(text: string, logOnly?: boolean): void {
+    }
+    info(text: string, logOnly?: boolean): void {
+    }
+    warn(text: string, logOnly?: boolean): void {
+    }
+    error(text: string, logOnly?: boolean): void {
+    }
+    fatal(text: string, logOnly?: boolean): void {
+    }
+    handleError(message: string, error: any): void {
+    }
+    handleFatal(message: string, error: any): void {
+    }
+    destroy(): void {
+    }
+}
+
 export const defaultLogger: Logger = new MultiLogger([
     new FileLogger(config.logPath),
     new FileLogger(pathResolve(config.logPath, 'recent.log'), false, false)
