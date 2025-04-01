@@ -7,7 +7,7 @@ import ContestManager from './contest';
 import { TokenHandler } from './cryptoUtil';
 import Database, { AdminPerms, DatabaseOpCode } from './database';
 import { defaultLogger, FileLogger, NamedLogger } from './log';
-import { isUUID, sendDatabaseResponse, validateRequestBody } from './util';
+import { is_in_enum, isUUID, sendDatabaseResponse, validateRequestBody } from './util';
 
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
@@ -44,11 +44,10 @@ export class AdminAPI {
             else next();
         });
 
-        this.app.post('/admin/login', bodyParser.json(), async (req, res) => {
-            if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
-                res.sendStatus(400);
-                return;
-            }
+        this.app.post('/admin/login', bodyParser.json(), validateRequestBody({
+            username: 'required|lowerAlphaNumDash|length:16,1',
+            password: 'required|encryptedLen:1024,1'
+        }, this.logger), async (req, res) => {
             if ((await this.db.checkAccount(req.body.username, req.body.password)) == DatabaseOpCode.SUCCESS && await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
                 const token = this.sessionTokens.createToken(req.body.username, 3600000);
                 res.cookie('token', token, {
@@ -103,7 +102,7 @@ export class AdminAPI {
         this.app.get('/admin/accessTokens/list', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
             res.json(Object.entries(this.accessTokens.getTokens()).map(([token, perms]) => ({ id: token, perms: perms })));
         });
-        this.app.post('/admin/accessTokens/create', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
+        this.app.post('/admin/accessTokens/create', this.checkPerms(AdminPerms.MANAGE_ADMINS), bodyParser.json(), validateRequestBody({
             permissions: 'required|array',
             'permissions.*': `required|string|in:${Object.values(AdminAccessTokenPerms).join()}`,
             expiration: 'required|integer|min:0',
@@ -139,7 +138,7 @@ export class AdminAPI {
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/account/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+        this.app.post('/admin/api/account/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), bodyParser.json(), validateRequestBody({
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
@@ -166,9 +165,9 @@ export class AdminAPI {
             //TODO: make this only log on success
             this.logger.info(`Account "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.token)}`);
         });
-        this.app.delete('/admin/api/account/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+        this.app.delete('/admin/api/account/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            password: 'required|encryptedLen:1024,1',
+            password: 'required|encryptedLen:1024,1'
         }, this.logger), async (req, res) => {
             const data = await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.token) ?? 'invalid-username-that-is-not-an-administrator');
             sendDatabaseResponse(req, res, data, {}, this.logger);
@@ -198,9 +197,9 @@ export class AdminAPI {
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/admin/:username', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
+        this.app.post('/admin/api/admin/:username', this.checkPerms(AdminPerms.MANAGE_ADMINS), bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            permissions: 'required|integer|min:1',
+            permissions: 'required|integer|min:1'
         }, this.logger), async (req, res) => {
             const check = await this.db.setAdminPerms(req.params.username, req.body.permissions);
             sendDatabaseResponse(req, res, check, {}, this.logger);
@@ -230,7 +229,7 @@ export class AdminAPI {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/contest/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+        this.app.post('/admin/api/contest/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), bodyParser.json(), validateRequestBody({
             rounds: 'required|array',
             'rounds.*': 'required|uuid',
             exclusions: 'required|array',
@@ -272,7 +271,7 @@ export class AdminAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         //TODO: move the body parser after checkPerms cuz we dont need it to check perms
-        this.app.post('/admin/api/round/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+        this.app.post('/admin/api/round/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), bodyParser.json(), validateRequestBody({
             problems: 'required|array',
             'problems.*': 'required|uuid',
             startTime: 'required|integer|min:0',
@@ -312,7 +311,7 @@ export class AdminAPI {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/problem/:id', bodyParser.json(), this.checkPerms(AdminPerms.MANAGE_CONTESTS), validateRequestBody({
+        this.app.post('/admin/api/problem/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), bodyParser.json(), validateRequestBody({
             name: 'required|string',
             author: 'required|string',
             content: 'required|string',
@@ -335,27 +334,13 @@ export class AdminAPI {
         });
         // contest control functions
         //fix contest.ts first before finishing this
-        // this.app.get('/admin/api/runningContests', async (req, res) => {
-        //     if ((req.cookies.authToken == undefined
-        //         || (!(this.accessTokens.getTokenData(req.cookies.authToken) ?? []).includes(AdminAccessTokenPerms.READ_LEADERBOARDS)) && !await this.checkPerms(AdminPerms.CONTROL_CONTESTS))) {
-        //         // no perms if token doesn't exist
-        //         return;
-        //     }
-        //     res.json(contestManager.getRunningContests().map(host => {
-        //         // admin portal should have the frozen scores since it's used for stream
-        //         return {
-        //             id: host.id,
-        //             scores: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
-        //             actualScores: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
-        //             rounds: host.rounds.map(round => ({
-        //                 startTime: round.startTime,
-        //                 endTime: round.endTime
-        //             })),
-        //             startTime: data.startTime,
-        //             endTime: data.endTime
-        //         };
-        //     }));
-        // });
+        this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_LEADERBOARDS), async (req, res) => {
+            res.json(contestManager.getRunningContests().map(host => ({
+                clientScoreboards: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
+                scoreboards: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
+                contest: host.runningContest
+            })));
+        });
         this.app.post('/admin/api/reloadContest/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS), async (req, res) => {
             const runningContests = contestManager.getRunningContests();
             const contestHost = runningContests.find(c => c.id == req.params.id);
@@ -373,18 +358,44 @@ export class AdminAPI {
     }
 
     /**
-     * Middleware to check that the request sender has the admin permission
-     * @param perms perm to check
+     * Middleware to check that the request sender has any of the passed permissions
+     * @param perms perms (can be multiple) to check
      * @returns the middleware function
      */
-    private checkPerms(perms: AdminPerms): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+    private checkPerms(...perms: (AdminPerms | AdminAccessTokenPerms)[]): (req: Request, res: Response, next: NextFunction) => Promise<void> {
         return async (req, res, next) => {
-            if (!this.sessionTokens.tokenExists(req.cookies.token)) {
-                res.sendStatus(401);
-            } else if (!(await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.token)!, perms))) {
-                res.sendStatus(403);
+            // jank as hell lol
+            let code = 400;
+            let found = false;
+            for (const perm of perms) {
+                if (is_in_enum(perms, AdminPerms)) {
+                    if (this.sessionTokens.tokenExists(req.cookies.token)) {
+                        if (await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.token)!, perm as AdminPerms)) {
+                            next();
+                            found = true;
+                        } else {
+                            code = Math.max(code, 403);
+                        }
+                    } else {
+                        code = Math.max(code, 401);
+                    }
+                }
+                else {
+                    if (this.accessTokens.tokenExists(req.cookies.authToken)) {
+                        if (this.accessTokens.getTokenData(req.cookies.authToken)!.includes(perm as AdminAccessTokenPerms)) {
+                            next();
+                            found = true;
+                        } else {
+                            code = Math.max(code, 403);
+                        }
+                    } else {
+                        code = Math.max(code, 401);
+                    }
+                }
             }
-            next();
+            if (!found) {
+                res.sendStatus(code);
+            }
         };
     }
 

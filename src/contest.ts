@@ -461,6 +461,13 @@ export class ContestHost {
     get clientScoreboards(): Map<string, UserScore> {
         return new Map(this.clientScoreboard);
     }
+    
+    /**
+     * Get running contest
+     */
+    get runningContest(): ClientContest {
+        return structuredClone(this.contest);
+    }
 
     /**
      * Index of the current round (zero-indexed).
