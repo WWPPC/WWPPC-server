@@ -59,9 +59,9 @@ export class Grader {
             }
             const node: GraderNode = this.nodes.get(username)!;
             node.lastCommunication = Date.now();
-            if (node.grading == undefined) {
+            if (node.grading === undefined) {
                 node.grading = this.ungradedSubmissions.shift();
-                if (node.grading == undefined) {
+                if (node.grading === undefined) {
                     res.json(null);
                     if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, no work`, true);
                     return;
@@ -81,7 +81,7 @@ export class Grader {
             res.json({
                 problemId: node.grading.submission.problemId,
                 file: node.grading.submission.file,
-                lang: node.grading.submission.lang,
+                lang: node.grading.submission.language,
                 constraints: problems[0].constraints
             });
             if (config.debugMode) this.logger.debug(`get-work: ${username}@${req.ip} - 200, sent submission to ${node.grading.submission.problemId} by ${node.grading.submission.username}`);
@@ -97,7 +97,7 @@ export class Grader {
             }
 
             const node = this.nodes.get(username);
-            if (node == undefined || node.grading == undefined) {
+            if (node === undefined || node.grading === undefined) {
                 res.sendStatus(409);
                 if (config.debugMode) this.logger.debug(`return-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
@@ -131,7 +131,7 @@ export class Grader {
             }
 
             const node = this.nodes.get(username);
-            if (node == undefined || node.grading == undefined) {
+            if (node === undefined || node.grading === undefined) {
                 res.sendStatus(409);
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 409, no active work (or not registered through get-work)`, true);
                 return;
@@ -139,7 +139,7 @@ export class Grader {
             node.lastCommunication = Date.now();
 
             if (!Array.isArray(req.body.scores) || (req.body.scores as any[]).some((v) => {
-                return v == undefined || !is_in_enum(v.state, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
+                return v === undefined || !is_in_enum(v.state, ScoreState) || typeof v.time != 'number' || typeof v.memory != 'number' || typeof v.subtask != 'number';
             })) {
                 res.sendStatus(400);
                 if (config.debugMode) this.logger.debug(`finish-work: ${username}@${req.ip} - 400`, true);
@@ -175,7 +175,7 @@ export class Grader {
         setInterval(() => {
             this.nodes.forEach(async (node, username) => {
                 //check if a submission has passed the deadline and return to queue
-                if (node.grading != undefined && node.deadline < Date.now()) {
+                if (node.grading !== undefined && node.deadline < Date.now()) {
                     this.ungradedSubmissions.unshift(node.grading);
                     node.grading = undefined;
                     this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
@@ -184,7 +184,7 @@ export class Grader {
                 if (node.lastCommunication + config.graderTimeout < Date.now()) {
                     this.nodes.delete(username);
                     // also return to queue
-                    if (node.grading != undefined) {
+                    if (node.grading !== undefined) {
                         this.ungradedSubmissions.unshift(node.grading);
                         node.grading = undefined;
                         this.logger.info('Grader timed out (returning submission to queue): ' + node.username);
@@ -221,7 +221,7 @@ export class Grader {
     cancelUngraded(username: string, problemId: string): boolean {
         let canceled = 0;
         this.nodes.forEach((node) => {
-            if (node.grading != undefined && node.grading.submission.username == username && node.grading.submission.problemId == problemId) {
+            if (node.grading !== undefined && node.grading.submission.username == username && node.grading.submission.problemId == problemId) {
                 node.grading.cancelled = true;
                 canceled++;
             }
@@ -247,10 +247,10 @@ export class Grader {
 
     getAuth(req: Request): string | number {
         const auth = req.get('Authorization');
-        if (auth == null) return 401;
+        if (auth === undefined) return 401;
         try {
             const [user, pass] = Buffer.from(auth, 'base64').toString().split(':');
-            if (user == null || pass == null) return 400;
+            if (user === undefined || pass === undefined) return 400;
             if (pass !== this.password) return 403;
             return user;
         } catch {
@@ -269,7 +269,7 @@ export class Grader {
         this.app.removeAllListeners(this.path + '/finish-work');
         this.ungradedSubmissions.forEach((sub) => {
             sub.cancelled = true;
-            if (sub.callback != undefined) sub.callback(null);
+            if (sub.callback !== undefined) sub.callback(null);
         });
     }
 }

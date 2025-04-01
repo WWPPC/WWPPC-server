@@ -67,7 +67,7 @@ export class UpsolveManager {
             const mapped: UpsolveRound[] = [];
             for (let i in contests[0].rounds) {
                 const round = rounds.find((r) => r.id === contests[0].rounds[i]);
-                if (round == undefined) {
+                if (round === undefined) {
                     res.sendStatus(500);
                     return;
                 }
@@ -235,7 +235,7 @@ export class UpsolveManager {
     }
 
     #getCompletionState(scores: Score[] | undefined): ClientProblemCompletionState {
-        if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
+        if (scores === undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.UPLOADED;
         const subtasks = new Map<number, boolean>();
         scores.forEach((score) => {
@@ -255,17 +255,17 @@ export class UpsolveManager {
             {
                 problemId: submission.problemId,
                 time: submission.time,
-                lang: submission.lang,
+                lang: submission.language,
                 scores: submission.scores,
                 status: this.#getCompletionState(submission.scores)
             },
-            ...submission.history.reverse().map((s): UpsolveSubmission => ({
-                problemId: submission.problemId,
-                time: s.time,
-                lang: s.lang,
-                scores: s.scores,
-                status: this.#getCompletionState(s.scores)
-            }))
+            // ...submission.history.reverse().map((s): UpsolveSubmission => ({
+            //     problemId: submission.problemId,
+            //     time: s.time,
+            //     lang: s.lang,
+            //     scores: s.scores,
+            //     status: this.#getCompletionState(s.scores)
+            // }))
         ];
     }
 

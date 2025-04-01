@@ -58,7 +58,7 @@ export interface GlobalConfiguration {
     readonly contests: {
         readonly [key: string]: ContestConfiguration | undefined
     }
-    /**Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24) */
+    /**Maximum amount of previous submissions for a user on a problem kept in the database (default: 24) */
     readonly maxSubmissionHistory: number
     /**Log information about sent emails (default: true) */
     readonly logEmailActivity: boolean
@@ -110,7 +110,7 @@ const config: GlobalConfiguration = {
     dbProblemCacheTime: fileConfig.dbProblemCacheTime ?? 600000,
     graderTimeout: fileConfig.graderTimeout ?? 180000,
     // single "line" mapping and validating (validation is crashing if invalid or adding defaults)
-    contests: fileContests != null ? Object.entries(fileContests).reduce((p: Record<string, ContestConfiguration>, [cId, cVal]: [string, any]) => {
+    contests: fileContests !== null ? Object.entries(fileContests).reduce((p: Record<string, ContestConfiguration>, [cId, cVal]: [string, any]) => {
         p[cId] = {
             graders: cVal.graders ?? true,
             rounds: cVal.rounds ?? true,

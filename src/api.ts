@@ -31,7 +31,7 @@ export class ClientAPI {
     private readonly clientConfig = {
         maxProfileImgSize: config.maxProfileImgSize,
         contests: Object.entries(config.contests).reduce<Record<string, object>>((p: Record<string, object>, [cId, cConfig]) => {
-            if (cConfig == undefined) return p;
+            if (cConfig === undefined) return p;
             p[cId] = {
                 rounds: cConfig.rounds,
                 submitSolver: cConfig.submitSolver,
@@ -206,7 +206,7 @@ export class ClientAPI {
             // leave current team
             const existing = await this.db.getAccountTeam(username);
             if (typeof existing != 'string') {
-                if (existing == null) {
+                if (existing === null) {
                     if (config.debugMode) this.logger.debug(`${req.path}: Cannot leave team without a team (${username}, ${req.ip})`);
                     res.status(403).send('Cannot leave team without a team');
                 } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');

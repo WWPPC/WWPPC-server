@@ -42,7 +42,7 @@ export class Database {
         this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
-            ssl: sslCert != undefined ? { ca: sslCert } : { rejectUnauthorized: false }
+            ssl: sslCert !== undefined ? { ca: sslCert } : { rejectUnauthorized: false }
         });
         this.db.on('error', async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
@@ -109,7 +109,7 @@ export class Database {
                 const start = bindings.length + 1;
                 bindings.push(...value);
                 conditions.push(`${name} IN (${Array.from({ length: value.length }, (v, i) => start + i).map(v => '$' + v).join(', ')})`);
-            } else if (typeof value == 'object' && value != null) {
+            } else if (typeof value == 'object' && value !== null) {
                 switch (value.op) {
                     case '=':
                     case '!':
@@ -161,8 +161,7 @@ export class Database {
                         conditions.push(`${name} LIKE '%' || $${bindings.length} || '%'`);
                         break;
                 }
-                // should never reach here
-            } else if (value != null) {
+            } else if (value != undefined) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
             }
@@ -315,12 +314,12 @@ export class Database {
                 username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
-            const dat = structuredClone(userData);
             if (this.userCache.has(username)) {
+                // this doesn't count as cache refresh, just patching cache here
                 const entry = this.userCache.get(username)!;
                 entry.data = {
                     ...entry.data,
-                    ...dat
+                    ...structuredClone(userData)
                 };
                 entry.expiration = performance.now() + config.dbCacheTime;
             }
@@ -897,7 +896,7 @@ export class Database {
     async getContestList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT contests.id FROM contests ORDER BY id ASC');
+            const data = await this.db.query('SELECT id FROM contests ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getContestList):', err);
@@ -915,7 +914,7 @@ export class Database {
         const startTime = performance.now();
         try {
             const contestIdSet: Set<string> = new Set();
-            if (c.id != undefined) {
+            if (c.id !== undefined) {
                 if (typeof c.id == 'string') contestIdSet.add(c.id);
                 else if (Array.isArray(c.id)) for (const contest of c.id) contestIdSet.add(contest);
             }
@@ -925,15 +924,16 @@ export class Database {
                 if (this.contestCache.has(id)) {
                     contestIdSet.delete(id);
                     const contest = this.contestCache.get(id)!.contest;
-                    if ((c.startTime == undefined || filterCompare<number>(contest.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(contest.endTime, c.endTime)) && (c.public == undefined || contest.public === c.public)) {
+                    if ((c.startTime === undefined || filterCompare<number>(contest.startTime, c.startTime)) && (c.endTime === undefined || filterCompare<number>(contest.endTime, c.endTime)) && (c.public === undefined || contest.public === c.public)) {
                         contests.push(structuredClone(contest));
                     }
                 }
             });
+            // list of uncached contests needed to be fetched from database (or "read everything" call)
             const contestIdList = Array.from(contestIdSet.values());
-            if (contestIdList.length > 0 || c.id == undefined) {
+            if (contestIdList.length > 0 || c.id === undefined) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
-                    { name: 'id', value: c.id != undefined ? contestIdList : undefined },
+                    { name: 'id', value: c.id !== undefined ? contestIdList : undefined },
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime },
                     { name: 'public', value: c.public },
@@ -955,7 +955,7 @@ export class Database {
                         contest: structuredClone(co),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    if (c.id == undefined || filterCompare<string>(co.id, c.id)) contests.push(co);
+                    if (c.id === undefined || filterCompare<string>(co.id, c.id)) contests.push(co);
                 }
             }
             return contests;
@@ -1017,7 +1017,7 @@ export class Database {
     async getRoundList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT rounds.id FROM rounds ORDER BY id ASC');
+            const data = await this.db.query('SELECT id FROM rounds ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getRoundList):', err);
@@ -1035,15 +1035,15 @@ export class Database {
         const startTime = performance.now();
         try {
             const roundIdSet: Set<string> = new Set();
-            if (c.id != undefined) {
+            if (c.id !== undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) roundIdSet.add(c.id);
                 else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) roundIdSet.add(round);
             }
-            if (c.contest != undefined) {
+            if (c.contest !== undefined) {
                 const contests = await this.readContests({ id: c.contest });
                 if (contests == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
                 contests.flatMap((c) => c.rounds).forEach((v, i) => {
-                    if (c.round == undefined || filterCompare<number>(i, c.round)) roundIdSet.add(v);
+                    if (c.round === undefined || filterCompare<number>(i, c.round)) roundIdSet.add(v);
                 });
             }
             const rounds: Round[] = [];
@@ -1052,15 +1052,16 @@ export class Database {
                 if (this.roundCache.has(id)) {
                     roundIdSet.delete(id);
                     const round = this.roundCache.get(id)!.round;
-                    if ((c.startTime == undefined || filterCompare<number>(round.startTime, c.startTime)) && (c.endTime == undefined || filterCompare<number>(round.endTime, c.endTime))) {
+                    if ((c.startTime === undefined || filterCompare<number>(round.startTime, c.startTime)) && (c.endTime === undefined || filterCompare<number>(round.endTime, c.endTime))) {
                         rounds.push(structuredClone(round));
                     }
                 }
             });
+            // list of uncached rounds needed to be fetched from database (or "read everything" call)
             const roundIdList = Array.from(roundIdSet.values());
-            if (roundIdList.length > 0 || (c.id == undefined && c.contest == undefined && c.round == undefined)) {
+            if (roundIdList.length > 0 || (c.id === undefined && c.contest === undefined && c.round === undefined)) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
-                    { name: 'id', value: (c.id != undefined || c.contest != undefined || c.round != undefined) ? roundIdList : undefined },
+                    { name: 'id', value: (c.id !== undefined || c.contest !== undefined || c.round !== undefined) ? roundIdList : undefined },
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime }
                 ]);
@@ -1076,7 +1077,7 @@ export class Database {
                         round: structuredClone(r),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    if (c.id == undefined || filterCompare<UUID>(r.id, c.id)) rounds.push(r);
+                    if (c.id === undefined || filterCompare<UUID>(r.id, c.id)) rounds.push(r);
                 }
             }
             return rounds;
@@ -1138,7 +1139,7 @@ export class Database {
     async getProblemList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT problems.id FROM problems ORDER BY id ASC');
+            const data = await this.db.query('SELECT id FROM problems ORDER BY id ASC');
             return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getProblemList):', err);
@@ -1156,21 +1157,21 @@ export class Database {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
-            if (c.id != undefined) {
+            if (c.id !== undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
                 else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) problemIdSet.add(round);
             }
-            if (c.contest != undefined) {
+            if (c.contest !== undefined) {
                 const rounds = await this.readRounds({
                     contest: c.contest.contest,
                     round: c.contest.round,
                     id: c.contest.roundId
                 });
                 if (rounds == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
-                if (c.contest.number != undefined) {
+                if (c.contest.number !== undefined) {
                     const n = c.contest.number;
-                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => v != undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
+                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v !== undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => v !== undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
@@ -1180,15 +1181,16 @@ export class Database {
                 if (this.problemCache.has(id)) {
                     problemIdSet.delete(id);
                     const problem = this.problemCache.get(id)!.problem;
-                    if ((c.name == undefined || filterCompare<string>(problem.name, c.name)) && (c.author == undefined || filterCompare<string>(problem.author, c.author))) {
+                    if ((c.name === undefined || filterCompare<string>(problem.name, c.name)) && (c.author === undefined || filterCompare<string>(problem.author, c.author))) {
                         problems.push(structuredClone(problem));
                     }
                 }
             });
+            // list of uncached problems needed to be fetched from database (or "read everything" call)
             const problemIdList = Array.from(problemIdSet.values());
-            if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
+            if (problemIdList.length > 0 || (c.id === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
-                    { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                    { name: 'id', value: (c.id !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'name', value: c.name },
                     { name: 'author', value: c.author }
                 ]);
@@ -1269,7 +1271,7 @@ export class Database {
     async getSubmissionList(): Promise<string[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT submissions.id, submissions.username, submissions.analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
+            const data = await this.db.query('SELECT id, username, analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
             return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
         } catch (err) {
             this.logger.handleError('Database error (getSubmissionList):', err);
@@ -1287,66 +1289,60 @@ export class Database {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
-            if (c.id != undefined) {
-                if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
-                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) problemIdSet.add(round);
+            if (c.problemId !== undefined) {
+                if (typeof c.problemId == 'string' && isUUID(c.problemId)) problemIdSet.add(c.problemId);
+                else if (Array.isArray(c.problemId)) for (const round of c.problemId) if (isUUID(round)) problemIdSet.add(round);
             }
-            if (c.contest != undefined) {
+            if (c.contest !== undefined) {
                 const rounds = await this.readRounds({
                     contest: c.contest.contest,
                     round: c.contest.round,
                     id: c.contest.roundId
                 });
                 if (rounds == DatabaseOpCode.ERROR) return DatabaseOpCode.ERROR;
-                if (c.contest.number != undefined) {
+                if (c.contest.number !== undefined) {
                     const n = c.contest.number;
-                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v != undefined).forEach((v) => problemIdSet.add(v));
-                    else rounds.flatMap((r) => r.problems.filter((v, i) => v != undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
+                    if (typeof n == 'number') rounds.map((r) => r.problems[n]).filter(v => v !== undefined).forEach((v) => problemIdSet.add(v));
+                    else rounds.flatMap((r) => r.problems.filter((v, i) => v !== undefined && filterCompare<number>(i, n))).forEach((v) => problemIdSet.add(v));
                 }
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const submissions: Submission[] = [];
-            if (c.username != undefined) problemIdSet.forEach((id) => {
-                const ids: string[] = [];
-                if (c.analysis != undefined) ids.push(`${id}:${c.username}:${c.analysis}`);
-                else ids.push(`${id}:${c.username}:true`, `${id}:${c.username}:false`);
-                for (const realId of ids) {
-                    if (this.submissionCache.has(realId) && this.submissionCache.get(realId)!.expiration < performance.now()) this.submissionCache.delete(realId);
-                    if (this.submissionCache.has(realId)) {
-                        problemIdSet.delete(id);
-                        const submission = this.submissionCache.get(realId)!.submission;
-                        if ((c.username == undefined || filterCompare<string>(submission.username, c.username)) && (c.time == undefined || filterCompare<number>(submission.time, c.time)) && (c.analysis == undefined || submission.analysis === c.analysis)) {
-                            submissions.push(structuredClone(submission));
-                        }
-                    }
-                }
-            });
+            // searching this cache is probably more expensive than just doing the SQL query
+            // if (c.username !== undefined) problemIdSet.forEach((id) => {
+            //     if (this.submissionCache.has(id) && this.submissionCache.get(id)!.expiration < performance.now()) this.submissionCache.delete(id);
+            //     if (this.submissionCache.has(id)) {
+            //         problemIdSet.delete(id);
+            //         const submission = this.submissionCache.get(id)!.submission;
+            //         if ((c.username === undefined || filterCompare<string>(submission.username, c.username)) && (c.time === undefined || filterCompare<number>(submission.time, c.time)) && (c.analysis === undefined || submission.analysis === c.analysis)) {
+            //             submissions.push(structuredClone(submission));
+            //         }
+            //     }
+            // });
+            // list of uncached submissions needed to be fetched from database (or "read everything" call)
             const problemIdList = Array.from(problemIdSet.values());
-            if (problemIdList.length > 0 || (c.id == undefined && c.contest?.contest == undefined && c.contest?.round == undefined && c.contest?.roundId == undefined && c.contest?.number == undefined)) {
+            if (problemIdList.length > 0 || (c.problemId === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
-                    { name: 'id', value: (c.id != undefined || c.contest != undefined) ? problemIdList : undefined },
+                    { name: 'problemid', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
                     { name: 'time', value: c.time },
                     { name: 'analysis', value: c.analysis }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY username ASC, id ASC, analysis ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const submission of data.rows) {
                     const s: Submission = {
+                        id: submission.id,
                         username: submission.username,
-                        problemId: submission.id,
+                        team: submission.team,
+                        problemId: submission.problemid,
                         time: Number(submission.time),
                         file: submission.file,
-                        lang: submission.language,
+                        language: submission.language,
                         scores: submission.scores,
-                        history: submission.history.map((h: any) => ({
-                            time: Number(h.time),
-                            lang: h.lang,
-                            scores: h.scores.map((s: any) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
-                        })),
                         analysis: submission.analysis
                     };
-                    this.submissionCache.set(`${s.problemId}:${s.username}:${s.analysis}`, {
+                    this.submissionCache.set(s.id, {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
@@ -1362,36 +1358,26 @@ export class Database {
         }
     }
     /**
-     * Write a submission to the submissions table. The `history` field is ignored.
-     * If the most recent submission has an empty `scores` field, the submission will be overwritten instead of appended to history.
+     * Write a submission to the submissions table. Will only overwrite scores for existing submissions.
      * @param submission Submission to write
-     * @param overwrite Force overwriting of most recent submission
      * @returns Write status
      */
-    async writeSubmission(submission: Submission, overwrite?: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
+    async writeSubmission(submission: Submission): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const existing = await this.db.query('SELECT time, language, history, scores FROM submissions WHERE username=$1 AND id=$2 AND analysis=$3', [submission.username, submission.problemId, submission.analysis]);
+            const existing = await this.db.query('SELECT id FROM submissions WHERE id=$1', [submission.id]);
             if (existing.rows.length > 0) {
-                const history: { time: number, lang: string, scores: Score[] }[] = existing.rows[0].history.map((h: any) => ({ time: Number(h.time), lang: h.lang, scores: h.scores }));
-                if (existing.rows[0].scores.length > 0 && !overwrite) history.push({
-                    time: Number(existing.rows[0].time),
-                    lang: existing.rows[0].language,
-                    scores: existing.rows[0].scores.map((s: any) => ({ state: s.state, time: Number(s.time), memory: Number(s.memory), subtask: Number(s.subtask) }))
-                });
-                while (history.length > config.maxSubmissionHistory) history.shift();
-                await this.db.query('UPDATE submissions SET file=$3, language=$4, scores=$5, time=$6, history=$7 WHERE username=$1 AND id=$2 AND analysis=$8 RETURNING id', [
-                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify(history), submission.analysis
-                ]);
-                this.submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
-                    submission: { ...submission, history: history },
-                    expiration: performance.now() + config.dbCacheTime
-                });
+                await this.db.query('UPDATE submissions SET scores=$2 WHERE id=$1');
+                if (this.submissionCache.has(submission.id)) {
+                    // this doesn't count as cache refresh, just patching cache here
+                    const entry = this.submissionCache.get(submission.id)!;
+                    entry.submission.scores = structuredClone(submission.scores);
+                }
             } else {
-                await this.db.query('INSERT INTO submissions (username, id, file, language, scores, time, history, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [
-                    submission.username, submission.problemId, submission.file, submission.lang, JSON.stringify(submission.scores), Date.now(), JSON.stringify([]), submission.analysis
+                await this.db.query('INSERT INTO submissions (id, username, team, problem, file, language, scores, time, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [
+                    submission.id, submission.username, submission.team !== null ? parseInt(submission.team, 36) : null, submission.problemId, submission.file, submission.language, JSON.stringify(submission.scores), submission.time, submission.analysis
                 ]);
-                this.submissionCache.set(`${submission.problemId}:${submission.username}:${submission.analysis}`, {
+                this.submissionCache.set(submission.id, {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
@@ -1405,17 +1391,35 @@ export class Database {
         }
     }
     /**
-     * Delete a submission from the submission table.
-     * @param id Problem id linked to submission to delete
-     * @param username Username linked to submission to delete
+     * Delete all but the newest {@link config.maxSubmissionHistory} submissions for a user. Does not check user exists.
+     * @param username Username to remove submissions from
      * @returns Deletion status
      */
-    async deleteSubmission(id: UUID, username: string, analysis: boolean): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async purgeOldSubmissions(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const res = await this.db.query('DELETE FROM submissions WHERE id=$1 AND username=$2 AND analysis=$3 RETURNING id', [id, username, analysis]);
-            this.problemCache.delete(`${id}:${username}:${analysis}`);
-            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND
+            await this.db.query('DELETE FROM submissions WHERE id IN (SELECT id FROM submissions WHERE username=$1 ORDER BY time DESC OFFSET $2)', [
+                username, config.maxSubmissionHistory
+            ]);
+            return DatabaseOpCode.SUCCESS;
+        } catch (err) {
+            this.logger.handleError('Database error (purgeOldSubmissions):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`purgeOldSubmissions in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Delete a submission from the submission table.
+     * @param id ID of submission to delete
+     * @returns Deletion status
+     */
+    async deleteSubmission(id: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            const res = await this.db.query('DELETE FROM submissions WHERE id=$1 RETURNING id', [id]);
+            this.problemCache.delete(id);
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (deleteSubmission):', err);
@@ -1573,8 +1577,12 @@ export type Problem = {
 }
 /**Descriptor for a single submission */
 export type Submission = {
+    /**UUID */
+    readonly id: UUID
     /**Username of submitter */
     readonly username: string
+    /**Team of submitter at the time of submission */
+    readonly team: string | null
     /**UUID of problem submitted to */
     readonly problemId: UUID
     /**Time of submission, UNIX milliseconds */
@@ -1582,18 +1590,9 @@ export type Submission = {
     /**Contents of the submission file */
     file: string
     /**Submission language */
-    lang: string
+    language: string
     /**Resulting scores of the submission */
     scores: Score[]
-    /**Shortened list of previous submissions and their results, without content (increasing chronologically) */
-    history: {
-        /**Time of submission, UNIX milliseconds */
-        time: number
-        /**Submission language */
-        lang: string
-        /**Resulting scores of the submission */
-        scores: Score[]
-    }[]
     /**If the submission was submitted through the upsolve system */
     analysis: boolean
 }
@@ -1667,10 +1666,14 @@ export type ReadProblemsCriteria = {
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export type ReadSubmissionsCriteria = {
-    /**UUID of problem */
+    /**UUID */
     id?: FilterComparison<UUID>
     /**Username of submitter */
     username?: FilterComparison<string>
+    /**Username of submitter */
+    team?: FilterComparison<string | null>
+    /**UUID of problem */
+    problemId?: FilterComparison<UUID>
     /**{@inheritDoc ProblemRoundCriteria} */
     contest?: ProblemRoundCriteria
     /**Time of submission */

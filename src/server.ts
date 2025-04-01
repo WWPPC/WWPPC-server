@@ -8,7 +8,7 @@ configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
 
 // verify environment variables exist
-if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] == undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] === undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -122,7 +122,7 @@ const handleUncaughtError = async (err: any, origin: string | Promise<unknown>) 
     if (err instanceof Error) {
         logger.fatal(err.message);
         if (err.stack) logger.fatal(err.stack);
-    } else if (err != undefined) logger.fatal(err);
+    } else if (err != null) logger.fatal(err);
     if (typeof origin == 'string') logger.fatal(origin);
     const handleUncaughtError2 = (err: any, origin: string | Promise<unknown>) => {
         console.error('An exception occured while handling another exception:');

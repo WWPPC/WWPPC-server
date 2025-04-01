@@ -99,7 +99,7 @@ export class Scorer {
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
         const userScores = new Map<string, UserScore>(); // final scores of each user
         const round = this.rounds.find(r => r.id == roundId);
-        if (round == undefined) {
+        if (round === undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }

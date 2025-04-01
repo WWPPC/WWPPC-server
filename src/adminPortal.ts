@@ -45,7 +45,7 @@ export class AdminAPI {
         });
 
         this.app.post('/admin/login', bodyParser.json(), async (req, res) => {
-            if (req.body == undefined || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
+            if (req.body == null || typeof req.body.username != 'string' || typeof req.body.password != 'string') {
                 res.sendStatus(400);
                 return;
             }

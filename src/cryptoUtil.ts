@@ -135,7 +135,7 @@ export class TokenHandler<DType> {
                 if (data.expiration !== undefined && data.expiration < Date.now()) {
                     this.tokens.delete(token);
                     const refs = this.tokenData.get(data.data);
-                    if (refs == 0 || refs == undefined) this.tokenData.delete(data.data);
+                    if (refs == 0 || refs === undefined) this.tokenData.delete(data.data);
                     else this.tokenData.set(data.data, refs - 1);
                 }
             }
@@ -213,10 +213,10 @@ export class TokenHandler<DType> {
      */
     setTokenData(token: string, linkedData: DType): boolean {
         const existing = this.tokens.get(token);
-        if (existing == null) return false;
+        if (existing === undefined) return false;
         existing.data = linkedData;
         const refs = this.tokenData.get(existing.data);
-        if (refs == 0 || refs == undefined) this.tokenData.delete(existing.data);
+        if (refs == 0 || refs === undefined) this.tokenData.delete(existing.data);
         else this.tokenData.set(existing.data, refs - 1);
         this.tokenData.set(linkedData, (this.tokenData.get(linkedData) ?? 0) + 1);
         return true;
@@ -238,9 +238,9 @@ export class TokenHandler<DType> {
      */
     removeToken(token: string): boolean {
         const data = this.tokens.get(token);
-        if (data == undefined) return false;
+        if (data === undefined) return false;
         const refs = this.tokenData.get(data.data);
-        if (refs == 0 || refs == undefined) this.tokenData.delete(data.data);
+        if (refs == 0 || refs === undefined) this.tokenData.delete(data.data);
         else this.tokenData.set(data.data, refs - 1);
         return this.tokens.delete(token);
     }

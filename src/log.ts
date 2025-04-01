@@ -84,7 +84,7 @@ export abstract class Logger {
         appendFunc.call(this, message);
         if (error instanceof Error) {
             appendFunc.call(this, error.message);
-            if (error.stack == undefined) Error.captureStackTrace(error);
+            if (error.stack === undefined) Error.captureStackTrace(error);
             if (error.stack) appendFunc.call(this, error.stack);
         } else {
             appendFunc.call(this, '' + error);
@@ -219,10 +219,6 @@ export class FileLogger extends Logger {
         const formatted = `${prefix2}${text.toString().replaceAll('\n', `\n${prefix2}`)}\n`;
         this.tailBuffer.push(formatted);
         if (this.tailBuffer.length > this.tailLength) this.tailBuffer.shift();
-        if (this.file == undefined) {
-            console.error('Log file could not be opened!');
-            return;
-        }
         // write to file, operation stored to ensure logs written before process exits
         const fd = this.file;
         const op = new Promise<void>((resolve) => fs.appendFile(fd, formatted, { encoding: 'utf-8' }, (err) => {

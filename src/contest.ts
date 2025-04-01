@@ -1,5 +1,6 @@
 import { Express } from 'express';
 
+import { v4 as uuidV4 } from 'uuid';
 import { ClientContest, ClientProblemCompletionState, ClientRound } from './api';
 import ClientAuth from './auth';
 import config from './config';
@@ -409,7 +410,7 @@ export class ContestHost {
                 this.active = false;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} end`);
             }
-            if (this.contest.rounds[this.index + 1] != undefined && this.contest.rounds[this.index + 1].startTime <= now) {
+            if (this.contest.rounds[this.index + 1] !== undefined && this.contest.rounds[this.index + 1].startTime <= now) {
                 updated = true;
                 this.index++;
                 this.active = true;
@@ -480,7 +481,7 @@ export class ContestHost {
 
     private getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
         // will not reveal verdict until round ends
-        if (scores == undefined) return ClientProblemCompletionState.NOT_UPLOADED;
+        if (scores === undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         if (config.contests[this.contestType]!.withholdResults && round == this.index) return ClientProblemCompletionState.UPLOADED;
         if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         // all cases in subtask must be solved to be correct
@@ -518,16 +519,17 @@ export class ContestHost {
                 return;
             }
             const serverSubmission: Submission = {
-                username: teamData.id,
+                id: uuidV4(),
+                username: socket.username,
+                team: teamData.id,
                 problemId: submission.id,
                 file: submission.file,
                 scores: [],
-                history: [],
-                lang: submission.lang,
+                language: submission.lang,
                 time: Date.now(),
                 analysis: false
             };
-            if (!(await this.db.writeSubmission(serverSubmission, config.contests[this.contestType]!.withholdResults))) {
+            if (!(await this.db.writeSubmission(serverSubmission))) {
                 this.logger.error(`Failed to write submission for ${serverSubmission.problemId} by ${socket.username}`);
                 return;
             }
@@ -551,7 +553,7 @@ export class ContestHost {
             // submissions are stored under the team
             if (config.contests[this.contestType]!.graders) {
                 const writeGraded = async (graded: Submission) => {
-                    if (!(await this.db.writeSubmission(graded, config.contests[this.contestType]!.withholdResults))) {
+                    if (!(await this.db.writeSubmission(graded))) {
                         this.logger.error(`Failed to write submission for ${graded.problemId} by ${socket.username}`);
                     }
                     // make sure it gets to all the team
@@ -565,9 +567,9 @@ export class ContestHost {
                     // use the grading system
                     this.grader.cancelUngraded(teamData.id, submission.id);
                     this.grader.queueUngraded(serverSubmission, async (graded) => {
-                        if (graded == null) this.logger.warn(`Submission grading was canceled! (submitted by ${socket.username}, team ${teamData.id}, for ${submission.id})`);
+                        if (graded === null) this.logger.warn(`Submission grading was canceled! (submitted by ${socket.username}, team ${teamData.id}, for ${submission.id})`);
                         else if (config.debugMode) this.logger.debug(`Submission was completed (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
-                        if (graded != null) writeGraded(graded);
+                        if (graded !== null) writeGraded(graded);
                     });
                 } else {
                     // direct comparison
