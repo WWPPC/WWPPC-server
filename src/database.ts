@@ -100,7 +100,7 @@ export class Database {
      * @param columns Array of columns with conditions to check. If any value is undefined the condition is omitted
      * @returns String of conditions to append to end of SQL query (after `WHERE` clause) and accompanying bindings array
      */
-    private buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean> | undefined | null }[]): { queryConditions: string, bindings: SqlValue[] } {
+    private buildColumnConditions(columns: { name: string, value: FilterComparison<number | string | boolean | null> | undefined }[]): { queryConditions: string, bindings: SqlValue[] } {
         const conditions: string[] = [];
         const bindings: SqlValue[] = [];
         for (const { name, value } of columns) {
@@ -161,7 +161,7 @@ export class Database {
                         conditions.push(`${name} LIKE '%' || $${bindings.length} || '%'`);
                         break;
                 }
-            } else if (value != undefined) {
+            } else if (value !== undefined) {
                 bindings.push(value);
                 conditions.push(`${name}=$${bindings.length}`);
             }
@@ -914,12 +914,17 @@ export class Database {
         const startTime = performance.now();
         try {
             const contestIdSet: Set<string> = new Set();
+            // filter will break if ID and contest are used at same time
             if (c.id !== undefined) {
                 if (typeof c.id == 'string') contestIdSet.add(c.id);
                 else if (Array.isArray(c.id)) for (const contest of c.id) contestIdSet.add(contest);
+                else if (c.id.op == '=') {
+                    if (typeof c.id.v == 'string' && isUUID(c.id.v)) contestIdSet.add(c.id.v);
+                    else c.id.v.filter(isUUID).forEach((pid) => contestIdSet.add(pid));
+                }
             }
             const contests: Contest[] = [];
-            contestIdSet.forEach((id) => {
+            for (const id of contestIdSet) {
                 if (this.contestCache.has(id) && this.contestCache.get(id)!.expiration < performance.now()) this.contestCache.delete(id);
                 if (this.contestCache.has(id)) {
                     contestIdSet.delete(id);
@@ -928,7 +933,7 @@ export class Database {
                         contests.push(structuredClone(contest));
                     }
                 }
-            });
+            }
             // list of uncached contests needed to be fetched from database (or "read everything" call)
             const contestIdList = Array.from(contestIdSet.values());
             if (contestIdList.length > 0 || c.id === undefined) {
@@ -1035,9 +1040,14 @@ export class Database {
         const startTime = performance.now();
         try {
             const roundIdSet: Set<string> = new Set();
+            // filter will break if ID and contest are used at same time
             if (c.id !== undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) roundIdSet.add(c.id);
-                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) roundIdSet.add(round);
+                else if (Array.isArray(c.id)) c.id.filter(isUUID).forEach((r) => roundIdSet.add(r));
+                else if (c.id.op == '=') {
+                    if (typeof c.id.v == 'string' && isUUID(c.id.v)) roundIdSet.add(c.id.v);
+                    else c.id.v.filter(isUUID).forEach((pid) => roundIdSet.add(pid));
+                }
             }
             if (c.contest !== undefined) {
                 const contests = await this.readContests({ id: c.contest });
@@ -1047,7 +1057,7 @@ export class Database {
                 });
             }
             const rounds: Round[] = [];
-            roundIdSet.forEach((id) => {
+            for (const id of roundIdSet) {
                 if (this.roundCache.has(id) && this.roundCache.get(id)!.expiration < performance.now()) this.roundCache.delete(id);
                 if (this.roundCache.has(id)) {
                     roundIdSet.delete(id);
@@ -1056,7 +1066,7 @@ export class Database {
                         rounds.push(structuredClone(round));
                     }
                 }
-            });
+            }
             // list of uncached rounds needed to be fetched from database (or "read everything" call)
             const roundIdList = Array.from(roundIdSet.values());
             if (roundIdList.length > 0 || (c.id === undefined && c.contest === undefined && c.round === undefined)) {
@@ -1157,9 +1167,14 @@ export class Database {
         const startTime = performance.now();
         try {
             const problemIdSet: Set<string> = new Set();
+            // filter will break if ID and contest are used at same time
             if (c.id !== undefined) {
                 if (typeof c.id == 'string' && isUUID(c.id)) problemIdSet.add(c.id);
-                else if (Array.isArray(c.id)) for (const round of c.id) if (isUUID(round)) problemIdSet.add(round);
+                else if (Array.isArray(c.id)) c.id.filter(isUUID).forEach((pid) => problemIdSet.add(pid));
+                else if (c.id.op == '=') {
+                    if (typeof c.id.v == 'string' && isUUID(c.id.v)) problemIdSet.add(c.id.v);
+                    else c.id.v.filter(isUUID).forEach((pid) => problemIdSet.add(pid));
+                }
             }
             if (c.contest !== undefined) {
                 const rounds = await this.readRounds({
@@ -1176,7 +1191,7 @@ export class Database {
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const problems: Problem[] = [];
-            problemIdSet.forEach((id) => {
+            for (const id of problemIdSet) {
                 if (this.problemCache.has(id) && this.problemCache.get(id)!.expiration < performance.now()) this.problemCache.delete(id);
                 if (this.problemCache.has(id)) {
                     problemIdSet.delete(id);
@@ -1185,7 +1200,7 @@ export class Database {
                         problems.push(structuredClone(problem));
                     }
                 }
-            });
+            }
             // list of uncached problems needed to be fetched from database (or "read everything" call)
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.id === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
@@ -1288,10 +1303,24 @@ export class Database {
     async readSubmissions(c: ReadSubmissionsCriteria = {}): Promise<Submission[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
+            const submissionIdSet: Set<string> = new Set();
             const problemIdSet: Set<string> = new Set();
+            // filter will break if ID and contest are used at same time
+            if (c.id !== undefined) {
+                if (typeof c.id == 'string') submissionIdSet.add(c.id);
+                else if (Array.isArray(c.id)) c.id.filter(isUUID).forEach((id) => submissionIdSet.add(id));
+                else if (c.id.op == '=') {
+                    if (typeof c.id.v == 'string' && isUUID(c.id.v)) submissionIdSet.add(c.id.v);
+                    else c.id.v.filter(isUUID).forEach((pid) => submissionIdSet.add(pid));
+                }
+            }
             if (c.problemId !== undefined) {
                 if (typeof c.problemId == 'string' && isUUID(c.problemId)) problemIdSet.add(c.problemId);
-                else if (Array.isArray(c.problemId)) for (const round of c.problemId) if (isUUID(round)) problemIdSet.add(round);
+                else if (Array.isArray(c.problemId)) c.problemId.filter(isUUID).forEach((pid) => problemIdSet.add(pid));
+                else if (c.problemId.op == '=') {
+                    if (typeof c.problemId.v == 'string' && isUUID(c.problemId.v)) problemIdSet.add(c.problemId.v);
+                    else c.problemId.v.filter(isUUID).forEach((pid) => problemIdSet.add(pid));
+                }
             }
             if (c.contest !== undefined) {
                 const rounds = await this.readRounds({
@@ -1308,23 +1337,28 @@ export class Database {
                 else rounds.flatMap((r) => r.problems).forEach((v) => problemIdSet.add(v));
             }
             const submissions: Submission[] = [];
-            // searching this cache is probably more expensive than just doing the SQL query
-            // if (c.username !== undefined) problemIdSet.forEach((id) => {
-            //     if (this.submissionCache.has(id) && this.submissionCache.get(id)!.expiration < performance.now()) this.submissionCache.delete(id);
-            //     if (this.submissionCache.has(id)) {
-            //         problemIdSet.delete(id);
-            //         const submission = this.submissionCache.get(id)!.submission;
-            //         if ((c.username === undefined || filterCompare<string>(submission.username, c.username)) && (c.time === undefined || filterCompare<number>(submission.time, c.time)) && (c.analysis === undefined || submission.analysis === c.analysis)) {
-            //             submissions.push(structuredClone(submission));
-            //         }
-            //     }
-            // });
+            for (const id of submissionIdSet) {
+                if (this.submissionCache.has(id) && this.submissionCache.get(id)!.expiration < performance.now()) this.submissionCache.delete(id);
+                if (this.submissionCache.has(id)) {
+                    submissionIdSet.delete(id);
+                    const submission = this.submissionCache.get(id)!.submission;
+                    if ((c.username === undefined || filterCompare<string>(submission.username, c.username))
+                        && (c.team === undefined || filterCompare<string | null>(submission.team, c.team))
+                        && (c.time === undefined || filterCompare<number>(submission.time, c.time))
+                        && (c.analysis === undefined || filterCompare<boolean>(submission.analysis, c.analysis))) {
+                        submissions.push(structuredClone(submission));
+                    }
+                }
+            }
             // list of uncached submissions needed to be fetched from database (or "read everything" call)
+            const submissionIdList = Array.from(submissionIdSet.values());
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.problemId === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
+                    { name: 'id', value: (c.id !== undefined) ? submissionIdList : undefined },
                     { name: 'problemid', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
+                    { name: 'team', value: c.team },
                     { name: 'time', value: c.time },
                     { name: 'analysis', value: c.analysis }
                 ]);
@@ -1446,7 +1480,7 @@ export class Database {
 }
 export default Database;
 
-export type SqlValue = number | string | boolean | number[] | string[] | boolean[];
+export type SqlValue = number | string | boolean | null | number[] | string[] | boolean[] | null[];
 
 /**Response codes for operations involving account data */
 export enum DatabaseOpCode {
@@ -1642,7 +1676,7 @@ export type ReadRoundsCriteria = {
     /**End of round, UNIX time */
     endTime?: FilterComparison<number>
 }
-/**Contest-based filter including contest, round, problem number, and round ID */
+/**Contest-based filter including contest, round, problem number, and round ID. Will break filters if used in conjunction with ID. */
 export type ProblemRoundCriteria = {
     /**Contest ID */
     contest?: FilterComparison<string>

@@ -338,7 +338,7 @@ export class AdminAPI {
             res.json(contestManager.getRunningContests().map(host => ({
                 clientScoreboards: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
                 scoreboards: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
-                contest: host.runningContest
+                contest: host.contestData
             })));
         });
         this.app.post('/admin/api/reloadContest/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS), async (req, res) => {

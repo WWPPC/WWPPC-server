@@ -464,9 +464,9 @@ export class ContestHost {
     }
     
     /**
-     * Get running contest
+     * The current contest data, in client format.
      */
-    get runningContest(): ClientContest {
+    get contestData(): ClientContest {
         return structuredClone(this.contest);
     }
 
