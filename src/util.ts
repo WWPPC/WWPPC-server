@@ -1,11 +1,12 @@
+import { EventEmitter } from 'events';
 import { NextFunction, Request, Response } from 'express';
 import rateLimit, { Options as RateLimitOptions, RateLimitRequestHandler } from 'express-rate-limit';
 import { extend as nivExtend, extendMessages as nivExtendMessages, Validator } from 'node-input-validator';
 import { validate } from 'uuid';
 
 import config from './config';
-import Logger from './log';
 import { DatabaseOpCode } from './database';
+import Logger from './log';
 
 // important comparator (streamlines filtering everywhere)
 export type primitive = number | string | boolean | undefined | null;
@@ -91,7 +92,7 @@ export type FilterComparison<T> = T extends primitive ? ({
 } | T | T[]) : never;
 
 /**
- * Compare a value using a `FilterComparison` ({@link FilterComparison}).
+ * Compare a value using a {@link FilterComparison}.
  * 
  * **Examples:**
  * 
@@ -151,6 +152,57 @@ export function filterCompare<T>(v: T & primitive, c: FilterComparison<T>): bool
     return c === v;
 }
 
+// extended event emitter
+/**
+ * Extension of the built-in Node.js `EventEmitter` module, with added type safety.
+ */
+export class TypedEventEmitter<TEvents extends Record<string, any[]>> {
+    private readonly emitter: EventEmitter = new EventEmitter();
+
+    /**
+     * Emit an event.
+     * @param ev Event name
+     * @param args Event data, passed to each listener
+     */
+    emit<TEvent extends keyof TEvents & string>(ev: TEvent, ...args: TEvents[TEvent]): void {
+        this.emitter.emit(ev, ...args);
+    }
+    /**
+     * Add a listener for an event.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    addListener<TEvent extends keyof TEvents & string>(ev: TEvent, cb: (...args: TEvents[TEvent]) => any): void {
+        this.emitter.on(ev, cb);
+    }
+    /**
+     * Remove an existing listener for an event.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    removeListener<TEvent extends keyof TEvents & string>(ev: TEvent, cb: (...args: TEvents[TEvent]) => any): void {
+        this.emitter.off(ev, cb);
+    }
+    /**
+     * Add a listener for an event.
+     * @alias addListener
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    on<TEvent extends keyof TEvents & string>(ev: TEvent, cb: (...args: TEvents[TEvent]) => any): void {
+        this.emitter.on(ev, cb);
+    }
+    /**
+     * Remove an existing listener for an event.
+     * @alias removeListener
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    off<TEvent extends keyof TEvents & string>(ev: TEvent, cb: (...args: TEvents[TEvent]) => any): void {
+        this.emitter.off(ev, cb);
+    }
+}
+
 // these are used in a couple places
 nivExtend('lowerAlphaNumDash', ({ value }: any) => {
     if (typeof value != 'string') return false;
@@ -194,7 +246,7 @@ export function validateRequestBody(rules: object, logger?: Logger): (req: Reque
         if (await validator.check()) {
             next();
         } else {
-            if (config.debugMode && logger !== undefined) logger.warn(`${req.path} fail: ${validator.errors} (${req.ip})`);
+            if (config.debugMode && logger !== undefined) logger.warn(`${req.path} malformed: ${validator.errors} (${req.ip})`);
             res.status(400).send(validator.errors);
         }
     };
