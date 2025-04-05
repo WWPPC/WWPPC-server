@@ -303,7 +303,6 @@ export type ClientProblem = {
         time: number
         memory: number
     }
-    submissions: ClientSubmission[]
 }
 /**Descriptor for a single submission as represented by the client */
 export type ClientSubmission = {
@@ -311,6 +310,7 @@ export type ClientSubmission = {
     language: string
     scores: Score[]
     status: ClientProblemCompletionState
+    analysis: boolean
 }
 /**Client enum for completion state of problems */
 export enum ClientProblemCompletionState {

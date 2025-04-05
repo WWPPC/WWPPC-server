@@ -5,7 +5,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
 import ClientAuth from './auth';
 import config, { ContestConfiguration } from './config';
-import { Database, DatabaseOpCode, ReadProblemsCriteria, ScoreState, Submission } from './database';
+import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
@@ -21,8 +21,15 @@ export class ContestManager {
 
     readonly db: Database;
     readonly app: Express;
-    readonly startEventEmitter: LongPollEventEmitter<['contests']>;
-    readonly eventEmitter: NamespacedLongPollEventEmitter<['data', 'submissionData']>;
+    readonly longPollingGlobal: LongPollEventEmitter<{
+        contests: string[]
+    }>;
+    readonly longPollingUsers: NamespacedLongPollEventEmitter<{
+        contestData: ClientContest
+        contestScoreboards: ({ team: string } & UserScore)[]
+        contestNotifications: never
+        submissionData: ClientSubmission[]
+    }>;
     readonly grader: Grader;
     readonly logger: NamedLogger;
 
@@ -34,10 +41,9 @@ export class ContestManager {
         this.app = app;
         this.grader = grader;
         this.logger = new NamedLogger(defaultLogger, 'ContestManager');
-        // this order is very important!! createEndpoints has contest registration checks that block event access if not registered
+        this.longPollingGlobal = new LongPollEventEmitter();
+        this.longPollingUsers = new NamespacedLongPollEventEmitter
         this.createEndpoints();
-        this.startEventEmitter = new LongPollEventEmitter(app, '/api/contest/', ['contests']);
-        this.eventEmitter = new NamespacedLongPollEventEmitter(app, '/api/contest/', ['data', 'submissionData'], []);
         // auto-start contests
         this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
         this.checkNewContests();
@@ -80,12 +86,36 @@ export class ContestManager {
                 }
                 const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
                 this.contests.set(contest.id, host);
-                this.eventEmitter.addNamespace(contest.id);
-                this.startEventEmitter.emit('contests', [...this.contests.keys()]);
+                this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
+                host.on('data', (data) => {
+                    this.longPollingUsers.emit(host.id, 'contestData', data);
+                });
+                host.on('scoreboards', (scores) => {
+                    this.longPollingUsers.emit(host.id, 'contestScoreboards', Array.from(scores, ([team, score]) => ({ team: team, ...score })));
+                });
+                host.on('submissionUpdate', async (team, problemId) => {
+                    // could run into issues with excessive amounts of this event
+                    // ... but it's still better than whatever the Socket.IO codebase did
+                    const submissions = await this.db.readSubmissions({
+                        team: team,
+                        problemId: problemId,
+                        time: host.getTimeRange(),
+                        analysis: false
+                    });
+                    if (Array.isArray(submissions)) {
+                        if (config.debugMode) this.logger.debug(`Updating submissions for ${team}, ${problemId}`);
+                        this.longPollingUsers.emit(`${host.id}:${team}:${problemId}`, 'submissionData', submissions.map<ClientSubmission>((sub) => ({
+                            time: sub.time,
+                            language: sub.language,
+                            scores: sub.scores,
+                            status: host.calculateCompletionState(sub),
+                            analysis: false
+                        })));
+                    } else this.logger.warn(`Failed to update submissions for ${team}, ${problemId}: ${reverse_enum(DatabaseOpCode, submissions)}`);
+                });
                 host.on('end', () => {
                     this.contests.delete(contest.id);
-                    this.eventEmitter.removeNamespace(contest.id);
-                    this.startEventEmitter.emit('contests', [...this.contests.keys()]);
+                    this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
                 });
             }
         }
@@ -223,7 +253,14 @@ export class ContestManager {
             }
             next();
         });
-        // long-polling request for contest data handled outside, covered by above middleware
+        this.app.get('/api/contest/:contest/data', (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            this.longPollingUsers.addWaiter(req.params.contest, 'contestData', res);
+        });
         const respondGetProblemData = async (req: Request, res: Response, problemId: UUID) => {
             const username = req.cookies[sessionUsername as any] as string;
             const team = req.cookies[sessionTeam as any] as string;
@@ -248,15 +285,6 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read problem');
                 return;
             }
-            const submissionRes = await this.db.readSubmissions({
-                problemId: problemRes[0].id,
-                team: team,
-                time: contestHost.getTimeRange()
-            });
-            if (!Array.isArray(submissionRes)) {
-                sendDatabaseResponse(req, res, submissionRes, {}, this.logger, username, 'Read submissions');
-                return;
-            }
             res.json({
                 id: problemRes[0].id,
                 contest: req.params.contest,
@@ -265,13 +293,7 @@ export class ContestManager {
                 name: problemRes[0].name,
                 author: problemRes[0].author,
                 content: problemRes[0].content,
-                constraints: problemRes[0].constraints,
-                submissions: submissionRes.map<ClientSubmission>((sub) => ({
-                    time: sub.time,
-                    language: sub.language,
-                    scores: sub.scores,
-                    status: contestHost.calculateCompletionState(sub)
-                }))
+                constraints: problemRes[0].constraints
             } satisfies ClientProblem);
         };
         this.app.get('/api/contest/:contest/problem/:pId', async (req, res) => {
@@ -284,11 +306,11 @@ export class ContestManager {
         });
         this.app.get('/api/contest/:contest/problem/:pRound-:pNumber', async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const contestHost = this.contests.get(req.params.contest)!;
             if (!this.contests.has(req.params.contest)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
             }
+            const contestHost = this.contests.get(req.params.contest)!;
             const pRound = Number(req.params.pRound);
             const pNumber = Number(req.params.pNumber);
             if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
@@ -305,7 +327,7 @@ export class ContestManager {
             validateRequestBody({
                 file: `required|string|length:${contestHost.contestConfig.maxSubmissionSize}`,
                 language: contestHost.contestConfig.submitSolver ? `required|string|in:${contestHost.contestConfig.acceptedSolverLanguages.join(',')}` : undefined
-            }, this.logger)(req, res, next);
+            }, this.logger, 422)(req, res, next);
         };
         const respondUploadSubmission = async (req: Request, res: Response, problemId: UUID, file: string, language?: string) => {
             const username = req.cookies[sessionUsername as any] as string;
@@ -340,11 +362,11 @@ export class ContestManager {
         });
         this.app.post('/api/contest/:contest/submit/:pRound-:pNumber', parseBodyJson(), validateUploadSubmission, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const contestHost = this.contests.get(req.params.contest)!;
             if (!this.contests.has(req.params.contest)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
             }
+            const contestHost = this.contests.get(req.params.contest)!;
             const pRound = Number(req.params.pRound);
             const pNumber = Number(req.params.pNumber);
             if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
@@ -353,6 +375,42 @@ export class ContestManager {
                 return;
             }
             respondUploadSubmission(req, res, contestHost.getProblemId(pRound, pNumber) ?? '', req.body.file, req.body.language)
+        });
+        this.app.get('/api/contest/:contest/submissions/:pId', (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            const contestHost = this.contests.get(req.params.contest)!;
+            if (!isUUID(req.params.pId)) {
+                if (config.debugMode) this.logger.warn(`${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                res.status(400).send('Invalid problem UUID');
+                return;
+            }
+            if (!contestHost.containsProblem(req.params.pId)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check problem');
+                return;
+            }
+            this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+        });
+        this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            this.longPollingUsers.addWaiter(req.params.contest, 'contestScoreboards', res);
+        });
+        // not implemented but it's still here
+        this.app.get('/api/contest/:contest/notifications', (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            this.longPollingUsers.addWaiter(req.params.contest, 'contestNotifications', res);
         });
     }
 
@@ -368,8 +426,8 @@ export class ContestManager {
      * Stops all contests and closes the contest manager
      */
     close() {
-        this.startEventEmitter.close();
-        this.eventEmitter.close();
+        this.longPollingGlobal.close();
+        this.longPollingUsers.close();
         this.contests.forEach((contest) => contest.end());
         this.grader.close();
         clearInterval(this.updateLoop);
@@ -377,7 +435,7 @@ export class ContestManager {
 }
 
 /**
- * Module of `ContestManager` containing hosting for individual contests, including handling submissions.
+ * Module of {@link ContestManager} containing hosting for individual contests, including handling submissions.
  * Communication with clients is handled through ContestManager.
  */
 export class ContestHost {
@@ -395,9 +453,13 @@ export class ContestHost {
     private ended: boolean = false;
     private updateLoop: NodeJS.Timeout | undefined = undefined;
     private readonly eventEmitter: TypedEventEmitter<{
+        // [Contest data]
         data: [ClientContest]
+        // [Current client scoreboards]
         scoreboards: [Map<string, UserScore>]
-        submissionUpdate: [string]
+        // [team ID, problem UUID]
+        submissionUpdate: [string, UUID]
+        // []
         end: []
     }> = new TypedEventEmitter();
 
@@ -495,7 +557,11 @@ export class ContestHost {
             this.end();
             return;
         }
-        const submissions = await this.db.readSubmissions({ contest: { contest: this.contest.id }, team: teams, analysis: false });
+        const submissions = await this.db.readSubmissions({
+            contest: { contest: this.id },
+            team: teams,
+            analysis: false
+        });
         if (submissions == DatabaseOpCode.ERROR) {
             this.logger.error(`Database error`);
             this.end();
@@ -664,14 +730,14 @@ export class ContestHost {
         }
         const writeRes = await this.db.writeSubmission(submission);
         if (writeRes != DatabaseOpCode.SUCCESS) return writeRes;
-        this.eventEmitter.emit('submissionUpdate', submission.team!);
+        this.eventEmitter.emit('submissionUpdate', submission.team!, submission.problemId);
         if (this.contestConfig.graders) {
             // server grades submission instead of manual grading
             const writeGraded = async (graded: Submission) => {
                 const res = await this.db.writeSubmission(graded);
                 if (res != DatabaseOpCode.SUCCESS) this.logger.error(`Failed to write submission ${graded.username}-${graded.problemId}`);
                 // submission must have team in contest (verified when passed in as parameter)
-                this.eventEmitter.emit('submissionUpdate', graded.team!);
+                this.eventEmitter.emit('submissionUpdate', graded.team!, graded.problemId);
                 this.scorer.updateUser(graded);
             };
             if (this.contestConfig.submitSolver) {
