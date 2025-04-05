@@ -1106,6 +1106,7 @@ export class Database {
                         round: structuredClone(r),
                         expiration: performance.now() + config.dbCacheTime
                     });
+                    // band-aid fix for filters borked by "contest"
                     if (c.id === undefined || filterCompare<UUID>(r.id, c.id)) rounds.push(r);
                 }
             }
@@ -1243,7 +1244,8 @@ export class Database {
                         problem: structuredClone(p),
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
-                    problems.push(p);
+                    // band-aid fix for filters borked by "contest"
+                    if (c.id === undefined || filterCompare<UUID>(problem.id, c.id)) problems.push(p);
                 }
             }
             return problems;
@@ -1399,7 +1401,8 @@ export class Database {
                         submission: structuredClone(s),
                         expiration: performance.now() + config.dbCacheTime
                     });
-                    submissions.push(s);
+                    // band-aid fix for filters borked by "contest"
+                    if (c.problemId === undefined || filterCompare<UUID>(submission.problemId, c.problemId)) submissions.push(s);
                 }
             }
             return submissions;
@@ -1688,14 +1691,14 @@ export type ReadRoundsCriteria = {
     contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
     round?: FilterComparison<number>
-    /**Round ID (will break filters if used in conjunction with contest/round) */
+    /**Round ID */
     id?: FilterComparison<UUID>
     /**Start of round, UNIX time */
     startTime?: FilterComparison<number>
     /**End of round, UNIX time */
     endTime?: FilterComparison<number>
 }
-/**Contest-based filter including contest, round, problem number, and round ID (will break filters if used in conjunction with ID) */
+/**Contest-based filter including contest, round, problem number, and round ID */
 export type ProblemRoundCriteria = {
     /**Contest ID */
     contest?: FilterComparison<string>

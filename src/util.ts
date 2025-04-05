@@ -239,7 +239,7 @@ export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'ha
  * @param rules Input validation rules
  * @param logger Logging instance
  */
-export function validateRequestBody(rules: object, logger?: Logger): (req: Request, res: Response, next: NextFunction) => Promise<void> {
+export function validateRequestBody(rules: object, logger?: Logger, responseCode: number = 400): (req: Request, res: Response, next: NextFunction) => Promise<void> {
     return async (req, res, next) => {
         const validator = new Validator(req.body, rules);
         validator.doBail = !config.debugMode;
@@ -247,7 +247,7 @@ export function validateRequestBody(rules: object, logger?: Logger): (req: Reque
             next();
         } else {
             if (config.debugMode && logger !== undefined) logger.warn(`${req.path} malformed: ${validator.errors} (${req.ip})`);
-            res.status(400).send(validator.errors);
+            res.status(responseCode).send(validator.errors);
         }
     };
 }

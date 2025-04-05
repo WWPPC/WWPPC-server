@@ -3,7 +3,7 @@ import Logger, { NamedLogger } from './log';
 import { UUID } from './util';
 
 /**Subtask (as used by Scorer class) */
-interface Subtask {
+type Subtask = {
     /**Round id */
     round: UUID
     /**Problem id */
@@ -13,7 +13,7 @@ interface Subtask {
 }
 
 /**User score */
-export interface UserScore {
+export type UserScore = {
     /**Score */
     score: number
     /**Penalty (useful if a certain score appears many times) */
