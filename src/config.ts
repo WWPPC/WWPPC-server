@@ -89,12 +89,13 @@ export interface ContestConfiguration {
     readonly directSubmissionDelay: number
     /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedSolverLanguages: string[]
-    /**Maximum file size of uploaded submission files (default: 10kb) */
-    readonly maxSubmissionSize: string
+    /**Maximum character length of uploaded submissions (default: 65536) */
+    readonly maxSubmissionSize: number
 };
 /**
  * Global configuration, loaded from `config.json` in the config folder.
  * If any field is empty in `config.json`, it is filled in with the default.
+ * {@link GlobalConfiguration}
  */
 const config: GlobalConfiguration = {
     hostname: fileConfig.hostname ?? 'wwppc.tech',
@@ -129,7 +130,7 @@ const config: GlobalConfiguration = {
                 'C++20',
                 'Python3.12.3'
             ],
-            maxSubmissionSize: cVal.maxSubmissionSize ?? 10240
+            maxSubmissionSize: cVal.maxSubmissionSize ?? 65536
         };
         return p;
     }, {}) : {},

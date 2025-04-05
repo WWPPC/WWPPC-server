@@ -1,15 +1,16 @@
-import { Express } from 'express';
-
+import { json as parseBodyJson } from 'body-parser';
+import { Express, NextFunction, Request, Response } from 'express';
 import { v4 as uuidV4 } from 'uuid';
-import { ClientContest, ClientProblemCompletionState, ClientRound } from './api';
+
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
 import ClientAuth from './auth';
-import config from './config';
-import { Database, DatabaseOpCode, Score, ScoreState, Submission } from './database';
+import config, { ContestConfiguration } from './config';
+import { Database, DatabaseOpCode, ReadProblemsCriteria, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
 import Scorer, { UserScore } from './scorer';
-import { isUUID, reverse_enum, sendDatabaseResponse, UUID } from './util';
+import { FilterComparison, isUUID, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients through HTTP.
@@ -77,12 +78,14 @@ export class ContestManager {
                     this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
                     continue;
                 }
-                this.eventEmitter.addNamespace(contest.id);
                 const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
                 this.contests.set(contest.id, host);
-                host.onended(() => {
+                this.eventEmitter.addNamespace(contest.id);
+                this.startEventEmitter.emit('contests', [...this.contests.keys()]);
+                host.on('end', () => {
                     this.contests.delete(contest.id);
                     this.eventEmitter.removeNamespace(contest.id);
+                    this.startEventEmitter.emit('contests', [...this.contests.keys()]);
                 });
             }
         }
@@ -202,6 +205,11 @@ export class ContestManager {
         this.app.use('/api/contest/:contest/*', async (req, res, next) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string;
+            if (!this.contests.has(req.params.contest)) {
+                // this check is repeated later because of edge case where contest ends between this and the handler
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
             const teamData = await this.db.getTeamData(team);
             if (typeof teamData != 'object') {
                 sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check registration');
@@ -214,6 +222,137 @@ export class ContestManager {
                 return;
             }
             next();
+        });
+        // long-polling request for contest data handled outside, covered by above middleware
+        const respondGetProblemData = async (req: Request, res: Response, problemId: UUID) => {
+            const username = req.cookies[sessionUsername as any] as string;
+            const team = req.cookies[sessionTeam as any] as string;
+            const contestHost = this.contests.get(req.params.contest)!;
+            if (!isUUID(problemId)) {
+                if (config.debugMode) this.logger.warn(`${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                res.status(400).send('Invalid problem UUID');
+                return;
+            }
+            const [pRound, pNumber] = contestHost.getProblemRoundAndNumber(problemId);
+            if (pRound === undefined) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read problem');
+                return;
+            }
+            const problemRes = await this.db.readProblems({ id: problemId });
+            if (!Array.isArray(problemRes)) {
+                sendDatabaseResponse(req, res, problemRes, {}, this.logger, username, 'Read problem');
+                return;
+            }
+            if (problemRes.length != 1) {
+                // just in case somehow its gone from the database
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read problem');
+                return;
+            }
+            const submissionRes = await this.db.readSubmissions({
+                problemId: problemRes[0].id,
+                team: team,
+                time: contestHost.getTimeRange()
+            });
+            if (!Array.isArray(submissionRes)) {
+                sendDatabaseResponse(req, res, submissionRes, {}, this.logger, username, 'Read submissions');
+                return;
+            }
+            res.json({
+                id: problemRes[0].id,
+                contest: req.params.contest,
+                round: pRound,
+                number: pNumber,
+                name: problemRes[0].name,
+                author: problemRes[0].author,
+                content: problemRes[0].content,
+                constraints: problemRes[0].constraints,
+                submissions: submissionRes.map<ClientSubmission>((sub) => ({
+                    time: sub.time,
+                    language: sub.language,
+                    scores: sub.scores,
+                    status: contestHost.calculateCompletionState(sub)
+                }))
+            } satisfies ClientProblem);
+        };
+        this.app.get('/api/contest/:contest/problem/:pId', async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            respondGetProblemData(req, res, req.params.pId);
+        });
+        this.app.get('/api/contest/:contest/problem/:pRound-:pNumber', async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const contestHost = this.contests.get(req.params.contest)!;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            const pRound = Number(req.params.pRound);
+            const pNumber = Number(req.params.pNumber);
+            if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
+                if (config.debugMode) this.logger.warn(`${req.path} malformed: Invalid round or problem number (${req.ip})`);
+                res.status(400).send('Invalid round or problem number');
+                return;
+            }
+            // get problem ID, will respond with 404 if not found (undefined -> empty string)
+            respondGetProblemData(req, res, contestHost.getProblemId(pRound, pNumber) ?? '');
+        });
+        const validateUploadSubmission = async (req: Request, res: Response, next: NextFunction) => {
+            // contest type MUST exist if contest is running (running assured by previous middleware)
+            const contestHost = this.contests.get(req.params.contest)!;
+            validateRequestBody({
+                file: `required|string|length:${contestHost.contestConfig.maxSubmissionSize}`,
+                language: contestHost.contestConfig.submitSolver ? `required|string|in:${contestHost.contestConfig.acceptedSolverLanguages.join(',')}` : undefined
+            }, this.logger)(req, res, next);
+        };
+        const respondUploadSubmission = async (req: Request, res: Response, problemId: UUID, file: string, language?: string) => {
+            const username = req.cookies[sessionUsername as any] as string;
+            const team = req.cookies[sessionTeam as any] as string;
+            const contestHost = this.contests.get(req.params.contest)!;
+            if (!isUUID(problemId)) {
+                if (config.debugMode) this.logger.warn(`${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                res.status(400).send('Invalid problem UUID');
+                return;
+            }
+            const submission: Submission = {
+                id: uuidV4(),
+                username: username,
+                team: team,
+                problemId: problemId,
+                time: Date.now(),
+                file: file,
+                language: language ?? 'none',
+                scores: [],
+                analysis: false
+            };
+            const processRes = await contestHost.processSubmission(submission);
+            sendDatabaseResponse(req, res, processRes, {}, this.logger, username, 'Queue submission');
+        }
+        this.app.post('/api/contest/:contest/submit/:pId', parseBodyJson(), validateUploadSubmission, async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            respondUploadSubmission(req, res, req.params.pId, req.body.file, req.body.language);
+        });
+        this.app.post('/api/contest/:contest/submit/:pRound-:pNumber', parseBodyJson(), validateUploadSubmission, async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const contestHost = this.contests.get(req.params.contest)!;
+            if (!this.contests.has(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            const pRound = Number(req.params.pRound);
+            const pNumber = Number(req.params.pNumber);
+            if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
+                if (config.debugMode) this.logger.warn(`${req.path} malformed: Invalid round or problem number (${req.ip})`);
+                res.status(400).send('Invalid round or problem number');
+                return;
+            }
+            respondUploadSubmission(req, res, contestHost.getProblemId(pRound, pNumber) ?? '', req.body.file, req.body.language)
         });
     }
 
@@ -229,6 +368,7 @@ export class ContestManager {
      * Stops all contests and closes the contest manager
      */
     close() {
+        this.startEventEmitter.close();
         this.eventEmitter.close();
         this.contests.forEach((contest) => contest.end());
         this.grader.close();
@@ -242,6 +382,7 @@ export class ContestManager {
  */
 export class ContestHost {
     readonly contestType: string;
+    readonly contestConfig: ContestConfiguration;
     readonly id: string;
     readonly db: Database;
     readonly grader: Grader;
@@ -253,11 +394,15 @@ export class ContestHost {
     private active: boolean = false;
     private ended: boolean = false;
     private updateLoop: NodeJS.Timeout | undefined = undefined;
+    private readonly eventEmitter: TypedEventEmitter<{
+        data: [ClientContest]
+        scoreboards: [Map<string, UserScore>]
+        submissionUpdate: [string]
+        end: []
+    }> = new TypedEventEmitter();
 
     private scoreboard: Map<string, UserScore> = new Map();
     private clientScoreboard: Map<string, UserScore> = new Map();
-
-    readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
     /**
      * @param type Contest type ID
@@ -269,6 +414,7 @@ export class ContestHost {
     constructor(type: string, id: string, db: Database, grader: Grader, logger: Logger) {
         if (config.contests[type] === undefined) throw new ReferenceError(`Contest type "${type}" does not exist in configuration`);
         this.contestType = type;
+        this.contestConfig = config.contests[type]!;
         this.id = id;
         this.db = db;
         this.grader = grader;
@@ -304,7 +450,7 @@ export class ContestHost {
             this.end();
             return;
         }
-        if (!config.contests[this.contestType]!.rounds && contest[0].rounds.length != 1) {
+        if (!this.contestConfig.rounds && contest[0].rounds.length != 1) {
             this.logger.error('Contest rounds are disabled, but contest contains multiple rounds');
             this.end();
             return;
@@ -341,38 +487,22 @@ export class ContestHost {
         this.contest.rounds = mapped;
         this.contest.startTime = contest[0].startTime;
         this.contest.endTime = contest[0].endTime;
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-        // EMIT UPDATE FOR DATA
-
+        this.eventEmitter.emit('data', this.contestData);
         // reload the scoreboard too
-        const users = await this.db.getAllRegisteredUsers(this.id);
-        if (users == DatabaseOpCode.ERROR) {
+        const teams = await this.db.getAllRegisteredTeams(this.id);
+        if (teams == DatabaseOpCode.ERROR) {
             this.logger.error(`Database error`);
             this.end();
             return;
         }
-        const submissions = await this.db.readSubmissions({ contest: { contest: this.contest.id }, username: users, analysis: false });
+        const submissions = await this.db.readSubmissions({ contest: { contest: this.contest.id }, team: teams, analysis: false });
         if (submissions == DatabaseOpCode.ERROR) {
             this.logger.error(`Database error`);
             this.end();
             return;
         }
         // maintain consistency with score freeze time
-        const scoreFreezeCutoffTime = this.contest.rounds[this.contest.rounds.length - 1].endTime - (config.contests[this.contestType]!.scoreFreezeTime * 60000);
+        const scoreFreezeCutoffTime = this.contest.rounds[this.contest.rounds.length - 1].endTime - (this.contestConfig.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
             if (sub.time < scoreFreezeCutoffTime) {
@@ -401,8 +531,11 @@ export class ContestHost {
             } else break;
         }
         this.logger.info(`Contest ${this.contest.id} - Indexed to round ${this.index}`);
+        // advancing to next round
         let scorerUpdateModulo = 0;
         this.updateLoop = setInterval(() => {
+            // index is from start of round to start of next round; -1 means before round 0
+            // active means round is active (index 0 active false means between round 0 and round 1/end of contest)
             const now = Date.now();
             let updated = false;
             if (this.index >= 0 && this.contest.rounds[this.index].endTime <= now && this.active) {
@@ -416,35 +549,14 @@ export class ContestHost {
                 this.active = true;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} start`);
             }
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
-            // EMIT UPDATE FOR DATA
+            this.eventEmitter.emit('data', this.contestData);
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             scorerUpdateModulo++;
             if (scorerUpdateModulo % 200 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
-                // EMIT UPDATE FOR SCOREBOARDS
+                this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()));
             }
         }, 50);
     }
@@ -455,174 +567,202 @@ export class ContestHost {
     get scoreboards(): Map<string, UserScore> {
         return new Map(this.scoreboard);
     }
-
     /**
      * Get (never frozen) scoreboards
      */
     get clientScoreboards(): Map<string, UserScore> {
         return new Map(this.clientScoreboard);
     }
-    
     /**
      * The current contest data, in client format.
      */
     get contestData(): ClientContest {
         return structuredClone(this.contest);
     }
-
     /**
      * Index of the current round (zero-indexed).
      */
     get round(): number {
         return this.index;
     }
-
+    /**
+     * Get a {@link FilterComparison} for the time range of the entire contest or a specific round.
+     * @param round Round number, if `undefined` entire contest
+     * @returns `FilterComparison` for time range, or `-1` if an invalid round number supplied
+     */
+    getTimeRange(round?: number): FilterComparison<number> {
+        if (round === undefined) {
+            return {
+                op: '=><',
+                v1: this.contest.startTime,
+                v2: this.contest.endTime
+            };
+        } else {
+            if (this.contest.rounds[round] !== undefined) return {
+                op: '=><',
+                v1: this.contest.rounds[round].startTime,
+                v2: this.contest.rounds[round].endTime,
+            };
+            else return -1;
+        }
+    }
+    /**
+     * Get the problem UUID by the round and number.
+     * @param round Round number
+     * @param problem Problem number
+     * @returns Problem UUID, or undefined if the round/problem does not exist
+     */
+    getProblemId(round: number, problem: number): UUID | undefined {
+        return this.contest.rounds[round]?.problems[problem];
+    }
+    /**
+     * Get the problem round and problem number by the problem UUID.
+     * @param id Problem ID
+     * @returns Problem [round, number], or undefined if the problem is not in the contest
+     */
+    getProblemRoundAndNumber(id: UUID): [number, number] | [undefined, undefined] {
+        for (let r = 0; r < this.contest.rounds.length; r++) {
+            const p = this.contest.rounds[r].problems.indexOf(id);
+            if (p != -1) return [r, p];
+        }
+        return [undefined, undefined]
+    }
+    /**
+     * Check if a given problem is within this contest.
+     * @param id Problem ID
+     * @returns If the problem is in the contest
+     */
+    containsProblem(id: UUID): boolean {
+        return this.contest.rounds.some((round) => round.problems.includes(id));
+    }
     /**
      * Get if a particular problem ID is submittable.
      * @param id Problem ID
-     * @returns 
+     * @returns If the problem is in the contest and submittable
      */
     problemSubmittable(id: UUID): boolean {
         return this.active && this.contest.rounds[this.index].problems.includes(id);
     }
 
-    private getCompletionState(round: number, scores: Score[] | undefined): ClientProblemCompletionState {
+    readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
+
+    /**
+     * Submit a solution to the contest. Will automatically grade and associate the submission with the correct team.
+     * @param submission Submission
+     * @returns Status code
+     */
+    async processSubmission(submission: Submission): Promise<DatabaseOpCode> {
+        if (!this.containsProblem(submission.problemId))
+            return DatabaseOpCode.NOT_FOUND;
+        if (!this.problemSubmittable(submission.problemId)
+            || !this.contestConfig.acceptedSolverLanguages.includes(submission.language)
+            || submission.file.length > this.contestConfig.maxSubmissionSize)
+            return DatabaseOpCode.FORBIDDEN;
+        if (submission.team === null) {
+            this.logger.error('Cannot grade contest submission without team');
+            return DatabaseOpCode.ERROR;
+        }
+        const writeRes = await this.db.writeSubmission(submission);
+        if (writeRes != DatabaseOpCode.SUCCESS) return writeRes;
+        this.eventEmitter.emit('submissionUpdate', submission.team!);
+        if (this.contestConfig.graders) {
+            // server grades submission instead of manual grading
+            const writeGraded = async (graded: Submission) => {
+                const res = await this.db.writeSubmission(graded);
+                if (res != DatabaseOpCode.SUCCESS) this.logger.error(`Failed to write submission ${graded.username}-${graded.problemId}`);
+                // submission must have team in contest (verified when passed in as parameter)
+                this.eventEmitter.emit('submissionUpdate', graded.team!);
+                this.scorer.updateUser(graded);
+            };
+            if (this.contestConfig.submitSolver) {
+                // submit solution code
+                this.grader.cancelUngraded(submission.team, submission.problemId);
+                this.grader.queueUngraded(submission, async (graded) => {
+                    if (graded === null) this.logger.warn(`Grading for submission ${submission.username}-${submission.problemId} was cancelled!`);
+                    else {
+                        if (config.debugMode) this.logger.debug(`Grading for submission ${submission.username}-${submission.problemId} complete`);
+                        writeGraded(graded);
+                    }
+                });
+            } else {
+                // submit answer
+                const problemRes = await this.db.readProblems({ id: submission.problemId });
+                if (!Array.isArray(problemRes)) {
+                    this.logger.error(`Failed to read problem solution for ${submission.problemId}: ${reverse_enum(DatabaseOpCode, problemRes)}`);
+                    return problemRes;
+                }
+                if (problemRes.length != 1) {
+                    this.logger.error(`Failed to read problem solution for ${submission.problemId}: NOT_FOUND`);
+                    return DatabaseOpCode.NOT_FOUND;
+                }
+                const problem = problemRes[0];
+                if (problem.solution === null) {
+                    this.logger.error(`Failed to read problem solution for ${submission.problemId}: solution is null`);
+                    return DatabaseOpCode.ERROR;
+                }
+                // odd way of doing this but it works
+                const subId = submission.team + ':' + submission.problemId;
+                if (this.pendingDirectSubmissions.has(subId)) clearTimeout(this.pendingDirectSubmissions.get(subId));
+                const timeout = setTimeout(() => {
+                    const sub2 = structuredClone(submission);
+                    sub2.scores.push({
+                        state: sub2.file === problem.solution ? ScoreState.PASS : ScoreState.INCORRECT,
+                        time: 0,
+                        memory: 0,
+                        subtask: 0
+                    });
+                    writeGraded(sub2);
+                    this.pendingDirectSubmissions.delete(subId);
+                }, this.contestConfig.directSubmissionDelay * 1000);
+                this.pendingDirectSubmissions.set(subId, timeout);
+            }
+        } else {
+            // manual grading
+            this.logger.error(`Manual grading is not supported (contest ${this.id}, type ${this.contestType})`);
+            return DatabaseOpCode.ERROR;
+        }
+        return DatabaseOpCode.SUCCESS;
+    }
+
+    /**
+     * Add an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    on: ContestHost['eventEmitter']['on'] = (...args) => {
+        this.eventEmitter.on(...args);
+    }
+    /**
+     * Remove an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    off: ContestHost['eventEmitter']['off'] = (...args) => {
+        this.eventEmitter.off(...args);
+    }
+
+    /**
+     * Get the completion state to be displayed by the client for a given submission.
+     * @param submission Submission to assign completion state to
+     * @returns Completion state of submission
+     */
+    calculateCompletionState(submission?: Submission): ClientProblemCompletionState {
+        if (submission === undefined) return ClientProblemCompletionState.NOT_UPLOADED;
         // will not reveal verdict until round ends
-        if (scores === undefined) return ClientProblemCompletionState.NOT_UPLOADED;
-        if (config.contests[this.contestType]!.withholdResults && round == this.index) return ClientProblemCompletionState.UPLOADED;
-        if (scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
+        if (this.contestConfig.withholdResults && this.problemSubmittable(submission.problemId)) return ClientProblemCompletionState.UPLOADED;
+        if (submission.scores.length == 0) return ClientProblemCompletionState.SUBMITTED;
         // all cases in subtask must be solved to be correct
         const subtasks = new Map<number, boolean>();
-        for (const score of scores) {
+        for (const score of submission.scores) {
             if (subtasks.get(score.subtask) !== false) subtasks.set(score.subtask, score.state == ScoreState.PASS);
         }
         const hasPass = Array.from(subtasks.keys()).some((subtask) => subtasks.get(subtask));
-        const hasFail = scores.some((score) => score.state != ScoreState.PASS);
+        const hasFail = submission.scores.some((score) => score.state != ScoreState.PASS);
         if (hasPass && !hasFail) return ClientProblemCompletionState.GRADED_PASS;
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
         return ClientProblemCompletionState.GRADED_FAIL;
     }
 
-    /**
-     * Add an internal SocketIO connection (within the contest namespace) to the user list.
-     * @param s SocketIO connection within the namespace (with modifications)
-     */
-    addInternalSocket(s: any): void {
-        const socket = s;
-
-        // make sure no accidental duping
-        socket.removeAllListeners('updateSubmission');
-        socket.removeAllListeners('getSubmissionCode');
-        socket.on('updateSubmission', async (submission: { id: string, file: string, lang: string }, cb: (res: any) => any) => {
-            
-            const problems = await this.db.readProblems({ id: submission.id });
-            if (problems === DatabaseOpCode.ERROR || problems.length != 1) {
-                // this.logger.handleError(`Could not load problem "${submission.id}"`, `Fetched ${problems?.length ?? 'null'} results`);
-                return;
-            }
-            const teamData = await this.db.getTeamData(socket.username);
-            if (typeof teamData != 'object') {
-                this.logger.handleError(`Could not fetch team data (for ${socket.username})!`, `Result ${reverse_enum(DatabaseOpCode, teamData)}`);
-                return;
-            }
-            const serverSubmission: Submission = {
-                id: uuidV4(),
-                username: socket.username,
-                team: teamData.id,
-                problemId: submission.id,
-                file: submission.file,
-                scores: [],
-                language: submission.lang,
-                time: Date.now(),
-                analysis: false
-            };
-            if (!(await this.db.writeSubmission(serverSubmission))) {
-                this.logger.error(`Failed to write submission for ${serverSubmission.problemId} by ${socket.username}`);
-                return;
-            }
-            /**
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             * PROBABY SHOULD DOCUMENT/EXPLAIN WHY BETTER
-             */
-            // submissions are stored under the team
-            if (config.contests[this.contestType]!.graders) {
-                const writeGraded = async (graded: Submission) => {
-                    if (!(await this.db.writeSubmission(graded))) {
-                        this.logger.error(`Failed to write submission for ${graded.problemId} by ${socket.username}`);
-                    }
-                    // make sure it gets to all the team
-                    const teamData = await this.db.getTeamData(socket.username);
-                    if (typeof teamData != 'object') this.logger.error(`Could not fetch team data (for ${socket.username})! Was the account deleted?`);
-                    // else teamData.members.forEach((username) => this.updateUser(username));
-                    // score it too (after grading)
-                    // this.scorer.updateUser(graded, this.contest.rounds[this.index].id);
-                }
-                if (config.contests[this.contestType]!.submitSolver) {
-                    // use the grading system
-                    this.grader.cancelUngraded(teamData.id, submission.id);
-                    this.grader.queueUngraded(serverSubmission, async (graded) => {
-                        if (graded === null) this.logger.warn(`Submission grading was canceled! (submitted by ${socket.username}, team ${teamData.id}, for ${submission.id})`);
-                        else if (config.debugMode) this.logger.debug(`Submission was completed (by ${socket.username}, team ${teamData.id} for ${submission.id})`);
-                        if (graded !== null) writeGraded(graded);
-                    });
-                } else {
-                    // direct comparison
-                    // if the problem doesnt have a solution then whomp whomp
-                    if (problems[0].solution === null) {
-                        this.logger.error(`Failed to grade submission solution for "${problems[0].id}" because correct solution is null`);
-                        return;
-                    }
-                    // cancel the previous submission in a weird way
-                    const subId = serverSubmission.username + ':' + serverSubmission.problemId;
-                    if (this.pendingDirectSubmissions.has(subId)) clearTimeout(this.pendingDirectSubmissions.get(subId));
-                    const timeout = setTimeout(() => {
-                        serverSubmission.scores.push({
-                            state: submission.file === problems[0].solution ? ScoreState.PASS : ScoreState.INCORRECT,
-                            time: 0,
-                            memory: 0,
-                            subtask: 0
-                        });
-                        writeGraded(serverSubmission);
-                        this.pendingDirectSubmissions.delete(subId);
-                    }, config.contests[this.contestType]!.directSubmissionDelay * 1000);
-                    this.pendingDirectSubmissions.set(subId, timeout);
-                }
-            } else {
-                // idk what to do here
-                this.logger.error(`Could not grade submission for ${submission.id} (from ${socket.username}):\nUnimplemented manual grading system used`);
-            }
-        });
-        socket.on('getSubmissionCode', async (data: { id: string }, cb: (res: string) => any) => {
-            if (data == null || typeof data.id != 'string' || !isUUID(data.id) || typeof cb != 'function') {
-                socket.kick('invalid getSubmissionCode payload');
-                return;
-            }
-            if (config.debugMode) socket.logWithId(this.logger.logger.info, 'Fetch submission code: ' + data.id);
-            const teamData = await this.db.getTeamData(socket.username);
-            if (typeof teamData != 'object') {
-                cb('');
-                return;
-            }
-            // same as having null checks
-            const submission = await this.db.readSubmissions({ username: teamData.id, id: data.id, analysis: false });
-            // cb(submission?.at(0)?.file ?? '');
-        });
-    }
-
-    private readonly endListeners: Set<() => any> = new Set();
     /**
      * Stop the running contest and remove all users.
      * @param complete Mark the contest as ended in database (contest cannot be restarted)
@@ -634,14 +774,7 @@ export class ContestHost {
             this.logger.info(`Ending contest "${this.id}"`);
             this.db.finishContest(this.id);
         }
-        this.endListeners.forEach((cb) => cb());
-    }
-    /**
-     * Add a listener for when the contest ends.
-     * @param cb Callback listener
-     */
-    onended(cb: () => any) {
-        this.endListeners.add(cb);
+        this.eventEmitter.emit('end');
     }
 }
 

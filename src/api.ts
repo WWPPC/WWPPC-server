@@ -71,6 +71,7 @@ export class ClientAPI {
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
+        // add email list unsubscribe endpoint for CAN-SPAM act compliance
         this.app.get('/api/coffee', (req, res) => {
             this.logger.warn(`Attempt to brew coffee using teapot (${req.ip})`);
             res.sendStatus(418);
@@ -307,7 +308,7 @@ export type ClientProblem = {
 /**Descriptor for a single submission as represented by the client */
 export type ClientSubmission = {
     time: number
-    lang: string
+    language: string
     scores: Score[]
     status: ClientProblemCompletionState
 }
@@ -319,14 +320,12 @@ export enum ClientProblemCompletionState {
     UPLOADED = 1,
     /**Submitted but not graded, submissions locked */
     SUBMITTED = 2,
-    /**Submitted, graded, and passed all subtasks */
-    GRADED_PASS = 3,
     /**Submitted, graded, and failed all subtasks */
-    GRADED_FAIL = 4,
+    GRADED_FAIL = 3,
     /**Submitted, graded, passed at least one subtask and failed at least one subtask */
-    GRADED_PARTIAL = 5,
-    /**Error loading status */
-    ERROR = 6
+    GRADED_PARTIAL = 4,
+    /**Submitted, graded, and passed all subtasks */
+    GRADED_PASS = 5
 }
 
 export default ClientAPI;

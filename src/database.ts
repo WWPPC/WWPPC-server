@@ -286,7 +286,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: (data.rows[0].team as number).toString(36)
+                team: Number(data.rows[0].team).toString(36)
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -497,7 +497,7 @@ export class Database {
                 [], name ?? 'Team', '', joinKey
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.ERROR;
-            const teamId = (res.rows[0].id as number).toString(36);
+            const teamId = Number(res.rows[0].id).toString(36);
             this.teamCache.set(teamId, {
                 data: {
                     id: teamId,
@@ -807,6 +807,25 @@ export class Database {
             return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`getAllRegisteredUsers in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Get a list of all teams that are registered for a contest.
+     * @param contest Contest ID
+     * @returns Array of team IDs with registrations for the contest, or an error code
+     */
+    async getAllRegisteredTeams(contest: string): Promise<string[] | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            const data = await this.db.query('SELECT id FROM teams WHERE $1=ANY(registrations) ORDER BY id ASC', [
+                contest
+            ]);
+            return data.rows.map((row) => Number(row.id).toString(36));
+        } catch (err) {
+            this.logger.handleError('Database error (getAllRegisteredTeams):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`getAllRegisteredTeams in ${performance.now() - startTime}ms`, true);
         }
     }
 
@@ -1356,7 +1375,7 @@ export class Database {
             if (problemIdList.length > 0 || (c.problemId === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
                 const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id !== undefined) ? submissionIdList : undefined },
-                    { name: 'problemid', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
+                    { name: 'problem', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
                     { name: 'team', value: c.team },
                     { name: 'time', value: c.time },
@@ -1369,7 +1388,7 @@ export class Database {
                         id: submission.id,
                         username: submission.username,
                         team: submission.team,
-                        problemId: submission.problemid,
+                        problemId: submission.problem,
                         time: Number(submission.time),
                         file: submission.file,
                         language: submission.language,
@@ -1669,14 +1688,14 @@ export type ReadRoundsCriteria = {
     contest?: FilterComparison<string>
     /**Zero-indexed round within the contest */
     round?: FilterComparison<number>
-    /**Round ID */
+    /**Round ID (will break filters if used in conjunction with contest/round) */
     id?: FilterComparison<UUID>
     /**Start of round, UNIX time */
     startTime?: FilterComparison<number>
     /**End of round, UNIX time */
     endTime?: FilterComparison<number>
 }
-/**Contest-based filter including contest, round, problem number, and round ID. Will break filters if used in conjunction with ID. */
+/**Contest-based filter including contest, round, problem number, and round ID (will break filters if used in conjunction with ID) */
 export type ProblemRoundCriteria = {
     /**Contest ID */
     contest?: FilterComparison<string>
@@ -1684,7 +1703,7 @@ export type ProblemRoundCriteria = {
     round?: FilterComparison<number>
     /**Zero-indexed problem number within the round */
     number?: FilterComparison<number>
-    /**Round ID */
+    /**Round ID (will break filters if used in conjunction with contest/round) */
     roundId?: FilterComparison<UUID>
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */

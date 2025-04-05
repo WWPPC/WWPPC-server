@@ -1,4 +1,4 @@
-import bodyParser from 'body-parser';
+import { json as parseBodyJson } from 'body-parser';
 import { Express, Request } from 'express';
 
 import config from './config';
@@ -36,7 +36,7 @@ export class Grader {
         this.db = db;
         this.password = password;
         this.logger.info('Creating WWPPC Grader under ' + this.path);
-        this.app.use(this.path + '/*', bodyParser.json());
+        this.app.use(this.path + '/*', parseBodyJson());
         // see docs
         this.app.get(this.path + '/get-work', async (req, res) => {
             //fetch work from the server
