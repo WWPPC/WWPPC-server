@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,7 +6,8 @@
 
 # Interface: GlobalConfiguration
 
-Global server configuration, loaded from config.json.
+Global server configuration, loaded from `config/config.json`.
+Includes contest configurations, loaded from `config/contests.json`.
 
 ## Properties
 
@@ -18,11 +19,11 @@ Contest types and options (no defaults)
 
 #### Index Signature
 
- \[`key`: `string`\]: [`ContestConfiguration`](ContestConfiguration.md) \| `undefined`
+ \[`key`: `string`\]: `undefined` \| [`ContestConfiguration`](ContestConfiguration.md)
 
 #### Defined in
 
-[config.ts:53](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L53)
+[config.ts:58](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L58)
 
 ***
 
@@ -34,7 +35,7 @@ Time in milliseconds before database cache entries expire (default: 60000)
 
 #### Defined in
 
-[config.ts:47](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L47)
+[config.ts:52](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L52)
 
 ***
 
@@ -46,7 +47,7 @@ Time in milliseconds before database cache entries for problems expire (default:
 
 #### Defined in
 
-[config.ts:49](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L49)
+[config.ts:54](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L54)
 
 ***
 
@@ -58,7 +59,7 @@ Enable debug logging (default: false)
 
 #### Defined in
 
-[config.ts:63](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L63)
+[config.ts:66](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L66)
 
 ***
 
@@ -70,7 +71,7 @@ A `data:` URI representing the profile image given to every account on creation
 
 #### Defined in
 
-[config.ts:43](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L43)
+[config.ts:48](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L48)
 
 ***
 
@@ -82,7 +83,7 @@ Sending email address (default: "no-reply@wwppc.tech")
 
 #### Defined in
 
-[config.ts:35](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L35)
+[config.ts:36](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L36)
 
 ***
 
@@ -94,7 +95,7 @@ Directory to load email templates from (default: `../email-templates/`)
 
 #### Defined in
 
-[config.ts:71](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L71)
+[config.ts:72](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L72)
 
 ***
 
@@ -106,7 +107,7 @@ Time in milliseconds before the grading host defaults a grading server to "disco
 
 #### Defined in
 
-[config.ts:51](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L51)
+[config.ts:56](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L56)
 
 ***
 
@@ -118,7 +119,7 @@ Hostname of website to be linked to in emails (default: "wwppc.tech")
 
 #### Defined in
 
-[config.ts:33](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L33)
+[config.ts:34](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L34)
 
 ***
 
@@ -130,7 +131,7 @@ Log information about sent emails (default: true)
 
 #### Defined in
 
-[config.ts:59](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L59)
+[config.ts:64](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L64)
 
 ***
 
@@ -142,31 +143,19 @@ Directory to write logs to - server will also create a `logs` directory there (d
 
 #### Defined in
 
-[config.ts:69](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L69)
-
-***
-
-### maxConnectPerSecond
-
-> `readonly` **maxConnectPerSecond**: `number`
-
-Ratelimiting - how many new Socket.IO connections can be made from any given IP address in 1 second before clients are kicked (default: 5)
-
-#### Defined in
-
-[config.ts:39](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L39)
+[config.ts:70](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L70)
 
 ***
 
 ### maxProfileImgSize
 
-> `readonly` **maxProfileImgSize**: `number`
+> `readonly` **maxProfileImgSize**: `string`
 
-Maximum file size of uploaded profile images (default: 65535)
+Maximum file size of uploaded profile images (default: 4kb)
 
 #### Defined in
 
-[config.ts:45](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L45)
+[config.ts:50](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L50)
 
 ***
 
@@ -174,11 +163,11 @@ Maximum file size of uploaded profile images (default: 65535)
 
 > `readonly` **maxSignupPerMinute**: `number`
 
-Ratelimiting - how many new accounts can be made from any given IP address in 1 minute before clients are kicked (default: 1)
+Ratelimiting - how many new accounts can be made from any given IP address in 1 minute before requests are blocked (default: 1)
 
 #### Defined in
 
-[config.ts:41](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L41)
+[config.ts:44](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L44)
 
 ***
 
@@ -186,11 +175,11 @@ Ratelimiting - how many new accounts can be made from any given IP address in 1 
 
 > `readonly` **maxSubmissionHistory**: `number`
 
-Maximum amount of previous submissions for a user on a problem kept in the database (only time, language, and scores are kept) (default: 24)
+Maximum amount of previous submissions for a user on a problem kept in the database (default: 24)
 
 #### Defined in
 
-[config.ts:57](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L57)
+[config.ts:62](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L62)
 
 ***
 
@@ -202,7 +191,7 @@ Same as the `CONFIG_PATH` environment variable (this cannot be edited in `config
 
 #### Defined in
 
-[config.ts:67](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L67)
+[config.ts:68](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L68)
 
 ***
 
@@ -214,7 +203,19 @@ TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 
 #### Defined in
 
-[config.ts:37](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L37)
+[config.ts:38](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L38)
+
+***
+
+### recoveryEmailTimeout
+
+> `readonly` **recoveryEmailTimeout**: `number`
+
+Ratelimiting - how much time (in minutes) must pass between recovery emails being sent for any account (default: 10)
+
+#### Defined in
+
+[config.ts:46](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L46)
 
 ***
 
@@ -222,20 +223,20 @@ TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 
 > `readonly` **rsaKeyRotateInterval**: `number`
 
-Milliseconds between client RSA keypair rotations (default: 86400000)
+Hours between client RSA keypair rotations (default: 24)
 
 #### Defined in
 
-[config.ts:61](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L61)
+[config.ts:42](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L42)
 
 ***
 
-### superSecretSecret
+### sessionExpireTime
 
-> `readonly` **superSecretSecret**: `boolean`
+> `readonly` **sessionExpireTime**: `number`
 
-� (�: �)
+Hours until login sessions expire (default 12)
 
 #### Defined in
 
-[config.ts:65](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/config.ts#L65)
+[config.ts:40](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/config.ts#L40)

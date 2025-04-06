@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 

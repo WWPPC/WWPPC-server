@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **filterCompare**\<`T`\>(`v`, `c`): `boolean`
 
-Compare a value using a `FilterComparison` ([FilterComparison](../type-aliases/FilterComparison.md)).
+Compare a value using a [FilterComparison](../type-aliases/FilterComparison.md).
 
 **Examples:**
 
@@ -31,11 +31,15 @@ filterCompare<number>(-5, { op: '<>', v1: -1, v2: 1}); // true, since -5 is out 
 
 ## Parameters
 
-• **v**: `T` & [`primitive`](../type-aliases/primitive.md)
+### v
+
+`T` & [`primitive`](../type-aliases/primitive.md)
 
 Value to compare
 
-• **c**: [`FilterComparison`](../type-aliases/FilterComparison.md)\<`T`\>
+### c
+
+[`FilterComparison`](../type-aliases/FilterComparison.md)\<`T`\>
 
 Comparison
 
@@ -47,4 +51,4 @@ Comparison result
 
 ## Defined in
 
-[util.ts:97](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/util.ts#L97)
+[util.ts:116](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L116)

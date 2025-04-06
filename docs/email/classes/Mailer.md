@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -16,7 +16,9 @@ Nodemailer wrapper with templates. Connects to an SMTP server.
 
 #### Parameters
 
-• **params**: [`MailerConstructorParams`](../interfaces/MailerConstructorParams.md)
+##### params
+
+[`MailerConstructorParams`](../interfaces/MailerConstructorParams.md)
 
 Parameters
 
@@ -26,7 +28,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/email.ts#L39)
+[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/email.ts#L39)
 
 ## Properties
 
@@ -36,7 +38,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/email.ts#L30)
+[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/email.ts#L30)
 
 ## Methods
 
@@ -52,7 +54,7 @@ Disconnect from the SMTP server.
 
 #### Defined in
 
-[email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/email.ts#L179)
+[email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/email.ts#L179)
 
 ***
 
@@ -64,19 +66,27 @@ Send and email from no-reply@wwppc.tech.
 
 #### Parameters
 
-• **recipients**: `string`[]
+##### recipients
+
+`string`[]
 
 List of recipient emails
 
-• **subject**: `string`
+##### subject
+
+`string`
 
 Subject line of email
 
-• **content**: `string`
+##### content
+
+`string`
 
 HTML content of email
 
-• **plaintext?**: `string`
+##### plaintext?
+
+`string`
 
 Plaintext version of email
 
@@ -88,7 +98,7 @@ Plaintext version of email
 
 #### Defined in
 
-[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/email.ts#L111)
+[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/email.ts#L111)
 
 ***
 
@@ -100,23 +110,33 @@ Send an email using a template from no-reply@wwppc.tech.
 
 #### Parameters
 
-• **template**: `string`
+##### template
+
+`string`
 
 Name of template (matches file name, without extension)
 
-• **recipients**: `string`[]
+##### recipients
+
+`string`[]
 
 List of recipient emails
 
-• **subject**: `string`
+##### subject
+
+`string`
 
 Subject line of email
 
-• **params**: [`string`, `string`][]
+##### params
+
+[`string`, `string`][]
 
 Replacements for parameters in email, in key-value pairs
 
-• **plaintext?**: `string`
+##### plaintext?
+
+`string`
 
 Plaintext version (does not use template)
 
@@ -128,4 +148,4 @@ Plaintext version (does not use template)
 
 #### Defined in
 
-[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/email.ts#L147)
+[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/email.ts#L147)

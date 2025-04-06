@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -18,7 +18,9 @@ Function supplied by queueUngraded to send submission to after grading is finish
 
 #### Parameters
 
-• **graded**: `null` \| [`Submission`](../../database/interfaces/Submission.md)
+##### graded
+
+`null` | [`Submission`](../../database/type-aliases/Submission.md)
 
 #### Returns
 
@@ -26,7 +28,7 @@ Function supplied by queueUngraded to send submission to after grading is finish
 
 #### Defined in
 
-[grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L284)
+[grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L284)
 
 ***
 
@@ -38,7 +40,7 @@ If the submission was cancelled
 
 #### Defined in
 
-[grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L288)
+[grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L288)
 
 ***
 
@@ -50,16 +52,16 @@ How many times the grading servers have failed grading this (returned)
 
 #### Defined in
 
-[grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L286)
+[grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L286)
 
 ***
 
 ### submission
 
-> **submission**: [`Submission`](../../database/interfaces/Submission.md)
+> **submission**: [`Submission`](../../database/type-aliases/Submission.md)
 
 The submission itself
 
 #### Defined in
 
-[grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L282)
+[grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L282)

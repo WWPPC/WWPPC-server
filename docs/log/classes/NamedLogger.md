@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,11 +6,11 @@
 
 # Class: NamedLogger
 
-An extension of any other Logger that adds a name prefix to all messages.
+An extension of any other `Logger` instance that adds a name prefix to all messages.
 
-## Implements
+## Extends
 
-- [`Logger`](../interfaces/Logger.md)
+- [`Logger`](Logger.md)
 
 ## Constructors
 
@@ -22,11 +22,15 @@ Create a new `NamedLogger` around an existing `Logger`.
 
 #### Parameters
 
-• **logger**: [`Logger`](../interfaces/Logger.md)
+##### logger
+
+[`Logger`](Logger.md)
 
 Logger instance to wrap around
 
-• **name**: `string`
+##### name
+
+`string`
 
 Name prefix, without brackets
 
@@ -34,19 +38,23 @@ Name prefix, without brackets
 
 [`NamedLogger`](NamedLogger.md)
 
+#### Overrides
+
+[`Logger`](Logger.md).[`constructor`](Logger.md#constructors)
+
 #### Defined in
 
-[log.ts:180](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L180)
+[log.ts:253](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L253)
 
 ## Properties
 
 ### logger
 
-> `readonly` **logger**: [`Logger`](../interfaces/Logger.md)
+> `readonly` **logger**: [`Logger`](Logger.md)
 
 #### Defined in
 
-[log.ts:172](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L172)
+[log.ts:245](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L245)
 
 ***
 
@@ -56,7 +64,7 @@ Name prefix, without brackets
 
 #### Defined in
 
-[log.ts:173](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L173)
+[log.ts:246](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L246)
 
 ## Methods
 
@@ -68,11 +76,15 @@ Append a debug-level entry to the log.
 
 #### Parameters
 
-• **text**: `string`
+##### text
+
+`string`
 
 Text
 
-• **logOnly**: `boolean` = `false`
+##### logOnly
+
+`boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -80,13 +92,13 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`debug`](../interfaces/Logger.md#debug)
+[`Logger`](Logger.md).[`debug`](Logger.md#debug)
 
 #### Defined in
 
-[log.ts:188](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L188)
+[log.ts:259](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L259)
 
 ***
 
@@ -100,13 +112,13 @@ Safely closes the logging session. May be asynchronous to allow pending operatio
 
 `Promise`\<`void`\>
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`destroy`](../interfaces/Logger.md#destroy)
+[`Logger`](Logger.md).[`destroy`](Logger.md#destroy)
 
 #### Defined in
 
-[log.ts:222](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L222)
+[log.ts:281](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L281)
 
 ***
 
@@ -118,11 +130,15 @@ Append an error-level entry to the log.
 
 #### Parameters
 
-• **text**: `string`
+##### text
+
+`string`
 
 Text
 
-• **logOnly**: `boolean` = `false`
+##### logOnly
+
+`boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -130,13 +146,13 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`error`](../interfaces/Logger.md#error)
+[`Logger`](Logger.md).[`error`](Logger.md#error)
 
 #### Defined in
 
-[log.ts:197](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L197)
+[log.ts:268](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L268)
 
 ***
 
@@ -148,11 +164,15 @@ Append a fatal-level entry to the log.
 
 #### Parameters
 
-• **text**: `string`
+##### text
+
+`string`
 
 Text
 
-• **logOnly**: `boolean` = `false`
+##### logOnly
+
+`boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -160,13 +180,13 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`fatal`](../interfaces/Logger.md#fatal)
+[`Logger`](Logger.md).[`fatal`](Logger.md#fatal)
 
 #### Defined in
 
-[log.ts:200](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L200)
+[log.ts:271](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L271)
 
 ***
 
@@ -178,25 +198,29 @@ Shorthand for appending `Error` objects as error-level logs.
 
 #### Parameters
 
-• **message**: `string`
+##### message
+
+`string`
 
 Accompanying message
 
-• **error**: `any`
+##### error
 
-`Error` object
+`any`
+
+Error data
 
 #### Returns
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`handleError`](../interfaces/Logger.md#handleerror)
+[`Logger`](Logger.md).[`handleError`](Logger.md#handleerror)
 
 #### Defined in
 
-[log.ts:203](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L203)
+[log.ts:274](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L274)
 
 ***
 
@@ -208,25 +232,29 @@ Shorthand for appending `Error` objects as fatal-level logs.
 
 #### Parameters
 
-• **message**: `string`
+##### message
+
+`string`
 
 Accompanying message
 
-• **error**: `any`
+##### error
 
-`Error` object
+`any`
+
+Error data
 
 #### Returns
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`handleFatal`](../interfaces/Logger.md#handlefatal)
+[`Logger`](Logger.md).[`handleFatal`](Logger.md#handlefatal)
 
 #### Defined in
 
-[log.ts:212](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L212)
+[log.ts:277](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L277)
 
 ***
 
@@ -238,11 +266,15 @@ Append an information-level entry to the log.
 
 #### Parameters
 
-• **text**: `string`
+##### text
+
+`string`
 
 Text
 
-• **logOnly**: `boolean` = `false`
+##### logOnly
+
+`boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -250,13 +282,13 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`info`](../interfaces/Logger.md#info)
+[`Logger`](Logger.md).[`info`](Logger.md#info)
 
 #### Defined in
 
-[log.ts:191](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L191)
+[log.ts:262](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L262)
 
 ***
 
@@ -272,13 +304,13 @@ Get a timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
-#### Implementation of
+#### Inherited from
 
-[`Logger`](../interfaces/Logger.md).[`timestamp`](../interfaces/Logger.md#timestamp)
+[`Logger`](Logger.md).[`timestamp`](Logger.md#timestamp)
 
 #### Defined in
 
-[log.ts:185](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L185)
+[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L14)
 
 ***
 
@@ -290,11 +322,15 @@ Append a warning-level entry to the log.
 
 #### Parameters
 
-• **text**: `string`
+##### text
+
+`string`
 
 Text
 
-• **logOnly**: `boolean` = `false`
+##### logOnly
+
+`boolean` = `false`
 
 Only put in logfile, not stdout
 
@@ -302,10 +338,54 @@ Only put in logfile, not stdout
 
 `void`
 
-#### Implementation of
+#### Overrides
 
-[`Logger`](../interfaces/Logger.md).[`warn`](../interfaces/Logger.md#warn)
+[`Logger`](Logger.md).[`warn`](Logger.md#warn)
 
 #### Defined in
 
-[log.ts:194](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/log.ts#L194)
+[log.ts:265](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L265)
+
+***
+
+### appendErrorLog()
+
+> `static` **appendErrorLog**(`this`, `appendFunc`, `message`, `error`): `void`
+
+Convert an error log with message and stack trace to a log entry fed to the append function.
+
+#### Parameters
+
+##### this
+
+[`Logger`](Logger.md)
+
+##### appendFunc
+
+(`text`, `logOnly`?) => `void`
+
+Callback function for appending to log
+
+##### message
+
+`string`
+
+Accompanying message
+
+##### error
+
+`any`
+
+Error data
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+[`Logger`](Logger.md).[`appendErrorLog`](Logger.md#appenderrorlog)
+
+#### Defined in
+
+[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/log.ts#L83)

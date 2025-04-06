@@ -184,8 +184,7 @@ export class TypedEventEmitter<TEvents extends Record<string, any[]>> {
         this.emitter.off(ev, cb);
     }
     /**
-     * Add a listener for an event.
-     * @alias addListener
+     * Add a listener for an event. (Alias of `addListener`)
      * @param ev Event name
      * @param cb Callback function
      */
@@ -193,8 +192,7 @@ export class TypedEventEmitter<TEvents extends Record<string, any[]>> {
         this.emitter.on(ev, cb);
     }
     /**
-     * Remove an existing listener for an event.
-     * @alias removeListener
+     * Remove an existing listener for an event. (Alias of `removeListener`)
      * @param ev Event name
      * @param cb Callback function
      */

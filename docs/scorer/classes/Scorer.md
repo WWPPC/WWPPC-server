@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -7,23 +7,32 @@
 # Class: Scorer
 
 Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
-Using the function score = 1/cnt where cnt is number of people who solved the problem
 
 ## Constructors
 
 ### new Scorer()
 
-> **new Scorer**(`rounds`, `logger`): [`Scorer`](Scorer.md)
+> **new Scorer**(`rounds`, `logger`, `scoringFunction`): [`Scorer`](Scorer.md)
 
 #### Parameters
 
-• **rounds**: [`Round`](../../database/interfaces/Round.md)[]
+##### rounds
+
+[`Round`](../../database/type-aliases/Round.md)[]
 
 Contest rounds
 
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
 
 Logger instance
+
+##### scoringFunction
+
+[`ScoringFunction`](../type-aliases/ScoringFunction.md)
+
+Scoring function
 
 #### Returns
 
@@ -31,7 +40,7 @@ Logger instance
 
 #### Defined in
 
-[scorer.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L19)
+[scorer.ts:43](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L43)
 
 ## Properties
 
@@ -41,63 +50,97 @@ Logger instance
 
 #### Defined in
 
-[scorer.ts:13](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L13)
+[scorer.ts:36](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L36)
 
-## Accessors
+***
 
-### rounds
+### scoringFunction
 
-> `set` **rounds**(`rounds`): `void`
-
-#### Parameters
-
-• **rounds**: [`Round`](../../database/interfaces/Round.md)[]
+> `readonly` **scoringFunction**: [`ScoringFunction`](../type-aliases/ScoringFunction.md)
 
 #### Defined in
 
-[scorer.ts:24](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L24)
+[scorer.ts:35](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L35)
 
 ## Methods
 
+### clearScores()
+
+> **clearScores**(): `void`
+
+Remove all existing scores.
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[scorer.ts:161](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L161)
+
+***
+
 ### getRoundScores()
 
-> **getRoundScores**(`roundId`): `Map`\<`string`, `number`\>
+> **getRoundScores**(`roundId`): `Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
 
 Get standings for a specified round.
 
 #### Parameters
 
-• **roundId**: `string`
+##### roundId
+
+`string`
 
 Round ID
 
 #### Returns
 
-`Map`\<`string`, `number`\>
+`Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
 
 Mapping of username to score
 
 #### Defined in
 
-[scorer.ts:72](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L72)
+[scorer.ts:97](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L97)
 
 ***
 
 ### getScores()
 
-> **getScores**(): `Map`\<`string`, `number`\>
+> **getScores**(): `Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
 
 Get the current standings, adding scores from all rounds together.
 
 #### Returns
 
-`Map`\<`string`, `number`\>
+`Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
 
 mapping of username to score
 
 #### Defined in
 
-[scorer.ts:132](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L132)
+[scorer.ts:146](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L146)
+
+***
+
+### setRounds()
+
+> **setRounds**(`rounds`): `void`
+
+#### Parameters
+
+##### rounds
+
+[`Round`](../../database/type-aliases/Round.md)[]
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[scorer.ts:49](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L49)
 
 ***
 
@@ -105,17 +148,21 @@ mapping of username to score
 
 > **updateUser**(`submission`, `submissionRound`?): `Boolean`
 
-Process submission and add to leaderboard
+Process submission and add to leaderboard.
 
 #### Parameters
 
-• **submission**: [`Submission`](../../database/interfaces/Submission.md)
+##### submission
 
-the scored submission
+[`Submission`](../../database/type-aliases/Submission.md)
 
-• **submissionRound?**: `string`
+The scored submission
 
-(optional) round UUID
+##### submissionRound?
+
+`string`
+
+(optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
 
 #### Returns
 
@@ -125,4 +172,4 @@ whether it was successful
 
 #### Defined in
 
-[scorer.ts:34](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/scorer.ts#L34)
+[scorer.ts:59](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/scorer.ts#L59)

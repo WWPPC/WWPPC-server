@@ -281,18 +281,18 @@ export class UpsolveManager {
     }
 }
 
-/**Slightly modified version of {@link Database.Contest} */
+/**Slightly modified version of {@link Contest} */
 export type UpsolveContest = {
     readonly id: string
     rounds: UpsolveRound[]
 }
-/**Slightly modified version of {@link Database.Round} */
+/**Slightly modified version of {@link Round} */
 export type UpsolveRound = {
     readonly contest: string
     readonly number: number
     problems: UUID[]
 }
-/**Slightly modified version of {@link Database.Problem} */
+/**Slightly modified version of {@link Problem} */
 export type UpsolveProblem = {
     readonly id: string
     readonly contest: string
@@ -303,7 +303,7 @@ export type UpsolveProblem = {
     content: string
     constraints: { memory: number, time: number }
 }
-/**Slightly modified version of {@link Database.Submission} */
+/**Slightly modified version of {@link Submission} */
 export type UpsolveSubmission = {
     readonly problemId: string
     time: number

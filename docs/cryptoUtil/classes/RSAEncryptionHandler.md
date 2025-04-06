@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -16,7 +16,9 @@ Simple RSA-OAEP-256 asymmetric encryption wrapper.
 
 #### Parameters
 
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
 
 Logger instance
 
@@ -26,7 +28,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:22](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L22)
+[cryptoUtil.ts:19](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L19)
 
 ## Properties
 
@@ -36,7 +38,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:13](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L13)
+[cryptoUtil.ts:10](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L10)
 
 ***
 
@@ -46,63 +48,69 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L17)
+[cryptoUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L14)
 
 ## Accessors
 
 ### publicKey
 
-> `get` **publicKey**(): `undefined` \| `JsonWebKey`
+#### Get Signature
+
+> **get** **publicKey**(): `undefined` \| `JsonWebKey`
 
 RA-OAEP public key, exported in "jwk" format.
 
-#### Returns
+##### Returns
 
 `undefined` \| `JsonWebKey`
 
 #### Defined in
 
-[cryptoUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L39)
+[cryptoUtil.ts:36](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L36)
 
 ***
 
 ### sessionID
 
-> `get` **sessionID**(): `number`
+#### Get Signature
+
+> **get** **sessionID**(): `number`
 
 Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` call.
 
-#### Returns
+##### Returns
 
 `number`
 
 #### Defined in
 
-[cryptoUtil.ts:43](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L43)
+[cryptoUtil.ts:40](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L40)
 
 ## Methods
 
 ### decrypt()
 
-> **decrypt**(`buf`): `Promise`\<[`RSAEncrypted`](../type-aliases/RSAEncrypted.md)\>
+> **decrypt**(`buf`): `Promise`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
 
 Decrypt a message using the RSA-OAEP private key.
 
 #### Parameters
 
-• **buf**: [`RSAEncrypted`](../type-aliases/RSAEncrypted.md)
+##### buf
+
+`Buffer`\<`ArrayBufferLike`\>
 
 Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
 
 #### Returns
 
-`Promise`\<[`RSAEncrypted`](../type-aliases/RSAEncrypted.md)\>
+`Promise`\<`string` \| `Buffer`\<`ArrayBufferLike`\>\>
 
 Decrypted string
 
 #### Defined in
 
-[cryptoUtil.ts:66](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L66)
+[cryptoUtil.ts:63](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L63)
 
 ***
 
@@ -118,4 +126,4 @@ Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the publi
 
 #### Defined in
 
-[cryptoUtil.ts:48](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L48)
+[cryptoUtil.ts:45](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L45)

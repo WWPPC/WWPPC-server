@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 
@@ -10,10 +10,9 @@
 
 ### Enumerations
 
-- [AccountOpResult](enumerations/AccountOpResult.md)
 - [AdminPerms](enumerations/AdminPerms.md)
+- [DatabaseOpCode](enumerations/DatabaseOpCode.md)
 - [ScoreState](enumerations/ScoreState.md)
-- [TeamOpResult](enumerations/TeamOpResult.md)
 
 ### Classes
 
@@ -21,23 +20,23 @@
 
 ### Interfaces
 
-- [AccountData](interfaces/AccountData.md)
-- [Contest](interfaces/Contest.md)
 - [DatabaseConstructorParams](interfaces/DatabaseConstructorParams.md)
-- [Problem](interfaces/Problem.md)
-- [ProblemRoundCriteria](interfaces/ProblemRoundCriteria.md)
-- [ReadContestsCriteria](interfaces/ReadContestsCriteria.md)
-- [ReadProblemsCriteria](interfaces/ReadProblemsCriteria.md)
-- [ReadRoundsCriteria](interfaces/ReadRoundsCriteria.md)
-- [ReadSubmissionsCriteria](interfaces/ReadSubmissionsCriteria.md)
-- [Round](interfaces/Round.md)
-- [Score](interfaces/Score.md)
-- [Submission](interfaces/Submission.md)
-- [TeamData](interfaces/TeamData.md)
 
 ### Type Aliases
 
+- [AccountData](type-aliases/AccountData.md)
+- [Contest](type-aliases/Contest.md)
+- [Problem](type-aliases/Problem.md)
+- [ProblemRoundCriteria](type-aliases/ProblemRoundCriteria.md)
+- [ReadContestsCriteria](type-aliases/ReadContestsCriteria.md)
+- [ReadProblemsCriteria](type-aliases/ReadProblemsCriteria.md)
+- [ReadRoundsCriteria](type-aliases/ReadRoundsCriteria.md)
+- [ReadSubmissionsCriteria](type-aliases/ReadSubmissionsCriteria.md)
+- [Round](type-aliases/Round.md)
+- [Score](type-aliases/Score.md)
 - [SqlValue](type-aliases/SqlValue.md)
+- [Submission](type-aliases/Submission.md)
+- [TeamData](type-aliases/TeamData.md)
 
 ## References
 

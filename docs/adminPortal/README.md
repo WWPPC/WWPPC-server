@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 
@@ -8,12 +8,6 @@
 
 ## Index
 
-### Functions
+### Classes
 
-- [attachAdminPortal](functions/attachAdminPortal.md)
-
-## References
-
-### default
-
-Renames and re-exports [attachAdminPortal](functions/attachAdminPortal.md)
+- [AdminAPI](classes/AdminAPI.md)

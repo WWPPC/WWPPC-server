@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -16,23 +16,33 @@ Custom grading system that offloads grading to a network of other servers.
 
 #### Parameters
 
-• **db**: [`Database`](../../database/classes/Database.md)
+##### db
+
+[`Database`](../../database/classes/Database.md)
 
 Database connection
 
-• **app**: `Express`
+##### app
+
+`Express`
 
 Express app (HTTP server) to attach API to
 
-• **path**: `string`
+##### path
+
+`string`
 
 Path of API
 
-• **password**: `string`
+##### password
+
+`string`
 
 Global password for graders to authenticate with
 
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
 
 Logger instance
 
@@ -42,7 +52,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L32)
+[grader.ts:32](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L32)
 
 ## Properties
 
@@ -52,7 +62,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L15)
+[grader.ts:15](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L15)
 
 ***
 
@@ -62,7 +72,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L17)
+[grader.ts:17](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L17)
 
 ***
 
@@ -72,7 +82,7 @@ Logger instance
 
 #### Defined in
 
-[grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L16)
+[grader.ts:16](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L16)
 
 ## Methods
 
@@ -84,11 +94,15 @@ Cancel all ungraded submissions from a user to a problem.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Username of submitter
 
-• **problemId**: `string`
+##### problemId
+
+`string`
 
 ID or problem
 
@@ -98,7 +112,7 @@ ID or problem
 
 #### Defined in
 
-[grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L221)
+[grader.ts:221](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L221)
 
 ***
 
@@ -114,7 +128,27 @@ Cancels all submissions and stops accepting submissions to the queue
 
 #### Defined in
 
-[grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L264)
+[grader.ts:264](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L264)
+
+***
+
+### getAuth()
+
+> **getAuth**(`req`): `string` \| `number`
+
+#### Parameters
+
+##### req
+
+`Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>
+
+#### Returns
+
+`string` \| `number`
+
+#### Defined in
+
+[grader.ts:248](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L248)
 
 ***
 
@@ -126,11 +160,15 @@ Add a submission to the ungraded queue of submissions.
 
 #### Parameters
 
-• **submission**: [`Submission`](../../database/interfaces/Submission.md)
+##### submission
+
+[`Submission`](../../database/type-aliases/Submission.md)
 
 New submission
 
-• **cb**
+##### cb
+
+(`graded`) => `any`
 
 #### Returns
 
@@ -138,4 +176,4 @@ New submission
 
 #### Defined in
 
-[grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/grader.ts#L203)
+[grader.ts:203](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L203)

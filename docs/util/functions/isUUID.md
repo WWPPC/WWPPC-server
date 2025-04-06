@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -10,7 +10,9 @@
 
 ## Parameters
 
-• **id**: `any`
+### id
+
+`any`
 
 ## Returns
 
@@ -18,4 +20,4 @@
 
 ## Defined in
 
-[util.ts:137](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/util.ts#L137)
+[util.ts:291](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L291)

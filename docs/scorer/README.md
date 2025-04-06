@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 
@@ -12,9 +12,10 @@
 
 - [Scorer](classes/Scorer.md)
 
-### Interfaces
+### Type Aliases
 
-- [Subtask](interfaces/Subtask.md)
+- [ScoringFunction](type-aliases/ScoringFunction.md)
+- [UserScore](type-aliases/UserScore.md)
 
 ## References
 

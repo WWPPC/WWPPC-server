@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 
@@ -12,12 +12,12 @@
 
 - [UpsolveManager](classes/UpsolveManager.md)
 
-### Interfaces
+### Type Aliases
 
-- [UpsolveContest](interfaces/UpsolveContest.md)
-- [UpsolveProblem](interfaces/UpsolveProblem.md)
-- [UpsolveRound](interfaces/UpsolveRound.md)
-- [UpsolveSubmission](interfaces/UpsolveSubmission.md)
+- [UpsolveContest](type-aliases/UpsolveContest.md)
+- [UpsolveProblem](type-aliases/UpsolveProblem.md)
+- [UpsolveRound](type-aliases/UpsolveRound.md)
+- [UpsolveSubmission](type-aliases/UpsolveSubmission.md)
 
 ## References
 

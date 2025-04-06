@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,38 +6,44 @@
 
 # Class: ContestHost
 
-Module of `ContestManager` containing hosting for individual contests, including handling submissions.
-Creates a SocketIO namespace for client contest managers to connect to on top of the default namespace connection.
+Module of [ContestManager](ContestManager.md) containing hosting for individual contests, including handling submissions.
+Communication with clients is handled through ContestManager.
 
 ## Constructors
 
 ### new ContestHost()
 
-> **new ContestHost**(`type`, `id`, `io`, `db`, `grader`, `logger`): [`ContestHost`](ContestHost.md)
+> **new ContestHost**(`type`, `id`, `db`, `grader`, `logger`): [`ContestHost`](ContestHost.md)
 
 #### Parameters
 
-• **type**: `string`
+##### type
 
-Contest type Id
+`string`
 
-• **id**: `string`
+Contest type ID
 
-Contest id of contest
+##### id
 
-• **io**: `Server`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
+`string`
 
-Socket.IO server to use for client broadcasting
+Contest ID of contest
 
-• **db**: [`Database`](../../database/classes/Database.md)
+##### db
+
+[`Database`](../../database/classes/Database.md)
 
 Database connection
 
-• **grader**: [`Grader`](../../grader/classes/Grader.md)
+##### grader
+
+[`Grader`](../../grader/classes/Grader.md)
 
 Grader management instance to use for grading
 
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
 
 Logger instance
 
@@ -47,9 +53,19 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:291](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L291)
+[contest.ts:476](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L476)
 
 ## Properties
+
+### contestConfig
+
+> `readonly` **contestConfig**: [`ContestConfiguration`](../../config/interfaces/ContestConfiguration.md)
+
+#### Defined in
+
+[contest.ts:443](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L443)
+
+***
 
 ### contestType
 
@@ -57,7 +73,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:264](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L264)
+[contest.ts:442](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L442)
 
 ***
 
@@ -67,7 +83,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:267](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L267)
+[contest.ts:445](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L445)
 
 ***
 
@@ -77,7 +93,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:268](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L268)
+[contest.ts:446](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L446)
 
 ***
 
@@ -87,17 +103,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:265](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L265)
-
-***
-
-### io
-
-> `readonly` **io**: `Namespace`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
-
-#### Defined in
-
-[contest.ts:266](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L266)
+[contest.ts:444](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L444)
 
 ***
 
@@ -107,7 +113,105 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:270](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L270)
+[contest.ts:448](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L448)
+
+***
+
+### off()
+
+> **off**: \<`TEvent`\>(`ev`, `cb`) => `void`
+
+Remove an event listener.
+
+Remove an existing listener for an event. (Alias of `removeListener`)
+
+#### Type Parameters
+
+• **TEvent** *extends* `"data"` \| `"end"` \| `"scoreboards"` \| `"submissionUpdate"`
+
+#### Parameters
+
+##### ev
+
+`TEvent`
+
+Event name
+
+##### cb
+
+(...`args`) => `any`
+
+Callback function
+
+#### Returns
+
+`void`
+
+#### Param
+
+Event name
+
+#### Param
+
+Callback function
+
+#### Defined in
+
+[contest.ts:806](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L806)
+
+***
+
+### on()
+
+> **on**: \<`TEvent`\>(`ev`, `cb`) => `void`
+
+Add an event listener.
+
+Add a listener for an event. (Alias of `addListener`)
+
+#### Type Parameters
+
+• **TEvent** *extends* `"data"` \| `"end"` \| `"scoreboards"` \| `"submissionUpdate"`
+
+#### Parameters
+
+##### ev
+
+`TEvent`
+
+Event name
+
+##### cb
+
+(...`args`) => `any`
+
+Callback function
+
+#### Returns
+
+`void`
+
+#### Param
+
+Event name
+
+#### Param
+
+Callback function
+
+#### Defined in
+
+[contest.ts:798](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L798)
+
+***
+
+### pendingDirectSubmissions
+
+> `readonly` **pendingDirectSubmissions**: `Map`\<`string`, `Timeout`\>
+
+#### Defined in
+
+[contest.ts:713](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L713)
 
 ***
 
@@ -117,83 +221,145 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:269](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L269)
-
-***
-
-### sid
-
-> `readonly` **sid**: `string`
-
-#### Defined in
-
-[contest.ts:263](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L263)
+[contest.ts:447](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L447)
 
 ## Accessors
 
-### data
+### clientScoreboards
 
-> `get` **data**(): [`ContestContest`](../interfaces/ContestContest.md)
+#### Get Signature
 
-Get a copy of the internal data.
+> **get** **clientScoreboards**(): `Map`\<`string`, [`UserScore`](../../scorer/type-aliases/UserScore.md)\>
 
-#### Returns
+Get (never frozen) scoreboards
 
-[`ContestContest`](../interfaces/ContestContest.md)
+##### Returns
+
+`Map`\<`string`, [`UserScore`](../../scorer/type-aliases/UserScore.md)\>
 
 #### Defined in
 
-[contest.ts:334](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L334)
+[contest.ts:639](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L639)
+
+***
+
+### contestData
+
+#### Get Signature
+
+> **get** **contestData**(): [`ClientContest`](../../api/type-aliases/ClientContest.md)
+
+The current contest data, in client format.
+
+##### Returns
+
+[`ClientContest`](../../api/type-aliases/ClientContest.md)
+
+#### Defined in
+
+[contest.ts:645](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L645)
 
 ***
 
 ### round
 
-> `get` **round**(): `number`
+#### Get Signature
+
+> **get** **round**(): `number`
 
 Index of the current round (zero-indexed).
 
-#### Returns
+##### Returns
 
 `number`
 
 #### Defined in
 
-[contest.ts:458](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L458)
+[contest.ts:651](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L651)
 
-## Methods
+***
 
-### addSocket()
+### scoreboards
 
-> **addSocket**(`s`): `void`
+#### Get Signature
 
-Add a username-linked SocketIO connection to the user list.
+> **get** **scoreboards**(): `Map`\<`string`, [`UserScore`](../../scorer/type-aliases/UserScore.md)\>
 
-#### Parameters
+Get (possibly frozen) scoreboards
 
-• **s**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
+##### Returns
 
-SocketIO connection (with modifications)
-
-#### Returns
-
-`void`
+`Map`\<`string`, [`UserScore`](../../scorer/type-aliases/UserScore.md)\>
 
 #### Defined in
 
-[contest.ts:571](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L571)
+[contest.ts:633](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L633)
+
+## Methods
+
+### calculateCompletionState()
+
+> **calculateCompletionState**(`submission`?): [`ClientProblemCompletionState`](../../api/enumerations/ClientProblemCompletionState.md)
+
+Get the completion state to be displayed by the client for a given submission.
+
+#### Parameters
+
+##### submission?
+
+[`Submission`](../../database/type-aliases/Submission.md)
+
+Submission to assign completion state to
+
+#### Returns
+
+[`ClientProblemCompletionState`](../../api/enumerations/ClientProblemCompletionState.md)
+
+Completion state of submission
+
+#### Defined in
+
+[contest.ts:815](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L815)
+
+***
+
+### containsProblem()
+
+> **containsProblem**(`id`): `boolean`
+
+Check if a given problem is within this contest.
+
+#### Parameters
+
+##### id
+
+`string`
+
+Problem ID
+
+#### Returns
+
+`boolean`
+
+If the problem is in the contest
+
+#### Defined in
+
+[contest.ts:701](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L701)
 
 ***
 
 ### end()
 
-> **end**(`complete`?): `void`
+> **end**(`complete`): `void`
 
 Stop the running contest and remove all users.
 
 #### Parameters
 
-• **complete?**: `boolean`
+##### complete
+
+`boolean` = `false`
 
 Mark the contest as ended in database (contest cannot be restarted)
 
@@ -203,29 +369,91 @@ Mark the contest as ended in database (contest cannot be restarted)
 
 #### Defined in
 
-[contest.ts:771](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L771)
+[contest.ts:836](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L836)
 
 ***
 
-### onended()
+### getProblemId()
 
-> **onended**(`cb`): `void`
+> **getProblemId**(`round`, `problem`): `undefined` \| `string`
 
-Add a listener for when the contest ends.
+Get the problem UUID by the round and number.
 
 #### Parameters
 
-• **cb**
+##### round
 
-Callback listener
+`number`
+
+Round number
+
+##### problem
+
+`number`
+
+Problem number
 
 #### Returns
 
-`void`
+`undefined` \| `string`
+
+Problem UUID, or undefined if the round/problem does not exist
 
 #### Defined in
 
-[contest.ts:785](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L785)
+[contest.ts:681](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L681)
+
+***
+
+### getProblemRoundAndNumber()
+
+> **getProblemRoundAndNumber**(`id`): [`number`, `number`] \| [`undefined`, `undefined`]
+
+Get the problem round and problem number by the problem UUID.
+
+#### Parameters
+
+##### id
+
+`string`
+
+Problem ID
+
+#### Returns
+
+[`number`, `number`] \| [`undefined`, `undefined`]
+
+Problem [round, number], or undefined if the problem is not in the contest
+
+#### Defined in
+
+[contest.ts:689](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L689)
+
+***
+
+### getTimeRange()
+
+> **getTimeRange**(`round`?): `number` \| `number`[] \| \{`op`: `"="` \| `"!"`;`v`: `number` \| `number`[]; \} \| \{`op`: `">"` \| `"<"` \| `">="` \| `"<="`;`v`: `number`; \} \| \{`op`: `"><"` \| `"<>"` \| `"=><"` \| `"><="` \| `"=><="` \| `"=<>"` \| `"<>="` \| `"=<>="`;`v1`: `number`;`v2`: `number`; \} \| \{`op`: `"~"`;`v`: `never`; \}
+
+Get a [FilterComparison](../../util/type-aliases/FilterComparison.md) for the time range of the entire contest or a specific round.
+
+#### Parameters
+
+##### round?
+
+`number`
+
+Round number, if `undefined` entire contest
+
+#### Returns
+
+`number` \| `number`[] \| \{`op`: `"="` \| `"!"`;`v`: `number` \| `number`[]; \} \| \{`op`: `">"` \| `"<"` \| `">="` \| `"<="`;`v`: `number`; \} \| \{`op`: `"><"` \| `"<>"` \| `"=><"` \| `"><="` \| `"=><="` \| `"=<>"` \| `"<>="` \| `"=<>="`;`v1`: `number`;`v2`: `number`; \} \| \{`op`: `"~"`;`v`: `never`; \}
+
+`FilterComparison` for time range, or `-1` if an invalid round number supplied
+
+#### Defined in
+
+[contest.ts:659](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L659)
 
 ***
 
@@ -237,7 +465,9 @@ Get if a particular problem ID is submittable.
 
 #### Parameters
 
-• **id**: `string`
+##### id
+
+`string`
 
 Problem ID
 
@@ -245,9 +475,37 @@ Problem ID
 
 `boolean`
 
+If the problem is in the contest and submittable
+
 #### Defined in
 
-[contest.ts:466](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L466)
+[contest.ts:709](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L709)
+
+***
+
+### processSubmission()
+
+> **processSubmission**(`submission`): `Promise`\<[`DatabaseOpCode`](../../database/enumerations/DatabaseOpCode.md)\>
+
+Submit a solution to the contest. Will automatically grade and associate the submission with the correct team.
+
+#### Parameters
+
+##### submission
+
+[`Submission`](../../database/type-aliases/Submission.md)
+
+Submission
+
+#### Returns
+
+`Promise`\<[`DatabaseOpCode`](../../database/enumerations/DatabaseOpCode.md)\>
+
+Status code
+
+#### Defined in
+
+[contest.ts:720](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L720)
 
 ***
 
@@ -264,66 +522,4 @@ Will re-calculate the current round as well.
 
 #### Defined in
 
-[contest.ts:341](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L341)
-
-***
-
-### removeSocket()
-
-> **removeSocket**(`socket`): `boolean`
-
-Remove a previously-added username-linked SocketIO connection from the user list.
-
-#### Parameters
-
-• **socket**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
-
-SocketIO connection (with modifications)
-
-#### Returns
-
-`boolean`
-
-If the socket was previously within the list of connections
-
-#### Defined in
-
-[contest.ts:729](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L729)
-
-***
-
-### updateAllUsers()
-
-> **updateAllUsers**(): `Promise`\<`void`\>
-
-Update all users in contest with latest contest data.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-#### Defined in
-
-[contest.ts:472](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L472)
-
-***
-
-### updateUser()
-
-> **updateUser**(`username`): `Promise`\<`void`\>
-
-Only update users under a team with the latest contest data.
-
-#### Parameters
-
-• **username**: `string`
-
-Username
-
-#### Returns
-
-`Promise`\<`void`\>
-
-#### Defined in
-
-[contest.ts:479](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L479)
+[contest.ts:505](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L505)

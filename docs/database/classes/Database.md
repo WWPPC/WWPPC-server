@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -17,7 +17,9 @@ Has a short-term cache to reduce repetitive database calls.
 
 #### Parameters
 
-• **params**: [`DatabaseConstructorParams`](../interfaces/DatabaseConstructorParams.md)
+##### params
+
+[`DatabaseConstructorParams`](../interfaces/DatabaseConstructorParams.md)
 
 Parameters
 
@@ -27,21 +29,9 @@ Parameters
 
 #### Defined in
 
-[database.ts:40](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L40)
+[database.ts:39](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L39)
 
 ## Properties
-
-### connectPromise
-
-> `readonly` **connectPromise**: `Promise`\<`any`\>
-
-Resolves when the database is connected.
-
-#### Defined in
-
-[database.ts:31](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L31)
-
-***
 
 ### logger
 
@@ -49,102 +39,130 @@ Resolves when the database is connected.
 
 #### Defined in
 
-[database.ts:34](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L34)
+[database.ts:33](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L33)
+
+***
+
+### teamJoinKeyLength
+
+> `readonly` `static` **teamJoinKeyLength**: `6` = `6`
+
+Length of team join keys (changing this will break existing teams!)
+
+#### Defined in
+
+[database.ts:29](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L29)
 
 ## Methods
 
 ### changeAccountPassword()
 
-> **changeAccountPassword**(`username`, `password`, `newPassword`): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **changeAccountPassword**(`username`, `password`, `newPassword`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Change the password of an account. Requires that the existing password is correct. **Does not validate credentials**.
 If successful, the `recoverypass` field is rotated to a new random string.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **password**: `string`
+##### password
+
+`string`
 
 Valid current password
 
-• **newPassword**: `string`
+##### newPassword
+
+`string`
 
 Valid new password
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Update status
 
 #### Defined in
 
-[database.ts:358](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L358)
+[database.ts:342](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L342)
 
 ***
 
 ### changeAccountPasswordToken()
 
-> **changeAccountPasswordToken**(`username`, `token`, `newPassword`): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **changeAccountPasswordToken**(`username`, `token`, `newPassword`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Change the password of an account using the alternative rotating password. Requires that the alternative rotating password is correct. **Does not validate credentials**.
 If successful, the `recoverypass` field is rotated to a new random string.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **token**: `string`
+##### token
+
+`string`
 
 Alternative rotating password
 
-• **newPassword**: `string`
+##### newPassword
+
+`string`
 
 Valid new password
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Update status
 
 #### Defined in
 
-[database.ts:383](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L383)
+[database.ts:369](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L369)
 
 ***
 
 ### checkAccount()
 
-> **checkAccount**(`username`, `password`): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **checkAccount**(`username`, `password`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Check credentials against an existing account. **Does not validate credentials**.
 If successful, the `recoverypass` field is rotated to a new random string.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **password**: `string`
+##### password
+
+`string`
 
 Valid password
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Check status
 
 #### Defined in
 
-[database.ts:256](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L256)
+[database.ts:239](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L239)
 
 ***
 
@@ -160,188 +178,284 @@ Clears all database account, team, admin, contest, round, problem, and submissio
 
 #### Defined in
 
-[database.ts:1363](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1363)
+[database.ts:1491](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1491)
+
+***
+
+### connect()
+
+> **connect**(): `Promise`\<`void`\>
+
+Connect to the PostgreSQL database.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A `Promise` resolving when the database has connected
+
+#### Defined in
+
+[database.ts:71](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L71)
 
 ***
 
 ### createAccount()
 
-> **createAccount**(`username`, `password`, `userData`): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`ALREADY_EXISTS`](../enumerations/AccountOpResult.md#already_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **createAccount**(`username`, `password`, `userData`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`CONFLICT`](../enumerations/DatabaseOpCode.md#conflict) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Create an account. **Does not validate credentials**.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **password**: `string`
+##### password
+
+`string`
 
 Valid password
 
-• **userData**
+##### userData
 
 Initial user data
 
-• **userData.email**: `string`
+###### userData.email
 
-• **userData.experience**: `number`
+`string`
 
-• **userData.firstName**: `string`
+###### userData.experience
 
-• **userData.grade**: `number`
+`number`
 
-• **userData.languages**: `string`[]
+###### userData.firstName
 
-• **userData.lastName**: `string`
+`string`
 
-• **userData.school**: `string`
+###### userData.grade
+
+`number`
+
+###### userData.languages
+
+`string`[]
+
+###### userData.lastName
+
+`string`
+
+###### userData.school
+
+`string`
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`ALREADY_EXISTS`](../enumerations/AccountOpResult.md#already_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`CONFLICT`](../enumerations/DatabaseOpCode.md#conflict) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Creation status
 
 #### Defined in
 
-[database.ts:206](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L206)
+[database.ts:199](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L199)
+
+***
+
+### createTeam()
+
+> **createTeam**(`name`?): `Promise`\<`string` \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Create a team.
+
+#### Parameters
+
+##### name?
+
+`string`
+
+Name of team (optional, default 'Team')
+
+#### Returns
+
+`Promise`\<`string` \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Newly created team's ID, or an error code
+
+#### Defined in
+
+[database.ts:487](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L487)
 
 ***
 
 ### deleteAccount()
 
-> **deleteAccount**(`username`, `password`, `adminUsername`?): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **deleteAccount**(`username`, `password`, `adminUsername`?): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`FORBIDDEN`](../enumerations/DatabaseOpCode.md#forbidden) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Delete an account. Allows deletion by users and admins with permission level `AdminPerms.MANAGE_ACCOUNTS` if `adminUsername` is given. **Does not validate credentials**.
-*Note: Requires password or admin username to delete to avoid accidental deletion of accounts.*
+Delete an account. Allows deletion by users and admins with permission level [AdminPerms.MANAGE_ACCOUNTS](../enumerations/AdminPerms.md#manage_accounts) if `adminUsername` is given. **Does not validate credentials**.
+*Note: Requires password or admin username and password with sufficient permissions to delete to avoid accidental deletion of accounts.*
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **password**: `string`
+##### password
 
-Valid password of user, or admin password if `adminUsername` is given
+`string`
 
-• **adminUsername?**: `string`
+Valid user password, or admin password if `adminUsername` is given
+
+##### adminUsername?
+
+`string`
 
 Valid username of administrator
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`INCORRECT_CREDENTIALS`](../enumerations/AccountOpResult.md#incorrect_credentials) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`UNAUTHORIZED`](../enumerations/DatabaseOpCode.md#unauthorized) \| [`FORBIDDEN`](../enumerations/DatabaseOpCode.md#forbidden) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Deletion status
+Deletion status ([DatabaseOpCode.FORBIDDEN](../enumerations/DatabaseOpCode.md#forbidden) is returned when an admin has insufficient permissions)
 
 #### Defined in
 
-[database.ts:412](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L412)
+[database.ts:444](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L444)
 
 ***
 
 ### deleteContest()
 
-> **deleteContest**(`id`): `Promise`\<`boolean`\>
+> **deleteContest**(`id`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Delete a contest from the contests table.
 
 #### Parameters
 
-• **id**: `string`
+##### id
+
+`string`
 
 Contest to delete
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the delete was successful
+Deletion status
 
 #### Defined in
 
-[database.ts:932](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L932)
+[database.ts:1021](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1021)
 
 ***
 
 ### deleteProblem()
 
-> **deleteProblem**(`id`): `Promise`\<`boolean`\>
+> **deleteProblem**(`id`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Delete a problem from the problems table.
 
 #### Parameters
 
-• **id**: `string`
+##### id
+
+`string`
 
 Problem to delete
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the delete was successful
+Deletion status
 
 #### Defined in
 
-[database.ts:1182](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1182)
+[database.ts:1287](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1287)
 
 ***
 
 ### deleteRound()
 
-> **deleteRound**(`id`): `Promise`\<`boolean`\>
+> **deleteRound**(`id`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Delete a round from the round table.
 
 #### Parameters
 
-• **id**: `string`
+##### id
+
+`string`
 
 Round to delete
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the delete was successful
+Deletion status
 
 #### Defined in
 
-[database.ts:1052](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1052)
+[database.ts:1149](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1149)
 
 ***
 
 ### deleteSubmission()
 
-> **deleteSubmission**(`id`, `username`, `analysis`): `Promise`\<`boolean`\>
+> **deleteSubmission**(`id`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Delete a submission from the submission table.
 
 #### Parameters
 
-• **id**: `string`
+##### id
 
-Problem id linked to submission to delete
+`string`
 
-• **username**: `string`
-
-Username linked to submission to delete
-
-• **analysis**: `boolean`
+ID of submission to delete
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the delete was successful
+Deletion status
 
 #### Defined in
 
-[database.ts:1345](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1345)
+[database.ts:1473](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1473)
+
+***
+
+### deleteTeam()
+
+> **deleteTeam**(`team`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Delete a team and remove all members from it.
+
+#### Parameters
+
+##### team
+
+`string`
+
+Team ID
+
+#### Returns
+
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Deletion status
+
+#### Defined in
+
+[database.ts:740](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L740)
 
 ***
 
@@ -355,705 +469,807 @@ Disconnect from the PostgreSQL database.
 
 `Promise`\<`void`\>
 
-A `Promise` representing when the database has disconnected.
+A `Promise` resolving when the database has disconnected
 
 #### Defined in
 
-[database.ts:87](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L87)
+[database.ts:90](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L90)
 
 ***
 
 ### finishContest()
 
-> **finishContest**(`contest`): `Promise`\<`boolean`\>
+> **finishContest**(`contest`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Moves all instances of a contest from upcoming registrations to the past registrations of every team.
+Moves all instances of a contest from upcoming registrations of every team to the past registrations of every member.
 
 #### Parameters
 
-• **contest**: `string`
+##### contest
+
+`string`
 
 Contest ID to mark as completed
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+status
 
 #### Defined in
 
-[database.ts:707](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L707)
+[database.ts:764](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L764)
 
 ***
 
 ### getAccountData()
 
-> **getAccountData**(`username`): `Promise`\<[`AccountData`](../interfaces/AccountData.md) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **getAccountData**(`username`): `Promise`\<[`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`AccountData`](../type-aliases/AccountData.md)\>
 
 Get user data for an account. Registrations are fetched through team alias. **Does not validate credentials**.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
 #### Returns
 
-`Promise`\<[`AccountData`](../interfaces/AccountData.md) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<[`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`AccountData`](../type-aliases/AccountData.md)\>
 
 AccountData or an error code
 
 #### Defined in
 
-[database.ts:280](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L280)
+[database.ts:263](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L263)
 
 ***
 
 ### getAccountList()
 
-> **getAccountList**(): `Promise`\<`null` \| `string`[]\>
+> **getAccountList**(): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Read a list of all account usernames that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-List of account usernames, or null if an error occurred
+List of account usernames, or DatabaseOpCode.ERROR if an error occurred
 
 #### Defined in
 
-[database.ts:187](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L187)
+[database.ts:180](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L180)
 
 ***
 
 ### getAccountTeam()
 
-> **getAccountTeam**(`username`): `Promise`\<`string` \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **getAccountTeam**(`username`): `Promise`\<`null` \| `string` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Get the id of a user's team (the team creator's username). **Does not validate credentials**.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
 #### Returns
 
-`Promise`\<`string` \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<`null` \| `string` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Team id or an error code
+Team ID, null if not on a team, or an error code
 
 #### Defined in
 
-[database.ts:499](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L499)
+[database.ts:526](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L526)
 
 ***
 
 ### getAdminList()
 
-> **getAdminList**(): `Promise`\<`null` \| `object`[]\>
+> **getAdminList**(): `Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| `object`[]\>
 
 Get a list of all administrators and their boolean permission flags.
 
 #### Returns
 
-`Promise`\<`null` \| `object`[]\>
+`Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| `object`[]\>
 
-Paired usernames and permissions, or null if an error cocured.
+Paired usernames and permissions, or an error code
 
 #### Defined in
 
-[database.ts:779](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L779)
+[database.ts:862](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L862)
+
+***
+
+### getAllRegisteredTeams()
+
+> **getAllRegisteredTeams**(`contest`): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Get a list of all teams that are registered for a contest.
+
+#### Parameters
+
+##### contest
+
+`string`
+
+Contest ID
+
+#### Returns
+
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Array of team IDs with registrations for the contest, or an error code
+
+#### Defined in
+
+[database.ts:817](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L817)
 
 ***
 
 ### getAllRegisteredUsers()
 
-> **getAllRegisteredUsers**(`contest`): `Promise`\<`null` \| `string`[]\>
+> **getAllRegisteredUsers**(`contest`): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Get a list of all users that are registered for a contest.
 
 #### Parameters
 
-• **contest**: `string`
+##### contest
 
-Contest id
+`string`
+
+Contest ID
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Array of usernames with registrations for the contest, or an error code
 
 #### Defined in
 
-[database.ts:735](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L735)
+[database.ts:798](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L798)
 
 ***
 
 ### getContestList()
 
-> **getContestList**(): `Promise`\<`null` \| `string`[]\>
+> **getContestList**(): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Read a list of all contest IDs that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-List of contest IDs, or null if an error occurred
+List of contest IDs, or an error code
 
 #### Defined in
 
-[database.ts:832](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L832)
+[database.ts:915](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L915)
 
 ***
 
 ### getProblemList()
 
-> **getProblemList**(): `Promise`\<`null` \| `string`[]\>
+> **getProblemList**(): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Read a list of all problem IDs that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-List of problem IDs, or null if an error occurred
+List of problem IDs, or an error code
 
 #### Defined in
 
-[database.ts:1071](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1071)
+[database.ts:1169](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1169)
 
 ***
 
 ### getRecoveryPassword()
 
-> **getRecoveryPassword**(`username`): `Promise`\<`string` \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **getRecoveryPassword**(`username`): `Promise`\<`string` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Get the alternative rotating password for an account. **Does not validate credentials**
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
 #### Returns
 
-`Promise`\<`string` \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+`Promise`\<`string` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Fetch status
 
 #### Defined in
 
-[database.ts:458](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L458)
+[database.ts:397](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L397)
 
 ***
 
 ### getRoundList()
 
-> **getRoundList**(): `Promise`\<`null` \| `string`[]\>
+> **getRoundList**(): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Read a list of all round IDs that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-List of round IDs, or null if an error occurred
+List of round IDs, or an error code
 
 #### Defined in
 
-[database.ts:951](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L951)
+[database.ts:1041](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1041)
 
 ***
 
 ### getSubmissionList()
 
-> **getSubmissionList**(): `Promise`\<`null` \| `string`[]\>
+> **getSubmissionList**(): `Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
 
 #### Returns
 
-`Promise`\<`null` \| `string`[]\>
+`Promise`\<`string`[] \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-List of submission ID strings, or null if an error occurred
+List of submission ID strings, or an error code
 
 #### Defined in
 
-[database.ts:1201](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1201)
+[database.ts:1307](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1307)
 
 ***
 
 ### getTeamData()
 
-> **getTeamData**(`username`): `Promise`\<[`TeamData`](../interfaces/TeamData.md) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **getTeamData**(`team`): `Promise`\<[`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`TeamData`](../type-aliases/TeamData.md)\>
 
-Get the team data associated with a username. Will route to the team returned by `getAccountTeam`. **Does not validate credentials**.
+Get the team data for a team.
 
 #### Parameters
 
-• **username**: `string`
+##### team
 
-Valid username
+`string`
+
+Team ID
 
 #### Returns
 
-`Promise`\<[`TeamData`](../interfaces/TeamData.md) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`TeamData`](../type-aliases/TeamData.md)\>
 
 Team data or an error code
 
 #### Defined in
 
-[database.ts:558](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L558)
+[database.ts:579](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L579)
 
 ***
 
 ### hasAdminPerms()
 
-> **hasAdminPerms**(`username`, `flag`): `Promise`\<`boolean`\>
+> **hasAdminPerms**(`username`, `flag`): `Promise`\<`boolean` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Check if an administrator has a certain permission.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid administrator username
 
-• **flag**: [`AdminPerms`](../enumerations/AdminPerms.md)
+##### flag
+
+[`AdminPerms`](../enumerations/AdminPerms.md)
 
 Permission flag to check against
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<`boolean` \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the administrator has the permission. Also false if the user is not an administrator.
+If the administrator has the permission, or an error code
 
 #### Defined in
 
-[database.ts:757](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L757)
+[database.ts:839](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L839)
+
+***
+
+### purgeOldSubmissions()
+
+> **purgeOldSubmissions**(`username`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Delete all but the newest [config.maxSubmissionHistory](../../config/interfaces/GlobalConfiguration.md#maxsubmissionhistory) submissions for a user. Does not check user exists.
+
+#### Parameters
+
+##### username
+
+`string`
+
+Username to remove submissions from
+
+#### Returns
+
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Deletion status
+
+#### Defined in
+
+[database.ts:1454](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1454)
 
 ***
 
 ### readContests()
 
-> **readContests**(`c`): `Promise`\<`null` \| [`Contest`](../interfaces/Contest.md)[]\>
+> **readContests**(`c`): `Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Contest`](../type-aliases/Contest.md)[]\>
 
 Filter and get a list of contest data from the contests table according to a criteria.
 
 #### Parameters
 
-• **c**: [`ReadContestsCriteria`](../interfaces/ReadContestsCriteria.md) = `{}`
+##### c
+
+[`ReadContestsCriteria`](../type-aliases/ReadContestsCriteria.md) = `{}`
 
 Filter criteria. Leaving one undefined removes the criteria
 
 #### Returns
 
-`Promise`\<`null` \| [`Contest`](../interfaces/Contest.md)[]\>
+`Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Contest`](../type-aliases/Contest.md)[]\>
 
-Array of contest data matching the filter criteria
+Array of contest data matching the filter criteria, or an error code
 
 #### Defined in
 
-[database.ts:849](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L849)
+[database.ts:932](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L932)
 
 ***
 
 ### readProblems()
 
-> **readProblems**(`c`): `Promise`\<`null` \| [`Problem`](../interfaces/Problem.md)[]\>
+> **readProblems**(`c`): `Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Problem`](../type-aliases/Problem.md)[]\>
 
 Filter and get a list of problems from the problems table according to a criteria.
 
 #### Parameters
 
-• **c**: [`ReadProblemsCriteria`](../interfaces/ReadProblemsCriteria.md) = `{}`
+##### c
+
+[`ReadProblemsCriteria`](../type-aliases/ReadProblemsCriteria.md) = `{}`
 
 Filter criteria. Leaving one undefined removes the criteria
 
 #### Returns
 
-`Promise`\<`null` \| [`Problem`](../interfaces/Problem.md)[]\>
+`Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Problem`](../type-aliases/Problem.md)[]\>
 
-Array of problems matching the filter criteria. If the query failed the returned value is `null`
+Array of problems matching the filter criteria, or an error code
 
 #### Defined in
 
-[database.ts:1088](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1088)
+[database.ts:1186](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1186)
 
 ***
 
 ### readRounds()
 
-> **readRounds**(`c`): `Promise`\<`null` \| [`Round`](../interfaces/Round.md)[]\>
+> **readRounds**(`c`): `Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Round`](../type-aliases/Round.md)[]\>
 
 Filter and get a list of round data from the rounds table according to a criteria.
 
 #### Parameters
 
-• **c**: [`ReadRoundsCriteria`](../interfaces/ReadRoundsCriteria.md) = `{}`
+##### c
+
+[`ReadRoundsCriteria`](../type-aliases/ReadRoundsCriteria.md) = `{}`
 
 Filter criteria. Leaving one undefined removes the criteria
 
 #### Returns
 
-`Promise`\<`null` \| [`Round`](../interfaces/Round.md)[]\>
+`Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Round`](../type-aliases/Round.md)[]\>
 
-Array of round data matching the filter criteria. If the query failed the returned value is `null`
+Array of round data matching the filter criteria, or an error code
 
 #### Defined in
 
-[database.ts:968](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L968)
+[database.ts:1058](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1058)
 
 ***
 
 ### readSubmissions()
 
-> **readSubmissions**(`c`): `Promise`\<`null` \| [`Submission`](../interfaces/Submission.md)[]\>
+> **readSubmissions**(`c`): `Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Submission`](../type-aliases/Submission.md)[]\>
 
 Filter and get a list of submissions from the submissions table according to a criteria.
 
 #### Parameters
 
-• **c**: [`ReadSubmissionsCriteria`](../interfaces/ReadSubmissionsCriteria.md) = `{}`
+##### c
+
+[`ReadSubmissionsCriteria`](../type-aliases/ReadSubmissionsCriteria.md) = `{}`
 
 Filter criteria. Leaving one undefined removes the criteria
 
 #### Returns
 
-`Promise`\<`null` \| [`Submission`](../interfaces/Submission.md)[]\>
+`Promise`\<[`ERROR`](../enumerations/DatabaseOpCode.md#error) \| [`Submission`](../type-aliases/Submission.md)[]\>
 
-Array of submissions matching the filter criteria. If the query failed the returned value is `null`
+Array of submissions matching the filter criteria, or an error code
 
 #### Defined in
 
-[database.ts:1218](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1218)
+[database.ts:1324](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1324)
 
 ***
 
 ### registerContest()
 
-> **registerContest**(`username`, `contest`): `Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`CONTEST_ALREADY_EXISTS`](../enumerations/TeamOpResult.md#contest_already_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **registerContest**(`team`, `contest`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`CONFLICT`](../enumerations/DatabaseOpCode.md#conflict) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Register an account for a contest, also registering all other accounts on the same team. Prevents duplicate registrations. Does not prevent registering a team that is too large. **Does not validate credentials**.
+Register a team for a contest, registering all users on that team as well. Prevents duplicate registrations.
+**Does not prevent registering a team that is too large or registering in conflict with existing registrations.**
 
 #### Parameters
 
-• **username**: `string`
+##### team
 
-Valid username
+`string`
 
-• **contest**: `string`
+Team ID
 
-Contest id
+##### contest
+
+`string`
+
+Contest ID
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`CONTEST_ALREADY_EXISTS`](../enumerations/TeamOpResult.md#contest_already_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`CONFLICT`](../enumerations/DatabaseOpCode.md#conflict) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Registration status
 
 #### Defined in
 
-[database.ts:627](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L627)
+[database.ts:652](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L652)
+
+***
+
+### rotateRecoveryPassword()
+
+> **rotateRecoveryPassword**(`username`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Rotates the recovery password of an account to a new random string.
+
+#### Parameters
+
+##### username
+
+`string`
+
+Username to rotate
+
+#### Returns
+
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
+
+Rotation status
+
+#### Defined in
+
+[database.ts:420](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L420)
 
 ***
 
 ### setAccountTeam()
 
-> **setAccountTeam**(`username`, `team`, `useJoinCode`): `Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`NOT_ALLOWED`](../enumerations/TeamOpResult.md#not_allowed) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **setAccountTeam**(`username`, `team`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Set the id of a user's team (the team creator's username). Also clears existing registrations to avoid incorrect registration reporting. **Does not validate credentials**.
+Change the team of a user. Since registrations are stored by team, this will change the user's registrations. **Does not validate credentials**.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **team**: `string`
+##### team
 
-Valid username (of team) OR join code
-
-• **useJoinCode**: `boolean` = `false`
-
-If should search by join code instead (default false)
+`null` | `string`
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`NOT_ALLOWED`](../enumerations/TeamOpResult.md#not_allowed) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Update status
 
 #### Defined in
 
-[database.ts:520](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L520)
+[database.ts:546](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L546)
 
 ***
 
 ### setAdminPerms()
 
-> **setAdminPerms**(`username`, `permissions`): `Promise`\<`boolean`\>
+> **setAdminPerms**(`username`, `permissions`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Set the permission bit flags of an administrator, or add a new administrator. If permissions bit 0 is false (not admin), the administrator is removed.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **permissions**: `number`
+##### permissions
+
+`number`
 
 Permission flags, as a number (boolean OR)
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If writing was successful.
+Write status
 
 #### Defined in
 
-[database.ts:803](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L803)
+[database.ts:886](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L886)
 
 ***
 
 ### unregisterAllContests()
 
-> **unregisterAllContests**(`username`): `Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **unregisterAllContests**(`team`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Unregister an account for all contests (shortcut method), also unregistering all other accounts on the same team. **Does not validate credentials**.
+Unregister an entire team for all contests.
 
 #### Parameters
 
-• **username**: `string`
+##### team
 
-Valid username
+`string`
+
+Team ID
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Registration status
 
 #### Defined in
 
-[database.ts:690](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L690)
+[database.ts:718](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L718)
 
 ***
 
 ### unregisterContest()
 
-> **unregisterContest**(`username`, `contest`): `Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+> **unregisterContest**(`team`, `contest`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Unregister an account for a contest, also unregistering all other accounts on the same team. **Does not validate credentials**.
+Unregister a team for a contest.
 
 #### Parameters
 
-• **username**: `string`
+##### team
 
-Valid username
+`string`
 
-• **contest**: `string`
+Team ID
 
-Contest id
+##### contest
+
+`string`
+
+Contest ID
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Registration status
 
 #### Defined in
 
-[database.ts:661](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L661)
+[database.ts:685](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L685)
 
 ***
 
 ### updateAccountData()
 
-> **updateAccountData**(`username`, `userData`): `Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
+> **updateAccountData**(`username`, `userData`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Overwrite user data for an existing account. *Only uses part of the data*. **Does not validate credentials**.
-
-#### Parameters
-
-• **username**: `string`
-
-Valid username
-
-• **userData**: [`AccountData`](../interfaces/AccountData.md)
-
-New data (only `firstName`, `lastName`, `displayName`, `profileImage`, `school`, `grade`, `experience`, `languages`, and `bio` fields are updated)
-
-#### Returns
-
-`Promise`\<[`SUCCESS`](../enumerations/AccountOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/AccountOpResult.md#not_exists) \| [`ERROR`](../enumerations/AccountOpResult.md#error)\>
-
-Update status
-
-#### Defined in
-
-[database.ts:330](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L330)
-
-***
-
-### updateTeamData()
-
-> **updateTeamData**(`username`, `teamData`): `Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
-
-Overwrite the team data for an existing team. **Does not validate credentials**.
+Overwrite user data for an existing account. Cannot be used to update "email", "pastRegistrations", or "team". **Does not validate credentials**.
 
 #### Parameters
 
-• **username**: `string`
+##### username
+
+`string`
 
 Valid username
 
-• **teamData**: [`TeamData`](../interfaces/TeamData.md)
+##### userData
+
+`Omit`\<[`AccountData`](../type-aliases/AccountData.md), `"username"` \| `"email"` \| `"pastRegistrations"` \| `"team"`\>
 
 New data
 
 #### Returns
 
-`Promise`\<[`SUCCESS`](../enumerations/TeamOpResult.md#success) \| [`NOT_EXISTS`](../enumerations/TeamOpResult.md#not_exists) \| [`ERROR`](../enumerations/TeamOpResult.md#error)\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Update status
 
 #### Defined in
 
-[database.ts:599](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L599)
+[database.ts:309](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L309)
 
 ***
 
-### validate()
+### updateTeamData()
 
-> **validate**(`username`, `password`): `boolean`
+> **updateTeamData**(`team`, `teamData`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Validate a pair of credentials. To be valid, a username must be an alphanumeric string of length <= 16, and the password must be a string of length <= 1024.
+Update the team data for an existing team. Cannot be used to update "members", "registrations", or "joinKey".
 
 #### Parameters
 
-• **username**: `string`
+##### team
 
-Username
+`string`
 
-• **password**: `string`
+Team ID
 
-Password
+##### teamData
+
+`Omit`\<[`TeamData`](../type-aliases/TeamData.md), `"id"` \| `"members"` \| `"registrations"` \| `"joinKey"`\>
+
+New data
 
 #### Returns
 
-`boolean`
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`NOT_FOUND`](../enumerations/DatabaseOpCode.md#not_found) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Validity
+Update status
 
 #### Defined in
 
-[database.ts:180](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L180)
+[database.ts:621](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L621)
 
 ***
 
 ### writeContest()
 
-> **writeContest**(`contest`): `Promise`\<`boolean`\>
+> **writeContest**(`contest`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Write a contest to the contests table.
 
 #### Parameters
 
-• **contest**: [`Contest`](../interfaces/Contest.md)
+##### contest
+
+[`Contest`](../type-aliases/Contest.md)
 
 Contest to write
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the write was successful
+Write status
 
 #### Defined in
 
-[database.ts:909](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L909)
+[database.ts:998](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L998)
 
 ***
 
 ### writeProblem()
 
-> **writeProblem**(`problem`): `Promise`\<`boolean`\>
+> **writeProblem**(`problem`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Write a problem to the problems table.
 
 #### Parameters
 
-• **problem**: [`Problem`](../interfaces/Problem.md)
+##### problem
+
+[`Problem`](../type-aliases/Problem.md)
 
 Problem to write
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the write was successful
+Write status
 
 #### Defined in
 
-[database.ts:1159](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1159)
+[database.ts:1264](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1264)
 
 ***
 
 ### writeRound()
 
-> **writeRound**(`round`): `Promise`\<`boolean`\>
+> **writeRound**(`round`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
 Write a round to the rounds table.
 
 #### Parameters
 
-• **round**: [`Round`](../interfaces/Round.md)
+##### round
+
+[`Round`](../type-aliases/Round.md)
 
 Round to write
 
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the write was successful
+Write status
 
 #### Defined in
 
-[database.ts:1029](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1029)
+[database.ts:1126](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1126)
 
 ***
 
 ### writeSubmission()
 
-> **writeSubmission**(`submission`, `overwrite`?): `Promise`\<`boolean`\>
+> **writeSubmission**(`submission`): `Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-Write a submission to the submissions table. The `history` field is ignored.
-If the most recent submission has an empty `scores` field, the submission will be overwritten instead of appended to history.
+Write a submission to the submissions table. Will only overwrite scores for existing submissions.
 
 #### Parameters
 
-• **submission**: [`Submission`](../interfaces/Submission.md)
+##### submission
+
+[`Submission`](../type-aliases/Submission.md)
 
 Submission to write
 
-• **overwrite?**: `boolean`
-
-Force overwriting of most recent submission
-
 #### Returns
 
-`Promise`\<`boolean`\>
+`Promise`\<[`SUCCESS`](../enumerations/DatabaseOpCode.md#success) \| [`ERROR`](../enumerations/DatabaseOpCode.md#error)\>
 
-If the write was successful
+Write status
 
 #### Defined in
 
-[database.ts:1303](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1303)
+[database.ts:1421](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1421)

@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,20 +6,24 @@
 
 # Function: reverse\_enum()
 
-> **reverse\_enum**(`enumeration`, `v`): `string`
+> **reverse\_enum**(`enumeration`, `v`): `any`
 
 Look up the name of an enumeration based on the value
 
 ## Parameters
 
-• **enumeration**: `any`
+### enumeration
 
-• **v**: `any`
+`any`
+
+### v
+
+`any`
 
 ## Returns
 
-`string`
+`any`
 
 ## Defined in
 
-[util.ts:144](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/util.ts#L144)
+[util.ts:298](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L298)

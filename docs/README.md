@@ -1,4 +1,4 @@
-**wwppc-server** • [**Docs**](modules.md)
+**wwppc-server**
 
 ***
 
@@ -12,28 +12,26 @@ The server uses [Socket.IO](https://socket.io) as a bi-directional communication
 
 ## Base setup
 
-After cloning the `WWPPC-server` repo, create a folder `config` in the root directory of the repository (next to `src`).
+To configure the server, navigate to the `config` directory.
 
 In that, create a new file, `.env`, which contains environment variables:
 * `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string (you can usually get this by copying one from your database provide, but if not, the format is usually `postgresql://username:password@hostname:port/databasename`)
 * `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
-* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key (*NOT* your *SITE* key)
 * `SMTP_HOST`: SMTP service hostname (email server)
 * `SMTP_PORT`: SMTP service port (email server)
 * `SMTP_USER`: SMTP service username (email server)
 * `SMTP_PASS`: SMTP service password (email server)
 * `GRADER_PASS`: Global grader password, can be any string
-`db-cert.pem`, which allows you to connect to the database securely
 
-There are also other environment variables, like `DEBUG_MODE`, which are temporary overrides for [ config](config/README.md) options.
+If your database requires an SSL-secured connection, place the certificate provided by your database provider in the file `db-cert.pem`, which allows you to connect to the database securely.
 
-Both of these should be in `#backend` channel on Discord, so you can just copy them in.
+There are also other environment variables, like `DEBUG_MODE`, which are temporary overrides for [config](config/README.md) options.
 
 Next, run `npm i` to install dependencies, then `npm run compilerun` to start the server.
 
-Try navigating to `http://localhost:8000/wakeup` now. If you see `ok`, the server has successfully been setup! Note we still have to setup the client, where we have two options:
+Try navigating to `http://localhost:8000/wakeup` now. If you see `ok`, the server has successfully been setup!
 
-## Setup HTTPS and client (recommended)
+## HTTPS and development client setup (recommended)
 
 We will set up the `WWPPC-site-main` repo (but you can also use `WWPPC-site-math`) to act as a client and network with the server. However, the client requires HTTPS connections to access encryption methods, we must first make our browser trust the server, otherwise we may get an SSL error:
 
@@ -45,14 +43,15 @@ Next, clone the `WWPPC-site-main` repo, **ensuring you clone all submodules**. I
 
 ## Environment variables and config
 
-**For global server configuration, see [ config](config/README.md)**
+Server configuration options are stored in the `config/` directory. Use `config.json` to configure the server settings. (*For developers: If `config.json` does not exist, try running the server via `npm run compilerun` to autogenerate one*) The included `contests.json` contains data for the contest formats.
+
+**For detailed information on all server & contest configuration options, see [config docs](/docs/config/README.md)**
 
 WWPPC-server has some required and some optional environment variables.
 
 ### Required
 * `DATABASE_URL`: [PostgreSQL](https://www.postgresql.org/) database connection string
 * `DATABASE_KEY`: AES-GCM-256 key, used internally for account recovery key encryption
-* `RECAPTCHA_SECRET`: Your [reCAPTCHA](https://developers.google.com/recaptcha/) **SECRET** key
 * `SMTP_HOST`: SMTP service hostname (email server)
 * `SMTP_PORT`: SMTP service port (email server)
 * `SMTP_USER`: SMTP service username (email server)
@@ -152,3 +151,5 @@ Add 5 to the time because cron jobs are UTC
 ```
 0 7 * * * systemctl stop wwppc.service; cd /root/WWPPC-grader && git pull && npm install && npm run compile; git submodule update && cd /root/WWPPC-grader/problems && node compile.js; systemctl start wwppc.service
 ```
+
+This needs to be updated

@@ -1,4 +1,4 @@
-[**wwppc-server**](../README.md) • **Docs**
+[**wwppc-server**](../README.md)
 
 ***
 
@@ -11,14 +11,17 @@
 ### Classes
 
 - [FileLogger](classes/FileLogger.md)
+- [Logger](classes/Logger.md)
+- [MultiLogger](classes/MultiLogger.md)
 - [NamedLogger](classes/NamedLogger.md)
+- [NullLogger](classes/NullLogger.md)
 
-### Interfaces
+### Variables
 
-- [Logger](interfaces/Logger.md)
+- [defaultLogger](variables/defaultLogger.md)
 
 ## References
 
 ### default
 
-Renames and re-exports [Logger](interfaces/Logger.md)
+Renames and re-exports [Logger](classes/Logger.md)

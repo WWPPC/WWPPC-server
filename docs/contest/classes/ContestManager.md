@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,44 +6,8 @@
 
 # Class: ContestManager
 
-`ContestManager` handles automatic contest running and interfacing with clients.
+`ContestManager` handles automatic contest running and interfacing with clients through HTTP.
 It will automatically start and stop contests, advance rounds, and process submissions and leaderboards.
-
-## Constructors
-
-### new ContestManager()
-
-> **new ContestManager**(`db`, `app`, `io`, `grader`, `logger`): [`ContestManager`](ContestManager.md)
-
-#### Parameters
-
-• **db**: [`Database`](../../database/classes/Database.md)
-
-Database connection
-
-• **app**: `Express`
-
-Express app (HTTP server) to attach API to
-
-• **io**: `Server`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
-
-Socket.IO server
-
-• **grader**: [`Grader`](../../grader/classes/Grader.md)
-
-Grading system to use
-
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
-
-Logger instance
-
-#### Returns
-
-[`ContestManager`](ContestManager.md)
-
-#### Defined in
-
-[contest.ts:38](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L38)
 
 ## Properties
 
@@ -53,7 +17,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L24)
+[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L23)
 
 ***
 
@@ -63,17 +27,17 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L23)
+[contest.ts:22](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L22)
 
 ***
 
-### io
+### grader
 
-> `readonly` **io**: `Server`\<`DefaultEventsMap`, `DefaultEventsMap`, `DefaultEventsMap`, `any`\>
+> `readonly` **grader**: [`Grader`](../../grader/classes/Grader.md)
 
 #### Defined in
 
-[contest.ts:25](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L25)
+[contest.ts:33](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L33)
 
 ***
 
@@ -83,31 +47,53 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:26](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L26)
+[contest.ts:34](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L34)
 
-## Methods
+***
 
-### addUser()
+### longPollingGlobal
 
-> **addUser**(`s`): `Promise`\<`void`\>
+> `readonly` **longPollingGlobal**: [`LongPollEventEmitter`](../../netUtil/classes/LongPollEventEmitter.md)\<`object`\>
 
-Add a username-linked SocketIO connection to the user list.
+#### Type declaration
 
-#### Parameters
+##### contests
 
-• **s**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
-
-SocketIO connection (with modifications)
-
-#### Returns
-
-`Promise`\<`void`\>
+> **contests**: `string`[]
 
 #### Defined in
 
-[contest.ts:94](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L94)
+[contest.ts:24](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L24)
 
 ***
+
+### longPollingUsers
+
+> `readonly` **longPollingUsers**: [`NamespacedLongPollEventEmitter`](../../netUtil/classes/NamespacedLongPollEventEmitter.md)\<`object`\>
+
+#### Type declaration
+
+##### contestData
+
+> **contestData**: [`ClientContest`](../../api/type-aliases/ClientContest.md)
+
+##### contestNotifications
+
+> **contestNotifications**: `never`
+
+##### contestScoreboards
+
+> **contestScoreboards**: `object` & [`UserScore`](../../scorer/type-aliases/UserScore.md)[]
+
+##### submissionData
+
+> **submissionData**: [`ClientSubmission`](../../api/type-aliases/ClientSubmission.md)[]
+
+#### Defined in
+
+[contest.ts:27](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L27)
+
+## Methods
 
 ### close()
 
@@ -121,7 +107,7 @@ Stops all contests and closes the contest manager
 
 #### Defined in
 
-[contest.ts:198](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L198)
+[contest.ts:428](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L428)
 
 ***
 
@@ -139,4 +125,56 @@ the contests
 
 #### Defined in
 
-[contest.ts:191](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/contest.ts#L191)
+[contest.ts:421](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L421)
+
+***
+
+### init()
+
+> `static` **init**(`db`, `app`, `grader`): [`ContestManager`](ContestManager.md)
+
+Initialize the ContestManager system.
+
+#### Parameters
+
+##### db
+
+[`Database`](../../database/classes/Database.md)
+
+Database connection
+
+##### app
+
+`Express`
+
+Express app (HTTP server) to attach API to
+
+##### grader
+
+[`Grader`](../../grader/classes/Grader.md)
+
+Grading system to use
+
+#### Returns
+
+[`ContestManager`](ContestManager.md)
+
+#### Defined in
+
+[contest.ts:58](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L58)
+
+***
+
+### use()
+
+> `static` **use**(): [`ContestManager`](ContestManager.md)
+
+Get the ContestManager system.
+
+#### Returns
+
+[`ContestManager`](ContestManager.md)
+
+#### Defined in
+
+[contest.ts:65](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/contest.ts#L65)

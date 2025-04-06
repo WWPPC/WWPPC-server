@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -18,7 +18,7 @@ Base admin permission; allows login and general functions
 
 #### Defined in
 
-[database.ts:1418](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1418)
+[database.ts:1526](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1526)
 
 ***
 
@@ -30,7 +30,7 @@ Access running contests through exposed ContestHost functions
 
 #### Defined in
 
-[database.ts:1426](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1426)
+[database.ts:1534](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1534)
 
 ***
 
@@ -42,7 +42,7 @@ Create, read, edit, and delete accounts
 
 #### Defined in
 
-[database.ts:1420](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1420)
+[database.ts:1528](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1528)
 
 ***
 
@@ -54,7 +54,7 @@ Add admins and edit permissions for other admins
 
 #### Defined in
 
-[database.ts:1428](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1428)
+[database.ts:1536](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1536)
 
 ***
 
@@ -66,7 +66,7 @@ Create, read, edit, and delete contests and rounds
 
 #### Defined in
 
-[database.ts:1424](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1424)
+[database.ts:1532](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1532)
 
 ***
 
@@ -78,4 +78,4 @@ Create, read, edit, and delete problems
 
 #### Defined in
 
-[database.ts:1422](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/database.ts#L1422)
+[database.ts:1530](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/database.ts#L1530)

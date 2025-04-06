@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -6,11 +6,11 @@
 
 # Type Alias: FilterComparison\<T\>
 
-> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? `object` \| `object` \| `object` \| `object` \| `T` \| `T`[] : `never`
+> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? \{`op`: `"="` \| `"!"`;`v`: `T` \| `T`[]; \} \| \{`op`: `">"` \| `"<"` \| `">="` \| `"<="`;`v`: `number` & `T`; \} \| \{`op`: `"><"` \| `"<>"` \| `"=><"` \| `"><="` \| `"=><="` \| `"=<>"` \| `"<>="` \| `"=<>="`;`v1`: `number` & `T`;`v2`: `number` & `T`; \} \| \{`op`: `"~"`;`v`: `string` & `T`; \} \| `T` \| `T`[] : `never`
 
 Flexible comparison type for filtering items. Allows for primitive comparisons (`=`, `!`),
 numerical comparisons (`>`, `<`, `>=`, `<=`), range comparisons (`><`, `<>`, `=><`, `><=`, `=><=`, `=<>`, `<>=`, `=<>=`),
-as well as list searches using `Array` values.
+substring searches (`~`), as well as list searches using `Array` values.
 
 ### To be used with [filterCompare](../functions/filterCompare.md)
 
@@ -62,10 +62,20 @@ If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions
 
 `{ op: '=><', v1: 10, v2: 24 }` is satisfied within the range [10, 24) (i.e. greater than or equal to 10 and less than 24).
 
+### Substring Matching
+
+```
+{
+    op: '~'
+    v: string
+}
+
+{@link filterCompare} will check if `v` is a substring of the value.
+
 ## Type Parameters
 
 • **T**
 
 ## Defined in
 
-[util.ts:60](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/util.ts#L60)
+[util.ts:79](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L79)

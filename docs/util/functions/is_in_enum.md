@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -12,9 +12,13 @@ Check if a value is in an enumeration
 
 ## Parameters
 
-• **v**: `any`
+### v
 
-• **enumeration**: `any`
+`any`
+
+### enumeration
+
+`any`
 
 ## Returns
 
@@ -22,4 +26,4 @@ Check if a value is in an enumeration
 
 ## Defined in
 
-[util.ts:151](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/util.ts#L151)
+[util.ts:305](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L305)

@@ -1,4 +1,4 @@
-[**wwppc-server**](README.md) • **Docs**
+[**wwppc-server**](README.md)
 
 ***
 
@@ -7,7 +7,8 @@
 ## Modules
 
 - [adminPortal](adminPortal/README.md)
-- [clients](clients/README.md)
+- [api](api/README.md)
+- [auth](auth/README.md)
 - [config](config/README.md)
 - [contest](contest/README.md)
 - [cryptoUtil](cryptoUtil/README.md)
@@ -15,7 +16,7 @@
 - [email](email/README.md)
 - [grader](grader/README.md)
 - [log](log/README.md)
-- [recaptcha](recaptcha/README.md)
+- [netUtil](netUtil/README.md)
 - [scorer](scorer/README.md)
 - [server](server/README.md)
 - [upsolve](upsolve/README.md)

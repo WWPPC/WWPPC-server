@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -16,11 +16,15 @@ Simple AES-GCM-256 symmetric encryption wrapper.
 
 #### Parameters
 
-• **key**: `Buffer`
+##### key
+
+`Buffer`\<`ArrayBufferLike`\>
 
 Valid AES key
 
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
 
 Logger instance
 
@@ -30,7 +34,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:88](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L88)
+[cryptoUtil.ts:85](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L85)
 
 ## Properties
 
@@ -40,7 +44,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:81](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L81)
+[cryptoUtil.ts:78](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L78)
 
 ## Methods
 
@@ -52,7 +56,9 @@ Symmetrically decrypt a formatted encrypted string to a plaintext string.
 
 #### Parameters
 
-• **encrypted**: `string`
+##### encrypted
+
+`string`
 
 Colon-concatenated base64-encoded ciphertext, initialization vector, and authentication tag
 
@@ -64,7 +70,7 @@ Plaintext string (the formatted encrypted string if there was an error)
 
 #### Defined in
 
-[cryptoUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L114)
+[cryptoUtil.ts:111](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L111)
 
 ***
 
@@ -76,7 +82,9 @@ Symmetrically encrypt a plaintext string to a formatted string.
 
 #### Parameters
 
-• **plaintext**: `string`
+##### plaintext
+
+`string`
 
 Plaintext string
 
@@ -88,4 +96,4 @@ Colon-concatenated base64-encoded ciphertext, initialization vector, and authent
 
 #### Defined in
 
-[cryptoUtil.ts:98](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/cryptoUtil.ts#L98)
+[cryptoUtil.ts:95](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/cryptoUtil.ts#L95)

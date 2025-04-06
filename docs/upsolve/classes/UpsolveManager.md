@@ -1,4 +1,4 @@
-[**wwppc-server**](../../README.md) • **Docs**
+[**wwppc-server**](../../README.md)
 
 ***
 
@@ -12,25 +12,21 @@
 
 ### new UpsolveManager()
 
-> **new UpsolveManager**(`db`, `app`, `grader`, `logger`): [`UpsolveManager`](UpsolveManager.md)
+> **new UpsolveManager**(`db`, `app`, `grader`): [`UpsolveManager`](UpsolveManager.md)
 
 #### Parameters
 
-• **db**: [`Database`](../../database/classes/Database.md)
+##### db
 
-Database connection
+[`Database`](../../database/classes/Database.md)
 
-• **app**: `Express`
+##### app
 
-Express app (HTTP server) to attach API to
+`Express`
 
-• **grader**: [`Grader`](../../grader/classes/Grader.md)
+##### grader
 
-Grading system to use
-
-• **logger**: [`Logger`](../../log/interfaces/Logger.md)
-
-Logger instance
+[`Grader`](../../grader/classes/Grader.md)
 
 #### Returns
 
@@ -38,7 +34,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:30](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L30)
+[upsolve.ts:28](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L28)
 
 ## Properties
 
@@ -48,7 +44,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L18)
+[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L18)
 
 ***
 
@@ -58,7 +54,17 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L17)
+[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L17)
+
+***
+
+### eventEmitter
+
+> `readonly` **eventEmitter**: [`LongPollEventEmitter`](../../netUtil/classes/LongPollEventEmitter.md)\<`object`\>
+
+#### Defined in
+
+[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L19)
 
 ***
 
@@ -68,7 +74,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L20)
+[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L20)
 
 ***
 
@@ -78,7 +84,7 @@ Logger instance
 
 #### Defined in
 
-[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L19)
+[upsolve.ts:21](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L21)
 
 ## Methods
 
@@ -90,7 +96,9 @@ Add a username-linked SocketIO connection to the user list.
 
 #### Parameters
 
-• **s**: [`ServerSocket`](../../clients/interfaces/ServerSocket.md)
+##### s
+
+`any`
 
 SocketIO connection (with modifications)
 
@@ -100,7 +108,7 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[upsolve.ts:127](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L127)
+[upsolve.ts:144](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L144)
 
 ***
 
@@ -116,4 +124,56 @@ Closes the upsolve manager
 
 #### Defined in
 
-[upsolve.ts:258](https://github.com/WWPPC/WWPPC-server/blob/ed9c7da6b6decb294863e396def82e9a8d81b105/src/upsolve.ts#L258)
+[upsolve.ts:275](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L275)
+
+***
+
+### init()
+
+> `static` **init**(`db`, `app`, `grader`): [`UpsolveManager`](UpsolveManager.md)
+
+Initialize the UpsolveManager system.
+
+#### Parameters
+
+##### db
+
+[`Database`](../../database/classes/Database.md)
+
+Database connection
+
+##### app
+
+`Express`
+
+Express app (HTTP server) to attach API to
+
+##### grader
+
+[`Grader`](../../grader/classes/Grader.md)
+
+Grading system to use
+
+#### Returns
+
+[`UpsolveManager`](UpsolveManager.md)
+
+#### Defined in
+
+[upsolve.ts:128](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L128)
+
+***
+
+### use()
+
+> `static` **use**(): [`UpsolveManager`](UpsolveManager.md)
+
+Get the UpsolveManager system.
+
+#### Returns
+
+[`UpsolveManager`](UpsolveManager.md)
+
+#### Defined in
+
+[upsolve.ts:135](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/upsolve.ts#L135)

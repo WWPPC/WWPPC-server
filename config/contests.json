@@ -36,17 +36,7 @@
         "withholdResults": false,
         "submitSolver": false,
         "directSubmissionDelay": 10,
-        "acceptedSolverLanguages": [
-            "Java8",
-            "Java11",
-            "Java17",
-            "Java21",
-            "C11",
-            "C++11",
-            "C++17",
-            "C++20",
-            "Python3.12.3"
-        ],
+        "acceptedSolverLanguages": [],
         "maxSubmissionSize": "128b"
     },
     "WWPMT": {
