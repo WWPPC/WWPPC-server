@@ -44,7 +44,7 @@ Name prefix, without brackets
 
 #### Defined in
 
-[log.ts:253](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L253)
+[log.ts:253](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L253)
 
 ## Properties
 
@@ -54,7 +54,7 @@ Name prefix, without brackets
 
 #### Defined in
 
-[log.ts:245](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L245)
+[log.ts:245](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L245)
 
 ***
 
@@ -64,7 +64,7 @@ Name prefix, without brackets
 
 #### Defined in
 
-[log.ts:246](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L246)
+[log.ts:246](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L246)
 
 ## Methods
 
@@ -98,7 +98,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:259](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L259)
+[log.ts:259](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L259)
 
 ***
 
@@ -118,7 +118,7 @@ Safely closes the logging session. May be asynchronous to allow pending operatio
 
 #### Defined in
 
-[log.ts:281](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L281)
+[log.ts:281](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L281)
 
 ***
 
@@ -152,7 +152,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:268](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L268)
+[log.ts:268](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L268)
 
 ***
 
@@ -186,7 +186,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:271](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L271)
+[log.ts:271](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L271)
 
 ***
 
@@ -220,7 +220,7 @@ Error data
 
 #### Defined in
 
-[log.ts:274](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L274)
+[log.ts:274](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L274)
 
 ***
 
@@ -254,7 +254,7 @@ Error data
 
 #### Defined in
 
-[log.ts:277](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L277)
+[log.ts:277](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L277)
 
 ***
 
@@ -288,7 +288,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:262](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L262)
+[log.ts:262](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L262)
 
 ***
 
@@ -310,7 +310,7 @@ Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 #### Defined in
 
-[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L14)
+[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L14)
 
 ***
 
@@ -344,7 +344,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:265](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L265)
+[log.ts:265](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L265)
 
 ***
 
@@ -388,4 +388,4 @@ Error data
 
 #### Defined in
 
-[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L83)
+[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L83)

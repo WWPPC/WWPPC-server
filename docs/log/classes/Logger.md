@@ -53,7 +53,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:34](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L34)
+[log.ts:34](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L34)
 
 ***
 
@@ -69,7 +69,7 @@ Safely closes the logging session. May be asynchronous to allow pending operatio
 
 #### Defined in
 
-[log.ts:75](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L75)
+[log.ts:75](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L75)
 
 ***
 
@@ -99,7 +99,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:52](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L52)
+[log.ts:52](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L52)
 
 ***
 
@@ -129,7 +129,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:58](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L58)
+[log.ts:58](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L58)
 
 ***
 
@@ -159,7 +159,7 @@ Error data
 
 #### Defined in
 
-[log.ts:64](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L64)
+[log.ts:64](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L64)
 
 ***
 
@@ -189,7 +189,7 @@ Error data
 
 #### Defined in
 
-[log.ts:70](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L70)
+[log.ts:70](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L70)
 
 ***
 
@@ -219,7 +219,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:40](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L40)
+[log.ts:40](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L40)
 
 ***
 
@@ -237,7 +237,7 @@ Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 #### Defined in
 
-[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L14)
+[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L14)
 
 ***
 
@@ -267,7 +267,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:46](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L46)
+[log.ts:46](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L46)
 
 ***
 
@@ -307,4 +307,4 @@ Error data
 
 #### Defined in
 
-[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/log.ts#L83)
+[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/log.ts#L83)

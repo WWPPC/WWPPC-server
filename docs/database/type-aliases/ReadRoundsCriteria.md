@@ -44,4 +44,4 @@ Start of round, UNIX time
 
 ## Defined in
 
-[database.ts:1689](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1689)
+[database.ts:1689](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1689)

@@ -14,7 +14,7 @@
 
 #### Defined in
 
-[database.ts:1672](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1672)
+[database.ts:1672](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1672)
 
 ***
 
@@ -24,7 +24,7 @@
 
 #### Defined in
 
-[database.ts:1668](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1668)
+[database.ts:1668](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1668)
 
 ***
 
@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[database.ts:1670](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1670)
+[database.ts:1670](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1670)
 
 ***
 
@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[database.ts:1667](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1667)
+[database.ts:1667](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1667)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Defined in
 
-[database.ts:1671](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1671)
+[database.ts:1671](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1671)
 
 ***
 
@@ -64,4 +64,4 @@
 
 #### Defined in
 
-[database.ts:1669](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1669)
+[database.ts:1669](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1669)

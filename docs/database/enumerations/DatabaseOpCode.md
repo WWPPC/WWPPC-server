@@ -18,7 +18,7 @@ The operation failed because the database found existing data that conflicts
 
 #### Defined in
 
-[database.ts:1512](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1512)
+[database.ts:1512](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1512)
 
 ***
 
@@ -30,7 +30,7 @@ The operation failed because of an unexpected issue
 
 #### Defined in
 
-[database.ts:1520](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1520)
+[database.ts:1520](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1520)
 
 ***
 
@@ -42,7 +42,7 @@ The operation failed because the requested action is restricted
 
 #### Defined in
 
-[database.ts:1518](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1518)
+[database.ts:1518](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1518)
 
 ***
 
@@ -54,7 +54,7 @@ The operation failed because the database could not find the requested data
 
 #### Defined in
 
-[database.ts:1514](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1514)
+[database.ts:1514](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1514)
 
 ***
 
@@ -66,7 +66,7 @@ The operation succeeded
 
 #### Defined in
 
-[database.ts:1510](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1510)
+[database.ts:1510](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1510)
 
 ***
 
@@ -78,4 +78,4 @@ The operation failed because of an authentication failure
 
 #### Defined in
 
-[database.ts:1516](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/database.ts#L1516)
+[database.ts:1516](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/database.ts#L1516)

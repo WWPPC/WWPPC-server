@@ -54,7 +54,7 @@ Callback function
 
 #### Defined in
 
-[util.ts:175](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L175)
+[util.ts:175](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L175)
 
 ***
 
@@ -88,7 +88,7 @@ Event data, passed to each listener
 
 #### Defined in
 
-[util.ts:167](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L167)
+[util.ts:167](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L167)
 
 ***
 
@@ -122,7 +122,7 @@ Callback function
 
 #### Defined in
 
-[util.ts:199](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L199)
+[util.ts:199](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L199)
 
 ***
 
@@ -156,7 +156,7 @@ Callback function
 
 #### Defined in
 
-[util.ts:191](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L191)
+[util.ts:191](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L191)
 
 ***
 
@@ -190,4 +190,4 @@ Callback function
 
 #### Defined in
 
-[util.ts:183](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L183)
+[util.ts:183](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L183)

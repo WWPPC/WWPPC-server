@@ -22,4 +22,4 @@ Slightly modified version of Contest
 
 ## Defined in
 
-[upsolve.ts:285](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/upsolve.ts#L285)
+[upsolve.ts:285](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/upsolve.ts#L285)

@@ -40,4 +40,4 @@ Function used by `Scorer` to assign point values to submissions.
 
 ## Defined in
 
-[scorer.ts:26](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/scorer.ts#L26)
+[scorer.ts:26](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L26)

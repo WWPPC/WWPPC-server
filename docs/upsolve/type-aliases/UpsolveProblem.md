@@ -54,4 +54,4 @@ Slightly modified version of Problem
 
 ## Defined in
 
-[upsolve.ts:296](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/upsolve.ts#L296)
+[upsolve.ts:296](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/upsolve.ts#L296)

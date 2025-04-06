@@ -28,7 +28,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:19](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L19)
+[cryptoUtil.ts:19](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L19)
 
 ## Properties
 
@@ -38,7 +38,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:10](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L10)
+[cryptoUtil.ts:10](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L10)
 
 ***
 
@@ -48,7 +48,7 @@ Logger instance
 
 #### Defined in
 
-[cryptoUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L14)
+[cryptoUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L14)
 
 ## Accessors
 
@@ -66,7 +66,7 @@ RA-OAEP public key, exported in "jwk" format.
 
 #### Defined in
 
-[cryptoUtil.ts:36](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L36)
+[cryptoUtil.ts:36](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L36)
 
 ***
 
@@ -84,7 +84,7 @@ Session ID of the current rotation of keys. Changes for every `rotateRSAKeys()` 
 
 #### Defined in
 
-[cryptoUtil.ts:40](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L40)
+[cryptoUtil.ts:40](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L40)
 
 ## Methods
 
@@ -110,7 +110,7 @@ Decrypted string
 
 #### Defined in
 
-[cryptoUtil.ts:63](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L63)
+[cryptoUtil.ts:63](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L63)
 
 ***
 
@@ -126,4 +126,4 @@ Re-generates the RSA-OAEP keypair used in `RSAdecrypt`, resolving when the publi
 
 #### Defined in
 
-[cryptoUtil.ts:45](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/cryptoUtil.ts#L45)
+[cryptoUtil.ts:45](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/cryptoUtil.ts#L45)

@@ -8,7 +8,7 @@ The central server for all WWPPC services, like managing accounts and running co
 
 The server uses a JSON REST api for all communications. See the [WWPPC Networking Docs](https://docs.google.com/spreadsheets/d/1qNvahuIZ5CIl5ROGKc4nUBLOPs86TwiNX7WXwi0tqgo/edit?usp=sharing) for more information. (We may update this in the future to not depend on spaghetti links)
 
-**[See full code documentation here](/docs/README.md)**
+**[See full code documentation here](/docs/modules.md)**
 
 # Server setup
 
@@ -73,7 +73,7 @@ WWPPC-server has some required and some optional environment variables.
 
 ## Logs
 
-Logs can be found under the `/logs` directory
+Logs can be found under the `/logs` directory. `recent.log` is a mirror of the most recently generated logfile, all other logs are labeled by their date of creation.
 
 # Server stuff (needs formatting)
 

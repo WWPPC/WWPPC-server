@@ -26,4 +26,4 @@ Check if a value is in an enumeration
 
 ## Defined in
 
-[util.ts:305](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L305)
+[util.ts:305](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L305)
