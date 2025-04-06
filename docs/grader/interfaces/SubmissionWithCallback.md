@@ -28,7 +28,7 @@ Function supplied by queueUngraded to send submission to after grading is finish
 
 #### Defined in
 
-[grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L284)
+[grader.ts:284](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/grader.ts#L284)
 
 ***
 
@@ -40,7 +40,7 @@ If the submission was cancelled
 
 #### Defined in
 
-[grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L288)
+[grader.ts:288](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/grader.ts#L288)
 
 ***
 
@@ -52,7 +52,7 @@ How many times the grading servers have failed grading this (returned)
 
 #### Defined in
 
-[grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L286)
+[grader.ts:286](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/grader.ts#L286)
 
 ***
 
@@ -64,4 +64,4 @@ The submission itself
 
 #### Defined in
 
-[grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/grader.ts#L282)
+[grader.ts:282](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/grader.ts#L282)

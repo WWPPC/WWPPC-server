@@ -31,4 +31,4 @@ Callback handler for the first trigger
 
 ## Defined in
 
-[util.ts:223](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L223)
+[util.ts:223](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L223)

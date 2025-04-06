@@ -6,7 +6,9 @@
 
 The central server for all WWPPC services, like managing accounts and running contests. There should only ever be one of these at any given time.
 
-The server uses [Socket.IO](https://socket.io) as a bi-directional communication layer but also has some HTTP APIs. See the [WWPPC Networking Docs](https://docs.google.com/spreadsheets/d/1qNvahuIZ5CIl5ROGKc4nUBLOPs86TwiNX7WXwi0tqgo/edit?usp=sharing) for more information. (We may update this in the future to not depend on spaghetti links)
+The server uses a JSON REST api for all communications. See the [WWPPC Networking Docs](https://docs.google.com/spreadsheets/d/1qNvahuIZ5CIl5ROGKc4nUBLOPs86TwiNX7WXwi0tqgo/edit?usp=sharing) for more information. (We may update this in the future to not depend on spaghetti links)
+
+**[See full code documentation here](/docs/README.md)**
 
 # Server setup
 
@@ -68,6 +70,10 @@ WWPPC-server has some required and some optional environment variables.
 * `DEBUG_MODE`: Enable debug logging
 
 *Note: all paths can be absolute or relative to the **`src`** directory (NOT the root directory)*
+
+## Logs
+
+Logs can be found under the `/logs` directory
 
 # Server stuff (needs formatting)
 

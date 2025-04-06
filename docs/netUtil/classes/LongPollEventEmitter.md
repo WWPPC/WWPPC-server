@@ -32,7 +32,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L14)
+[netUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L14)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:8](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L8)
+[netUtil.ts:8](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L8)
 
 ## Accessors
 
@@ -58,7 +58,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:47](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L47)
+[netUtil.ts:47](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L47)
 
 ## Methods
 
@@ -88,7 +88,7 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:23](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L23)
+[netUtil.ts:23](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L23)
 
 ***
 
@@ -104,7 +104,7 @@ Timeout all waiters and stop accepting new ones.
 
 #### Defined in
 
-[netUtil.ts:54](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L54)
+[netUtil.ts:54](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L54)
 
 ***
 
@@ -138,4 +138,4 @@ Data to update with
 
 #### Defined in
 
-[netUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L39)
+[netUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L39)

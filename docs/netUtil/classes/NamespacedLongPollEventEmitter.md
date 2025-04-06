@@ -32,7 +32,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:73](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L73)
+[netUtil.ts:73](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L73)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:65](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L65)
+[netUtil.ts:65](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L65)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:86](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L86)
+[netUtil.ts:86](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L86)
 
 ***
 
@@ -92,7 +92,7 @@ Timeout all waiters and stop accepting new ones.
 
 #### Defined in
 
-[netUtil.ts:106](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L106)
+[netUtil.ts:106](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L106)
 
 ***
 
@@ -130,4 +130,4 @@ Data to update with
 
 #### Defined in
 
-[netUtil.ts:97](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/netUtil.ts#L97)
+[netUtil.ts:97](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/netUtil.ts#L97)

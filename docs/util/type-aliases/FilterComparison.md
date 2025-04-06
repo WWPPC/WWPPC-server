@@ -78,4 +78,4 @@ If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions
 
 ## Defined in
 
-[util.ts:79](https://github.com/WWPPC/WWPPC-server/blob/f21384f154c6e2184ddc59d99a3230ee362152e8/src/util.ts#L79)
+[util.ts:79](https://github.com/WWPPC/WWPPC-server/blob/ee3abdd1c71a13a423c7eb75f79ad6723d0eebfc/src/util.ts#L79)
