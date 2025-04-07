@@ -269,16 +269,17 @@ const defaultDbResMessages: Record<DatabaseOpCode, string> = {
  * @param messagePrefix Optional prefix for response messages
  */
 export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, messages: Partial<Record<DatabaseOpCode, string>>, logger: Logger, username?: string, messagePrefix?: string): void {
-    if (config.debugMode) logger.debug(`${req.path}: ${messagePrefix ? messagePrefix + ' - ' : ''}${reverse_enum(DatabaseOpCode, code)} (${username !== undefined ? `${username}, ` : ''}${req.ip})`);
+    const message = (messagePrefix ? messagePrefix + ' - ' : '') + (messages[code] ?? defaultDbResMessages[code]);
+    if (config.debugMode) logger.debug(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.path}: ${reverse_enum(DatabaseOpCode, code)} - ${message}`);
     switch (code) {
         case DatabaseOpCode.ERROR:
-            logger.error(`${req.path} error (${username !== undefined ? `${username}, ` : ''}, ${req.ip})`);
+            logger.error(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.path} error`);
         case DatabaseOpCode.SUCCESS:
         case DatabaseOpCode.CONFLICT:
         case DatabaseOpCode.NOT_FOUND:
         case DatabaseOpCode.UNAUTHORIZED:
         case DatabaseOpCode.FORBIDDEN:
-            res.status(code).send((messagePrefix ? messagePrefix + ' - ' : '') + (messages[code] ?? defaultDbResMessages[code]));
+            res.status(code).send(message);
             break;
         default:
             logger.error(`${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);

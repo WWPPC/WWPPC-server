@@ -148,10 +148,8 @@ export class ClientAPI {
             // create & join new team
             const existing = await this.db.getAccountTeam(username);
             if (existing !== null) {
-                if (typeof existing == 'string') {
-                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot create team while on a team (${username}, ${req.ip})`);
-                    res.status(403).send('Cannot create team while on a team');
-                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot create team while on a team' }, this.logger, username, 'Check team');
+                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
             const teamId = await this.db.createTeam(req.body.name);
@@ -170,10 +168,8 @@ export class ClientAPI {
             // join existing team
             const existing = await this.db.getAccountTeam(username);
             if (existing !== null) {
-                if (typeof existing == 'string') {
-                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot join team while on a team (${username}, ${req.ip})`);
-                    res.status(403).send('Cannot join team while on a team');
-                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot join team while on a team' }, this.logger, username, 'Check team');
+                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
             const teamId = joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength);
@@ -184,8 +180,9 @@ export class ClientAPI {
                 return;
             }
             if (teamData.joinKey != joinKey) {
-                if (config.debugMode) this.logger.debug(`${req.path}: Not found (incorrect join key) (${username}, ${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | ${req.path}: Incorrect join key`);
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check team');
+                return;
             }
             // make sure doesn't violate registration restrictions
             const contests = await this.db.readContests({ id: teamData.registrations });
@@ -195,7 +192,7 @@ export class ClientAPI {
             }
             for (const contest of contests) {
                 if (teamData.members.length >= contest.maxTeamSize) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {[DatabaseOpCode.FORBIDDEN]: 'Forbidden by registrations'}, this.logger, username, 'Check team');
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Forbidden by registrations' }, this.logger, username, 'Check team');
                     return;
                 }
             }
@@ -207,10 +204,8 @@ export class ClientAPI {
             // leave current team
             const existing = await this.db.getAccountTeam(username);
             if (typeof existing != 'string') {
-                if (existing === null) {
-                    if (config.debugMode) this.logger.debug(`${req.path}: Cannot leave team without a team (${username}, ${req.ip})`);
-                    res.status(403).send('Cannot leave team without a team');
-                } else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+                if (existing === null) sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot leave team without a team' }, this.logger, username, 'Check team');
+                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
             const check = await this.db.setAccountTeam(username, null);

@@ -130,7 +130,7 @@ export class ClientAuth {
                 languages: req.body.languages
             });
             if (check == DatabaseOpCode.SUCCESS) {
-                this.logger.info(`Created account: ${username} (${req.ip})`);
+                this.logger.info(`${username} @ ${req.ip} | Created account`);
                 const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
                 res.cookie('sessionToken', token);
             }
@@ -158,8 +158,7 @@ export class ClientAuth {
             }
             // rate limiting by username as well (significantly longer timeout) to combat email spam
             if (this.recentPasswordResetEmails.get(username) ?? -Infinity >= performance.now() - config.recoveryEmailTimeout * 60000) {
-                this.logger.info(`${req.path} fail: too many requests (${username}, ${req.ip})`);
-                res.status(403).send('Too many recovery requests for this account');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {[DatabaseOpCode.FORBIDDEN]: 'Too many recovery requests for this account'}, this.logger, username, 'Check account');
                 return;
             }
             this.recentPasswordResetEmails.set(username, performance.now());
@@ -172,12 +171,11 @@ export class ClientAuth {
                 sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger, username, 'Check account');
                 return;
             }
-            this.logger.info(`Account recovery via email started: ${username} (${req.ip})`);
+            this.logger.info(`${username} @ ${req.ip} | Account recovery via email started`);
             const recoveryPassword = await this.db.getRecoveryPassword(username);
             if (typeof recoveryPassword != 'string') {
                 // this definitely shouldn't happen EVER
-                this.logger.error(`${req.path} fail: get recovery password ${reverse_enum(DatabaseOpCode, data)} (${username}, ${req.ip})`);
-                res.sendStatus(503);
+                sendDatabaseResponse(req, res, DatabaseOpCode.ERROR, {}, this.logger, username, 'Send email');
                 return;
             }
             const mailErr = await this.mailer.sendFromTemplate('password-reset', [email], 'Reset Password', [
@@ -186,12 +184,11 @@ export class ClientAuth {
                 ['pass', encodeURI(recoveryPassword)]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
             if (mailErr !== undefined) {
-                this.logger.error(`${req.path} fail: email error ${mailErr.message} (${username}, ${req.ip})`);
-                res.status(503).send('Send email - Internal email error');
+                sendDatabaseResponse(req, res, DatabaseOpCode.ERROR, {}, this.logger, username, 'Send email');
                 return;
             }
-            this.logger.info(`${req.path}: SUCCESS - sent email to ${email} for ${username} (${req.ip})`);
-            res.status(200).send('Send email - Success');
+            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger, username, 'Send email');
+            this.logger.info(`${username} @ ${req.ip} | Sent recovery email to ${email}`);
         });
         this.app.post('/auth/recovery', rateLimitWithTrigger({
             windowMs: 1000,
@@ -216,7 +213,7 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.changeAccountPasswordToken(username, recoveryPassword, newPassword);
-            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Account recovered, password reset for ${username} (${req.ip})`);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Account recovered & password reset`);
             sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger, username);
         });
         this.app.put('/auth/changePassword', parseBodyJson(), validateRequestBody({
@@ -237,7 +234,7 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.changeAccountPassword(username, password, newPassword);
-            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Password changed for ${username} (${req.ip})`);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Password reset`);
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.delete('/auth/delete', parseBodyJson(), validateRequestBody({
@@ -256,7 +253,7 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.deleteAccount(username, password);
-            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${req.path} success: Deleted ${username} (${req.ip})`);
+            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Deleted account`);
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         // reserve /auth path
