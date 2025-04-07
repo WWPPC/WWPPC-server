@@ -40,7 +40,7 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:43](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L43)
+[scorer.ts:43](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L43)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:36](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L36)
+[scorer.ts:36](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L36)
 
 ***
 
@@ -60,7 +60,7 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:35](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L35)
+[scorer.ts:35](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L35)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Remove all existing scores.
 
 #### Defined in
 
-[scorer.ts:161](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L161)
+[scorer.ts:161](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L161)
 
 ***
 
@@ -102,7 +102,7 @@ Mapping of username to score
 
 #### Defined in
 
-[scorer.ts:97](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L97)
+[scorer.ts:97](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L97)
 
 ***
 
@@ -120,7 +120,7 @@ mapping of username to score
 
 #### Defined in
 
-[scorer.ts:146](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L146)
+[scorer.ts:146](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L146)
 
 ***
 
@@ -140,7 +140,7 @@ mapping of username to score
 
 #### Defined in
 
-[scorer.ts:49](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L49)
+[scorer.ts:49](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L49)
 
 ***
 
@@ -172,4 +172,4 @@ whether it was successful
 
 #### Defined in
 
-[scorer.ts:59](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/scorer.ts#L59)
+[scorer.ts:59](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/scorer.ts#L59)

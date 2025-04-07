@@ -14,4 +14,4 @@ If any field is empty in `config.json`, it is filled in with the default.
 
 ## Defined in
 
-[config.ts:100](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/config.ts#L100)
+[config.ts:100](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/config.ts#L100)

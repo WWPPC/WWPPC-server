@@ -55,9 +55,9 @@ export class ClientAuth {
             }).check();
         });
         nivExtendMessages({
-            encrypted: 'The :attribute must be RSA-OAEP encrypted using the server public key',
-            encryptedEmail: 'The :attribute must be a valid e-mail address and RSA-OAEP encrypted using the server public key',
-            encryptedLen: 'The :attribute must be a valid length and RSA-OAEP encrypted using the server public key',
+            encrypted: 'The :attribute must be RSA-OAEP encrypted using the server public key (maybe your session expired?)',
+            encryptedEmail: 'The :attribute must be a valid e-mail address and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
+            encryptedLen: 'The :attribute must be a valid length and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
         }, 'en')
         this.createEndpoints();
         this.ready = Promise.all([this.encryption.ready]);
@@ -101,7 +101,7 @@ export class ClientAuth {
             email: 'required|encryptedEmail',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
-            school: 'required|string|length:64,1',
+            school: 'required|string|length:64',
             languages: 'required|arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
@@ -263,10 +263,20 @@ export class ClientAuth {
         this.app.use('/auth/*', (req, res) => res.sendStatus(404));
     }
 
+    /**
+     * Check if a session token exists and is connected to a username.
+     * @param token Session token string
+     * @returns Token is valid
+     */
     isTokenValid(token: any): boolean {
         return this.sessionTokens.tokenExists(token);
     }
 
+    /**
+     * Get the username associated with a session token.
+     * @param token Session token string
+     * @returns Username, or null if not connected to a username
+     */
     getTokenUsername(token: any): string | null {
         return this.sessionTokens.getTokenData(token);
     }

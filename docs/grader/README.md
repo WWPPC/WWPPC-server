@@ -12,10 +12,10 @@
 
 - [Grader](classes/Grader.md)
 
-### Interfaces
+### Type Aliases
 
-- [GraderNode](interfaces/GraderNode.md)
-- [SubmissionWithCallback](interfaces/SubmissionWithCallback.md)
+- [GraderNode](type-aliases/GraderNode.md)
+- [SubmissionWithCallback](type-aliases/SubmissionWithCallback.md)
 
 ## References
 

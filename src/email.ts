@@ -7,7 +7,7 @@ import path from 'path';
 import config from './config';
 import Logger, { NamedLogger } from './log';
 
-export interface MailerConstructorParams {
+export type MailerConstructorParams = {
     /**Hostname of SMTP server */
     host: string
     /**Port number of SMTP server (default 587) */
@@ -148,6 +148,7 @@ export class Mailer {
         try {
             if (this.templates.has(template)) {
                 let content = this.templates.get(template)!;
+                // don't need to inline or minify since that was done when reading templates
                 params.push(['hostname', 'https://' + config.hostname]);
                 params.forEach(([key, value]) => {
                     content = content.replaceAll(`$${key}$`, value);

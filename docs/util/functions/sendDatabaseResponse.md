@@ -60,4 +60,4 @@ Optional prefix for response messages
 
 ## Defined in
 
-[util.ts:270](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/util.ts#L270)
+[util.ts:271](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/util.ts#L271)

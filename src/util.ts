@@ -72,6 +72,7 @@ export type primitive = number | string | boolean | undefined | null;
  *     op: '~'
  *     v: string
  * }
+ * ```
  * 
  * {@link filterCompare} will check if `v` is a substring of the value.
  * 
@@ -215,7 +216,7 @@ nivExtendMessages({
 });
 
 /**
- * Create an instance of `express-rate-limit` IP rate limiter, with a handler.
+ * Create an instance of `express-rate-limit` IP rate limiter, with a handler
  * for the first trigger of the rate limiter per window.
  * @param options Options to configure the rate limiter.
  * @param cb Callback handler for the first trigger

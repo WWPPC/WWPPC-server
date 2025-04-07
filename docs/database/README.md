@@ -18,14 +18,11 @@
 
 - [Database](classes/Database.md)
 
-### Interfaces
-
-- [DatabaseConstructorParams](interfaces/DatabaseConstructorParams.md)
-
 ### Type Aliases
 
 - [AccountData](type-aliases/AccountData.md)
 - [Contest](type-aliases/Contest.md)
+- [DatabaseConstructorParams](type-aliases/DatabaseConstructorParams.md)
 - [Problem](type-aliases/Problem.md)
 - [ProblemRoundCriteria](type-aliases/ProblemRoundCriteria.md)
 - [ReadContestsCriteria](type-aliases/ReadContestsCriteria.md)

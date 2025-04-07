@@ -245,7 +245,7 @@ export class Grader {
         return canceled > 0;
     }
 
-    getAuth(req: Request): string | number {
+    private getAuth(req: Request): string | number {
         const auth = req.get('Authorization');
         if (auth === undefined) return 401;
         try {
@@ -277,19 +277,19 @@ export class Grader {
 /**
  * Internal submission of `Grader` class.
  */
-export interface SubmissionWithCallback {
+export type SubmissionWithCallback = {
     /**The submission itself */
     submission: Submission
     /**Function supplied by queueUngraded to send submission to after grading is finished/cancelled */
     callback?: (graded: Submission | null) => any
     /**How many times the grading servers have failed grading this (returned) */
     returnCount: number
-    /**If the submission was cancelled */
+    /**If the grading was cancelled (due to manual trigger or excessive failed attempts to grade the submission) */
     cancelled: boolean
 }
 
 /**Represents a grader server */
-export interface GraderNode {
+export type GraderNode = {
     /**Username */
     username: string
     /**Submission that is being graded */

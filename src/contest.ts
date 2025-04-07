@@ -21,10 +21,10 @@ export class ContestManager {
 
     readonly db: Database;
     readonly app: Express;
-    readonly longPollingGlobal: LongPollEventEmitter<{
+    private readonly longPollingGlobal: LongPollEventEmitter<{
         contests: string[]
     }>;
-    readonly longPollingUsers: NamespacedLongPollEventEmitter<{
+    private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
         contestScoreboards: ({ team: string } & UserScore)[]
         contestNotifications: never
@@ -628,13 +628,13 @@ export class ContestHost {
     }
 
     /**
-     * Get (possibly frozen) scoreboards
+     * Get current scoreboard
      */
     get scoreboards(): Map<string, UserScore> {
         return new Map(this.scoreboard);
     }
     /**
-     * Get (never frozen) scoreboards
+     * Get current scoreboard for clients, which could be "frozen"
      */
     get clientScoreboards(): Map<string, UserScore> {
         return new Map(this.clientScoreboard);
@@ -710,7 +710,7 @@ export class ContestHost {
         return this.active && this.contest.rounds[this.index].problems.includes(id);
     }
 
-    readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
+    private readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
 
     /**
      * Submit a solution to the contest. Will automatically grade and associate the submission with the correct team.
@@ -795,17 +795,13 @@ export class ContestHost {
      * @param ev Event name
      * @param cb Callback function
      */
-    on: ContestHost['eventEmitter']['on'] = (...args) => {
-        this.eventEmitter.on(...args);
-    }
+    on: ContestHost['eventEmitter']['on'] = (ev, cb) => this.eventEmitter.on(ev, cb);
     /**
      * Remove an event listener.
      * @param ev Event name
      * @param cb Callback function
      */
-    off: ContestHost['eventEmitter']['off'] = (...args) => {
-        this.eventEmitter.off(...args);
-    }
+    off: ContestHost['eventEmitter']['off'] = (ev, cb) => this.eventEmitter.off(ev, cb);
 
     /**
      * Get the completion state to be displayed by the client for a given submission.

@@ -18,7 +18,7 @@ Nodemailer wrapper with templates. Connects to an SMTP server.
 
 ##### params
 
-[`MailerConstructorParams`](../interfaces/MailerConstructorParams.md)
+[`MailerConstructorParams`](../type-aliases/MailerConstructorParams.md)
 
 Parameters
 
@@ -28,7 +28,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/email.ts#L39)
+[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/email.ts#L39)
 
 ## Properties
 
@@ -38,7 +38,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/email.ts#L30)
+[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/email.ts#L30)
 
 ## Methods
 
@@ -54,7 +54,7 @@ Disconnect from the SMTP server.
 
 #### Defined in
 
-[email.ts:179](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/email.ts#L179)
+[email.ts:180](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/email.ts#L180)
 
 ***
 
@@ -98,7 +98,7 @@ Plaintext version of email
 
 #### Defined in
 
-[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/email.ts#L111)
+[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/email.ts#L111)
 
 ***
 
@@ -148,4 +148,4 @@ Plaintext version (does not use template)
 
 #### Defined in
 
-[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/2dee3653c422ea6b91c8bffad27d9e2a1aa16711/src/email.ts#L147)
+[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/email.ts#L147)

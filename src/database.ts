@@ -9,10 +9,10 @@ import { filterCompare, FilterComparison, isUUID, UUID } from './util';
 
 const bcryptRounds = 8;
 
-export interface DatabaseConstructorParams {
+export type DatabaseConstructorParams = {
     /**Valid PostgreSQL connection URI (postgresql://username:password@host:port/database) */
     uri: string
-    /**AES-256 GCM 32-byte key (base64 string) */
+    /**AES-256 GCM 32-byte key (base64 string or buffer) */
     key: string | Buffer
     /**Optional SSL Certificate */
     sslCert?: string | Buffer
@@ -22,7 +22,7 @@ export interface DatabaseConstructorParams {
 
 /**
  * PostgreSQL database connection for handling account operations and storage of contest data, including problems and submissions.
- * Has a short-term cache to reduce repetitive database calls.
+ * Has a short-term cache to speed up repetitive database queries.
  */
 export class Database {
     /**Length of team join keys (changing this will break existing teams!) */
@@ -1437,6 +1437,7 @@ export class Database {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
+                await this.purgeOldSubmissions(submission.username);
             }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {

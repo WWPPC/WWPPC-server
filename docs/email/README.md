@@ -12,9 +12,9 @@
 
 - [Mailer](classes/Mailer.md)
 
-### Interfaces
+### Type Aliases
 
-- [MailerConstructorParams](interfaces/MailerConstructorParams.md)
+- [MailerConstructorParams](type-aliases/MailerConstructorParams.md)
 
 ## References
 
