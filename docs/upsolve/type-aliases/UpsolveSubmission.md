@@ -34,4 +34,4 @@ Slightly modified version of [Submission](../../database/type-aliases/Submission
 
 ## Defined in
 
-[upsolve.ts:307](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/upsolve.ts#L307)
+[upsolve.ts:307](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/upsolve.ts#L307)

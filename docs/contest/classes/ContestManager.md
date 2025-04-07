@@ -17,7 +17,7 @@ It will automatically start and stop contests, advance rounds, and process submi
 
 #### Defined in
 
-[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L23)
+[contest.ts:23](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L23)
 
 ***
 
@@ -27,7 +27,7 @@ It will automatically start and stop contests, advance rounds, and process submi
 
 #### Defined in
 
-[contest.ts:22](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L22)
+[contest.ts:22](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L22)
 
 ***
 
@@ -37,7 +37,7 @@ It will automatically start and stop contests, advance rounds, and process submi
 
 #### Defined in
 
-[contest.ts:33](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L33)
+[contest.ts:33](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L33)
 
 ***
 
@@ -47,7 +47,7 @@ It will automatically start and stop contests, advance rounds, and process submi
 
 #### Defined in
 
-[contest.ts:34](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L34)
+[contest.ts:34](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L34)
 
 ## Methods
 
@@ -63,7 +63,7 @@ Stops all contests and closes the contest manager
 
 #### Defined in
 
-[contest.ts:428](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L428)
+[contest.ts:428](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L428)
 
 ***
 
@@ -81,7 +81,7 @@ the contests
 
 #### Defined in
 
-[contest.ts:421](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L421)
+[contest.ts:421](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L421)
 
 ***
 
@@ -117,7 +117,7 @@ Grading system to use
 
 #### Defined in
 
-[contest.ts:58](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L58)
+[contest.ts:58](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L58)
 
 ***
 
@@ -133,4 +133,4 @@ Get the ContestManager system.
 
 #### Defined in
 
-[contest.ts:65](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L65)
+[contest.ts:65](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L65)

@@ -53,7 +53,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:476](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L476)
+[contest.ts:476](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L476)
 
 ## Properties
 
@@ -63,7 +63,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:443](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L443)
+[contest.ts:443](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L443)
 
 ***
 
@@ -73,7 +73,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:442](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L442)
+[contest.ts:442](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L442)
 
 ***
 
@@ -83,7 +83,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:445](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L445)
+[contest.ts:445](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L445)
 
 ***
 
@@ -93,7 +93,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:446](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L446)
+[contest.ts:446](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L446)
 
 ***
 
@@ -103,7 +103,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:444](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L444)
+[contest.ts:444](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L444)
 
 ***
 
@@ -113,7 +113,7 @@ Logger instance
 
 #### Defined in
 
-[contest.ts:448](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L448)
+[contest.ts:448](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L448)
 
 ***
 
@@ -157,7 +157,7 @@ Callback function
 
 #### Defined in
 
-[contest.ts:804](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L804)
+[contest.ts:804](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L804)
 
 ***
 
@@ -201,7 +201,7 @@ Callback function
 
 #### Defined in
 
-[contest.ts:798](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L798)
+[contest.ts:798](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L798)
 
 ***
 
@@ -211,7 +211,7 @@ Callback function
 
 #### Defined in
 
-[contest.ts:447](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L447)
+[contest.ts:447](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L447)
 
 ## Accessors
 
@@ -229,7 +229,7 @@ Get current scoreboard for clients, which could be "frozen"
 
 #### Defined in
 
-[contest.ts:639](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L639)
+[contest.ts:639](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L639)
 
 ***
 
@@ -247,7 +247,7 @@ The current contest data, in client format.
 
 #### Defined in
 
-[contest.ts:645](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L645)
+[contest.ts:645](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L645)
 
 ***
 
@@ -265,7 +265,7 @@ Index of the current round (zero-indexed).
 
 #### Defined in
 
-[contest.ts:651](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L651)
+[contest.ts:651](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L651)
 
 ***
 
@@ -283,7 +283,7 @@ Get current scoreboard
 
 #### Defined in
 
-[contest.ts:633](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L633)
+[contest.ts:633](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L633)
 
 ## Methods
 
@@ -309,7 +309,7 @@ Completion state of submission
 
 #### Defined in
 
-[contest.ts:811](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L811)
+[contest.ts:811](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L811)
 
 ***
 
@@ -335,7 +335,7 @@ If the problem is in the contest
 
 #### Defined in
 
-[contest.ts:701](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L701)
+[contest.ts:701](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L701)
 
 ***
 
@@ -359,7 +359,7 @@ Mark the contest as ended in database (contest cannot be restarted)
 
 #### Defined in
 
-[contest.ts:832](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L832)
+[contest.ts:832](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L832)
 
 ***
 
@@ -391,7 +391,7 @@ Problem UUID, or undefined if the round/problem does not exist
 
 #### Defined in
 
-[contest.ts:681](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L681)
+[contest.ts:681](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L681)
 
 ***
 
@@ -417,7 +417,7 @@ Problem [round, number], or undefined if the problem is not in the contest
 
 #### Defined in
 
-[contest.ts:689](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L689)
+[contest.ts:689](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L689)
 
 ***
 
@@ -443,7 +443,7 @@ Round number, if `undefined` entire contest
 
 #### Defined in
 
-[contest.ts:659](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L659)
+[contest.ts:659](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L659)
 
 ***
 
@@ -469,7 +469,7 @@ If the problem is in the contest and submittable
 
 #### Defined in
 
-[contest.ts:709](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L709)
+[contest.ts:709](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L709)
 
 ***
 
@@ -495,7 +495,7 @@ Status code
 
 #### Defined in
 
-[contest.ts:720](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L720)
+[contest.ts:720](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L720)
 
 ***
 
@@ -512,4 +512,4 @@ Will re-calculate the current round as well.
 
 #### Defined in
 
-[contest.ts:505](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/contest.ts#L505)
+[contest.ts:505](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/contest.ts#L505)

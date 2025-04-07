@@ -16,7 +16,7 @@ Bundles general API functions into a single class.
 
 #### Defined in
 
-[api.ts:27](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L27)
+[api.ts:27](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L27)
 
 ***
 
@@ -26,7 +26,7 @@ Bundles general API functions into a single class.
 
 #### Defined in
 
-[api.ts:26](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L26)
+[api.ts:26](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L26)
 
 ***
 
@@ -36,7 +36,7 @@ Bundles general API functions into a single class.
 
 #### Defined in
 
-[api.ts:29](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L29)
+[api.ts:29](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L29)
 
 ***
 
@@ -46,7 +46,7 @@ Bundles general API functions into a single class.
 
 #### Defined in
 
-[api.ts:28](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L28)
+[api.ts:28](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L28)
 
 ***
 
@@ -70,7 +70,7 @@ Valid input values for fields within account data.
 
 #### Defined in
 
-[api.ts:20](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L20)
+[api.ts:20](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L20)
 
 ## Methods
 
@@ -106,7 +106,7 @@ SMTP mailing server connection
 
 #### Defined in
 
-[api.ts:264](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L264)
+[api.ts:259](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L259)
 
 ***
 
@@ -122,4 +122,4 @@ Get the client API instance.
 
 #### Defined in
 
-[api.ts:271](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L271)
+[api.ts:266](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L266)

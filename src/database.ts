@@ -370,8 +370,8 @@ export class Database {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT recoverypass FROM users WHERE username=$1', [
-
-                username]);
+                username
+            ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (token === this.dbEncryptor.decrypt(data.rows[0].recoverypass)) {
                 this.rotateRecoveryPassword(username);
@@ -387,6 +387,39 @@ export class Database {
             return DatabaseOpCode.ERROR;
         } finally {
             if (config.debugMode) this.logger.debug(`changeAccountPasswordToken in ${performance.now() - startTime}ms`, true);
+        }
+    }
+    /**
+     * Change the password of an account using an administartor account with permissions {@link AdminPerms.MANAGE_ACCOUNTS} **Does not validate credentials**.
+     * If successful, the `recoverypass` field is rotated to a new random string.
+     * *Note: Requires password of admin with sufficient permissions to delete to avoid accidental locking of accounts.*
+     * @param username Valid username
+     * @param adminUsername Valid admin username
+     * @param adminPassword Valid admin password
+     * @param newPassword Valid new password
+     * @returns Update status
+     */
+    async changeAccountPasswordAdmin(username: string, adminUsername: string, adminPassword: string, newPassword: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.UNAUTHORIZED | DatabaseOpCode.FORBIDDEN | DatabaseOpCode.ERROR> {
+        const startTime = performance.now();
+        try {
+            this.logger.warn(`"${adminUsername}" is trying to change the password of "${username}"!`);
+            const check = await this.checkAccount(adminUsername, adminPassword);
+            if (check != DatabaseOpCode.SUCCESS) return check;
+            // no perms = incorrect creds
+            if (!await this.hasAdminPerms(adminUsername, AdminPerms.MANAGE_ACCOUNTS)) return DatabaseOpCode.FORBIDDEN;
+            const encryptedPassword = await bcrypt.hash(newPassword, bcryptRounds);
+            const res = await this.db.query('UPDATE users SET password=$2 WHERE username=$1 RETURNING username', [
+                username, encryptedPassword
+            ]);
+            if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
+            this.rotateRecoveryPassword(username);
+            this.logger.info(`Reset password via administrator for "${username}"`, true);
+            return DatabaseOpCode.SUCCESS;
+        } catch (err) {
+            this.logger.handleError('Database error (changeAccountPasswordAdmin):', err);
+            return DatabaseOpCode.ERROR;
+        } finally {
+            if (config.debugMode) this.logger.debug(`changeAccountPasswordAdmin in ${performance.now() - startTime}ms`, true);
         }
     }
     /**

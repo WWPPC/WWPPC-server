@@ -92,4 +92,4 @@ Username
 
 ## Defined in
 
-[database.ts:1541](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/database.ts#L1541)
+[database.ts:1574](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1574)

@@ -77,8 +77,7 @@ export class ClientAuth {
             password: 'required|encryptedLen:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 200 Already signed in`);
-                res.status(200).send('Already signed in');
+                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Already signed in' }, this.logger);
                 return;
             }
             const username = req.body.username;
@@ -89,6 +88,10 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.checkAccount(req.body.username, password);
+            if (check == DatabaseOpCode.SUCCESS) {
+                const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
+                res.cookie('sessionToken', token);
+            }
             sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect password' }, this.logger, username);
         });
         this.app.post('/auth/signup', rateLimitWithTrigger({
@@ -108,8 +111,7 @@ export class ClientAuth {
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 403 Signed in`);
-                res.status(403).send('Cannot create account while signed in');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Already signed in' }, this.logger);
                 return;
             }
             const username = req.body.username;
@@ -145,8 +147,7 @@ export class ClientAuth {
             email: 'required|encryptedEmail',
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 403 Signed in`);
-                res.status(403).send('Cannot request account recovery while signed in');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Signed in' }, this.logger);
                 return;
             }
             const username = req.body.username;
@@ -158,7 +159,7 @@ export class ClientAuth {
             }
             // rate limiting by username as well (significantly longer timeout) to combat email spam
             if (this.recentPasswordResetEmails.get(username) ?? -Infinity >= performance.now() - config.recoveryEmailTimeout * 60000) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {[DatabaseOpCode.FORBIDDEN]: 'Too many recovery requests for this account'}, this.logger, username, 'Check account');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many recovery requests for this account' }, this.logger, username, 'Check account');
                 return;
             }
             this.recentPasswordResetEmails.set(username, performance.now());
@@ -255,6 +256,16 @@ export class ClientAuth {
             const check = await this.db.deleteAccount(username, password);
             if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Deleted account`);
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
+        });
+        this.app.delete('/auth/logout', (req, res) => {
+            if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.ERROR]: 'Not signed in' }, this.logger);
+                return;
+            }
+            res.clearCookie('sessionToken');
+            const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
+            this.sessionTokens.removeToken(req.cookies.sessionToken);
+            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger, username ?? undefined);
         });
         // reserve /auth path
         this.app.use('/auth/*', (req, res) => res.sendStatus(404));

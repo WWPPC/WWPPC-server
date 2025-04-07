@@ -34,4 +34,4 @@ Descriptor for a single contest as represented by the client
 
 ## Defined in
 
-[api.ts:278](https://github.com/WWPPC/WWPPC-server/blob/2a0f62ef9a8d6c45bd23ae8a1bcfb9cead6c0088/src/api.ts#L278)
+[api.ts:273](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L273)
