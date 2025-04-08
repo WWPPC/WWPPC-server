@@ -142,6 +142,7 @@ export class AdminAPI {
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
+            email2: 'encryptedEmail',
             profileImage: `required|mime:jpg,png,webp|size:${config.maxProfileImgSize}`,
             bio: 'required|string|length:2048',
             school: 'required|string|length:64,1',
@@ -151,6 +152,7 @@ export class AdminAPI {
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             const check = await this.db.updateAccountData(req.params.username, {
+                email2: req.body.email2,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 displayName: req.body.displayName,

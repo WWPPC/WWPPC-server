@@ -274,6 +274,8 @@ export class Grader {
     }
 }
 
+export default Grader;
+
 /**
  * Internal submission of `Grader` class.
  */
@@ -299,5 +301,3 @@ export type GraderNode = {
     /**Last time we communicated with this grader (unix ms) */
     lastCommunication: number
 }
-
-export default Grader;

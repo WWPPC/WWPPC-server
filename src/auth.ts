@@ -102,6 +102,7 @@ export class ClientAuth {
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen:1024,1',
             email: 'required|encryptedEmail',
+            email2: 'required|encryptedEmail',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             school: 'required|string|length:64',
@@ -117,13 +118,15 @@ export class ClientAuth {
             const username = req.body.username;
             const password = await this.encryption.decrypt(req.body.password);
             const email = await this.encryption.decrypt(req.body.email);
-            if (typeof password != 'string' || typeof email != 'string') {
-                this.logger.error(`${req.path} fail: password decrypt failed after password verification`);
-                res.status(503).send('Password decryption error');
+            const email2 = await this.encryption.decrypt(req.body.email2);
+            if (typeof password != 'string' || typeof email != 'string' || typeof email2 != 'string') {
+                this.logger.error(`${req.path} fail: password/email decrypt failed after verification`);
+                res.status(503).send('Password/email decryption error');
                 return;
             }
             const check = await this.db.createAccount(username, password, {
                 email: email,
+                email2: email2 ?? email,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 school: req.body.school,
@@ -153,7 +156,7 @@ export class ClientAuth {
             const username = req.body.username;
             const email = await this.encryption.decrypt(req.body.email);
             if (typeof email != 'string') {
-                this.logger.error(`${req.path} fail: email decrypt failed after password verification`);
+                this.logger.error(`${req.path} fail: email decrypt failed after verification`);
                 res.status(503).send('Email decryption error');
                 return;
             }

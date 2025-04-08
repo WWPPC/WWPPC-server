@@ -281,6 +281,8 @@ export class UpsolveManager {
     }
 }
 
+export default UpsolveManager;
+
 /**Slightly modified version of {@link Contest} */
 export type UpsolveContest = {
     readonly id: string
@@ -311,5 +313,3 @@ export type UpsolveSubmission = {
     scores: Score[]
     status: ClientProblemCompletionState
 }
-
-export default UpsolveManager;

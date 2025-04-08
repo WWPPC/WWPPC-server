@@ -59,6 +59,7 @@ export class ClientAPI {
                 if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
                 data.email = '';
+                data.email2 = '';
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
@@ -97,6 +98,7 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
         this.app.put('/api/self/userData', parseBodyJson(), validateRequestBody({
+            email2: 'required|encryptedEmail',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
@@ -109,7 +111,14 @@ export class ClientAPI {
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const email2 = await auth.encryption.decrypt(req.body.email2);
+            if (typeof email2 != 'string') {
+                this.logger.error(`${req.path} fail: email decrypt failed after verification`);
+                res.status(503).send('Email decryption error');
+                return;
+            }
             const check = await this.db.updateAccountData(username, {
+                email2: email2,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 displayName: req.body.displayName,
@@ -269,6 +278,8 @@ export class ClientAPI {
     }
 }
 
+export default ClientAPI;
+
 /**Descriptor for a single contest as represented by the client */
 export type ClientContest = {
     readonly id: string
@@ -322,5 +333,3 @@ export enum ClientProblemCompletionState {
     /**Submitted, graded, and passed all subtasks */
     GRADED_PASS = 5
 }
-
-export default ClientAPI;

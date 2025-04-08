@@ -196,17 +196,17 @@ export class Database {
      * @param userData Initial user data
      * @returns Creation status
      */
-    async createAccount(username: string, password: string, userData: { email: string, firstName: string, lastName: string, school: string, grade: number, experience: number, languages: string[] }): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
+    async createAccount(username: string, password: string, userData: Omit<AccountData, 'username' | 'displayName' | 'profileImage' | 'bio' | 'pastRegistrations' | 'team'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const encryptedPassword = await bcrypt.hash(password, bcryptRounds);
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return DatabaseOpCode.CONFLICT;
             else await this.db.query(`
-                INSERT INTO users (username, password, recoverypass, email, firstname, lastname, displayname, profileimg, school, grade, experience, languages)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                INSERT INTO users (username, password, recoverypass, email, email2, firstname, lastname, displayname, profileimg, school, grade, experience, languages)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 `, [
-                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.school, userData.grade, userData.experience, userData.languages
+                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.email2, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.school, userData.grade, userData.experience, userData.languages
             ]);
             this.userCache.set(username, {
                 data: {
@@ -266,7 +266,7 @@ export class Database {
             if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
             if (this.userCache.has(username)) return structuredClone(this.userCache.get(username)!.data);;
             const data = await this.db.query(`
-                SELECT username, email, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team
+                SELECT username, email, email2, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team
                 FROM users
                 WHERE users.username=$1
                 `, [
@@ -276,6 +276,7 @@ export class Database {
             const userData: AccountData = {
                 username: data.rows[0].username,
                 email: data.rows[0].email,
+                email2: data.rows[0].email2,
                 firstName: data.rows[0].firstname,
                 lastName: data.rows[0].lastname,
                 displayName: data.rows[0].displayname,
@@ -310,8 +311,8 @@ export class Database {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
-                'UPDATE users SET firstname=$2, lastname=$3, displayname=$4, profileimg=$5, school=$6, grade=$7, experience=$8, languages=$9, biography=$10 WHERE username=$1 RETURNING username', [
-                username, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
+                'UPDATE users SET email2=$2, firstname=$3, lastname=$4, displayname=$5, profileimg=$6, school=$7, grade=$8, experience=$9, languages=$10, biography=$11 WHERE username=$1 RETURNING username', [
+                username, userData.email2, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.userCache.has(username)) {
@@ -1534,6 +1535,7 @@ export class Database {
         this.logger.debug('Cache cleared');
     }
 }
+
 export default Database;
 
 export type SqlValue = number | string | boolean | null | number[] | string[] | boolean[] | null[];
@@ -1576,6 +1578,8 @@ export type AccountData = {
     readonly username: string
     /**Email */
     email: string
+    /**Parent and/or guardian email (or student's email again) */
+    email2: string
     /**First name */
     firstName: string
     /**Last name */
