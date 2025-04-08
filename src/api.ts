@@ -104,7 +104,7 @@ export class ClientAPI {
             displayName: 'required|string|length:64,1',
             profileImage: `required|mime:jpg,png,webp|size:${config.maxProfileImgSize}`,
             bio: 'required|string|length:2048',
-            school: 'required|string|length:64,1',
+            organization: 'required|string|length:64',
             languages: 'required|arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
@@ -124,7 +124,7 @@ export class ClientAPI {
                 displayName: req.body.displayName,
                 profileImage: req.body.profileImage,
                 bio: req.body.bio,
-                school: req.body.school,
+                organization: req.body.organization,
                 languages: req.body.languages,
                 grade: req.body.grade,
                 experience: req.body.experience

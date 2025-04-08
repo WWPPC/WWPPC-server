@@ -203,10 +203,10 @@ export class Database {
             const data = await this.db.query('SELECT username FROM users WHERE username=$1', [username]);
             if (data.rows.length > 0) return DatabaseOpCode.CONFLICT;
             else await this.db.query(`
-                INSERT INTO users (username, password, recoverypass, email, email2, firstname, lastname, displayname, profileimg, school, grade, experience, languages)
+                INSERT INTO users (username, password, recoverypass, email, email2, firstname, lastname, displayname, profileimg, organization, grade, experience, languages)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 `, [
-                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.email2, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.school, userData.grade, userData.experience, userData.languages
+                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.email2, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.organization, userData.grade, userData.experience, userData.languages
             ]);
             this.userCache.set(username, {
                 data: {
@@ -266,7 +266,7 @@ export class Database {
             if (this.userCache.has(username) && this.userCache.get(username)!.expiration < performance.now()) this.userCache.delete(username);
             if (this.userCache.has(username)) return structuredClone(this.userCache.get(username)!.data);;
             const data = await this.db.query(`
-                SELECT username, email, email2, firstname, lastname, displayname, profileimg, biography, school, grade, experience, languages, pastregistrations, team
+                SELECT username, email, email2, firstname, lastname, displayname, profileimg, biography, organization, grade, experience, languages, pastregistrations, team
                 FROM users
                 WHERE users.username=$1
                 `, [
@@ -282,7 +282,7 @@ export class Database {
                 displayName: data.rows[0].displayname,
                 profileImage: data.rows[0].profileimg,
                 bio: data.rows[0].biography,
-                school: data.rows[0].school,
+                organization: data.rows[0].organization,
                 grade: data.rows[0].grade,
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
@@ -311,8 +311,8 @@ export class Database {
         const startTime = performance.now();
         try {
             const res = await this.db.query(
-                'UPDATE users SET email2=$2, firstname=$3, lastname=$4, displayname=$5, profileimg=$6, school=$7, grade=$8, experience=$9, languages=$10, biography=$11 WHERE username=$1 RETURNING username', [
-                username, userData.email2, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.school, userData.grade, userData.experience, userData.languages, userData.bio
+                'UPDATE users SET email2=$2, firstname=$3, lastname=$4, displayname=$5, profileimg=$6, organization=$7, grade=$8, experience=$9, languages=$10, biography=$11 WHERE username=$1 RETURNING username', [
+                username, userData.email2, userData.firstName, userData.lastName, userData.displayName, userData.profileImage, userData.organization, userData.grade, userData.experience, userData.languages, userData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.userCache.has(username)) {
@@ -1591,7 +1591,7 @@ export type AccountData = {
     /**User-written short biography */
     bio: string
     /**School name */
-    school: string
+    organization: string
     /**Grade level (8 = below HS, 13 = above HS) */
     grade: number
     /**Experience level, 0 to 4, with 4 being the highest */

@@ -114,7 +114,7 @@ export class ClientAuth {
             email2: 'required|encryptedEmail-auth',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
-            school: 'required|string|length:64',
+            organization: 'required|string|length:64',
             languages: 'required|arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
@@ -138,7 +138,7 @@ export class ClientAuth {
                 email2: email2 ?? email,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
-                school: req.body.school,
+                organization: req.body.organization,
                 grade: req.body.grade,
                 experience: req.body.experience,
                 languages: req.body.languages
