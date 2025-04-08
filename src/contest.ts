@@ -67,7 +67,10 @@ export class ContestManager {
         return this.instance;
     }
 
-    private async checkNewContests() {
+    /**
+     * Checks for new contests and automatically starts them.
+     */
+    private async checkNewContests(): Promise<void> {
         // start any contests that haven't been started
         const contests = await this.db.readContests({
             startTime: { op: '<=', v: Date.now() },
@@ -154,8 +157,11 @@ export class ContestManager {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        // get running contest list visible to user (requires authentication)
+        // get running contest list & can access contest
         this.app.get('/api/contest/running', async (req, res) => {
+            this.longPollingGlobal.addWaiter('contests', res);
+        });
+        this.app.get('/api/contest/access/:contest', async (req, res) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
                 // have to be on a team, or not authorized
                 const username = auth.getTokenUsername(req.cookies.sessionToken)!;
@@ -173,9 +179,10 @@ export class ContestManager {
                     sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
                     return;
                 }
-                const list = teamData.registrations.filter((contest) => this.contests.has(contest));
-                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
-                res.json(list);
+                if (!teamData.registrations.includes(req.params.contest))
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Check registration');
+                else
+                    sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger, username, 'Check registration');
             } else {
                 sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
             }
