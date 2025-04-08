@@ -127,14 +127,14 @@ export class ContestManager {
         this.app.get('/api/contest/upcoming', async (req, res) => {
             const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
             if (Array.isArray(data)) {
-                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data.map((item) => item.id));
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/contest/openRegistrations', async (req, res) => {
             const data = await this.db.readContests({ endTime: { op: '>', v: Date.now() } });
             if (Array.isArray(data)) {
-                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data.map((item) => item.id));
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
@@ -143,7 +143,7 @@ export class ContestManager {
             if (Array.isArray(data)) {
                 if (data.length != 1) sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger);
                 else {
-                    if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
+                    if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
                     // non-public contests lose archive visibility but this info is still visible
                     const contest: any = data[0];
                     // again remove internal data (max team size, exclusions are fine)
@@ -247,7 +247,7 @@ export class ContestManager {
             }
             if (!teamData.registrations.includes(req.params.contest)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {
-                    [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} {$req.method} ${req.path} when not registered for ${req.params.contest}`
+                    [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} ${req.method} ${req.path} when not registered for ${req.params.contest}`
                 }, this.logger, username, 'Check registration');
                 return;
             }
@@ -266,7 +266,7 @@ export class ContestManager {
             const team = req.cookies[sessionTeam as any] as string;
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(problemId)) {
-                if (config.debugMode) this.logger.warn(`{$req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
                 res.status(400).send('Invalid problem UUID');
                 return;
             }
@@ -314,7 +314,7 @@ export class ContestManager {
             const pRound = Number(req.params.pRound);
             const pNumber = Number(req.params.pNumber);
             if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
-                if (config.debugMode) this.logger.warn(`{$req.method} ${req.path} malformed: Invalid round or problem number (${req.ip})`);
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid round or problem number (${req.ip})`);
                 res.status(400).send('Invalid round or problem number');
                 return;
             }
@@ -334,7 +334,7 @@ export class ContestManager {
             const team = req.cookies[sessionTeam as any] as string;
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(problemId)) {
-                if (config.debugMode) this.logger.warn(`{$req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
                 res.status(400).send('Invalid problem UUID');
                 return;
             }
@@ -370,7 +370,7 @@ export class ContestManager {
             const pRound = Number(req.params.pRound);
             const pNumber = Number(req.params.pNumber);
             if (!Number.isInteger(pRound) || pRound < 0 || !Number.isInteger(pNumber) || pNumber < 0) {
-                if (config.debugMode) this.logger.warn(`{$req.method} ${req.path} malformed: Invalid round or problem number (${req.ip})`);
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid round or problem number (${req.ip})`);
                 res.status(400).send('Invalid round or problem number');
                 return;
             }
@@ -385,7 +385,7 @@ export class ContestManager {
             }
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(req.params.pId)) {
-                if (config.debugMode) this.logger.warn(`{$req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
                 res.status(400).send('Invalid problem UUID');
                 return;
             }

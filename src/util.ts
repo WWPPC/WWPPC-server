@@ -245,7 +245,7 @@ export function validateRequestBody(rules: object, logger?: Logger, responseCode
         if (await validator.check()) {
             next();
         } else {
-            if (config.debugMode && logger !== undefined) logger.warn(`{$req.method} ${req.path} malformed: ${validator.errors} (${req.ip})`);
+            if (config.debugMode && logger !== undefined) logger.warn(`${req.method} ${req.path} malformed: ${validator.errors} (${req.ip})`);
             res.status(responseCode).send(validator.errors);
         }
     };
@@ -270,10 +270,10 @@ const defaultDbResMessages: Record<DatabaseOpCode, string> = {
  */
 export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, messages: Partial<Record<DatabaseOpCode, string>>, logger: Logger, username?: string, messagePrefix?: string): void {
     const message = (messagePrefix ? messagePrefix + ' - ' : '') + (messages[code] ?? defaultDbResMessages[code]);
-    if (config.debugMode) logger.debug(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | {$req.method} ${req.path}: ${reverse_enum(DatabaseOpCode, code)} - ${message}`);
+    if (config.debugMode) logger.debug(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.method} ${req.path}: ${reverse_enum(DatabaseOpCode, code)} - ${message}`);
     switch (code) {
         case DatabaseOpCode.ERROR:
-            logger.error(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | {$req.method} ${req.path} error`);
+            logger.error(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.method} ${req.path} error`);
         case DatabaseOpCode.SUCCESS:
         case DatabaseOpCode.CONFLICT:
         case DatabaseOpCode.NOT_FOUND:
@@ -282,7 +282,7 @@ export function sendDatabaseResponse(req: Request, res: Response, code: Database
             res.status(code).send(message);
             break;
         default:
-            logger.error(`{$req.method} ${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);
+            logger.error(`${req.method} ${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);
             res.sendStatus(503);
     }
 }
