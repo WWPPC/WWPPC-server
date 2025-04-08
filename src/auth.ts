@@ -72,6 +72,10 @@ export class ClientAuth {
         this.app.get('/auth/publicKey', (req, res) => {
             res.send(this.encryption.publicKey);
         });
+        this.app.get('/auth/login', (req, res) => {
+            if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger);
+            else sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
+        });
         this.app.post('/auth/login', parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen:1024,1'
@@ -83,14 +87,19 @@ export class ClientAuth {
             const username = req.body.username;
             const password = await this.encryption.decrypt(req.body.password);
             if (typeof password != 'string') {
-                this.logger.error(`${req.path} fail: password decrypt failed after password verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
             }
             const check = await this.db.checkAccount(req.body.username, password);
             if (check == DatabaseOpCode.SUCCESS) {
                 const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
-                res.cookie('sessionToken', token);
+                res.cookie('sessionToken', token, {
+                    expires: new Date(this.sessionTokens.tokenExpiration(token) ?? (Date.now() + 3600000)),
+                    httpOnly: true,
+                    sameSite: 'none',
+                    secure: true
+                });
             }
             sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect password' }, this.logger, username);
         });
@@ -120,7 +129,7 @@ export class ClientAuth {
             const email = await this.encryption.decrypt(req.body.email);
             const email2 = await this.encryption.decrypt(req.body.email2);
             if (typeof password != 'string' || typeof email != 'string' || typeof email2 != 'string') {
-                this.logger.error(`${req.path} fail: password/email decrypt failed after verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: password/email decrypt failed after verification`);
                 res.status(503).send('Password/email decryption error');
                 return;
             }
@@ -137,7 +146,12 @@ export class ClientAuth {
             if (check == DatabaseOpCode.SUCCESS) {
                 this.logger.info(`${username} @ ${req.ip} | Created account`);
                 const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
-                res.cookie('sessionToken', token);
+                res.cookie('sessionToken', token, {
+                    expires: new Date(this.sessionTokens.tokenExpiration(token) ?? (Date.now() + 3600000)),
+                    httpOnly: true,
+                    sameSite: 'none',
+                    secure: true
+                });
             }
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
@@ -156,7 +170,7 @@ export class ClientAuth {
             const username = req.body.username;
             const email = await this.encryption.decrypt(req.body.email);
             if (typeof email != 'string') {
-                this.logger.error(`${req.path} fail: email decrypt failed after verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: email decrypt failed after verification`);
                 res.status(503).send('Email decryption error');
                 return;
             }
@@ -204,7 +218,7 @@ export class ClientAuth {
             newPassword: 'required|encryptedLen:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 403 Signed in`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 403 Signed in`);
                 res.status(403).send('Cannot recover account while signed in');
                 return;
             }
@@ -212,7 +226,7 @@ export class ClientAuth {
             const recoveryPassword = await this.encryption.decrypt(req.body.recoveryPassword);
             const newPassword = await this.encryption.decrypt(req.body.newPassword);
             if (typeof recoveryPassword != 'string' || typeof newPassword != 'string') {
-                this.logger.error(`${req.path} fail: password decrypt failed after password verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
             }
@@ -225,7 +239,7 @@ export class ClientAuth {
             newPassword: 'required|encryptedLen:1024,1'
         }, this.logger), async (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 401 Unauthorized`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 401 Unauthorized`);
                 res.status(401).send('Cannot change password while not logged in');
                 return;
             }
@@ -233,7 +247,7 @@ export class ClientAuth {
             const password = await this.encryption.decrypt(req.body.password);
             const newPassword = await this.encryption.decrypt(req.body.newPassword);
             if (typeof username != 'string' || typeof password != 'string' || typeof newPassword != 'string') {
-                this.logger.error(`${req.path} fail: password decrypt failed after password verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
             }
@@ -245,14 +259,14 @@ export class ClientAuth {
             password: 'required|encryptedLen:1024,1'
         }, this.logger), async (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                if (config.debugMode) this.logger.debug(`${req.path}: 401 Unauthorized`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 401 Unauthorized`);
                 res.status(401).send('Cannot delete account while not logged in');
                 return;
             }
             const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
             const password = await this.encryption.decrypt(req.body.password);
             if (typeof username != 'string' || typeof password != 'string') {
-                this.logger.error(`${req.path} fail: password decrypt failed after password verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
             }

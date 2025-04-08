@@ -56,7 +56,7 @@ export class ClientAPI {
         this.app.get('/api/userData/:username', async (req, res) => {
             const data = await this.db.getAccountData(req.params.username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
                 data.email = '';
                 data.email2 = '';
@@ -66,7 +66,7 @@ export class ClientAPI {
         this.app.get('/api/teamData/:username', async (req, res) => {
             const data = await this.db.getTeamData(req.params.username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
                 // some info we don't want public
                 data.joinKey = '';
                 res.json(data);
@@ -93,7 +93,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const data = await this.db.getAccountData(username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
@@ -113,7 +113,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const email2 = await auth.encryption.decrypt(req.body.email2);
             if (typeof email2 != 'string') {
-                this.logger.error(`${req.path} fail: email decrypt failed after verification`);
+                this.logger.error(`{$req.method} ${req.path} fail: email decrypt failed after verification`);
                 res.status(503).send('Email decryption error');
                 return;
             }
@@ -135,7 +135,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const data = await this.db.getTeamData(username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
@@ -189,7 +189,7 @@ export class ClientAPI {
                 return;
             }
             if (teamData.joinKey != joinKey) {
-                if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | ${req.path}: Incorrect join key`);
+                if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | {$req.method} ${req.path}: Incorrect join key`);
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check team');
                 return;
             }
@@ -222,13 +222,13 @@ export class ClientAPI {
             // deletion check is only a warning, extra teams have no impact and can be removed later
             const teamData = await this.db.getTeamData(existing);
             if (typeof teamData != 'object') {
-                this.logger.warn(`${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
+                this.logger.warn(`{$req.method} ${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
                 return;
             }
             if (teamData.members.length == 0) {
                 const delCheck = await this.db.deleteTeam(teamData.id);
-                if (delCheck != DatabaseOpCode.SUCCESS) this.logger.warn(`${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
-                else if (config.debugMode) this.logger.debug(`${req.path}: Removed empty team after leaving`);
+                if (delCheck != DatabaseOpCode.SUCCESS) this.logger.warn(`{$req.method} ${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
+                else if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: Removed empty team after leaving`);
             }
         });
         this.app.delete('/api/self/team/:member', async (req, res) => {
