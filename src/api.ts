@@ -1,5 +1,5 @@
 import { json as parseBodyJson } from 'body-parser';
-import { Express } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
 
 import ClientAuth from './auth';
 import config from './config';
@@ -51,12 +51,13 @@ export class ClientAPI {
     }
 
     private createEndpoints() {
+        const auth = ClientAuth.use();
         // always public
         this.app.get('/api/config', (req, res) => res.json(this.clientConfig));
         this.app.get('/api/userData/:username', async (req, res) => {
             const data = await this.db.getAccountData(req.params.username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${req.ip} | ${req.method} ${req.path}: SUCCESS`);
                 // some info we don't want public
                 data.email = '';
                 data.email2 = '';
@@ -66,7 +67,7 @@ export class ClientAPI {
         this.app.get('/api/teamData/:username', async (req, res) => {
             const data = await this.db.getTeamData(req.params.username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${req.ip} | ${req.method} ${req.path}: SUCCESS`);
                 // some info we don't want public
                 data.joinKey = '';
                 res.json(data);
@@ -74,12 +75,21 @@ export class ClientAPI {
         });
         // add email list unsubscribe endpoint for CAN-SPAM act compliance
         this.app.get('/api/coffee', (req, res) => {
-            this.logger.warn(`Attempt to brew coffee using teapot (${req.ip})`);
+            this.logger.warn(`Attempt to brew coffee using teapot`);
             res.sendStatus(418);
         });
         // account & team management
-        const auth = ClientAuth.use();
         const sessionUsername = Symbol('username');
+        const sessionTeam = Symbol('team');
+        const getTeam = async (req: Request, res: Response, next: NextFunction) => {
+            const username = req.cookies[sessionUsername as any] as string;
+            const team = await this.db.getAccountTeam(username);
+            if (team !== null && typeof team != 'string') {
+                sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Get team');
+                return;
+            }
+            req.cookies[sessionTeam as any] = team;
+        };
         this.app.use('/api/self/*', (req, res, next) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
                 // save username so don't have to check if token disappeared between this and later handlers
@@ -93,7 +103,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const data = await this.db.getAccountData(username);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | ${req.method} ${req.path}: SUCCESS`);
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
@@ -131,24 +141,34 @@ export class ClientAPI {
             });
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
-        this.app.get('/api/self/teamData', async (req, res) => {
+        this.app.get('/api/self/teamData', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const data = await this.db.getTeamData(username);
+            const team = req.cookies[sessionTeam] as string | null;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not on a team' }, this.logger, username, 'Get team');
+                return;
+            }
+            const data = await this.db.getTeamData(team);
             if (typeof data == 'object') {
-                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
+                if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | ${req.method} ${req.path}: SUCCESS`);
                 res.json(data);
-            } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
+            } else sendDatabaseResponse(req, res, data, {}, this.logger, username, 'Get data');
         });
         this.app.put('/api/self/teamData', parseBodyJson(), validateRequestBody({
             teamName: 'required|string|length:32,1',
             teamBio: 'required|string|length:1024'
-        }, this.logger), async (req, res) => {
+        }, this.logger), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not on a team' }, this.logger, username, 'Get team');
+                return;
+            }
             const check = await this.db.updateTeamData(username, {
                 name: req.body.teamName,
                 bio: req.body.teamBio
             });
-            sendDatabaseResponse(req, res, check, {}, this.logger, username);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set data');
         });
         this.app.post('/api/self/team', parseBodyJson(), validateRequestBody({
             name: `required|string|length:32,1`
@@ -254,6 +274,64 @@ export class ClientAPI {
             }
             const check = await this.db.setAccountTeam(member, null);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
+        });
+        this.app.post('/api/self/register/:contest', getTeam, async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot register without a team' }, this.logger, username, 'Get team');
+                return;
+            }
+            const contestRes = await this.db.readContests({ id: req.params.contest });
+            if (!Array.isArray(contestRes)) {
+                sendDatabaseResponse(req, res, contestRes, {}, this.logger, username, 'Fetch contest');
+                return;
+            }
+            if (contestRes.length != 1) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+                return;
+            }
+            const contest = contestRes[0];
+            const teamData = await this.db.getTeamData(team);
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            if (teamData.members.length > contest.maxTeamSize) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many team members; max size ' + contest.maxTeamSize }, this.logger, username, 'Check contest');
+                return;
+            }
+            const restrictedContestRes = await this.db.readContests({ id: contest.exclusions });
+            if (!Array.isArray(restrictedContestRes)) {
+                sendDatabaseResponse(req, res, restrictedContestRes, {}, this.logger, username, 'Check contest');
+                return;
+            }
+            if (restrictedContestRes.some((contest) => teamData.registrations.includes(contest.id))) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Conflict with existing registrations' }, this.logger, username, 'Check contest');
+                return;
+            }
+            const check = await this.db.registerContest(team, contest.id);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
+        });
+        this.app.delete('/api/contest/:contest/register', getTeam, async (req, res) => {
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot unregister without a team' }, this.logger, username, 'Get team');
+                return;
+            }
+            const teamData = await this.db.getTeamData(team);
+            if (typeof teamData != 'object') {
+                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
+                return;
+            }
+            if (!teamData.registrations.includes(req.params.contest)) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not registered' }, this.logger, username, 'Check team');
+                return;
+            }
+            const check = await this.db.unregisterContest(team, req.params.contest);
+            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
+
         });
         // reserve the /api/self path
         this.app.use('/api/self/*', (req, res) => res.sendStatus(404));

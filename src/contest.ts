@@ -10,7 +10,7 @@ import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
 import Scorer, { UserScore } from './scorer';
-import { FilterComparison, isUUID, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
+import { FilterComparison, isUUID, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients through HTTP.
@@ -122,6 +122,7 @@ export class ContestManager {
     }
 
     private createEndpoints() {
+        const auth = ClientAuth.use();
         // always public
         // upcoming = not started, however registering for running contests is still allowed
         this.app.get('/api/contest/upcoming', async (req, res) => {
@@ -153,106 +154,80 @@ export class ContestManager {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        // registrations - requires authentication
-        const auth = ClientAuth.use();
-        const sessionUsername = Symbol('username');
-        const sessionTeam = Symbol('team');
-        this.app.use('/api/contest/:contest/*', async (req, res, next) => {
+        // get running contest list visible to user (requires authentication)
+        this.app.get('/api/contest/running', async (req, res) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
-                // save username so don't have to check if token disappeared between this and later handlers
+                // have to be on a team, or not authorized
                 const username = auth.getTokenUsername(req.cookies.sessionToken)!;
                 const team = await this.db.getAccountTeam(username);
                 if (team !== null && typeof team != 'string') {
                     sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Auth team');
                     return;
                 }
+                if (team === null) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger, username, 'Auth team');
+                    return;
+                }
+                const teamData = await this.db.getTeamData(team);
+                if (typeof teamData != 'object') {
+                    sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
+                    return;
+                }
+                const list = teamData.registrations.filter((contest) => this.contests.has(contest));
+                if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
+                res.json(list);
+            } else {
+                sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
+            }
+        });
+        // apply ratelimiting first
+        this.app.use(['/api/contest/:a/submit/:b', '/api/contest/:a/submit/:b-:c'], rateLimitWithTrigger({
+            windowMs: 1000,
+            limit: 10,
+            message: 'Too many submissions'
+        }, (req, res) => this.logger.warn(`Submission rate limit triggered by ${req.ip}`)));
+        // apply authentication + registration for contest + contest is running
+        const sessionUsername = Symbol('username');
+        const sessionTeam = Symbol('team');
+        this.app.use('/api/contest/:contest/*', async (req, res, next) => {
+            if (auth.isTokenValid(req.cookies.sessionToken)) {
+                // have to be on a team, or not authorized
+                const username = auth.getTokenUsername(req.cookies.sessionToken)!;
+                const team = await this.db.getAccountTeam(username);
+                if (team !== null && typeof team != 'string') {
+                    sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Auth team');
+                    return;
+                }
+                if (team === null) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger, username, 'Auth team');
+                    return;
+                }
+                // save username so don't have to check if token disappeared between this and later handlers
                 req.cookies[sessionUsername] = username;
                 req.cookies[sessionTeam] = team;
+                // chekc is registered for contest
+                if (!this.contests.has(req.params.contest)) {
+                    // this check is repeated later because of edge case where contest ends between this and the handler
+                    sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
+                    return;
+                }
+                const teamData = await this.db.getTeamData(team);
+                if (typeof teamData != 'object') {
+                    sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check registration');
+                    return;
+                }
+                if (!teamData.registrations.includes(req.params.contest)) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {
+                        [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} ${req.method} ${req.path} when not registered for ${req.params.contest}`
+                    }, this.logger, username, 'Check registration');
+                    return;
+                }
                 next();
             } else {
                 sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
             }
         });
-        this.app.post('/api/contest/:contest/register', async (req, res) => {
-            const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string;
-            if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot register without a team' }, this.logger, username);
-                return;
-            }
-            const contestRes = await this.db.readContests({ id: req.params.contest });
-            if (!Array.isArray(contestRes)) {
-                sendDatabaseResponse(req, res, contestRes, {}, this.logger, username, 'Fetch contest');
-                return;
-            }
-            if (contestRes.length != 1) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
-                return;
-            }
-            const contest = contestRes[0];
-            const teamData = await this.db.getTeamData(team);
-            if (typeof teamData != 'object') {
-                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check contest');
-                return;
-            }
-            if (teamData.members.length > contest.maxTeamSize) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many team members; max size ' + contest.maxTeamSize }, this.logger, username, 'Check contest');
-                return;
-            }
-            const restrictedContestRes = await this.db.readContests({ id: contest.exclusions });
-            if (!Array.isArray(restrictedContestRes)) {
-                sendDatabaseResponse(req, res, restrictedContestRes, {}, this.logger, username, 'Check contest');
-                return;
-            }
-            if (restrictedContestRes.some((contest) => teamData.registrations.includes(contest.id))) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Conflict with existing registrations' }, this.logger, username, 'Check contest');
-                return;
-            }
-            const check = await this.db.registerContest(team, contest.id);
-            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
-        });
-        this.app.delete('/api/contest/:contest/register', async (req, res) => {
-            const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string;
-            if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot unregister without a team' }, this.logger, username);
-                return;
-            }
-            const teamData = await this.db.getTeamData(team);
-            if (typeof teamData != 'object') {
-                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
-                return;
-            }
-            if (!teamData.registrations.includes(req.params.contest)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not registered' }, this.logger, username, 'Check team');
-                return;
-            }
-            const check = await this.db.unregisterContest(team, req.params.contest);
-            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
-
-        });
-        // requires registration for contest & contest is running
-        this.app.use('/api/contest/:contest/*', async (req, res, next) => {
-            const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string;
-            if (!this.contests.has(req.params.contest)) {
-                // this check is repeated later because of edge case where contest ends between this and the handler
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
-                return;
-            }
-            const teamData = await this.db.getTeamData(team);
-            if (typeof teamData != 'object') {
-                sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check registration');
-                return;
-            }
-            if (!teamData.registrations.includes(req.params.contest)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {
-                    [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} ${req.method} ${req.path} when not registered for ${req.params.contest}`
-                }, this.logger, username, 'Check registration');
-                return;
-            }
-            next();
-        });
+        // contest data
         this.app.get('/api/contest/:contest/data', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             if (!this.contests.has(req.params.contest)) {
