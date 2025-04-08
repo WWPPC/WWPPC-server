@@ -77,8 +77,10 @@ export interface GlobalConfiguration {
 export interface ContestConfiguration {
     /**Use grading system to evaluate submissions, otherwise grade manually (default: true) */
     readonly graders: boolean
-    /**Enable round separation (separates contest into multiple sub-contests) (default: true) */
+    /**Enable round separation (allows grouping of problems, where only the current and previous rounds are visible and submittable) (default: true) */
     readonly rounds: boolean
+    /**Restrict submissions to only the active round (default: false) */
+    readonly restrictiveRounds: boolean
     /**"Freeze" scores - stop updating scores for clients - for some amount of time (minutes) before the last round ends (default: 60) */
     readonly scoreFreezeTime: number
     /**Withhold submission results for each round until the round ends (submissions are still instantly graded however) (default: false) */
@@ -115,6 +117,7 @@ const config: GlobalConfiguration = {
         p[cId] = {
             graders: cVal.graders ?? true,
             rounds: cVal.rounds ?? true,
+            restrictiveRounds: cVal.restrictiveRounds ?? false,
             scoreFreezeTime: cVal.scoreFreezeTime ?? 60,
             withholdResults: cVal.withholdResults ?? false,
             submitSolver: cVal.submitSolver ?? true,

@@ -2,6 +2,7 @@
     "WWPIT": {
         "graders": true,
         "rounds": true,
+        "restrictiveRounds": true,
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": true,
@@ -22,6 +23,7 @@
     "WWPHACKS": {
         "graders": false,
         "rounds": false,
+        "restrictiveRounds": false,
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": true,
@@ -32,6 +34,7 @@
     "WWPMI": {
         "graders": true,
         "rounds": false,
+        "restrictiveRounds": false,
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": false,
@@ -42,6 +45,7 @@
     "WWPMT": {
         "graders": true,
         "rounds": false,
+        "restrictiveRounds": false,
         "scoreFreezeTime": 60,
         "withholdResults": false,
         "submitSolver": false,

@@ -276,13 +276,13 @@ export class ClientAuth {
         });
         this.app.delete('/auth/logout', (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.ERROR]: 'Not signed in' }, this.logger);
+                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Logged out' }, this.logger);
                 return;
             }
             res.clearCookie('sessionToken');
             const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
             this.sessionTokens.removeToken(req.cookies.sessionToken);
-            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger, username ?? undefined);
+            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Logged out' }, this.logger, username ?? undefined);
         });
         // reserve /auth path
         this.app.use('/auth/*', (req, res) => res.sendStatus(404));

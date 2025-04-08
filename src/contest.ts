@@ -703,11 +703,14 @@ export class ContestHost {
     }
     /**
      * Get if a particular problem ID is submittable.
+     * Submissions for all rounds close in between rounds, regardless of {@link ContestConfiguration.restrictiveRounds}.
      * @param id Problem ID
      * @returns If the problem is in the contest and submittable
      */
     problemSubmittable(id: UUID): boolean {
-        return this.active && this.contest.rounds[this.index].problems.includes(id);
+        if (!this.active) return false;
+        if (this.contestConfig.restrictiveRounds) return this.contest.rounds.slice(0, this.index + 1).some((r) => r.problems.includes(id));
+        return this.contest.rounds[this.index].problems.includes(id);
     }
 
     private readonly pendingDirectSubmissions: Map<string, NodeJS.Timeout> = new Map();
