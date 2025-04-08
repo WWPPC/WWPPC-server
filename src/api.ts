@@ -98,7 +98,7 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
         this.app.put('/api/self/userData', parseBodyJson(), validateRequestBody({
-            email2: 'required|encryptedEmail',
+            email2: 'required|encryptedEmail-auth',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',

@@ -33,11 +33,11 @@ export class ClientAuth {
         this.mailer = mailer;
         this.logger = new NamedLogger(defaultLogger, 'ClientAuth');
         this.encryption = new RSAEncryptionHandler(this.logger);
-        nivExtend('encrypted', async ({ value }: any) => {
+        nivExtend('encrypted-auth', async ({ value }: any) => {
             if (!(value instanceof Buffer)) return false;
             return typeof (await this.encryption.decrypt(value)) == 'string';
         });
-        nivExtend('encryptedEmail', async ({ value }: any) => {
+        nivExtend('encryptedEmail-auth', async ({ value }: any) => {
             if (!(value instanceof Buffer)) return false;
             return await new Validator({
                 v: await this.encryption.decrypt(value)
@@ -45,8 +45,8 @@ export class ClientAuth {
                 v: 'email|length:64,1'
             }).check();
         });
-        nivExtend('encryptedLen', async ({ value, args }: any) => {
-            if (args.length < 1 || args.length > 2) throw new Error('Invalid seed for rule encryptedLen');
+        nivExtend('encryptedLen-auth', async ({ value, args }: any) => {
+            if (args.length < 1 || args.length > 2) throw new Error('Invalid seed for rule encryptedLen-auth');
             if (!(value instanceof Buffer)) return false;
             return await new Validator({
                 v: await this.encryption.decrypt(value)
@@ -55,9 +55,9 @@ export class ClientAuth {
             }).check();
         });
         nivExtendMessages({
-            encrypted: 'The :attribute must be RSA-OAEP encrypted using the server public key (maybe your session expired?)',
-            encryptedEmail: 'The :attribute must be a valid e-mail address and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
-            encryptedLen: 'The :attribute must be a valid length and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
+            'encrypted-auth': 'The :attribute must be RSA-OAEP encrypted using the server public key (maybe your session expired?)',
+            'encryptedEmail-auth': 'The :attribute must be a valid e-mail address and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
+            'encryptedLen-auth': 'The :attribute must be a valid length and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
         }, 'en')
         this.createEndpoints();
         this.ready = Promise.all([this.encryption.ready]);
@@ -78,7 +78,7 @@ export class ClientAuth {
         });
         this.app.post('/auth/login', parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            password: 'required|encryptedLen:1024,1'
+            password: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Already signed in' }, this.logger);
@@ -109,9 +109,9 @@ export class ClientAuth {
             message: 'Too many account creation requests'
         }, (req, res) => this.logger.warn(`Signup rate limiting triggered by ${req.ip}`)), parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            password: 'required|encryptedLen:1024,1',
-            email: 'required|encryptedEmail',
-            email2: 'required|encryptedEmail',
+            password: 'required|encryptedLen-auth:1024,1',
+            email: 'required|encryptedEmail-auth',
+            email2: 'required|encryptedEmail-auth',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             school: 'required|string|length:64',
@@ -161,7 +161,7 @@ export class ClientAuth {
             message: 'Too many account recovery requests'
         }, (req, res) => this.logger.warn(`Recovery request rate limit triggered by ${req.ip}`)), parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            email: 'required|encryptedEmail',
+            email: 'required|encryptedEmail-auth',
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Signed in' }, this.logger);
@@ -214,8 +214,8 @@ export class ClientAuth {
             message: 'Too many account recovery requests'
         }, (req, res) => this.logger.warn(`Recovery rate limit triggered by ${req.ip}`)), parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            recoveryPassword: 'required|encryptedLen:1024,1',
-            newPassword: 'required|encryptedLen:1024,1'
+            recoveryPassword: 'required|encryptedLen-auth:1024,1',
+            newPassword: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
                 if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 403 Signed in`);
@@ -235,8 +235,8 @@ export class ClientAuth {
             sendDatabaseResponse(req, res, check, { [DatabaseOpCode.UNAUTHORIZED]: 'Incorrect recovery password (perhaps a successful login rotated it?)' }, this.logger, username);
         });
         this.app.put('/auth/changePassword', parseBodyJson(), validateRequestBody({
-            password: 'required|encryptedLen:1024,1',
-            newPassword: 'required|encryptedLen:1024,1'
+            password: 'required|encryptedLen-auth:1024,1',
+            newPassword: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
                 if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 401 Unauthorized`);
@@ -256,7 +256,7 @@ export class ClientAuth {
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.delete('/auth/delete', parseBodyJson(), validateRequestBody({
-            password: 'required|encryptedLen:1024,1'
+            password: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
                 if (config.debugMode) this.logger.debug(`{$req.method} ${req.path}: 401 Unauthorized`);
