@@ -18,7 +18,7 @@ Base admin permission; allows login and general functions
 
 #### Defined in
 
-[database.ts:1560](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1560)
+[database.ts:1562](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1562)
 
 ***
 
@@ -30,7 +30,7 @@ Access running contests through exposed ContestHost functions
 
 #### Defined in
 
-[database.ts:1568](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1568)
+[database.ts:1570](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1570)
 
 ***
 
@@ -42,7 +42,7 @@ Create, read, edit, and delete accounts
 
 #### Defined in
 
-[database.ts:1562](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1562)
+[database.ts:1564](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1564)
 
 ***
 
@@ -54,7 +54,7 @@ Add admins and edit permissions for other admins
 
 #### Defined in
 
-[database.ts:1570](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1570)
+[database.ts:1572](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1572)
 
 ***
 
@@ -66,7 +66,7 @@ Create, read, edit, and delete contests and rounds
 
 #### Defined in
 
-[database.ts:1566](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1566)
+[database.ts:1568](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1568)
 
 ***
 
@@ -78,4 +78,4 @@ Create, read, edit, and delete problems
 
 #### Defined in
 
-[database.ts:1564](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1564)
+[database.ts:1566](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1566)

@@ -38,4 +38,4 @@ Username
 
 ## Defined in
 
-[grader.ts:292](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/grader.ts#L292)
+[grader.ts:294](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/grader.ts#L294)

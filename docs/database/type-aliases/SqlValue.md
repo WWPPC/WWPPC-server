@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[database.ts:1539](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/database.ts#L1539)
+[database.ts:1541](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1541)

@@ -28,7 +28,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/email.ts#L39)
+[email.ts:39](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/email.ts#L39)
 
 ## Properties
 
@@ -38,7 +38,7 @@ Parameters
 
 #### Defined in
 
-[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/email.ts#L30)
+[email.ts:30](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/email.ts#L30)
 
 ## Methods
 
@@ -54,7 +54,7 @@ Disconnect from the SMTP server.
 
 #### Defined in
 
-[email.ts:180](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/email.ts#L180)
+[email.ts:180](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/email.ts#L180)
 
 ***
 
@@ -98,7 +98,7 @@ Plaintext version of email
 
 #### Defined in
 
-[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/email.ts#L111)
+[email.ts:111](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/email.ts#L111)
 
 ***
 
@@ -148,4 +148,4 @@ Plaintext version (does not use template)
 
 #### Defined in
 
-[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/email.ts#L147)
+[email.ts:147](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/email.ts#L147)

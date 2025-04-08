@@ -16,7 +16,7 @@ Bundles administrator API into a single class.
 
 #### Defined in
 
-[adminPortal.ts:25](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/adminPortal.ts#L25)
+[adminPortal.ts:25](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/adminPortal.ts#L25)
 
 ***
 
@@ -26,7 +26,7 @@ Bundles administrator API into a single class.
 
 #### Defined in
 
-[adminPortal.ts:24](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/adminPortal.ts#L24)
+[adminPortal.ts:24](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/adminPortal.ts#L24)
 
 ***
 
@@ -36,7 +36,7 @@ Bundles administrator API into a single class.
 
 #### Defined in
 
-[adminPortal.ts:26](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/adminPortal.ts#L26)
+[adminPortal.ts:26](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/adminPortal.ts#L26)
 
 ## Methods
 
@@ -66,7 +66,7 @@ Express app (HTTP server) to attach API to
 
 #### Defined in
 
-[adminPortal.ts:407](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/adminPortal.ts#L407)
+[adminPortal.ts:409](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/adminPortal.ts#L409)
 
 ***
 
@@ -82,4 +82,4 @@ Get the admin API instance.
 
 #### Defined in
 
-[adminPortal.ts:414](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/adminPortal.ts#L414)
+[adminPortal.ts:416](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/adminPortal.ts#L416)

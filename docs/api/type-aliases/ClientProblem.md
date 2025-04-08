@@ -54,4 +54,4 @@ Descriptor for a single problem as represented by the client
 
 ## Defined in
 
-[api.ts:289](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/api.ts#L289)
+[api.ts:300](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/api.ts#L300)

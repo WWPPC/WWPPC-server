@@ -26,4 +26,4 @@ Look up the name of an enumeration based on the value
 
 ## Defined in
 
-[util.ts:300](https://github.com/WWPPC/WWPPC-server/blob/8fa1fab7588b7cc0d91c585786635fd288d3453c/src/util.ts#L300)
+[util.ts:300](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/util.ts#L300)
