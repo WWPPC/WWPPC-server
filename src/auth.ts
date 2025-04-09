@@ -196,8 +196,9 @@ export class ClientAuth {
                 sendDatabaseResponse(req, res, DatabaseOpCode.ERROR, {}, this.logger, username, 'Send email');
                 return;
             }
+            // no html injection for you lol
             const mailErr = await this.mailer.sendFromTemplate('password-reset', [email], 'Reset Password', [
-                ['name', data.displayName],
+                ['name', data.displayName.replaceAll('<', '&lt;')],
                 ['user', encodeURI(username)],
                 ['pass', encodeURI(recoveryPassword)]
             ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
