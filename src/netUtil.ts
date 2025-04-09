@@ -5,6 +5,7 @@ import { Response } from 'express';
  */
 export class LongPollEventEmitter<TEvents extends Record<string, any>> {
     private readonly waiters: Map<keyof TEvents, Set<Response>> = new Map();
+    private readonly initData: Map<keyof TEvents, TEvents[keyof TEvents]> = new Map();
     readonly timeoutMs: number;
     private open: boolean = true;
 
@@ -32,15 +33,28 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
     }
 
     /**
+     * Add an Express `Response` to immediately respond to with the most recent data for an event.
+     * If no previously emitted data is available, it is added as a waiter instead.
+     * @param ev Event name
+     * @param res Express `Response` object
+     */
+    addImmediate(ev: keyof TEvents & string, res: Response): void {
+        if (!this.open) return;
+        if (!this.initData.has(ev)) this.addWaiter(ev, res);
+        else res.json(this.initData.get(ev));
+    }
+
+    /**
      * Emit new data to all Express `Response` waiters added through {@link addWaiter}.
      * @param ev Event name
      * @param data Data to update with
      */
     emit<TEvent extends keyof TEvents & string>(ev: TEvent, data: TEvents[TEvent]): void {
         if (!this.open) return;
+        this.initData.set(ev, data);
         const w = this.waiters.get(ev);
         if (w === undefined) return;
-        for (const res of w) res.send(data);
+        for (const res of w) res.json(data);
         w.clear();
     }
 
@@ -80,6 +94,7 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
 
     /**
      * Add an Express `Response` to wait for an event. 
+     * @param nsp Namespace to hold response in
      * @param ev Event name
      * @param res Express `Response` object
      */
@@ -90,7 +105,21 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
     }
 
     /**
+     * Add an Express `Response` to immediately respond to with the most recent data for an event.
+     * If no previously emitted data is available, it is added as a waiter instead.
+     * @param nsp Namespace to hold response in
+     * @param ev Event name
+     * @param res Express `Response` object
+     */
+    addImmediate(nsp: string, ev: keyof TEvents & string, res: Response): void {
+        if (!this.open) return;
+        if (!this.emitters.has(nsp)) this.emitters.set(nsp, new LongPollEventEmitter(this.timeoutMs));
+        this.emitters.get(nsp)!.addImmediate(ev, res);
+    }
+
+    /**
      * Emit new data to all Express `Response` waiters added through {@link addWaiter}.
+     * @param nsp Namespace to hold response in
      * @param ev Event name
      * @param data Data to update with
      */

@@ -135,7 +135,7 @@ export class ContestManager {
                 res.json(data.map((item) => item.id));
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/api/contest/openRegistrations', async (req, res) => {
+        this.app.get('/api/contest/open', async (req, res) => {
             const data = await this.db.readContests({ endTime: { op: '>', v: Date.now() } });
             if (Array.isArray(data)) {
                 if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
@@ -157,10 +157,11 @@ export class ContestManager {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        // get running contest list & can access contest
         this.app.get('/api/contest/running', async (req, res) => {
-            this.longPollingGlobal.addWaiter('contests', res);
+            if (req.query.init !== undefined) this.longPollingGlobal.addImmediate('contests', res);
+            else this.longPollingGlobal.addWaiter('contests', res);
         });
+        // contest access since "running" returns all contests regardless of registration
         this.app.get('/api/contest/access/:contest', async (req, res) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
                 // have to be on a team, or not authorized
@@ -241,7 +242,8 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
             }
-            this.longPollingUsers.addWaiter(req.params.contest, 'contestData', res);
+            if (req.query.init) this.longPollingUsers.addImmediate(req.params.contest, 'contestData', res);
+            else this.longPollingUsers.addWaiter(req.params.contest, 'contestData', res);
         });
         const respondGetProblemData = async (req: Request, res: Response, problemId: UUID) => {
             const username = req.cookies[sessionUsername as any] as string;
@@ -375,7 +377,8 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check problem');
                 return;
             }
-            this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+            if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+            else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
@@ -383,7 +386,8 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
             }
-            this.longPollingUsers.addWaiter(req.params.contest, 'contestScoreboards', res);
+            if (req.query.init) this.longPollingUsers.addImmediate(req.params.contest, 'contestScoreboards', res);
+            else this.longPollingUsers.addWaiter(req.params.contest, 'contestScoreboards', res);
         });
         // not implemented but it's still here
         this.app.get('/api/contest/:contest/notifications', (req, res) => {
@@ -392,7 +396,8 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
             }
-            this.longPollingUsers.addWaiter(req.params.contest, 'contestNotifications', res);
+            if (req.query.init) this.longPollingUsers.addImmediate(req.params.contest, 'contestNotifications', res);
+            else this.longPollingUsers.addWaiter(req.params.contest, 'contestNotifications', res);
         });
     }
 
