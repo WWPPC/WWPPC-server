@@ -66,6 +66,12 @@ Known languages, in file extension form
 
 Last name
 
+### organization
+
+> **organization**: `string`
+
+School name
+
 ### pastRegistrations
 
 > **pastRegistrations**: `string`[]
@@ -77,12 +83,6 @@ List of contests that have ended that were registered for
 > **profileImage**: `string`
 
 Encoded image
-
-### school
-
-> **school**: `string`
-
-School name
 
 ### team
 
@@ -98,4 +98,4 @@ Username
 
 ## Defined in
 
-[database.ts:1576](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1576)
+[database.ts:1576](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1576)

@@ -6,7 +6,7 @@
 
 # Class: LongPollEventEmitter\<TEvents\>
 
-Simple long-polling HTTP event-based emitter for Express applications.
+Simple HTTP long-polling event-based emitter for Express applications.
 
 ## Type Parameters
 
@@ -32,7 +32,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L14)
+[netUtil.ts:15](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L15)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:8](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L8)
+[netUtil.ts:9](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L9)
 
 ## Accessors
 
@@ -58,9 +58,40 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:47](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L47)
+[netUtil.ts:61](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L61)
 
 ## Methods
+
+### addImmediate()
+
+> **addImmediate**(`ev`, `res`): `void`
+
+Add an Express `Response` to immediately respond to with the most recent data for an event.
+If no previously emitted data is available, it is added as a waiter instead.
+
+#### Parameters
+
+##### ev
+
+keyof `TEvents` & `string`
+
+Event name
+
+##### res
+
+`Response`\<`any`, `Record`\<`string`, `any`\>\>
+
+Express `Response` object
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[netUtil.ts:41](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L41)
+
+***
 
 ### addWaiter()
 
@@ -88,7 +119,7 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:23](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L23)
+[netUtil.ts:24](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L24)
 
 ***
 
@@ -104,7 +135,7 @@ Timeout all waiters and stop accepting new ones.
 
 #### Defined in
 
-[netUtil.ts:54](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L54)
+[netUtil.ts:68](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L68)
 
 ***
 
@@ -138,4 +169,4 @@ Data to update with
 
 #### Defined in
 
-[netUtil.ts:39](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L39)
+[netUtil.ts:52](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L52)

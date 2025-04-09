@@ -58,7 +58,7 @@ Maximum length of buffer for most recent log entries (default 100)
 
 #### Defined in
 
-[log.ts:160](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L160)
+[log.ts:160](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L160)
 
 ## Properties
 
@@ -68,7 +68,7 @@ Maximum length of buffer for most recent log entries (default 100)
 
 #### Defined in
 
-[log.ts:143](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L143)
+[log.ts:143](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L143)
 
 ***
 
@@ -78,7 +78,7 @@ Maximum length of buffer for most recent log entries (default 100)
 
 #### Defined in
 
-[log.ts:144](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L144)
+[log.ts:144](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L144)
 
 ## Methods
 
@@ -112,7 +112,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:184](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L184)
+[log.ts:184](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L184)
 
 ***
 
@@ -132,7 +132,7 @@ Safely closes the logging session. May be asynchronous to allow pending operatio
 
 #### Defined in
 
-[log.ts:232](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L232)
+[log.ts:232](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L232)
 
 ***
 
@@ -166,7 +166,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:193](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L193)
+[log.ts:193](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L193)
 
 ***
 
@@ -200,7 +200,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:196](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L196)
+[log.ts:196](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L196)
 
 ***
 
@@ -234,7 +234,7 @@ Error data
 
 #### Defined in
 
-[log.ts:199](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L199)
+[log.ts:199](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L199)
 
 ***
 
@@ -268,7 +268,7 @@ Error data
 
 #### Defined in
 
-[log.ts:202](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L202)
+[log.ts:202](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L202)
 
 ***
 
@@ -302,7 +302,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:187](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L187)
+[log.ts:187](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L187)
 
 ***
 
@@ -318,7 +318,7 @@ Fetch the most recent log entries, a maximum of [tailLength](FileLogger.md#taill
 
 #### Defined in
 
-[log.ts:209](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L209)
+[log.ts:209](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L209)
 
 ***
 
@@ -340,7 +340,7 @@ Timestamp in YYYY-MM-DD [HH:MM:SS] format.
 
 #### Defined in
 
-[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L14)
+[log.ts:14](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L14)
 
 ***
 
@@ -374,7 +374,7 @@ Only put in logfile, not stdout
 
 #### Defined in
 
-[log.ts:190](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L190)
+[log.ts:190](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L190)
 
 ***
 
@@ -418,4 +418,4 @@ Error data
 
 #### Defined in
 
-[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/log.ts#L83)
+[log.ts:83](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/log.ts#L83)

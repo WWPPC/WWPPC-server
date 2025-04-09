@@ -6,7 +6,7 @@
 
 # Class: NamespacedLongPollEventEmitter\<TEvents\>
 
-Namespace-separated long-polling HTTP event-based emitter for Express applications.
+Namespace-separated HTTP long-polling event-based emitter for Express applications.
 
 ## Type Parameters
 
@@ -32,7 +32,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:73](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L73)
+[netUtil.ts:87](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L87)
 
 ## Properties
 
@@ -42,21 +42,24 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:65](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L65)
+[netUtil.ts:79](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L79)
 
 ## Methods
 
-### addWaiter()
+### addImmediate()
 
-> **addWaiter**(`nsp`, `ev`, `res`): `void`
+> **addImmediate**(`nsp`, `ev`, `res`): `void`
 
-Add an Express `Response` to wait for an event.
+Add an Express `Response` to immediately respond to with the most recent data for an event.
+If no previously emitted data is available, it is added as a waiter instead.
 
 #### Parameters
 
 ##### nsp
 
 `string`
+
+Namespace to hold response in
 
 ##### ev
 
@@ -76,7 +79,43 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:86](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L86)
+[netUtil.ts:114](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L114)
+
+***
+
+### addWaiter()
+
+> **addWaiter**(`nsp`, `ev`, `res`): `void`
+
+Add an Express `Response` to wait for an event.
+
+#### Parameters
+
+##### nsp
+
+`string`
+
+Namespace to hold response in
+
+##### ev
+
+keyof `TEvents` & `string`
+
+Event name
+
+##### res
+
+`Response`\<`any`, `Record`\<`string`, `any`\>\>
+
+Express `Response` object
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[netUtil.ts:101](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L101)
 
 ***
 
@@ -92,7 +131,7 @@ Timeout all waiters and stop accepting new ones.
 
 #### Defined in
 
-[netUtil.ts:106](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L106)
+[netUtil.ts:135](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L135)
 
 ***
 
@@ -112,6 +151,8 @@ Emit new data to all Express `Response` waiters added through [addWaiter](Namesp
 
 `string`
 
+Namespace to hold response in
+
 ##### ev
 
 `TEvent`
@@ -130,4 +171,4 @@ Data to update with
 
 #### Defined in
 
-[netUtil.ts:97](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/netUtil.ts#L97)
+[netUtil.ts:126](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L126)

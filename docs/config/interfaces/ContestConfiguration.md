@@ -18,7 +18,7 @@ Programming languages accepted for submissions (case sensitive, only if "submitS
 
 #### Defined in
 
-[config.ts:91](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L91)
+[config.ts:93](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L93)
 
 ***
 
@@ -30,7 +30,7 @@ Submissions when [ContestConfiguration.submitSolver](ContestConfiguration.md#sub
 
 #### Defined in
 
-[config.ts:89](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L89)
+[config.ts:91](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L91)
 
 ***
 
@@ -42,7 +42,7 @@ Use grading system to evaluate submissions, otherwise grade manually (default: t
 
 #### Defined in
 
-[config.ts:79](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L79)
+[config.ts:79](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L79)
 
 ***
 
@@ -54,7 +54,19 @@ Maximum character length of uploaded submissions (default: 65536)
 
 #### Defined in
 
-[config.ts:93](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L93)
+[config.ts:95](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L95)
+
+***
+
+### restrictiveRounds
+
+> `readonly` **restrictiveRounds**: `boolean`
+
+Restrict submissions to only the active round (default: false)
+
+#### Defined in
+
+[config.ts:83](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L83)
 
 ***
 
@@ -62,11 +74,11 @@ Maximum character length of uploaded submissions (default: 65536)
 
 > `readonly` **rounds**: `boolean`
 
-Enable round separation (separates contest into multiple sub-contests) (default: true)
+Enable round separation (allows grouping of problems, where only the current and previous rounds are visible and submittable) (default: true)
 
 #### Defined in
 
-[config.ts:81](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L81)
+[config.ts:81](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L81)
 
 ***
 
@@ -78,7 +90,7 @@ Enable round separation (separates contest into multiple sub-contests) (default:
 
 #### Defined in
 
-[config.ts:83](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L83)
+[config.ts:85](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L85)
 
 ***
 
@@ -90,7 +102,7 @@ Submissions will be treated as solution code instead of an answer - setting to "
 
 #### Defined in
 
-[config.ts:87](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L87)
+[config.ts:89](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L89)
 
 ***
 
@@ -102,4 +114,4 @@ Withhold submission results for each round until the round ends (submissions are
 
 #### Defined in
 
-[config.ts:85](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/config.ts#L85)
+[config.ts:87](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/config.ts#L87)

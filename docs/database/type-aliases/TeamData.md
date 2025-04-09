@@ -50,4 +50,4 @@ List of registered contests
 
 ## Defined in
 
-[database.ts:1607](https://github.com/WWPPC/WWPPC-server/blob/c08bb5874acf9739d5547370b47d1a65e80f6db4/src/database.ts#L1607)
+[database.ts:1607](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1607)

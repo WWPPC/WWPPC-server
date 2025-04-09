@@ -1,7 +1,7 @@
 import { Response } from 'express';
 
 /**
- * Simple long-polling HTTP event-based emitter for Express applications.
+ * Simple HTTP long-polling event-based emitter for Express applications.
  */
 export class LongPollEventEmitter<TEvents extends Record<string, any>> {
     private readonly waiters: Map<keyof TEvents, Set<Response>> = new Map();
@@ -73,7 +73,7 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
 }
 
 /**
- * Namespace-separated long-polling HTTP event-based emitter for Express applications.
+ * Namespace-separated HTTP long-polling event-based emitter for Express applications.
  */
 export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>> {
     readonly timeoutMs: number;
