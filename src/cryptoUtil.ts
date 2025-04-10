@@ -1,7 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID, subtle, webcrypto } from 'crypto';
 
 import Logger, { NamedLogger } from './log';
-import { Session } from 'inspector';
 
 /**
  * Simple RSA-OAEP-256 asymmetric encryption wrapper.
@@ -140,7 +139,7 @@ export class TokenHandler<DType> {
                     else this.tokenData.set(data.data, refs - 1);
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     /**
