@@ -21,7 +21,7 @@ In that, create a new file, `.env`, which contains environment variables:
 * `SMTP_PASS`: SMTP service password (email server)
 * `GRADER_PASS`: Global grader password, can be any string
 
-If your database requires an SSL-secured connection, place the certificate provided by your database provider in the file `db-cert.pem`, which allows you to connect to the database securely.
+If your database requires an SSL-secured connection, place the certificate provided by your database provider in the file `db-cert.pem`, which allows you to connect to the database securely, and add a new entry `DATABASE_SSL="true"` to `.env` to enable SSL connections.
 
 There are also other environment variables, like `DEBUG_MODE`, which are temporary overrides for {@link config} options.
 
@@ -61,7 +61,8 @@ WWPPC-server has some required and some optional environment variables.
 * `LOG_PATH`: Directory to write logs to - server will also create a `logs` directory there (default: `../`)
 * `EMAIL_TEMPLATE_PATH`: Directory to load email templates from (default: `../email-templates/`)
 * `ADMIN_PORTAL_PATH`: Directory to load admin portal from (default: `../admin-portal/`)
-* `DATABASE_CERT`: Alternative to `db-cert.pem`
+* `DATABASE_SSL`: Enables SSL connections for database
+* `DATABASE_CERT`: Alternative to `db-cert.pem` (both are ignored if `DATABASE_SSL` is not `"true"`)
 * `PORT`: TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 * `DEBUG_MODE`: Enable debug logging
 

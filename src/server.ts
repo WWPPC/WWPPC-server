@@ -8,7 +8,7 @@ configDotenv({ path: path.resolve(__dirname, '../config/.env') });
 import config from './config';
 
 // verify environment variables exist
-if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_CERT', 'DATABASE_KEY', 'GRADER_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] === undefined)) {
+if (['CONFIG_PATH', 'DATABASE_URL', 'DATABASE_KEY', 'GRADER_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].some((v) => process.env[v] === undefined)) {
     throw new Error('Missing environment variables. Make sure your environment is set up correctly!');
 }
 
@@ -68,6 +68,7 @@ const mailer = new Mailer({
 const database = new Database({
     uri: process.env.DATABASE_URL!,
     key: process.env.DATABASE_KEY!,
+    useSsl: process.env.DATABASE_SSL == 'true',
     sslCert: process.env.DATABASE_CERT,
     logger: logger
 });

@@ -14,6 +14,8 @@ export type DatabaseConstructorParams = {
     uri: string
     /**AES-256 GCM 32-byte key (base64 string or buffer) */
     key: string | Buffer
+    /**Attempt to connect with an SSL connection */
+    useSsl?: boolean
     /**Optional SSL Certificate */
     sslCert?: string | Buffer
     /**Logging instance */
@@ -36,13 +38,13 @@ export class Database {
     /**
      * @param params Parameters
      */
-    constructor({ uri, key, sslCert, logger }: DatabaseConstructorParams) {
+    constructor({ uri, key, useSsl, sslCert, logger }: DatabaseConstructorParams) {
         this.logger = new NamedLogger(logger, 'Database');
         this.dbEncryptor = new AESEncryptionHandler(key instanceof Buffer ? key : Buffer.from(key as string, 'base64'), logger);
         this.db = new Client({
             connectionString: uri,
             application_name: 'WWPPC Server',
-            ssl: sslCert !== undefined ? { ca: sslCert } : { rejectUnauthorized: false }
+            ssl: useSsl ? (sslCert !== undefined ? { ca: sslCert } : { rejectUnauthorized: false }) : undefined
         });
         this.db.on('error', async (err) => {
             this.logger.handleFatal('Fatal database error:', err);
