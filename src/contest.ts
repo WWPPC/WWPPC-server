@@ -335,7 +335,7 @@ export class ContestManager {
             };
             const processRes = await contestHost.processSubmission(submission);
             sendDatabaseResponse(req, res, processRes, {}, this.logger, username, 'Queue submission');
-        }
+        };
         this.app.post('/api/contest/:contest/submit/:pId', parseBodyJson(), validateUploadSubmission, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             if (!this.contests.has(req.params.contest)) {

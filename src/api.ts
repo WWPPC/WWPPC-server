@@ -6,7 +6,7 @@ import config from './config';
 import Database, { DatabaseOpCode, Score } from './database';
 import Mailer from './email';
 import { defaultLogger, NamedLogger } from './log';
-import { reverse_enum, sendDatabaseResponse, UUID, validateRequestBody } from './util';
+import { rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, UUID, validateRequestBody } from './util';
 
 /**
  * Bundles general API functions into a single class.
@@ -74,9 +74,12 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         // add email list unsubscribe endpoint for CAN-SPAM act compliance
-        this.app.get('/api/coffee', (req, res) => {
-            this.logger.warn(`Attempt to brew coffee using teapot`);
-            res.sendStatus(418);
+        this.app.get('/api/coffee', rateLimitWithTrigger({
+            windowMs: 10000,
+            limit: 5,
+            message: 'Do you not get the hint? I can\'t brew coffee, I\m a teapot!'
+        }, (req, res) => this.logger.warn(`Excessive requests for coffee from ${req.ip}`)), (req, res) => {
+            res.status(418).send('I\'m a teapot');
         });
         // account & team management
         const sessionUsername = Symbol('username');
