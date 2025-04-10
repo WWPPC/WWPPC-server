@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
+import { randomUUID as cryptoRandomUUID } from 'crypto';
 import { Client } from 'pg';
-import { v4 as uuidV4 } from 'uuid';
 
 import config from './config';
 import { AESEncryptionHandler } from './cryptoUtil';
@@ -62,7 +62,7 @@ export class Database {
                 });
             });
             if (global.gc) global.gc();
-            if (config.debugMode) logger.debug(`Deleted ${emptied} stale entries from cache`);
+            if (config.debugMode && emptied > 0) logger.debug(`Deleted ${emptied} stale entries from cache`);
         }, 300000);
     }
 
@@ -208,7 +208,7 @@ export class Database {
                 INSERT INTO users (username, password, recoverypass, email, email2, firstname, lastname, displayname, profileimg, organization, grade, experience, languages)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 `, [
-                username, encryptedPassword, this.dbEncryptor.encrypt(uuidV4()), userData.email, userData.email2, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.organization, userData.grade, userData.experience, userData.languages
+                username, encryptedPassword, this.dbEncryptor.encrypt(cryptoRandomUUID()), userData.email, userData.email2, userData.firstName, userData.lastName, `${userData.firstName} ${userData.lastName}`.substring(0, 64), config.defaultProfileImg, userData.organization, userData.grade, userData.experience, userData.languages
             ]);
             this.userCache.set(username, {
                 data: {
@@ -456,7 +456,7 @@ export class Database {
     async rotateRecoveryPassword(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const newPass = this.dbEncryptor.encrypt(uuidV4());
+            const newPass = this.dbEncryptor.encrypt(cryptoRandomUUID());
             const data = await this.db.query('UPDATE users SET recoverypass=$2 WHERE username=$1 RETURNING username', [
                 username, newPass
             ]);

@@ -48,6 +48,7 @@ app.use(cors({
 app.use(cookieParser());
 
 // init modules
+import { Server as SocketIOServer } from 'socket.io';
 import Mailer from './email';
 import Database from './database';
 import ClientAuth from './auth';
