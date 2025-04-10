@@ -316,7 +316,7 @@ export class ClientAPI {
             const check = await this.db.registerContest(team, contest.id);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
         });
-        this.app.delete('/api/contest/:contest/register', getTeam, async (req, res) => {
+        this.app.delete('/api/self/register/:contest', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
             if (team === null) {
