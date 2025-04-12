@@ -34,11 +34,11 @@ export class ClientAuth {
         this.logger = new NamedLogger(defaultLogger, 'ClientAuth');
         this.encryption = new RSAEncryptionHandler(this.logger);
         nivExtend('encrypted-auth', async ({ value }: any) => {
-            if (!(value instanceof Buffer)) return false;
+            if (typeof value != 'string') return false;
             return typeof (await this.encryption.decrypt(value)) == 'string';
         });
         nivExtend('encryptedEmail-auth', async ({ value }: any) => {
-            if (!(value instanceof Buffer)) return false;
+            if (typeof value != 'string') return false;
             return await new Validator({
                 v: await this.encryption.decrypt(value)
             }, {
@@ -47,7 +47,7 @@ export class ClientAuth {
         });
         nivExtend('encryptedLen-auth', async ({ value, args }: any) => {
             if (args.length < 1 || args.length > 2) throw new Error('Invalid seed for rule encryptedLen-auth');
-            if (!(value instanceof Buffer)) return false;
+            if (typeof value != 'string') return false;
             return await new Validator({
                 v: await this.encryption.decrypt(value)
             }, {
@@ -81,7 +81,7 @@ export class ClientAuth {
             password: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Already signed in' }, this.logger);
+                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Already signed in', this.logger);
                 return;
             }
             const username = req.body.username;
@@ -95,7 +95,7 @@ export class ClientAuth {
             if (check == DatabaseOpCode.SUCCESS) {
                 const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
                 res.cookie('sessionToken', token, {
-                    expires: new Date(this.sessionTokens.tokenExpiration(token) ?? (Date.now() + 3600000)),
+                    expires: new Date(this.sessionTokens.tokenExpiration(token)!),
                     httpOnly: true,
                     sameSite: 'none',
                     secure: true

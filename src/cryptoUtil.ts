@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID, subtle, webcrypto } from 'crypto';
 
 import Logger, { NamedLogger } from './log';
+import config from './config';
 
 /**
  * Simple RSA-OAEP-256 asymmetric encryption wrapper.
@@ -57,15 +58,15 @@ export class RSAEncryptionHandler {
     }
     /**
      * Decrypt a message using the RSA-OAEP private key.
-     * @param buf Encrypted ArrayBuffer representing a string or an unencrypted string (pass-through if encryption is not possible)
+     * @param base64 Encrypted ArrayBuffer encoded in base64 representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns  Decrypted string
      */
-    async decrypt(buf: Buffer): Promise<string | Buffer> {
+    async decrypt(base64: string): Promise<string | Buffer> {
         try {
-            return buf instanceof Buffer ? await new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, buf)) : buf;
+            return new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, Buffer.from(base64, 'base64')));
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
-            return buf;
+            return base64;
         }
     }
 }
@@ -133,6 +134,7 @@ export class TokenHandler<DType> {
         setInterval(() => {
             for (const [token, data] of this.tokens) {
                 if (data.expiration !== undefined && data.expiration < Date.now()) {
+                    console.log(`deleting ${data}`);
                     this.tokens.delete(token);
                     const refs = this.tokenData.get(data.data);
                     if (refs == 0 || refs === undefined) this.tokenData.delete(data.data);
@@ -150,7 +152,7 @@ export class TokenHandler<DType> {
      */
     createToken(linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.tokens.set(token, { data: linkedData, expiration: expiration === undefined ? expiration : Date.now() + expiration * 1000 });
+        this.tokens.set(token, { data: linkedData, expiration: expiration === undefined ? undefined : Date.now() + expiration * 3600 * 1000 });
         this.tokenData.set(linkedData, (this.tokenData.get(linkedData) ?? 0) + 1);
         return token;
     }
