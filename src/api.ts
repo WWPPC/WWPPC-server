@@ -92,6 +92,7 @@ export class ClientAPI {
                 return;
             }
             req.cookies[sessionTeam as any] = team;
+            next();
         };
         this.app.use('/api/self/*', (req, res, next) => {
             if (auth.isTokenValid(req.cookies.sessionToken)) {
@@ -158,8 +159,8 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username, 'Get data');
         });
         this.app.put('/api/self/teamData', parseBodyJson(), validateRequestBody({
-            teamName: 'required|string|length:32,1',
-            teamBio: 'string|length:1024'
+            name: 'required|string|length:32,1',
+            bio: 'string|length:1024'
         }, this.logger), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
@@ -167,9 +168,9 @@ export class ClientAPI {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not on a team', this.logger, username, 'Get team');
                 return;
             }
-            const check = await this.db.updateTeamData(username, {
-                name: req.body.teamName,
-                bio: req.body.teamBio ?? ""
+            const check = await this.db.updateTeamData(team, {
+                name: req.body.name,
+                bio: req.body.bio ?? ""
             });
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set data');
         });
