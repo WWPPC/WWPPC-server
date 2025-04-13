@@ -46,7 +46,7 @@ export interface GlobalConfiguration {
     readonly recoveryEmailTimeout: number
     /**A `data:` URI representing the profile image given to every account on creation */
     readonly defaultProfileImg: string
-    /**Maximum file size of uploaded profile images (default: 65535) */
+    /**Maximum file size of uploaded profile images in bytes (default: 65535) */
     readonly maxProfileImgSize: number
     /**Time in milliseconds before database cache entries expire (default: 60000) */
     readonly dbCacheTime: number
