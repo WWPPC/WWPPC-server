@@ -69,8 +69,8 @@ export class ClientAuth {
             res.json(this.encryption.publicKey);
         });
         this.app.get('/auth/login', (req, res) => {
-            if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger);
-            else sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
+            if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Session ' + this.encryption.sessionID, this.logger);
+            else sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, 'Session ' + this.encryption.sessionID, this.logger);
         });
         this.app.post('/auth/login', parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',

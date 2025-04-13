@@ -21,7 +21,7 @@ In that, create a new file, `.env`, which contains environment variables:
 * `SMTP_PASS`: SMTP service password (email server)
 * `GRADER_PASS`: Global grader password, can be any string
 
-If your database requires an SSL-secured connection, place the certificate provided by your database provider in the file `db-cert.pem`, which allows you to connect to the database securely, and add a new entry `DATABASE_SSL="true"` to `.env` to enable SSL connections.
+If your database requires an SSL-secured connection, place the certificate provided by your database provider in the file `db-cert.crt`, which allows you to connect to the database securely, and add a new entry `DATABASE_SSL="true"` to `.env` to enable SSL connections.
 
 There are also other environment variables, like `DEBUG_MODE`, which are temporary overrides for {@link config} options.
 
@@ -35,7 +35,7 @@ We will set up the `WWPPC-site-main` repo (but you can also use `WWPPC-site-math
 
 Install [mkcert](https://github.com/FiloSottile/mkcert), then run `mkcert -install` followed by `mkcert localhost` as mentioned on the [mkcert documentation](https://github.com/FiloSottile/mkcert/blob/master/README.md). 
 
-Then find the certificate and key and move them to `config/cert.pem` and `config/cert-key.pem` respectively. The `config` folder should now have `.env`, `config.json` (which is generated automatically by the server), `db-cert.pem`, `cert.pem`, and `cert-key.pem`. The server should support HTTPS on the next server restart, and the browser should automatically trust it. Try navigating to `https://localhost:8000/wakeup` *(note the s)* to test.
+Then find the certificate and key and move them to `config/cert.crt` and `config/cert.key` respectively. The `config` folder should now have `.env`, `config.json` (which is generated automatically by the server), `db-cert.crt`, `cert.crt`, and `cert.key`. The server should support HTTPS on the next server restart, and the browser should automatically trust it. Try navigating to `https://localhost:8000/wakeup` *(note the s)* to test.
 
 Next, clone the `WWPPC-site-main` repo, **ensuring you clone all submodules**. Inside the repo, run `npm i` to install all dependencies, then `npm run dev`, which starts [vite](https://vitejs.dev/). Remember to start the server if you haven't already. Navigate to the port specified by `vite` and try clicking on the login screen. If the page successfully loads, you have connected to the server!
 
@@ -57,12 +57,12 @@ WWPPC-server has some required and some optional environment variables.
 * `GRADER_PASS`: Global grader password, can be any string
 
 ### Optional
-* `CONFIG_PATH`: Directory to load server configuration from (i.e. `config.json`, `db-cert.pem`, etc.) (default: `../config/`)
+* `CONFIG_PATH`: Directory to load server configuration from (i.e. `config.json`, `db-cert.crt`, etc.) (default: `../config/`)
 * `LOG_PATH`: Directory to write logs to - server will also create a `logs` directory there (default: `../`)
 * `EMAIL_TEMPLATE_PATH`: Directory to load email templates from (default: `../email-templates/`)
 * `ADMIN_PORTAL_PATH`: Directory to load admin portal from (default: `../admin-portal/`)
 * `DATABASE_SSL`: Enables SSL connections for database
-* `DATABASE_CERT`: Alternative to `db-cert.pem` (both are ignored if `DATABASE_SSL` is not `"true"`)
+* `DATABASE_CERT`: Alternative to `db-cert.crt` (both are ignored if `DATABASE_SSL` is not `"true"`)
 * `PORT`: TCP port for the HTTP/HTTPS server to listen to (default: 8000)
 * `DEBUG_MODE`: Enable debug logging
 

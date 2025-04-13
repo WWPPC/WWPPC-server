@@ -31,9 +31,9 @@ import { rateLimitWithTrigger } from './util';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 const app = express();
-const server = fs.existsSync(path.resolve(config.path, 'cert.pem')) ? https.createServer({
-    key: fs.readFileSync(path.resolve(config.path, 'cert-key.pem')),
-    cert: fs.readFileSync(path.resolve(config.path, 'cert.pem'))
+const server = fs.existsSync(path.resolve(config.path, 'cert.crt')) ? https.createServer({
+    key: fs.readFileSync(path.resolve(config.path, 'cert.key')),
+    cert: fs.readFileSync(path.resolve(config.path, 'cert.crt'))
 }, app) : http.createServer(app);
 app.use(rateLimitWithTrigger({
     windowMs: 100,
