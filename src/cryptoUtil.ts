@@ -134,7 +134,6 @@ export class TokenHandler<DType> {
         setInterval(() => {
             for (const [token, data] of this.tokens) {
                 if (data.expiration !== undefined && data.expiration < Date.now()) {
-                    console.log(`deleting ${data}`);
                     this.tokens.delete(token);
                     const refs = this.tokenData.get(data.data);
                     if (refs == 0 || refs === undefined) this.tokenData.delete(data.data);
