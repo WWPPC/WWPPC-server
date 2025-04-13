@@ -116,8 +116,8 @@ export class ClientAPI {
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
             profileImage: `required|base64Mime:jpg,png,webp|base64Size:${config.maxProfileImgSize}`,
-            bio: 'required|string|length:2048',
-            organization: 'required|string|length:64',
+            bio: 'string|length:2048',
+            organization: 'string|length:64',
             languages: 'required|arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
@@ -136,8 +136,8 @@ export class ClientAPI {
                 lastName: req.body.lastName,
                 displayName: req.body.displayName,
                 profileImage: req.body.profileImage,
-                bio: req.body.bio,
-                organization: req.body.organization,
+                bio: req.body.bio ?? "",
+                organization: req.body.organization ?? "",
                 languages: req.body.languages,
                 grade: req.body.grade,
                 experience: req.body.experience
@@ -159,7 +159,7 @@ export class ClientAPI {
         });
         this.app.put('/api/self/teamData', parseBodyJson(), validateRequestBody({
             teamName: 'required|string|length:32,1',
-            teamBio: 'required|string|length:1024'
+            teamBio: 'string|length:1024'
         }, this.logger), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
@@ -169,7 +169,7 @@ export class ClientAPI {
             }
             const check = await this.db.updateTeamData(username, {
                 name: req.body.teamName,
-                bio: req.body.teamBio
+                bio: req.body.teamBio ?? ""
             });
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set data');
         });
