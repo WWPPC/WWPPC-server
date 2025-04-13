@@ -148,7 +148,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
             if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not on a team' }, this.logger, username, 'Get team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not on a team', this.logger, username, 'Get team');
                 return;
             }
             const data = await this.db.getTeamData(team);
@@ -164,7 +164,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
             if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not on a team' }, this.logger, username, 'Get team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not on a team', this.logger, username, 'Get team');
                 return;
             }
             const check = await this.db.updateTeamData(username, {
@@ -180,7 +180,7 @@ export class ClientAPI {
             // create & join new team
             const existing = await this.db.getAccountTeam(username);
             if (existing !== null) {
-                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot create team while on a team' }, this.logger, username, 'Check team');
+                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot create team while on a team', this.logger, username, 'Check team');
                 else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
@@ -200,7 +200,7 @@ export class ClientAPI {
             // join existing team
             const existing = await this.db.getAccountTeam(username);
             if (existing !== null) {
-                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot join team while on a team' }, this.logger, username, 'Check team');
+                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
@@ -224,7 +224,7 @@ export class ClientAPI {
             }
             for (const contest of contests) {
                 if (teamData.members.length >= contest.maxTeamSize) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Forbidden by registrations' }, this.logger, username, 'Check team');
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Forbidden by registrations', this.logger, username, 'Check team');
                     return;
                 }
             }
@@ -236,7 +236,7 @@ export class ClientAPI {
             // leave current team
             const existing = await this.db.getAccountTeam(username);
             if (typeof existing != 'string') {
-                if (existing === null) sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot leave team without a team' }, this.logger, username, 'Check team');
+                if (existing === null) sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot leave team without a team', this.logger, username, 'Check team');
                 else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
                 return;
             }
@@ -258,7 +258,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const member = req.params.member;
             if (username == member) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot kick self' }, this.logger, username);
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot kick self', this.logger, username);
                 return;
             }
             const selfTeam = await this.db.getAccountTeam(username);
@@ -272,7 +272,7 @@ export class ClientAPI {
                 return;
             }
             if (memberTeam != selfTeam) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'User not on team' }, this.logger, username, 'Set team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'User not on team', this.logger, username, 'Set team');
                 return;
             }
             const check = await this.db.setAccountTeam(member, null);
@@ -282,7 +282,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
             if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot register without a team' }, this.logger, username, 'Get team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot register without a team', this.logger, username, 'Get team');
                 return;
             }
             const contestRes = await this.db.readContests({ id: req.params.contest });
@@ -301,7 +301,7 @@ export class ClientAPI {
                 return;
             }
             if (teamData.members.length > contest.maxTeamSize) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many team members; max size ' + contest.maxTeamSize }, this.logger, username, 'Check contest');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Too many team members; max size ' + contest.maxTeamSize, this.logger, username, 'Check contest');
                 return;
             }
             const restrictedContestRes = await this.db.readContests({ id: contest.exclusions });
@@ -310,7 +310,7 @@ export class ClientAPI {
                 return;
             }
             if (restrictedContestRes.some((contest) => teamData.registrations.includes(contest.id))) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Conflict with existing registrations' }, this.logger, username, 'Check contest');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Conflict with existing registrations', this.logger, username, 'Check contest');
                 return;
             }
             const check = await this.db.registerContest(team, contest.id);
@@ -320,7 +320,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string | null;
             if (team === null) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Cannot unregister without a team' }, this.logger, username, 'Get team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot unregister without a team', this.logger, username, 'Get team');
                 return;
             }
             const teamData = await this.db.getTeamData(team);
@@ -329,7 +329,7 @@ export class ClientAPI {
                 return;
             }
             if (!teamData.registrations.includes(req.params.contest)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, { [DatabaseOpCode.NOT_FOUND]: 'Not registered' }, this.logger, username, 'Check team');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not registered', this.logger, username, 'Check team');
                 return;
             }
             const check = await this.db.unregisterContest(team, req.params.contest);

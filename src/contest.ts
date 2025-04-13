@@ -225,9 +225,7 @@ export class ContestManager {
                     return;
                 }
                 if (!teamData.registrations.includes(req.params.contest)) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {
-                        [DatabaseOpCode.FORBIDDEN]: `Cannot ${req.method} ${req.method} ${req.path} when not registered for ${req.params.contest}`
-                    }, this.logger, username, 'Check registration');
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, `Cannot ${req.method} ${req.method} ${req.path} when not registered for ${req.params.contest}`, this.logger, username, 'Check registration');
                     return;
                 }
                 next();

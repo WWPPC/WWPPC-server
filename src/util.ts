@@ -263,13 +263,13 @@ const defaultDbResMessages: Record<DatabaseOpCode, string> = {
  * @param req Express request
  * @param res Express response
  * @param code Response code
- * @param messages Optional override messages for each code (if this is a string, returns the same message for all codes)
+ * @param messages Optional override messages for each code (if this is a string, returns the same message for all codes - **ONLY use this IF the response `code` is constant!**)
  * @param logger Logging instance
  * @param username Username of request sender (optional)
  * @param messagePrefix Optional prefix for response messages
  */
 export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, messages: Partial<Record<DatabaseOpCode, string>> | string, logger: Logger, username?: string, messagePrefix?: string): void {
-    const message = (messagePrefix ? messagePrefix + ' - ' : '') + (typeof messages == 'string' ? messages : messages[code] ?? defaultDbResMessages[code]);
+    const message = (messagePrefix ? messagePrefix + ' - ' : '') + (typeof messages == 'string' ? messages : (messages[code] ?? defaultDbResMessages[code]));
     if (config.debugMode) logger.debug(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.method} ${req.path}: ${reverse_enum(DatabaseOpCode, code)} - ${message}`);
     switch (code) {
         case DatabaseOpCode.ERROR:
