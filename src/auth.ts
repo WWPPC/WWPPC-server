@@ -121,7 +121,7 @@ export class ClientAuth {
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Already signed in' }, this.logger);
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Already signed in', this.logger);
                 return;
             }
             const username = req.body.username;
@@ -164,7 +164,7 @@ export class ClientAuth {
             email: 'required|encryptedEmail-auth',
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Signed in' }, this.logger);
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Signed in', this.logger);
                 return;
             }
             const username = req.body.username;
@@ -176,7 +176,7 @@ export class ClientAuth {
             }
             // rate limiting by username as well (significantly longer timeout) to combat email spam
             if (this.recentPasswordResetEmails.get(username) ?? -Infinity >= performance.now() - config.recoveryEmailTimeout * 60000) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, { [DatabaseOpCode.FORBIDDEN]: 'Too many recovery requests for this account' }, this.logger, username, 'Check account');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Too many recovery requests for this account', this.logger, username, 'Check account');
                 return;
             }
             this.recentPasswordResetEmails.set(username, performance.now());
@@ -277,13 +277,13 @@ export class ClientAuth {
         });
         this.app.delete('/auth/logout', (req, res) => {
             if (!this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Logged out' }, this.logger);
+                sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Logged out', this.logger);
                 return;
             }
             res.clearCookie('sessionToken');
             const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
             this.sessionTokens.removeToken(req.cookies.sessionToken);
-            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, { [DatabaseOpCode.SUCCESS]: 'Logged out' }, this.logger, username ?? undefined);
+            sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Logged out', this.logger, username ?? undefined);
         });
         // reserve /auth path
         this.app.use('/auth/*', (req, res) => res.sendStatus(404));
