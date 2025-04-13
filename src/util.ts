@@ -212,10 +212,10 @@ nivExtend('uuid', ({ value }: any) => {
 });
 nivExtend('base64Mime', async ({ value, args }: any) => {
     if (args.length == 0) throw new Error('Invalid seed for rule base64Mime');
-    if (!await new Validator({ v: value }, { v: 'required/base64' }).check()) return false;
-    const mime = /^data:(.+?);base64,/g.exec(value);
+    if (!await new Validator({ v: value.split(',')[1] }, { v: 'required|base64' }).check()) return false;
+    const mime = /^data:image\/([a-zA-Z]+);base64,([A-Za-z0-9+/=]+)$/g.exec(value);
     if (mime === null) return false;
-    if (!(args as string[]).includes(mime[0])) return false;
+    if (!(args as string[]).includes(mime[1])) return false;
 });
 nivExtend('base64Size', async ({ value, args }: any) => {
     if (args.length != 1 || isNaN(Number(args[0]))) throw new Error('Invalid seed for rule base64Size');
@@ -231,8 +231,8 @@ nivExtend('base64Size', async ({ value, args }: any) => {
 nivExtendMessages({
     lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores',
     uuid: 'The :attribute must be a valid UUID',
-    base64Mine: 'The :attribute is an invalid MIME type',
-    base64Size: 'The :attribute must be :arg0'
+    base64Mime: 'The :attribute is an invalid MIME type',
+    base64Size: 'The :attribute must be :arg0 bytes or less'
 });
 
 /**
