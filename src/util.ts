@@ -210,9 +210,29 @@ nivExtend('lowerAlphaNumDash', ({ value }: any) => {
 nivExtend('uuid', ({ value }: any) => {
     return validate(value);
 });
+nivExtend('base64Mime', async ({ value, args }: any) => {
+    if (args.length == 0) throw new Error('Invalid seed for rule base64Mime');
+    if (!await new Validator({ v: value }, { v: 'required/base64' }).check()) return false;
+    const mime = /^data:(.+?);base64,/g.exec(value);
+    if (mime === null) return false;
+    if (!(args as string[]).includes(mime[0])) return false;
+});
+nivExtend('base64Size', async ({ value, args }: any) => {
+    if (args.length != 1 || isNaN(Number(args[0]))) throw new Error('Invalid seed for rule base64Size');
+    // remove MIME type (if doesn't have it that's fine)
+    const split = (value as string).split(',');
+    // this will check if it's base64 as well
+    try {
+        return Buffer.from(split[1] ?? split[0], 'base64').length <= Number(args[0]);
+    } catch (err) {
+        return false;
+    }
+});
 nivExtendMessages({
     lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores',
-    uuid: 'The :attribute must be a valid UUID'
+    uuid: 'The :attribute must be a valid UUID',
+    base64Mine: 'The :attribute is an invalid MIME type',
+    base64Size: 'The :attribute must be :arg0'
 });
 
 /**

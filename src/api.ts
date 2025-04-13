@@ -115,7 +115,7 @@ export class ClientAPI {
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
-            profileImage: `required|mime:jpg,png,webp|size:${config.maxProfileImgSize}b`,
+            profileImage: `required|base64Mime:jpg,png,webp|base64Size:${config.maxProfileImgSize}`,
             bio: 'required|string|length:2048',
             organization: 'required|string|length:64',
             languages: 'required|arrayUnique|length:32',

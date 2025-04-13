@@ -39,11 +39,7 @@ export class ClientAuth {
         });
         nivExtend('encryptedEmail-auth', async ({ value }: any) => {
             if (typeof value != 'string') return false;
-            return await new Validator({
-                v: await this.encryption.decrypt(value)
-            }, {
-                v: 'email|length:64,1'
-            }).check();
+            return await new Validator({ v: await this.encryption.decrypt(value) }, { v: 'email|length:64,1' }).check();
         });
         nivExtend('encryptedLen-auth', async ({ value, args }: any) => {
             if (args.length < 1 || args.length > 2) throw new Error('Invalid seed for rule encryptedLen-auth');
