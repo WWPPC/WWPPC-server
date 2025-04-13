@@ -491,37 +491,42 @@ export class ContestHost {
         this.logger.info(`Reloading contest data "${this.id}"`);
         clearInterval(this.updateLoop);
         const contest = await this.db.readContests({ id: this.id });
-        if (contest == DatabaseOpCode.ERROR || contest.length == 0) {
-            if (contest == DatabaseOpCode.ERROR) this.logger.error(`Database error`);
-            else this.logger.error(`Contest "${this.id}" does not exist`);
+        const rounds = await this.db.readRounds({ contest: this.id });
+        const problems = await this.db.readProblems({ contest: { contest: this.id } })
+        if (contest == DatabaseOpCode.ERROR || contest.length == 0 || rounds == DatabaseOpCode.ERROR || problems == DatabaseOpCode.ERROR) {
+            if (contest != DatabaseOpCode.ERROR) this.logger.error(`Contest "${this.id}" does not exist`);
+            else this.logger.error(`Database error`);
             this.end();
             return;
         }
-        if (!this.contestConfig.rounds && contest[0].rounds.length != 1) {
+        if (!this.contestConfig.rounds && rounds.length != 1) {
             this.logger.error('Contest rounds are disabled, but contest contains multiple rounds');
             this.end();
             return;
         }
-        if (contest[0].rounds.length == 0) {
+        if (rounds.length == 0) {
             this.logger.error('Contest has no rounds');
-            this.end();
-            return;
-        }
-        const rounds = await this.db.readRounds({ id: contest[0].rounds });
-        if (rounds == DatabaseOpCode.ERROR) {
-            this.logger.error(`Database error`);
             this.end();
             return;
         }
         this.scorer.setRounds(rounds);
         this.scorer.clearScores();
+        // ensure ordering & existence of rounds & problems
         const mapped: ClientRound[] = [];
         for (let i in contest[0].rounds) {
-            const round = rounds.find((r) => r.id === contest[0].rounds[i]);
+            const round = rounds.find((r) => r.id == contest[0].rounds[i]);
             if (round === undefined) {
                 this.logger.error(`Contest "${this.id}" missing round: ${contest[0].rounds[i]}`);
                 this.end();
                 return;
+            }
+            for (let j in round.problems) {
+                const problem = problems.find((p) => p.id == round.problems[j]);
+                if (problem === undefined) {
+                    this.logger.error(`Contest "${this.id}" missing problem: ${round.problems[j]}`);
+                    this.end();
+                    return;
+                }
             }
             mapped.push({
                 contest: this.id,
