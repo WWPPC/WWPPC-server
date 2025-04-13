@@ -216,6 +216,7 @@ nivExtend('base64Mime', async ({ value, args }: any) => {
     const mime = /^data:image\/([a-zA-Z]+);base64,([A-Za-z0-9+/=]+)$/g.exec(value);
     if (mime === null) return false;
     if (!(args as string[]).includes(mime[1])) return false;
+    return true;
 });
 nivExtend('base64Size', async ({ value, args }: any) => {
     if (args.length != 1 || isNaN(Number(args[0]))) throw new Error('Invalid seed for rule base64Size');

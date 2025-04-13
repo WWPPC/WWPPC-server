@@ -289,7 +289,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: Number(data.rows[0].team).toString(36)
+                team: data.rows[0].team === null ? null : Number(data.rows[0].team).toString(36)
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -588,10 +588,16 @@ export class Database {
             // database teams are numbers
             const teamNumId = team !== null ? parseInt(team, 36) : null;
             if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
-            const res = await this.db.query(
-                'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
-                username, teamNumId
-            ]);
+            const res = await (teamNumId === null ? 
+                this.db.query(
+                    'UPDATE users SET team=$2 WHERE users.username=$1 RETURNING users.username', [
+                    username, teamNumId
+                ]) :
+                this.db.query(
+                    'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
+                    username, teamNumId
+                ])
+            );
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             // getAccountData refreshed cache entry before this
             if (this.userCache.has(username)) this.userCache.get(username)!.data.team = team;
@@ -620,7 +626,7 @@ export class Database {
             const teamNumId = parseInt(team, 36);
             if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const data = await this.db.query(
-                'SELECT id, name, biography, registrations joinkey FROM teams WHERE id=$1', [
+                'SELECT id, name, biography, registrations, joinkey FROM teams WHERE id=$1', [
                 teamNumId
             ]);
             const memberData = await this.db.query(
