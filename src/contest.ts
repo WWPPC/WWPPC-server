@@ -389,6 +389,7 @@ export class ContestManager {
             const submissions = await this.db.readSubmissions({
                 contest: { contest: req.params.contest },
                 id: req.params.sId,
+                team: team,
                 time: contestHost.getTimeRange(),
                 analysis: false
             });
@@ -402,7 +403,7 @@ export class ContestManager {
             }
             // only see submissions made by the current team
             const submission = submissions[0];
-            if (submission.team === team) res.json({
+            res.json({
                 time: submission.time,
                 file: submission.file,
                 language: submission.language,
@@ -410,7 +411,6 @@ export class ContestManager {
                 status: contestHost.calculateCompletionState(submission),
                 analysis: submission.analysis
             } satisfies ClientSubmission & { file: string });
-            else sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read Submission');
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
