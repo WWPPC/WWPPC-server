@@ -119,7 +119,7 @@ export class ClientAPI {
             profileImage: `required|base64Mime:jpg,png,webp|base64Size:${config.maxProfileImgSize}`,
             bio: 'string|length:2048',
             organization: 'string|length:64',
-            languages: 'required|arrayUnique|length:32',
+            languages: 'arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
@@ -176,13 +176,12 @@ export class ClientAPI {
         });
         this.app.post('/api/self/team', parseBodyJson(), validateRequestBody({
             name: `required|string|length:32,1`
-        }), async (req, res) => {
+        }), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
             // create & join new team
-            const existing = await this.db.getAccountTeam(username);
-            if (existing !== null) {
-                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot create team while on a team', this.logger, username, 'Check team');
-                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+            if (team !== null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot create team while on a team', this.logger, username, 'Check team');
                 return;
             }
             const teamId = await this.db.createTeam(req.body.name);
@@ -197,12 +196,11 @@ export class ClientAPI {
             code: `required|alphaDash|length:${Database.teamJoinKeyLength + 6},${Database.teamJoinKeyLength + 1}`
         }), async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
             const joinCode = req.body.code as string;
             // join existing team
-            const existing = await this.db.getAccountTeam(username);
-            if (existing !== null) {
-                if (typeof existing == 'string') sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
-                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+            if (team !== null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 return;
             }
             const teamId = joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength);
@@ -232,19 +230,18 @@ export class ClientAPI {
             const check = await this.db.setAccountTeam(username, teamId);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set team');
         });
-        this.app.delete('/api/self/team', async (req, res) => {
+        this.app.delete('/api/self/team', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
             // leave current team
-            const existing = await this.db.getAccountTeam(username);
-            if (typeof existing != 'string') {
-                if (existing === null) sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot leave team without a team', this.logger, username, 'Check team');
-                else sendDatabaseResponse(req, res, existing, {}, this.logger, username, 'Check team');
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot leave team without a team', this.logger, username, 'Check team');
                 return;
             }
             const check = await this.db.setAccountTeam(username, null);
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Leave team');
             // deletion check is only a warning, extra teams have no impact and can be removed later
-            const teamData = await this.db.getTeamData(existing);
+            const teamData = await this.db.getTeamData(team);
             if (typeof teamData != 'object') {
                 this.logger.warn(`${req.method} ${req.path}: Empty team check failed: ${reverse_enum(DatabaseOpCode, teamData)} - leftover empty team may remain`);
                 return;
@@ -255,24 +252,24 @@ export class ClientAPI {
                 else if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: Removed empty team after leaving`);
             }
         });
-        this.app.delete('/api/self/team/:member', async (req, res) => {
+        this.app.delete('/api/self/team/:member', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string | null;
             const member = req.params.member;
+            if (team === null) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot kick member while not on a team', this.logger, username, 'Get team');
+                return;
+            }
             if (username == member) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot kick self', this.logger, username);
                 return;
             }
-            const selfTeam = await this.db.getAccountTeam(username);
             const memberTeam = await this.db.getAccountTeam(member);
-            if (typeof selfTeam != 'string' && selfTeam !== null) {
-                sendDatabaseResponse(req, res, selfTeam, {}, this.logger, username, 'Check team');
-                return;
-            }
             if (typeof memberTeam != 'string' && memberTeam !== null) {
                 sendDatabaseResponse(req, res, memberTeam, {}, this.logger, username, 'Check team');
                 return;
             }
-            if (memberTeam != selfTeam) {
+            if (memberTeam != team) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'User not on team', this.logger, username, 'Set team');
                 return;
             }

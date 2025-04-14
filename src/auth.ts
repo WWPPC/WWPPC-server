@@ -111,7 +111,7 @@ export class ClientAuth {
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             organization: 'required|string|length:64',
-            languages: 'required|arrayUnique|length:32',
+            languages: 'arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
@@ -249,7 +249,11 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.changeAccountPassword(username, password, newPassword);
-            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Password reset`);
+            if (check == DatabaseOpCode.SUCCESS) {
+                this.logger.info(`${username} @ ${req.ip} | Password reset`);
+                res.clearCookie('sessionToken');
+                this.sessionTokens.removeToken(req.cookies.sessionToken);
+            }
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.delete('/auth/delete', parseBodyJson(), validateRequestBody({
@@ -268,7 +272,11 @@ export class ClientAuth {
                 return;
             }
             const check = await this.db.deleteAccount(username, password);
-            if (check == DatabaseOpCode.SUCCESS) this.logger.info(`${username} @ ${req.ip} | Deleted account`);
+            if (check == DatabaseOpCode.SUCCESS) {
+                this.logger.info(`${username} @ ${req.ip} | Deleted account`);
+                res.clearCookie('sessionToken');
+                this.sessionTokens.removeToken(req.cookies.sessionToken);
+            }
             sendDatabaseResponse(req, res, check, {}, this.logger, username);
         });
         this.app.delete('/auth/logout', (req, res) => {
