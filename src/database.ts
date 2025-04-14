@@ -588,10 +588,10 @@ export class Database {
             // database teams are numbers
             const teamNumId = team !== null ? parseInt(team, 36) : null;
             if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
-            const res = await (teamNumId === null ? 
+            const res = await (teamNumId === null ?
                 this.db.query(
-                    'UPDATE users SET team=$2 WHERE users.username=$1 RETURNING users.username', [
-                    username, teamNumId
+                    'UPDATE users SET team=null WHERE users.username=$1 RETURNING users.username', [
+                    username
                 ]) :
                 this.db.query(
                     'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
@@ -1417,11 +1417,30 @@ export class Database {
             const submissionIdList = Array.from(submissionIdSet.values());
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.problemId === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
+                // oh god... the typing doesn't even work
+                const teamFilter: FilterComparison<number | null> | undefined = c.team === undefined ? undefined : (
+                    c.team !== null ? (
+                        typeof c.team == 'string' ? (
+                            parseInt(c.team, 36)
+                        ) : (
+                            Array.isArray(c.team) ? (
+                                c.team.map((v) => v !== null ? parseInt(v, 36) : null)
+                            ) : {
+                                op: c.team.op == '~' ? '=' : c.team.op,
+                                v: c.team.v !== null ? (
+                                    Array.isArray(c.team.v) ? (
+                                        c.team.v.map((v) => v !== null ? parseInt(v, 36) : null)
+                                    ) : parseInt(c.team.v, 36)
+                                ) : null
+                            }
+                        )
+                    ) : null
+                ) as FilterComparison<number | null> | undefined;
                 const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id !== undefined) ? submissionIdList : undefined },
                     { name: 'problem', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
-                    { name: 'team', value: c.team },
+                    { name: 'team', value: teamFilter },
                     { name: 'time', value: c.time },
                     { name: 'analysis', value: c.analysis }
                 ]);

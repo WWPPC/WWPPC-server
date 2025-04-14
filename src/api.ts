@@ -137,8 +137,8 @@ export class ClientAPI {
                 lastName: req.body.lastName,
                 displayName: req.body.displayName,
                 profileImage: req.body.profileImage,
-                bio: req.body.bio ?? "",
-                organization: req.body.organization ?? "",
+                bio: req.body.bio ?? '',
+                organization: req.body.organization ?? '',
                 languages: req.body.languages,
                 grade: req.body.grade,
                 experience: req.body.experience
@@ -170,7 +170,7 @@ export class ClientAPI {
             }
             const check = await this.db.updateTeamData(team, {
                 name: req.body.name,
-                bio: req.body.bio ?? ""
+                bio: req.body.bio ?? ''
             });
             sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set data');
         });

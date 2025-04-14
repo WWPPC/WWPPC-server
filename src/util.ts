@@ -80,17 +80,17 @@ export type primitive = number | string | boolean | undefined | null;
 export type FilterComparison<T> = T extends primitive ? ({
     op: '=' | '!'
     v: T | T[]
-} | {
+} | (T extends number ? ({
     op: '>' | '<' | '>=' | '<='
-    v: number & T
+    v: number
 } | {
     op: '><' | '<>' | '=><' | '><=' | '=><=' | '=<>' | '<>=' | '=<>='
-    v1: number & T
-    v2: number & T
-} | {
+    v1: number
+    v2: number
+}) : never) | (T extends string ? ({
     op: '~'
-    v: string & T
-} | T | T[]) : never;
+    v: string
+}) : never) | T | T[]) : never;
 
 /**
  * Compare a value using a {@link FilterComparison}.
