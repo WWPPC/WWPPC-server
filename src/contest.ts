@@ -245,7 +245,6 @@ export class ContestManager {
         });
         const respondGetProblemData = async (req: Request, res: Response, problemId: UUID) => {
             const username = req.cookies[sessionUsername as any] as string;
-            const team = req.cookies[sessionTeam as any] as string;
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(problemId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
@@ -304,7 +303,6 @@ export class ContestManager {
             respondGetProblemData(req, res, contestHost.getProblemId(pRound, pNumber) ?? '');
         });
         const validateUploadSubmission = async (req: Request, res: Response, next: NextFunction) => {
-            // contest type MUST exist if contest is running (running assured by previous middleware)
             const contestHost = this.contests.get(req.params.contest)!;
             validateRequestBody({
                 file: `required|string|length:${contestHost.contestConfig.maxSubmissionSize}`,
@@ -378,40 +376,41 @@ export class ContestManager {
             if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
             else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
         });
-        this.app.get('/api/contest/submission/:sId', rateLimitWithTrigger({
-            windowMs: 10000,
-            limit: 5,
-            message: 'Too many submission reads'
-        }, (req, res) => this.logger.warn(`Excessive submission reads from ${req.ip}`)), async (req, res) => {
-            //technically you can also get submissions from outside of the current contest but that shouldnt really matter anyways
+        this.app.get('/api/contest/:contest/submissionData/:sId', async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as string;
+            const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(req.params.sId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid submission UUID (${req.ip})`);
                 res.status(400).send('Invalid submission UUID');
                 return;
             }
-            const submissions = await this.db.readSubmissions({ id: req.params.sId });
-            if (submissions == DatabaseOpCode.ERROR) {
+            // ensure only can read within this contest
+            const submissions = await this.db.readSubmissions({
+                contest: { contest: req.params.contest },
+                id: req.params.sId,
+                time: contestHost.getTimeRange(),
+                analysis: false
+            });
+            if (!Array.isArray(submissions)) {
                 sendDatabaseResponse(req, res, submissions, {}, this.logger, username, 'Read submission');
                 return;
             }
             if (submissions.length == 0) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, 'Read submission');
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read submission');
                 return;
             }
+            // only see submissions made by the current team
             const submission = submissions[0];
-            if (submission.team === null) {
-                if (submission.username !== username) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Read submission');
-                }
-                res.json(submission);
-            } else {
-                if (submission.team !== team) {
-                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Read submission');
-                }
-                res.json(submission);
-            }
+            if (submission.team === team) res.json({
+                time: submission.time,
+                file: submission.file,
+                language: submission.language,
+                scores: submission.scores,
+                status: contestHost.calculateCompletionState(submission),
+                analysis: submission.analysis
+            } satisfies ClientSubmission & { file: string });
+            else sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read Submission');
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
