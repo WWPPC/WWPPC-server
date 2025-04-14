@@ -635,7 +635,7 @@ export class Database {
             ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const teamData: TeamData = {
-                id: data.rows[0].username,
+                id: Number(data.rows[0].id).toString(36),
                 name: data.rows[0].name,
                 bio: data.rows[0].biography,
                 members: memberData.rows.map(row => row.username),
@@ -1445,7 +1445,7 @@ export class Database {
                     { name: 'analysis', value: c.analysis }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY id ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY time DESC`, bindings);
                 for (const submission of data.rows) {
                     const s: Submission = {
                         id: submission.id,
@@ -1580,7 +1580,7 @@ export enum DatabaseOpCode {
     /**The operation failed because the requested action is restricted*/
     FORBIDDEN = 403,
     /**The operation failed because of an unexpected issue */
-    ERROR = 503
+    ERROR = 500
 }
 
 /**Admin permission level bit flags */
