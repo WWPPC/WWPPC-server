@@ -635,7 +635,7 @@ export class Database {
             ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const teamData: TeamData = {
-                id: data.rows[0].username,
+                id: Number(data.rows[0].id).toString(36),
                 name: data.rows[0].name,
                 bio: data.rows[0].biography,
                 members: memberData.rows.map(row => row.username),
