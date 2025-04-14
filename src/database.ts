@@ -605,6 +605,14 @@ export class Database {
                 const entry = this.teamCache.get(oldTeam)!;
                 if (entry.data.members.includes(username)) entry.data.members.splice(entry.data.members.indexOf(username));
             }
+            if (team !== null && this.teamCache.has(team)) {
+                const entry = this.teamCache.get(team)!;
+                if (!entry.data.members.includes(username)) {
+                    // cache patch maintains sorted username order
+                    entry.data.members.push(username);
+                    entry.data.members.sort();
+                }
+            }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (setAccountTeam):', err);

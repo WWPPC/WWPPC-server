@@ -385,7 +385,7 @@ export class ContestManager {
                 res.status(400).send('Invalid submission UUID');
                 return;
             }
-            // ensure only can read within this contest
+            // ensure only can read within this contest by the current team
             const submissions = await this.db.readSubmissions({
                 contest: { contest: req.params.contest },
                 id: req.params.sId,
@@ -401,7 +401,6 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read submission');
                 return;
             }
-            // only see submissions made by the current team
             const submission = submissions[0];
             res.json({
                 time: submission.time,
