@@ -1580,7 +1580,7 @@ export enum DatabaseOpCode {
     /**The operation failed because the requested action is restricted*/
     FORBIDDEN = 403,
     /**The operation failed because of an unexpected issue */
-    ERROR = 503
+    ERROR = 500
 }
 
 /**Admin permission level bit flags */
