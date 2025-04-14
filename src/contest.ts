@@ -190,8 +190,8 @@ export class ContestManager {
         });
         // apply ratelimiting first
         this.app.use(['/api/contest/:a/submit/:b', '/api/contest/:a/submit/:b-:c'], rateLimitWithTrigger({
-            windowMs: 1000,
-            limit: 10,
+            windowMs: 5000,
+            limit: 1,
             message: 'Too many submissions'
         }, (req, res) => this.logger.warn(`Submission rate limit triggered by ${req.ip}`)));
         // apply authentication + registration for contest + contest is running
@@ -377,6 +377,41 @@ export class ContestManager {
             }
             if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
             else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+        });
+        this.app.get('/api/contest/submission/:sId', rateLimitWithTrigger({
+            windowMs: 10000,
+            limit: 5,
+            message: 'Too many submission reads'
+        }, (req, res) => this.logger.warn(`Excessive submission reads from ${req.ip}`)), async (req, res) => {
+            //technically you can also get submissions from outside of the current contest but that shouldnt really matter anyways
+            const username = req.cookies[sessionUsername] as string;
+            const team = req.cookies[sessionTeam] as string;
+            if (!isUUID(req.params.sId)) {
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid submission UUID (${req.ip})`);
+                res.status(400).send('Invalid submission UUID');
+                return;
+            }
+            const submissions = await this.db.readSubmissions({ id: req.params.sId });
+            if (submissions == DatabaseOpCode.ERROR) {
+                sendDatabaseResponse(req, res, submissions, {}, this.logger, username, 'Read submission');
+                return;
+            }
+            if (submissions.length == 0) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, 'Read submission');
+                return;
+            }
+            const submission = submissions[0];
+            if (submission.team === null) {
+                if (submission.username !== username) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Read submission');
+                }
+                res.json(submission);
+            } else {
+                if (submission.team !== team) {
+                    sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Read submission');
+                }
+                res.json(submission);
+            }
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;

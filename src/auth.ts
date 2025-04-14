@@ -197,7 +197,7 @@ export class ClientAuth {
                 ['name', data.displayName.replaceAll('<', '&lt;')],
                 ['user', encodeURI(username)],
                 ['pass', encodeURI(recoveryPassword)]
-            ], `Hallo ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
+            ], `Hello ${data.displayName}!\nYou recently requested a password reset. Reset it here: https://${config.hostname}/recovery/?user=${encodeURI(username)}&pass=${encodeURI(recoveryPassword)}.\nNot you? You can ignore this email.`);
             if (mailErr !== undefined) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.ERROR, {}, this.logger, username, 'Send email');
                 return;
