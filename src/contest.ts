@@ -26,7 +26,7 @@ export class ContestManager {
     }>;
     private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: ({ team: string } & TeamScore)[]
+        contestScoreboards: ({ team: number } & TeamScore)[]
         contestNotifications: never
         submissionData: ClientSubmission[]
     }>;
@@ -313,7 +313,7 @@ export class ContestManager {
         };
         const respondUploadSubmission = async (req: Request, res: Response, problemId: UUID, file: string, language?: string) => {
             const username = req.cookies[sessionUsername as any] as string;
-            const team = req.cookies[sessionTeam as any] as string;
+            const team = req.cookies[sessionTeam as any] as number;
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(problemId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
@@ -360,7 +360,7 @@ export class ContestManager {
         });
         this.app.get('/api/contest/:contest/submissions/:pId', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string;
+            const team = req.cookies[sessionTeam] as number;
             if (!this.contests.has(req.params.contest)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
                 return;
@@ -380,7 +380,7 @@ export class ContestManager {
         });
         this.app.get('/api/contest/:contest/submissionData/:sId', async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string;
+            const team = req.cookies[sessionTeam] as number;
             const contestHost = this.contests.get(req.params.contest)!;
             if (!isUUID(req.params.sId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid submission UUID (${req.ip})`);
@@ -474,7 +474,7 @@ export class ContestHost {
         // [Current client scoreboards]
         scoreboards: [Map<string, TeamScore>]
         // [team ID, problem UUID]
-        submissionUpdate: [string, UUID]
+        submissionUpdate: [number, UUID]
         // []
         end: []
     }> = new TypedEventEmitter();

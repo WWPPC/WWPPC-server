@@ -67,8 +67,14 @@ export class ClientAPI {
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.get('/api/teamData/:username', async (req, res) => {
-            const data = await this.db.getTeamData(req.params.username);
+        this.app.get('/api/teamData/:id', async (req, res) => {
+            const teamId = parseInt(req.params.id, 36);
+            if (isNaN(teamId)) {
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid team ID (${req.ip})`);
+                res.status(400).send('Invalid team ID');
+                return;
+            }
+            const data = await this.db.getTeamData(teamId);
             if (typeof data == 'object') {
                 if (config.debugMode) this.logger.debug(`${req.ip} | ${req.method} ${req.path}: SUCCESS`);
                 // some info we don't want public
@@ -150,7 +156,7 @@ export class ClientAPI {
         });
         this.app.get('/api/self/teamData', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not on a team', this.logger, username, 'Get team');
                 return;
@@ -166,7 +172,7 @@ export class ClientAPI {
             bio: 'string|length:1024'
         }, this.logger), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, 'Not on a team', this.logger, username, 'Get team');
                 return;
@@ -181,7 +187,7 @@ export class ClientAPI {
             name: `required|string|length:32,1`
         }), getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             // create & join new team
             if (team !== null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot create team while on a team', this.logger, username, 'Check team');
@@ -199,14 +205,19 @@ export class ClientAPI {
             code: `required|alphaDash|length:${Database.teamJoinKeyLength + 6},${Database.teamJoinKeyLength + 1}`
         }), async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             const joinCode = req.body.code as string;
             // join existing team
             if (team !== null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 return;
             }
-            const teamId = joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength);
+            const teamId = parseInt(joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength), 36);
+            if (isNaN(teamId)) {
+                if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid team ID (${req.ip})`);
+                res.status(400).send('Invalid team ID');
+                return;
+            }
             const joinKey = joinCode.substring(joinCode.length - Database.teamJoinKeyLength);
             const teamData = await this.db.getTeamData(teamId);
             if (typeof teamData != 'object') {
@@ -235,7 +246,7 @@ export class ClientAPI {
         });
         this.app.delete('/api/self/team', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             // leave current team
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot leave team without a team', this.logger, username, 'Check team');
@@ -257,7 +268,7 @@ export class ClientAPI {
         });
         this.app.delete('/api/self/team/:member', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             const member = req.params.member;
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot kick member while not on a team', this.logger, username, 'Get team');
@@ -281,7 +292,7 @@ export class ClientAPI {
         });
         this.app.post('/api/self/registrations/:contest', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot register without a team', this.logger, username, 'Get team');
                 return;
@@ -319,7 +330,7 @@ export class ClientAPI {
         });
         this.app.delete('/api/self/registrations/:contest', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const team = req.cookies[sessionTeam] as string | null;
+            const team = req.cookies[sessionTeam] as number | null;
             if (team === null) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot unregister without a team', this.logger, username, 'Get team');
                 return;
@@ -404,7 +415,7 @@ export type ClientSubmission = {
 export type ClientSubmissionFull = ClientSubmission & {
     id: string
     username: string
-    team: string | null
+    team: number | null
     problemId: UUID
     file: string
 }

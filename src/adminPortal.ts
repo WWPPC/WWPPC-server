@@ -193,22 +193,22 @@ export class AdminAPI {
             sendDatabaseResponse(req, res, data, {}, this.logger);
             this.logger.info(`Account "${req.params.username}" deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
         });
-        this.app.get('/admin/api/team/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
-            const data = await this.db.getTeamData(req.params.username);
+        this.app.get('/admin/api/team/:id', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
+            const data = await this.db.getTeamData(parseInt(req.params.id, 36));
             if (typeof data == 'object') {
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        this.app.post('/admin/api/team/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
+        this.app.post('/admin/api/team/:id', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), validateRequestBody({
             teamName: 'required|string|length:32,1',
             teamBio: 'required|string|length:1024'
         }, this.logger), async (req, res) => {
-            const check = await this.db.updateTeamData(req.params.username, {
+            const check = await this.db.updateTeamData(parseInt(req.params.id, 36), {
                 name: req.body.teamName,
                 bio: req.body.teamBio
             });
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Team "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Team "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
         });
         // admins (bespoke!!)
         this.app.get('/admin/api/admins', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
