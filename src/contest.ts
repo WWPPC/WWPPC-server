@@ -26,7 +26,7 @@ export class ContestManager {
     }>;
     private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: ({ team: number } & TeamScore)[]
+        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean}
         contestNotifications: never
         submissionData: ClientSubmission[]
     }>;
@@ -94,8 +94,11 @@ export class ContestManager {
                 host.on('data', (data) => {
                     this.longPollingUsers.emit(host.id, 'contestData', data);
                 });
-                host.on('scoreboards', (scores) => {
-                    this.longPollingUsers.emit(host.id, 'contestScoreboards', Array.from(scores, ([team, score]) => ({ team: team, ...score })));
+                host.on('scoreboards', (scores, frozen) => {
+                    this.longPollingUsers.emit(host.id, 'contestScoreboards', {
+                        scores: Array.from(scores, ([team, score]) => ({ team: team, ...score })),
+                        frozen: frozen
+                    });
                 });
                 host.on('submissionUpdate', async (team, problemId) => {
                     // could run into issues with excessive amounts of this event
@@ -472,8 +475,8 @@ export class ContestHost {
     private readonly eventEmitter: TypedEventEmitter<{
         // [Contest data]
         data: [ClientContest]
-        // [Current client scoreboards]
-        scoreboards: [Map<number, TeamScore>]
+        // [Current client scoreboards, frozen]
+        scoreboards: [Map<number, TeamScore>, boolean]
         // [team ID, problem UUID]
         submissionUpdate: [number, UUID]
         // []
@@ -645,10 +648,10 @@ export class ContestHost {
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             updateIndex++;
-            if (updateIndex % 6000 == 0) {
+            if (updateIndex % 30 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
-                this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()));
+                this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
             }
         }, 50);
     }
