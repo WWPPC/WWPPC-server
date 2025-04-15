@@ -2,7 +2,7 @@ import { json as parseBodyJson } from 'body-parser';
 import { Express, NextFunction, Request, Response } from 'express';
 import { v4 as uuidV4 } from 'uuid';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ClientSubmissionFull } from './api';
 import ClientAuth from './auth';
 import config, { ContestConfiguration } from './config';
 import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
@@ -405,7 +405,7 @@ export class ContestManager {
             res.json({
                 ...submission,
                 status: contestHost.calculateCompletionState(submission)
-            });
+            } satisfies ClientSubmissionFull);
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
@@ -637,14 +637,10 @@ export class ContestHost {
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             updateIndex++;
-            if (updateIndex % 200 == 0) {
+            if (updateIndex % 6000 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
                 this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()));
-            }
-            //don't spam contest data to the client
-            if (updateIndex % 50 == 0) {
-                this.eventEmitter.emit('data', this.contestData);
             }
         }, 50);
     }

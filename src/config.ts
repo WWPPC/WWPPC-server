@@ -91,7 +91,7 @@ export interface ContestConfiguration {
     readonly directSubmissionDelay: number
     /**Programming languages accepted for submissions (case sensitive, only if "submitSolver" is "true") (default: Java8, Java11, Java17, Java21, C11, C++11, C++17, C++20, Python3.12.3) */
     readonly acceptedSolverLanguages: string[]
-    /**Maximum character length of uploaded submissions (default: 65536) */
+    /**Maximum character length of uploaded submissions (default: 10240) */
     readonly maxSubmissionSize: number
 };
 /**
@@ -133,7 +133,7 @@ const config: GlobalConfiguration = {
                 'C++20',
                 'Python3.12.3'
             ],
-            maxSubmissionSize: cVal.maxSubmissionSize ?? 65536
+            maxSubmissionSize: cVal.maxSubmissionSize ?? 10240
         };
         return p;
     }, {}) : {},

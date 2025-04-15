@@ -389,13 +389,21 @@ export type ClientProblem = {
         memory: number
     }
 }
-/**Descriptor for a single submission as represented by the client */
+/**Descriptor for a single submission in abridged submission list as represented by the client */
 export type ClientSubmission = {
     time: number
     language: string
     scores: Score[]
     status: ClientProblemCompletionState
     analysis: boolean
+}
+/**Descriptor for a single submission with all fields as represented by the client */
+export type ClientSubmissionFull = ClientSubmission & {
+    id: string
+    username: string
+    team: string | null
+    problemId: UUID
+    file: string
 }
 /**Client enum for completion state of problems */
 export enum ClientProblemCompletionState {
