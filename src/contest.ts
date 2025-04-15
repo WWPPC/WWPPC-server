@@ -648,7 +648,7 @@ export class ContestHost {
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             updateIndex++;
-            if (updateIndex % 30 == 0) {
+            if (updateIndex % 1200 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
                 this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
