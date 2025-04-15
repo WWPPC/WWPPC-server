@@ -41,8 +41,8 @@ export class ContestManager {
         this.app = app;
         this.grader = grader;
         this.logger = new NamedLogger(defaultLogger, 'ContestManager');
-        this.longPollingGlobal = new LongPollEventEmitter();
-        this.longPollingUsers = new NamespacedLongPollEventEmitter
+        this.longPollingGlobal = new LongPollEventEmitter(this.logger);
+        this.longPollingUsers = new NamespacedLongPollEventEmitter(this.logger)
         this.createEndpoints();
         // auto-start contests
         this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
@@ -80,6 +80,7 @@ export class ContestManager {
             this.logger.error('Could not read contest list!');
             return;
         }
+        let hasNew = false;
         for (const contest of contests) {
             if (!this.contests.has(contest.id)) {
                 // check here so no crash
@@ -87,9 +88,9 @@ export class ContestManager {
                     this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
                     continue;
                 }
+                hasNew = true;
                 const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
                 this.contests.set(contest.id, host);
-                this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
                 host.on('data', (data) => {
                     this.longPollingUsers.emit(host.id, 'contestData', data);
                 });
@@ -122,6 +123,7 @@ export class ContestManager {
                 });
             }
         }
+        if (hasNew) this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
     }
 
     private createEndpoints() {
@@ -509,7 +511,7 @@ export class ContestHost {
             endTime: Infinity
         };
         this.logger.info('Starting contest');
-        this.reload();
+        setTimeout(() => this.reload());
     }
 
     /**
@@ -569,6 +571,7 @@ export class ContestHost {
         this.contest.startTime = contest[0].startTime;
         this.contest.endTime = contest[0].endTime;
         this.eventEmitter.emit('data', this.contestData);
+
         // reload the scoreboard too
         const teams = await this.db.getAllRegisteredTeams(this.id);
         if (teams == DatabaseOpCode.ERROR) {

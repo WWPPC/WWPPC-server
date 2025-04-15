@@ -30,7 +30,7 @@ export class UpsolveManager {
         this.app = app;
         this.grader = grader;
         this.logger = new NamedLogger(defaultLogger, 'UpsolveManager');
-        this.eventEmitter = new LongPollEventEmitter();
+        this.eventEmitter = new LongPollEventEmitter(this.logger);
         // attach api
         this.app.get(`/api/upsolveList/:ctype`, async (req, res) => {
             if (config.contests[req.params.ctype] === undefined) {
