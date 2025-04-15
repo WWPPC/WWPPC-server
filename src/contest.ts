@@ -213,7 +213,7 @@ export class ContestManager {
                 // save username so don't have to check if token disappeared between this and later handlers
                 req.cookies[sessionUsername] = username;
                 req.cookies[sessionTeam] = team;
-                // chekc is registered for contest
+                // check is registered for contest
                 if (!this.contests.has(req.params.contest)) {
                     // this check is repeated later because of edge case where contest ends between this and the handler
                     sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check contest');
