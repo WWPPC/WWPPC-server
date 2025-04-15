@@ -289,7 +289,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: data.rows[0].team
+                team: Number(data.rows[0].team)
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -533,7 +533,7 @@ export class Database {
                 [], name ?? 'Team', '', joinKey
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.ERROR;
-            const teamId = res.rows[0].id;
+            const teamId = Number(res.rows[0].id);
             this.teamCache.set(teamId, {
                 data: {
                     id: teamId,
@@ -639,7 +639,7 @@ export class Database {
             ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const teamData: TeamData = {
-                id: data.rows[0].id,
+                id: Number(data.rows[0].id),
                 name: data.rows[0].name,
                 bio: data.rows[0].biography,
                 members: memberData.rows.map(row => row.username),
@@ -856,7 +856,7 @@ export class Database {
             const data = await this.db.query('SELECT id FROM teams WHERE $1=ANY(registrations) ORDER BY id ASC', [
                 contest
             ]);
-            return data.rows.map((row) => row.id);
+            return data.rows.map((row) => Number(row.id));
         } catch (err) {
             this.logger.handleError('Database error (getAllRegisteredTeams):', err);
             return DatabaseOpCode.ERROR;
@@ -1281,7 +1281,7 @@ export class Database {
                         expiration: performance.now() + config.dbProblemCacheTime
                     });
                     // band-aid fix for filters borked by "contest"
-                    if (c.id === undefined || filterCompare<UUID>(problem.id, c.id)) problems.push(p);
+                    if (c.id === undefined || filterCompare<UUID>(p.id, c.id)) problems.push(p);
                 }
             }
             return problems;
@@ -1425,7 +1425,7 @@ export class Database {
                     const s: Submission = {
                         id: submission.id,
                         username: submission.username,
-                        team: submission.team,
+                        team: Number(submission.team),
                         problemId: submission.problem,
                         time: Number(submission.time),
                         file: submission.file,
@@ -1438,7 +1438,7 @@ export class Database {
                         expiration: performance.now() + config.dbCacheTime
                     });
                     // band-aid fix for filters borked by "contest"
-                    if (c.problemId === undefined || filterCompare<UUID>(submission.problemId, c.problemId)) submissions.push(s);
+                    if (c.problemId === undefined || filterCompare<UUID>(s.problemId, c.problemId)) submissions.push(s);
                 }
             }
             return submissions;

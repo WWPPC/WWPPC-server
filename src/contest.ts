@@ -109,6 +109,7 @@ export class ContestManager {
                     if (Array.isArray(submissions)) {
                         if (config.debugMode) this.logger.debug(`Updating submissions for ${team}, ${problemId}`);
                         this.longPollingUsers.emit(`${host.id}:${team}:${problemId}`, 'submissionData', submissions.map<ClientSubmission>((sub) => ({
+                            id: sub.id,
                             time: sub.time,
                             language: sub.language,
                             scores: sub.scores,
@@ -169,7 +170,7 @@ export class ContestManager {
                 // have to be on a team, or not authorized
                 const username = auth.getTokenUsername(req.cookies.sessionToken)!;
                 const team = await this.db.getAccountTeam(username);
-                if (team !== null && typeof team != 'string') {
+                if (team !== null && typeof team != 'number') {
                     sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Auth team');
                     return;
                 }
@@ -204,7 +205,7 @@ export class ContestManager {
                 // have to be on a team, or not authorized
                 const username = auth.getTokenUsername(req.cookies.sessionToken)!;
                 const team = await this.db.getAccountTeam(username);
-                if (team !== null && typeof team != 'string') {
+                if (team !== null && typeof team != 'number') {
                     sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Auth team');
                     return;
                 }
@@ -375,10 +376,10 @@ export class ContestManager {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check problem');
                 return;
             }
-            if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+            if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}:${req.params.pId}`, 'submissionData', res);
             else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
         });
-        this.app.get('/api/contest/:contest/submissionData/:sId', async (req, res) => {
+        this.app.get('/api/contest/:contest/submission/:sId', async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as number;
             const contestHost = this.contests.get(req.params.contest)!;
@@ -582,6 +583,7 @@ export class ContestHost {
         const submissions = await this.db.readSubmissions({
             contest: { contest: this.id },
             team: teams,
+            time: this.getTimeRange(),
             analysis: false
         });
         if (submissions == DatabaseOpCode.ERROR) {

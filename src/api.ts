@@ -96,7 +96,7 @@ export class ClientAPI {
         const getTeam = async (req: Request, res: Response, next: NextFunction) => {
             const username = req.cookies[sessionUsername as any] as string;
             const team = await this.db.getAccountTeam(username);
-            if (team !== null && typeof team != 'string') {
+            if (team !== null && typeof team != 'number') {
                 sendDatabaseResponse(req, res, team, {}, this.logger, username, 'Get team');
                 return;
             }
@@ -194,7 +194,7 @@ export class ClientAPI {
                 return;
             }
             const teamId = await this.db.createTeam(req.body.name);
-            if (typeof teamId != 'string') {
+            if (typeof teamId != 'number') {
                 sendDatabaseResponse(req, res, teamId, {}, this.logger, username, 'Create team');
                 return;
             }
@@ -279,7 +279,7 @@ export class ClientAPI {
                 return;
             }
             const memberTeam = await this.db.getAccountTeam(member);
-            if (typeof memberTeam != 'string' && memberTeam !== null) {
+            if (typeof memberTeam != 'number' && memberTeam !== null) {
                 sendDatabaseResponse(req, res, memberTeam, {}, this.logger, username, 'Check team');
                 return;
             }
@@ -405,6 +405,7 @@ export type ClientProblem = {
 }
 /**Descriptor for a single submission in abridged submission list as represented by the client */
 export type ClientSubmission = {
+    id: string
     time: number
     language: string
     scores: Score[]
@@ -413,7 +414,6 @@ export type ClientSubmission = {
 }
 /**Descriptor for a single submission with all fields as represented by the client */
 export type ClientSubmissionFull = ClientSubmission & {
-    id: string
     username: string
     team: number | null
     problemId: UUID
