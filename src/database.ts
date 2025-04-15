@@ -1351,14 +1351,14 @@ export class Database {
 
     private readonly submissionCache: Map<string, { submission: Submission, expiration: number }> = new Map();
     /**
-     * Read a list of all submission ID strings, created from problem ID, username, and analysis mode, like `problemId:username:analysis` that exist. Bypasses cache.
-     * @returns List of submission ID strings, or an error code
+     * Read a list of all submission UUIDs. Bypasses cache.
+     * @returns List of submission UUIDs, or an error code
      */
-    async getSubmissionList(): Promise<string[] | DatabaseOpCode.ERROR> {
+    async getSubmissionList(): Promise<UUID[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = await this.db.query('SELECT id, username, analysis FROM submissions ORDER BY username ASC, id ASC, analysis ASC');
-            return data.rows.map((r) => `${r.id}:${r.username}:${r.analysis}`);
+            const data = await this.db.query('SELECT id FROM submissions ORDER BY id ASC');
+            return data.rows.map((r) => r.id);
         } catch (err) {
             this.logger.handleError('Database error (getSubmissionList):', err);
             return DatabaseOpCode.ERROR;

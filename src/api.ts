@@ -34,6 +34,9 @@ export class ClientAPI {
             if (cConfig === undefined) return p;
             p[cId] = {
                 rounds: cConfig.rounds,
+                restrictiveRounds: cConfig.restrictiveRounds,
+                scoreFreezeTime: cConfig.scoreFreezeTime,
+                withholdResults: cConfig.withholdResults,
                 submitSolver: cConfig.submitSolver,
                 acceptedSolverLanguages: cConfig.acceptedSolverLanguages,
                 maxSubmissionSize: cConfig.maxSubmissionSize
