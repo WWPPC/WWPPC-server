@@ -19,7 +19,7 @@
             "C++23",
             "Python3.12.3"
         ],
-        "maxSubmissionSize": "10240"
+        "maxSubmissionSize": 10240
     },
     "WWPHACKS": {
         "graders": false,
@@ -30,7 +30,7 @@
         "submitSolver": true,
         "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [],
-        "maxSubmissionSize": "10240"
+        "maxSubmissionSize": 10240
     },
     "WWPMI": {
         "graders": true,
@@ -41,7 +41,7 @@
         "submitSolver": false,
         "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [],
-        "maxSubmissionSize": "128"
+        "maxSubmissionSize": 128
     },
     "WWPMT": {
         "graders": true,
@@ -52,6 +52,6 @@
         "submitSolver": false,
         "directSubmissionDelay": 10,
         "acceptedSolverLanguages": [],
-        "maxSubmissionSize": "10240"
+        "maxSubmissionSize": 10240
     }
 }

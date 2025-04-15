@@ -1,18 +1,25 @@
 import { Response } from 'express';
+import config from './config';
+import Logger, { NamedLogger } from './log';
 
 /**
  * Simple HTTP long-polling event-based emitter for Express applications.
  */
 export class LongPollEventEmitter<TEvents extends Record<string, any>> {
+    private static idCounter = 0;
+
+    readonly logger: NamedLogger;
     private readonly waiters: Map<keyof TEvents, Set<Response>> = new Map();
     private readonly initData: Map<keyof TEvents, TEvents[keyof TEvents]> = new Map();
     readonly timeoutMs: number;
     private open: boolean = true;
 
     /**
+     * @param logger Logging instance
      * @param timeoutMs Time in milliseconds before a request will resolve with status code 204
      */
-    constructor(timeoutMs?: number) {
+    constructor(logger: Logger, timeoutMs?: number) {
+        this.logger = new NamedLogger(logger, 'LP-EV-' + (LongPollEventEmitter.idCounter++).toString());
         this.timeoutMs = timeoutMs ?? 10000;
     }
 
@@ -23,6 +30,7 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
      */
     addWaiter(ev: keyof TEvents & string, res: Response): void {
         if (!this.open) return;
+        if (config.debugMode) this.logger.debug(`WAITER "${ev}"`);
         if (!this.waiters.has(ev)) this.waiters.set(ev, new Set());
         const w = this.waiters.get(ev)!;
         w.add(res);
@@ -40,6 +48,7 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
      */
     addImmediate(ev: keyof TEvents & string, res: Response): void {
         if (!this.open) return;
+        if (config.debugMode) this.logger.debug(`IMMEDIATE "${ev}" success=${this.initData.has(ev)}`);
         if (!this.initData.has(ev)) this.addWaiter(ev, res);
         else res.json(this.initData.get(ev));
     }
@@ -51,6 +60,7 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
      */
     emit<TEvent extends keyof TEvents & string>(ev: TEvent, data: TEvents[TEvent]): void {
         if (!this.open) return;
+        if (config.debugMode) this.logger.debug(`EMIT "${ev}"`);
         this.initData.set(ev, data);
         const w = this.waiters.get(ev);
         if (w === undefined) return;
@@ -76,20 +86,24 @@ export class LongPollEventEmitter<TEvents extends Record<string, any>> {
  * Namespace-separated HTTP long-polling event-based emitter for Express applications.
  */
 export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>> {
+    private static idCounter = 0;
+
+    readonly logger: NamedLogger;
     readonly timeoutMs: number;
     private readonly emitters: Map<string, LongPollEventEmitter<TEvents>> = new Map();
     private open: boolean = true;
-    private readonly maintenanceLoop: NodeJS.Timeout;
 
     /**
+     * @param logger Logging instance
      * @param timeoutMs Time in milliseconds before a request will resolve with status code 204
      */
-    constructor(timeoutMs?: number) {
+    constructor(logger: Logger, timeoutMs?: number) {
+        this.logger = new NamedLogger(logger, 'NLP-EV-' + (NamespacedLongPollEventEmitter.idCounter++).toString());
         this.timeoutMs = timeoutMs ?? 10000;
-        // periodically clean out empty emitters to avoid resource leaks
-        this.maintenanceLoop = setInterval(() => this.emitters.forEach((emitter, nsp) => {
-            if (emitter.currentWaiterCount == 0) this.emitters.delete(nsp);
-        }), 60000);
+    }
+
+    private ensureEmitter(nsp: string) {
+        if (!this.emitters.has(nsp)) this.emitters.set(nsp, new LongPollEventEmitter(new NamedLogger(this.logger.logger, `${this.logger.name}/"${nsp}"`), this.timeoutMs));
     }
 
     /**
@@ -100,7 +114,7 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
      */
     addWaiter(nsp: string, ev: keyof TEvents & string, res: Response): void {
         if (!this.open) return;
-        if (!this.emitters.has(nsp)) this.emitters.set(nsp, new LongPollEventEmitter(this.timeoutMs));
+        this.ensureEmitter(nsp);
         this.emitters.get(nsp)!.addWaiter(ev, res);
     }
 
@@ -113,7 +127,7 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
      */
     addImmediate(nsp: string, ev: keyof TEvents & string, res: Response): void {
         if (!this.open) return;
-        if (!this.emitters.has(nsp)) this.emitters.set(nsp, new LongPollEventEmitter(this.timeoutMs));
+        this.ensureEmitter(nsp);
         this.emitters.get(nsp)!.addImmediate(ev, res);
     }
 
@@ -125,10 +139,10 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
      */
     emit<TEvent extends keyof TEvents & string>(nsp: string, ev: TEvent, data: TEvents[TEvent]): void {
         if (!this.open) return;
-        if (!this.emitters.has(nsp)) return;
+        this.ensureEmitter(nsp);
         this.emitters.get(nsp)!.emit(ev, data);
     }
-    
+
     /**
      * Timeout all waiters and stop accepting new ones.
      */
@@ -136,6 +150,5 @@ export class NamespacedLongPollEventEmitter<TEvents extends Record<string, any>>
         if (!this.open) return;
         this.open = false;
         this.emitters.forEach((emitter) => emitter.close());
-        clearInterval(this.maintenanceLoop);
     }
 }

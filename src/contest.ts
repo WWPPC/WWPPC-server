@@ -2,7 +2,7 @@ import { json as parseBodyJson } from 'body-parser';
 import { Express, NextFunction, Request, Response } from 'express';
 import { v4 as uuidV4 } from 'uuid';
 
-import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission } from './api';
+import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ClientSubmissionFull } from './api';
 import ClientAuth from './auth';
 import config, { ContestConfiguration } from './config';
 import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
@@ -41,8 +41,8 @@ export class ContestManager {
         this.app = app;
         this.grader = grader;
         this.logger = new NamedLogger(defaultLogger, 'ContestManager');
-        this.longPollingGlobal = new LongPollEventEmitter();
-        this.longPollingUsers = new NamespacedLongPollEventEmitter
+        this.longPollingGlobal = new LongPollEventEmitter(this.logger);
+        this.longPollingUsers = new NamespacedLongPollEventEmitter(this.logger)
         this.createEndpoints();
         // auto-start contests
         this.updateLoop = setInterval(() => this.checkNewContests(), 60000);
@@ -80,6 +80,7 @@ export class ContestManager {
             this.logger.error('Could not read contest list!');
             return;
         }
+        let hasNew = false;
         for (const contest of contests) {
             if (!this.contests.has(contest.id)) {
                 // check here so no crash
@@ -87,9 +88,9 @@ export class ContestManager {
                     this.logger.error(`Could not load contest "${contest.id}", unconfigured contest type "${contest.type}"!`);
                     continue;
                 }
+                hasNew = true;
                 const host = new ContestHost(contest.type, contest.id, this.db, this.grader, this.logger.logger);
                 this.contests.set(contest.id, host);
-                this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
                 host.on('data', (data) => {
                     this.longPollingUsers.emit(host.id, 'contestData', data);
                 });
@@ -122,6 +123,7 @@ export class ContestManager {
                 });
             }
         }
+        if (hasNew) this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
     }
 
     private createEndpoints() {
@@ -405,7 +407,7 @@ export class ContestManager {
             res.json({
                 ...submission,
                 status: contestHost.calculateCompletionState(submission)
-            });
+            } satisfies ClientSubmissionFull);
         });
         this.app.get('/api/contest/:contest/scoreboards', (req, res) => {
             const username = req.cookies[sessionUsername] as string;
@@ -509,7 +511,7 @@ export class ContestHost {
             endTime: Infinity
         };
         this.logger.info('Starting contest');
-        this.reload();
+        setTimeout(() => this.reload());
     }
 
     /**
@@ -569,6 +571,7 @@ export class ContestHost {
         this.contest.startTime = contest[0].startTime;
         this.contest.endTime = contest[0].endTime;
         this.eventEmitter.emit('data', this.contestData);
+
         // reload the scoreboard too
         const teams = await this.db.getAllRegisteredTeams(this.id);
         if (teams == DatabaseOpCode.ERROR) {
@@ -640,14 +643,10 @@ export class ContestHost {
             if (this.contest.endTime <= Date.now()) this.end(true);
             // also updating the scorer occasionally
             updateIndex++;
-            if (updateIndex % 200 == 0) {
+            if (updateIndex % 6000 == 0) {
                 if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
                 this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()));
-            }
-            //don't spam contest data to the client
-            if (updateIndex % 50 == 0) {
-                this.eventEmitter.emit('data', this.contestData);
             }
         }, 50);
     }
