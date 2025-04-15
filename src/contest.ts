@@ -9,7 +9,7 @@ import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
-import Scorer, { UserScore } from './scorer';
+import Scorer, { TeamScore } from './scorer';
 import { FilterComparison, isUUID, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
 
 /**
@@ -26,7 +26,7 @@ export class ContestManager {
     }>;
     private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: ({ team: string } & UserScore)[]
+        contestScoreboards: ({ team: string } & TeamScore)[]
         contestNotifications: never
         submissionData: ClientSubmission[]
     }>;
@@ -470,15 +470,15 @@ export class ContestHost {
         // [Contest data]
         data: [ClientContest]
         // [Current client scoreboards]
-        scoreboards: [Map<string, UserScore>]
+        scoreboards: [Map<string, TeamScore>]
         // [team ID, problem UUID]
         submissionUpdate: [string, UUID]
         // []
         end: []
     }> = new TypedEventEmitter();
 
-    private scoreboard: Map<string, UserScore> = new Map();
-    private clientScoreboard: Map<string, UserScore> = new Map();
+    private scoreboard: Map<string, TeamScore> = new Map();
+    private clientScoreboard: Map<string, TeamScore> = new Map();
 
     /**
      * @param type Contest type ID
@@ -586,18 +586,21 @@ export class ContestHost {
             this.end();
             return;
         }
+        for (const sub of submissions) {
+            this.eventEmitter.emit('submissionUpdate', sub.team!, sub.problemId);
+        }
         // maintain consistency with score freeze time
         const scoreFreezeCutoffTime = this.contest.rounds[this.contest.rounds.length - 1].endTime - (this.contestConfig.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
             if (sub.time < scoreFreezeCutoffTime) {
-                this.scorer.updateUser(sub);
+                this.scorer.addSubmission(sub);
             }
             else frozenSubmissions.push(sub);
         }
         this.scoreboard = this.scorer.getScores();
         for (const sub of frozenSubmissions) {
-            this.scorer.updateUser(sub);
+            this.scorer.addSubmission(sub);
         }
         this.clientScoreboard = this.scorer.getScores();
 
@@ -652,13 +655,13 @@ export class ContestHost {
     /**
      * Get current scoreboard
      */
-    get scoreboards(): Map<string, UserScore> {
+    get scoreboards(): Map<string, TeamScore> {
         return new Map(this.scoreboard);
     }
     /**
      * Get current scoreboard for clients, which could be "frozen"
      */
-    get clientScoreboards(): Map<string, UserScore> {
+    get clientScoreboards(): Map<string, TeamScore> {
         return new Map(this.clientScoreboard);
     }
     /**
@@ -763,7 +766,7 @@ export class ContestHost {
                 if (res != DatabaseOpCode.SUCCESS) this.logger.error(`Failed to write submission ${graded.username}-${graded.problemId}`);
                 // submission must have team in contest (verified when passed in as parameter)
                 this.eventEmitter.emit('submissionUpdate', graded.team!, graded.problemId);
-                this.scorer.updateUser(graded);
+                this.scorer.addSubmission(graded);
             };
             if (this.contestConfig.submitSolver) {
                 // submit solution code

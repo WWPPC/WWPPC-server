@@ -176,6 +176,7 @@ export class Grader {
             this.nodes.forEach(async (node, username) => {
                 //check if a submission has passed the deadline and return to queue
                 if (node.grading !== undefined && node.deadline < Date.now()) {
+                    this.nodes.delete(username);
                     this.ungradedSubmissions.unshift(node.grading);
                     node.grading = undefined;
                     this.logger.info('Grader timed out (returning submission to queue): ' + node.username);

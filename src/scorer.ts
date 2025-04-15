@@ -12,8 +12,8 @@ type Subtask = {
     number: number
 }
 
-/**User score */
-export type UserScore = {
+/**Team score */
+export type TeamScore = {
     /**Score */
     score: number
     /**Penalty (useful if a certain score appears many times) */
@@ -23,14 +23,14 @@ export type UserScore = {
 /**
  * Function used by `Scorer` to assign point values to submissions.
  */
-export type ScoringFunction = (submission: { time: number }, problem: { numSubtasks: number }, round: { startTime: number, endTime: number }) => UserScore;
+export type ScoringFunction = (submission: { time: number }, problem: { numSubtasks: number }, round: { startTime: number, endTime: number }) => TeamScore;
 
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
  */
 export class Scorer {
     private rounds: Round[];
-    private readonly userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    private readonly teamSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
     private readonly subtasks: Set<Subtask> = new Set();
     readonly scoringFunction: ScoringFunction;
     readonly logger: NamedLogger;
@@ -56,8 +56,9 @@ export class Scorer {
      * @param submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
      * @returns  whether it was successful
      */
-    updateUser(submission: Submission, submissionRound?: UUID): Boolean {
-        const userScores = this.userSolvedStatus.get(submission.username) ?? new Map<Subtask, number>();
+    addSubmission(submission: Submission, submissionRound?: UUID): Boolean {
+        if (submission.team === null) return false;
+        const teamScores = this.teamSolvedStatus.get(submission.team) ?? new Map<Subtask, number>();
         //add new subtasks
         for (const score of submission.scores) {
             let alreadyExists = false;
@@ -81,31 +82,31 @@ export class Scorer {
         }
         //put in the scores from the submission
         for (const subtask of this.subtasks) {
-            if (subtask.id === submission.problemId && userScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.PASS)) {
-                userScores.set(subtask, submission.time);
+            if (subtask.id === submission.problemId && teamScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.PASS)) {
+                teamScores.set(subtask, submission.time);
             }
         }
-        this.userSolvedStatus.set(submission.username, userScores);
+        this.teamSolvedStatus.set(submission.team, teamScores);
         return true;
     }
 
     /**
      * Get standings for a specified round.
      * @param roundId Round ID
-     * @returns  Mapping of username to score
+     * @returns  Mapping of team to score
      */
-    getRoundScores(roundId: UUID): Map<string, UserScore> {
-        const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
+    getRoundScores(roundId: UUID): Map<string, TeamScore> {
+        const subtaskSolved = new Map<Subtask, number>(); // how many teams solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
-        const userScores = new Map<string, UserScore>(); // final scores of each user
+        const teamScores = new Map<string, TeamScore>(); // final scores of each team
         const round = this.rounds.find(r => r.id == roundId);
         if (round === undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }
 
-        //find how many users solved each subtask
-        this.userSolvedStatus.forEach((scores) => {
+        //find how many teams solved each subtask
+        this.teamSolvedStatus.forEach((scores) => {
             scores.forEach((solveTime, subtask) => {
                 if (subtask.round == roundId) {
                     subtaskSolved.set(subtask, (subtaskSolved.get(subtask) ?? 0) + 1);
@@ -121,8 +122,8 @@ export class Scorer {
         });
 
         //calculate actual scores for each user
-        this.userSolvedStatus.forEach((solved, username) => {
-            let score: UserScore = { score: 0, penalty: 0 };
+        this.teamSolvedStatus.forEach((solved, team) => {
+            let score: TeamScore = { score: 0, penalty: 0 };
             solved.forEach((solveTime, subtask) => {
                 const numSubtasks = problemSubtasks.get(subtask.id)?.length;
                 const numSolved = subtaskSolved.get(subtask);
@@ -134,22 +135,22 @@ export class Scorer {
                     // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
                 }
             });
-            userScores.set(username, score);
+            teamScores.set(team, score);
         });
-        return userScores;
+        return teamScores;
     }
 
     /**
      * Get the current standings, adding scores from all rounds together.
-     * @returns  mapping of username to score
+     * @returns  mapping of team to score
      */
-    getScores(): Map<string, UserScore> {
-        const sums: Map<string, UserScore> = new Map();
+    getScores(): Map<string, TeamScore> {
+        const sums: Map<string, TeamScore> = new Map();
         for (const round of this.rounds) {
-            this.getRoundScores(round.id).forEach((score, username) => {
-                const cur = sums.get(username);
-                if (cur) sums.set(username, { score: cur.score + score.score, penalty: cur.penalty + score.penalty });
-                else sums.set(username, score);
+            this.getRoundScores(round.id).forEach((score, team) => {
+                const cur = sums.get(team);
+                if (cur) sums.set(team, { score: cur.score + score.score, penalty: cur.penalty + score.penalty });
+                else sums.set(team, score);
             });
         }
         return sums;
@@ -159,7 +160,7 @@ export class Scorer {
      * Remove all existing scores.
      */
     clearScores() {
-        this.userSolvedStatus.clear();
+        this.teamSolvedStatus.clear();
     }
 }
 
