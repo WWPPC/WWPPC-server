@@ -606,11 +606,12 @@ export class ContestHost {
             }
             else frozenSubmissions.push(sub);
         }
-        this.scoreboard = this.scorer.getScores();
+        this.clientScoreboard = this.scorer.getScores();
         for (const sub of frozenSubmissions) {
             this.scorer.addSubmission(sub);
         }
-        this.clientScoreboard = this.scorer.getScores();
+        this.scoreboard = this.scorer.getScores();
+        this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
 
         // re-index the contest
         this.index = -1;
