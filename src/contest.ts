@@ -472,15 +472,15 @@ export class ContestHost {
         // [Contest data]
         data: [ClientContest]
         // [Current client scoreboards]
-        scoreboards: [Map<string, TeamScore>]
+        scoreboards: [Map<number, TeamScore>]
         // [team ID, problem UUID]
         submissionUpdate: [number, UUID]
         // []
         end: []
     }> = new TypedEventEmitter();
 
-    private scoreboard: Map<string, TeamScore> = new Map();
-    private clientScoreboard: Map<string, TeamScore> = new Map();
+    private scoreboard: Map<number, TeamScore> = new Map();
+    private clientScoreboard: Map<number, TeamScore> = new Map();
 
     /**
      * @param type Contest type ID
@@ -654,13 +654,13 @@ export class ContestHost {
     /**
      * Get current scoreboard
      */
-    get scoreboards(): Map<string, TeamScore> {
+    get scoreboards(): Map<number, TeamScore> {
         return new Map(this.scoreboard);
     }
     /**
      * Get current scoreboard for clients, which could be "frozen"
      */
-    get clientScoreboards(): Map<string, TeamScore> {
+    get clientScoreboards(): Map<number, TeamScore> {
         return new Map(this.clientScoreboard);
     }
     /**

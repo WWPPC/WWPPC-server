@@ -30,7 +30,7 @@ export type ScoringFunction = (submission: { time: number }, problem: { numSubta
  */
 export class Scorer {
     private rounds: Round[];
-    private readonly userSolvedStatus: Map<number, Map<Subtask, number>> = new Map();
+    private readonly teamSolvedStatus: Map<number, Map<Subtask, number>> = new Map();
     private readonly subtasks: Set<Subtask> = new Set();
     readonly scoringFunction: ScoringFunction;
     readonly logger: NamedLogger;
@@ -95,10 +95,10 @@ export class Scorer {
      * @param roundId Round ID
      * @returns  Mapping of team to score
      */
-    getRoundScores(roundId: UUID): Map<number, UserScore> {
+    getRoundScores(roundId: UUID): Map<number, TeamScore> {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
-        const teamScores = new Map<string, TeamScore>(); // final scores of each team
+        const teamScores = new Map<number, TeamScore>(); // final scores of each team
         const round = this.rounds.find(r => r.id == roundId);
         if (round === undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
@@ -144,8 +144,8 @@ export class Scorer {
      * Get the current standings, adding scores from all rounds together.
      * @returns  mapping of team to score
      */
-    getScores(): Map<number, UserScore> {
-        const sums: Map<string, UserScore> = new Map();
+    getScores(): Map<number, TeamScore> {
+        const sums: Map<number, TeamScore> = new Map();
         for (const round of this.rounds) {
             this.getRoundScores(round.id).forEach((score, team) => {
                 const cur = sums.get(team);
