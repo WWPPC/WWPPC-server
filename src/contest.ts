@@ -142,7 +142,7 @@ export class ContestManager {
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/contest/open', async (req, res) => {
-            const data = await this.db.readContests({ endTime: { op: '>', v: Date.now() } });
+            const data = await this.db.readContests({ endTime: { op: '>', v: Date.now() }, public: true });
             if (Array.isArray(data)) {
                 if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data.map((item) => item.id));
