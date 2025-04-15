@@ -218,7 +218,7 @@ export class Grader {
      * @param username Username of submitter
      * @param problemId ID or problem
      */
-    cancelUngraded(username: string, problemId: string): boolean {
+    cancelUngraded(team: number, problemId: string): boolean {
         let canceled = 0;
         this.nodes.forEach((node) => {
             if (node.grading !== undefined && node.grading.submission.username == username && node.grading.submission.problemId == problemId) {

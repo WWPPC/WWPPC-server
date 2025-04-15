@@ -54,9 +54,9 @@ export class Database {
         this.cacheGarbageCollector = setInterval(() => {
             let emptied = 0;
             [this.userCache, this.teamCache, this.adminCache, this.contestCache, this.roundCache, this.problemCache, this.submissionCache].forEach((cache) => {
-                cache.forEach((item: { expiration: number }, key: string) => {
+                cache.forEach((item, key: any) => {
                     if (item.expiration <= performance.now()) {
-                        cache.delete(key);
+                        cache.delete(key as never);
                         emptied++;
                     }
                 });
@@ -222,7 +222,7 @@ export class Database {
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
-            this.logger.info(`Created account "${username}"`, true);
+            this.logger.info(`Created account "${username}"`);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (createAccount):', err);
@@ -289,7 +289,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: data.rows[0].team === null ? null : Number(data.rows[0].team).toString(36)
+                team: data.rows[0].team
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -351,7 +351,7 @@ export class Database {
             await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [
                 username, encryptedPassword
             ]);
-            this.logger.info(`Reset password via password for "${username}"`, true);
+            this.logger.info(`Reset password via password for "${username}"`);
             // recovery password already rotated in checkAccount
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -382,7 +382,7 @@ export class Database {
                 await this.db.query('UPDATE users SET password=$2 WHERE username=$1', [
                     username, encryptedPassword
                 ]);
-                this.logger.info(`Reset password via token for "${username}"`, true);
+                this.logger.info(`Reset password via token for "${username}"`);
                 return DatabaseOpCode.SUCCESS;
             } else return DatabaseOpCode.UNAUTHORIZED;
         } catch (err) {
@@ -416,7 +416,7 @@ export class Database {
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             this.rotateRecoveryPassword(username);
-            this.logger.info(`Reset password via administrator for "${username}"`, true);
+            this.logger.info(`Reset password via administrator for "${username}"`);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
             this.logger.handleError('Database error (changeAccountPasswordAdmin):', err);
@@ -437,7 +437,7 @@ export class Database {
                 username
             ]);
             if (data.rows.length > 0) {
-                this.logger.info(`Fetched recovery password for ${username}`, true);
+                this.logger.info(`Fetched recovery password for ${username}`);
                 return this.dbEncryptor.decrypt(data.rows[0].recoverypass);
             }
             return DatabaseOpCode.NOT_FOUND;
@@ -496,9 +496,9 @@ export class Database {
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (adminUsername !== undefined) {
-                this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`, true);
+                this.logger.info(`Deleted account "${username}" (by "${adminUsername}")`);
             } else {
-                this.logger.info(`Deleted account "${username}"`, true);
+                this.logger.info(`Deleted account "${username}"`);
             }
             this.userCache.delete(username);
             // also have to check if team is empty, and delete it if it is
@@ -514,13 +514,13 @@ export class Database {
         }
     }
 
-    private readonly teamCache: Map<string, { data: TeamData, expiration: number }> = new Map();
+    private readonly teamCache: Map<number, { data: TeamData, expiration: number }> = new Map();
     /**
      * Create a team.
      * @param name Name of team (optional, default 'Team')
      * @returns Newly created team's ID, or an error code
      */
-    async createTeam(name?: string): Promise<string | DatabaseOpCode.ERROR> {
+    async createTeam(name?: string): Promise<number | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             // actual team ID is sequentially generated, handled by the postgres db
@@ -533,7 +533,7 @@ export class Database {
                 [], name ?? 'Team', '', joinKey
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.ERROR;
-            const teamId = Number(res.rows[0].id).toString(36);
+            const teamId = res.rows[0].id;
             this.teamCache.set(teamId, {
                 data: {
                     id: teamId,
@@ -545,7 +545,7 @@ export class Database {
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
-            this.logger.info(`Created team "${teamId}"`, true);
+            this.logger.info(`Created team "${teamId.toString(36)}"`);
             return teamId;
         } catch (err) {
             this.logger.handleError('Database error (createTeam):', err);
@@ -559,7 +559,7 @@ export class Database {
      * @param username Valid username
      * @returns Team ID, null if not on a team, or an error code
      */
-    async getAccountTeam(username: string): Promise<string | null | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async getAccountTeam(username: string): Promise<number | null | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.getAccountData(username);
@@ -579,23 +579,21 @@ export class Database {
      * @param team Team ID, or null to remove the user from all teams
      * @returns Update status
      */
-    async setAccountTeam(username: string, team: string | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async setAccountTeam(username: string, team: number | null): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const existingUserData = await this.getAccountData(username);
             if (typeof existingUserData != 'object') return existingUserData;
             const oldTeam = existingUserData.team;
             // database teams are numbers
-            const teamNumId = team !== null ? parseInt(team, 36) : null;
-            if (teamNumId !== null && isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
-            const res = await (teamNumId === null ?
+            const res = await (team === null ?
                 this.db.query(
                     'UPDATE users SET team=null WHERE users.username=$1 RETURNING users.username', [
                     username
                 ]) :
                 this.db.query(
                     'UPDATE users SET team=$2 WHERE users.username=$1 AND EXISTS (SELECT teams.id FROM teams WHERE teams.id=$2) RETURNING users.username', [
-                    username, teamNumId
+                    username, team
                 ])
             );
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
@@ -626,24 +624,22 @@ export class Database {
      * @param team Team ID
      * @returns Team data or an error code
      */
-    async getTeamData(team: string): Promise<TeamData | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async getTeamData(team: number): Promise<TeamData | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             if (this.teamCache.has(team) && this.teamCache.get(team)!.expiration < performance.now()) this.teamCache.delete(team);
             if (this.teamCache.has(team)) return structuredClone(this.teamCache.get(team)!.data);
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const data = await this.db.query(
                 'SELECT id, name, biography, registrations, joinkey FROM teams WHERE id=$1', [
-                teamNumId
+                team
             ]);
             const memberData = await this.db.query(
                 'SELECT username FROM users WHERE team=$1 ORDER BY username ASC', [
-                teamNumId
+                team
             ]);
             if (data.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             const teamData: TeamData = {
-                id: Number(data.rows[0].id).toString(36),
+                id: data.rows[0].id,
                 name: data.rows[0].name,
                 bio: data.rows[0].biography,
                 members: memberData.rows.map(row => row.username),
@@ -668,14 +664,12 @@ export class Database {
      * @param teamData New data
      * @returns Update status
      */
-    async updateTeamData(team: string, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async updateTeamData(team: number, teamData: Omit<TeamData, 'id' | 'members' | 'registrations' | 'joinKey'>): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query(
                 'UPDATE teams SET name=$2, biography=$3 WHERE id=$1 RETURNING id', [
-                teamNumId, teamData.name, teamData.bio
+                team, teamData.name, teamData.bio
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
@@ -699,18 +693,16 @@ export class Database {
      * @param contest Contest ID
      * @returns Registration status
      */
-    async registerContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
+    async registerContest(team: number, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const exists = await this.db.query('SELECT teams.registrations FROM teams WHERE teams.id=$1', [
-                teamNumId
+                team
             ]);
             if (exists.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (exists.rows[0].registrations.includes(contest)) return DatabaseOpCode.CONFLICT;
             const res = await this.db.query('UPDATE teams SET registrations=(teams.registrations || $2) WHERE id=$1 RETURNING id', [
-                teamNumId, [contest]
+                team, [contest]
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
@@ -732,11 +724,9 @@ export class Database {
      * @param contest Contest ID
      * @returns Registration status
      */
-    async unregisterContest(team: string, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async unregisterContest(team: number, contest: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query(`
             UPDATE teams SET registrations=ARRAY_REMOVE(
                 (SELECT registrations FROM teams WHERE id=$1),
@@ -744,7 +734,7 @@ export class Database {
             ) WHERE id=$1
             RETURNING id
             `, [
-                teamNumId, contest
+                team, contest
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             if (this.teamCache.has(team)) {
@@ -765,13 +755,11 @@ export class Database {
      * @param team Team ID
      * @returns Registration status
      */
-    async unregisterAllContests(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async unregisterAllContests(team: number): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query('UPDATE teams SET registrations=\'{}\' WHERE id=$1 RETURNING id', [
-                teamNumId
+                team
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
             return DatabaseOpCode.SUCCESS;
@@ -787,16 +775,14 @@ export class Database {
      * @param team Team ID
      * @returns Deletion status
      */
-    async deleteTeam(team: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
+    async deleteTeam(team: number): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const teamNumId = parseInt(team, 36);
-            if (isNaN(teamNumId)) return DatabaseOpCode.NOT_FOUND;
             const res = await this.db.query('DELETE FROM teams WHERE id=$1 RETURNING id', [
-                teamNumId
+                team
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
-            this.logger.info(`Deleted team "${team}"`, true);
+            this.logger.info(`Deleted team "${team.toString(36)}"`);
             this.teamCache.delete(team);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -864,13 +850,13 @@ export class Database {
      * @param contest Contest ID
      * @returns Array of team IDs with registrations for the contest, or an error code
      */
-    async getAllRegisteredTeams(contest: string): Promise<string[] | DatabaseOpCode.ERROR> {
+    async getAllRegisteredTeams(contest: string): Promise<number[] | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
             const data = await this.db.query('SELECT id FROM teams WHERE $1=ANY(registrations) ORDER BY id ASC', [
                 contest
             ]);
-            return data.rows.map((row) => Number(row.id).toString(36));
+            return data.rows.map((row) => row.id);
         } catch (err) {
             this.logger.handleError('Database error (getAllRegisteredTeams):', err);
             return DatabaseOpCode.ERROR;
@@ -1414,7 +1400,7 @@ export class Database {
                     submissionIdSet.delete(id);
                     const submission = this.submissionCache.get(id)!.submission;
                     if ((c.username === undefined || filterCompare<string>(submission.username, c.username))
-                        && (c.team === undefined || filterCompare<string | null>(submission.team, c.team))
+                        && (c.team === undefined || filterCompare<number | null>(submission.team, c.team))
                         && (c.time === undefined || filterCompare<number>(submission.time, c.time))
                         && (c.analysis === undefined || filterCompare<boolean>(submission.analysis, c.analysis))) {
                         submissions.push(structuredClone(submission));
@@ -1425,30 +1411,11 @@ export class Database {
             const submissionIdList = Array.from(submissionIdSet.values());
             const problemIdList = Array.from(problemIdSet.values());
             if (problemIdList.length > 0 || (c.problemId === undefined && c.contest?.contest === undefined && c.contest?.round === undefined && c.contest?.roundId === undefined && c.contest?.number === undefined)) {
-                // oh god... the typing doesn't even work
-                const teamFilter: FilterComparison<number | null> | undefined = c.team === undefined ? undefined : (
-                    c.team !== null ? (
-                        typeof c.team == 'string' ? (
-                            parseInt(c.team, 36)
-                        ) : (
-                            Array.isArray(c.team) ? (
-                                c.team.map((v) => v !== null ? parseInt(v, 36) : null)
-                            ) : {
-                                op: c.team.op == '~' ? '=' : c.team.op,
-                                v: c.team.v !== null ? (
-                                    Array.isArray(c.team.v) ? (
-                                        c.team.v.map((v) => v !== null ? parseInt(v, 36) : null)
-                                    ) : parseInt(c.team.v, 36)
-                                ) : null
-                            }
-                        )
-                    ) : null
-                ) as FilterComparison<number | null> | undefined;
                 const { queryConditions, bindings } = this.buildColumnConditions([
                     { name: 'id', value: (c.id !== undefined) ? submissionIdList : undefined },
                     { name: 'problem', value: (c.problemId !== undefined || c.contest !== undefined) ? problemIdList : undefined },
                     { name: 'username', value: c.username },
-                    { name: 'team', value: teamFilter },
+                    { name: 'team', value: c.team },
                     { name: 'time', value: c.time },
                     { name: 'analysis', value: c.analysis }
                 ]);
@@ -1500,7 +1467,7 @@ export class Database {
                 }
             } else {
                 await this.db.query('INSERT INTO submissions (id, username, team, problem, file, language, scores, time, analysis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [
-                    submission.id, submission.username, submission.team !== null ? parseInt(submission.team, 36) : null, submission.problemId, submission.file, submission.language, JSON.stringify(submission.scores), submission.time, submission.analysis
+                    submission.id, submission.username, submission.team, submission.problemId, submission.file, submission.language, JSON.stringify(submission.scores), submission.time, submission.analysis
                 ]);
                 this.submissionCache.set(submission.id, {
                     submission: structuredClone(submission),
@@ -1636,12 +1603,12 @@ export type AccountData = {
     /**List of contests that have ended that were registered for */
     pastRegistrations: string[]
     /**ID of team, or null if not on any team */
-    team: string | null
+    team: number | null
 }
 /**Descriptor for a team */
 export type TeamData = {
-    /**Unique team id, a base36 integer, postfixing with `joinKey` creates the join code */
-    readonly id: string
+    /**Unique team id, postfixing base 36 representation with `joinKey` creates the join code */
+    readonly id: number
     /**The name of the team */
     name: string
     /**Team's biography */
@@ -1650,7 +1617,7 @@ export type TeamData = {
     members: string[]
     /**List of registered contests */
     registrations: string[]
-    /**A random 6-character alphanumeric string, prefixing with `id` creates the join code */
+    /**A random 6-character alphanumeric string, prefixing with base 36 representation of `id` creates the join code */
     joinKey: string
 }
 
@@ -1711,7 +1678,7 @@ export type Submission = {
     /**Username of submitter */
     readonly username: string
     /**Team of submitter at the time of submission */
-    readonly team: string | null
+    readonly team: number | null
     /**UUID of problem submitted to */
     readonly problemId: UUID
     /**Time of submission, UNIX milliseconds */
@@ -1800,7 +1767,7 @@ export type ReadSubmissionsCriteria = {
     /**Username of submitter */
     username?: FilterComparison<string>
     /**Username of submitter */
-    team?: FilterComparison<string | null>
+    team?: FilterComparison<number | null>
     /**UUID of problem */
     problemId?: FilterComparison<UUID>
     /**{@inheritDoc ProblemRoundCriteria} */

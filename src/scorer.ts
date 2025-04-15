@@ -30,7 +30,7 @@ export type ScoringFunction = (submission: { time: number }, problem: { numSubta
  */
 export class Scorer {
     private rounds: Round[];
-    private readonly userSolvedStatus: Map<string, Map<Subtask, number>> = new Map();
+    private readonly userSolvedStatus: Map<number, Map<Subtask, number>> = new Map();
     private readonly subtasks: Set<Subtask> = new Set();
     readonly scoringFunction: ScoringFunction;
     readonly logger: NamedLogger;
@@ -94,7 +94,7 @@ export class Scorer {
      * @param roundId Round ID
      * @returns  Mapping of username to score
      */
-    getRoundScores(roundId: UUID): Map<string, UserScore> {
+    getRoundScores(roundId: UUID): Map<number, UserScore> {
         const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
         const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
         const userScores = new Map<string, UserScore>(); // final scores of each user
@@ -143,7 +143,7 @@ export class Scorer {
      * Get the current standings, adding scores from all rounds together.
      * @returns  mapping of username to score
      */
-    getScores(): Map<string, UserScore> {
+    getScores(): Map<number, UserScore> {
         const sums: Map<string, UserScore> = new Map();
         for (const round of this.rounds) {
             this.getRoundScores(round.id).forEach((score, username) => {
