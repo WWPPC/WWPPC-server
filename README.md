@@ -72,38 +72,19 @@ WWPPC-server has some required and some optional environment variables.
 
 Logs can be found under the `/logs` directory. `recent.log` is a mirror of the most recently generated logfile, all other logs are labeled by their date of creation.
 
-# Server stuff (needs formatting)
+# Deployment setup
 
-Use github (or git) to clone to `/root/WWPPC`
+*Note: setup script should be run as root to ensure proper adding of SSH keys.*
 
-## Setup of cron job
+To deploy a new server (Ubuntu), use `ssh-keygen` to generate an SSH keypair. Add the public key as a deploy key to the GitHub repository, then use the [provided install script](./setup.sh) or CURL command below to run setup:
 
-cron job:
-
-```
-0 0 * * * systemctl stop wwppc.service; cd /root/WWPPC && git pull && npm install && npm run build; systemctl start wwppc.service
+```bash
+curl -o- https://gist.githubusercontent.com/spsquared/c11941d38e1b4b940f748f4549691bfc/raw/2982a82ab52825be290e08ba8f13c8b4722e1dbc/setup.sh | bash
 ```
 
-## Startup script
+This script will print the OS release (tested Ubuntu 24.04 LTS), download and install Node.JS (verify that Node v22 LTS is installed), add the SSH private key, and clone the repository to `~/WWPPC-server/`. When prompted for the SSH private key, paste the private key and hit ENTER.
 
-```
-vim /etc/systemd/system/wwppc.service
-```
-
-```
-[Service]
-WorkingDirectory=/root/WWPPC/wwppc-server
-ExecStart=npm run start
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```
-chmod 664 /etc/systemd/system/wwppc.service
-systemctl enable /etc/systemd/system/wwppc.service
-```
+Now enter the server directory and follow the [server setup](#server-setup) instructions to add configuration files to the server. **DO NOT** use a test certificate for production servers!
 
 # Grader stuff
 
