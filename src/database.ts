@@ -601,7 +601,7 @@ export class Database {
             if (this.userCache.has(username)) this.userCache.get(username)!.data.team = team;
             if (oldTeam !== null && this.teamCache.has(oldTeam)) {
                 const entry = this.teamCache.get(oldTeam)!;
-                if (entry.data.members.includes(username)) entry.data.members.splice(entry.data.members.indexOf(username));
+                if (entry.data.members.includes(username)) entry.data.members.splice(entry.data.members.indexOf(username), 1);
             }
             if (team !== null && this.teamCache.has(team)) {
                 const entry = this.teamCache.get(team)!;
@@ -997,7 +997,8 @@ export class Database {
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime },
                     { name: 'public', value: c.public },
-                    { name: 'type', value: c.type }
+                    { name: 'type', value: c.type },
+                    { name: 'hidden', value: c.hidden }
                 ]);
                 const data = await this.db.query(`SELECT * FROM contests ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const contest of data.rows) {
@@ -1009,7 +1010,8 @@ export class Database {
                         startTime: Number(contest.starttime),
                         endTime: Number(contest.endtime),
                         public: contest.public,
-                        type: contest.type
+                        type: contest.type,
+                        hidden: contest.hidden
                     };
                     this.contestCache.set(contest.id, {
                         contest: structuredClone(co),
@@ -1034,9 +1036,9 @@ export class Database {
     async writeContest(contest: Contest): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize, contest.startTime, contest.endTime, contest.public, contest.type];
-            const update = await this.db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4, starttime=$5, endtime=$6, public=$7, type=$8 WHERE id=$1 RETURNING id', data);
-            if (update.rows.length == 0) await this.db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize, starttime, endtime, public, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', data);
+            const data = [contest.id, contest.rounds, contest.exclusions, contest.maxTeamSize, contest.startTime, contest.endTime, contest.public, contest.type, contest.hidden];
+            const update = await this.db.query('UPDATE contests SET rounds=$2, exclusions=$3, maxteamsize=$4, starttime=$5, endtime=$6, public=$7, type=$8, hidden=$9 WHERE id=$1 RETURNING id', data);
+            if (update.rows.length == 0) await this.db.query('INSERT INTO contests (id, rounds, exclusions, maxteamsize, starttime, endtime, public, type, hidden) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', data);
             this.contestCache.set(contest.id, {
                 contest: structuredClone(contest),
                 expiration: performance.now() + config.dbCacheTime
@@ -1639,6 +1641,8 @@ export type Contest = {
     endTime: number
     /**If the contest is publicly archived once finished (problems remain accessible through upsolve) */
     public: boolean
+    /**If the contest is hidden from users who aren't registered for it*/
+    hidden: boolean
 }
 /**Descriptor for a single round */
 export type Round = {
@@ -1724,6 +1728,8 @@ export type ReadContestsCriteria = {
     public?: boolean
     /**The tournament the contest is part of */
     type?: string
+    /**If the contest is hidden from users who aren't registered for it */
+    hidden?: boolean
 }
 /**Criteria to filter by. Leaving a value undefined removes the criteria */
 export type ReadRoundsCriteria = {

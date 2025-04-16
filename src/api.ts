@@ -64,6 +64,7 @@ export class ClientAPI {
                 // some info we don't want public
                 data.email = '';
                 data.email2 = '';
+                // maybe also filter out pastRegistrations from hidden contests?
                 res.json(data);
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
@@ -189,7 +190,7 @@ export class ClientAPI {
             const username = req.cookies[sessionUsername] as string;
             const team = req.cookies[sessionTeam] as number | null;
             // create & join new team
-            if (team !== null) {
+            if (team !== null && team !== undefined) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot create team while on a team', this.logger, username, 'Check team');
                 return;
             }
@@ -208,7 +209,7 @@ export class ClientAPI {
             const team = req.cookies[sessionTeam] as number | null;
             const joinCode = req.body.code as string;
             // join existing team
-            if (team !== null) {
+            if (team !== null && team !== undefined) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 return;
             }
@@ -307,6 +308,9 @@ export class ClientAPI {
                 return;
             }
             const contest = contestRes[0];
+            if (contest.hidden) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+            }
             const teamData = await this.db.getTeamData(team);
             if (typeof teamData != 'object') {
                 sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check contest');
