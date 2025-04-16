@@ -258,7 +258,7 @@ export class ContestManager {
                 return;
             }
             const [pRound, pNumber] = contestHost.getProblemRoundAndNumber(problemId);
-            if (pRound === undefined) {
+            if (pRound === undefined || pRound > contestHost.round) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Read problem');
                 return;
             }
@@ -322,6 +322,10 @@ export class ContestManager {
             if (!isUUID(problemId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid problem UUID (${req.ip})`);
                 res.status(400).send('Invalid problem UUID');
+                return;
+            }
+            if (!contestHost.problemSubmittable(problemId)) {
+                sendDatabaseResponse(req, res, 404, {}, this.logger, username, 'Queue submission');
                 return;
             }
             const submission: Submission = {
@@ -574,7 +578,13 @@ export class ContestHost {
         this.contest.rounds = mapped;
         this.contest.startTime = contest[0].startTime;
         this.contest.endTime = contest[0].endTime;
-        this.eventEmitter.emit('data', this.contestData);
+        this.eventEmitter.emit('data', {
+            ...this.contestData,
+            rounds: this.contestData.rounds.map(round => ({
+                ...round,
+                problems: Date.now() >= round.startTime ? round.problems : []
+            }))
+        });
 
         // reload the scoreboard too
         const teams = await this.db.getAllRegisteredTeams(this.id);
@@ -645,12 +655,19 @@ export class ContestHost {
                 this.index++;
                 this.active = true;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} start`);
+                this.eventEmitter.emit('data', {
+                    ...this.contestData,
+                    rounds: this.contestData.rounds.map(round => ({
+                        ...round,
+                        problems: now >= round.startTime ? round.problems : []
+                    }))
+                });
             }
-            if (this.contest.endTime <= Date.now()) this.end(true);
+            if (this.contest.endTime <= now) this.end(true);
             // also updating the scorer occasionally
             updateIndex++;
             if (updateIndex % 1200 == 0) {
-                if (Date.now() < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
+                if (now < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
                 else this.scoreboard = this.scorer.getScores();
                 this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
             }
