@@ -82,7 +82,7 @@ export class ClientAuth {
             }
             const username = req.body.username;
             const password = await this.encryption.decrypt(req.body.password);
-            if (typeof password != 'string') {
+            if (password === null) {
                 this.logger.error(`${req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
@@ -107,10 +107,10 @@ export class ClientAuth {
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen-auth:1024,1',
             email: 'required|encryptedEmail-auth',
-            email2: 'required|encryptedEmail-auth',
+            email2: 'encryptedEmail-auth',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
-            organization: 'required|string|length:64',
+            organization: 'string|length:64',
             languages: 'arrayUnique|length:32',
             'languages.*': `required|string|in:${ClientAPI.validAccountData.languages.join()}`,
             grade: `required|integer|in:${ClientAPI.validAccountData.grades.join()}`,
@@ -123,18 +123,18 @@ export class ClientAuth {
             const username = req.body.username;
             const password = await this.encryption.decrypt(req.body.password);
             const email = await this.encryption.decrypt(req.body.email);
-            const email2 = await this.encryption.decrypt(req.body.email2);
-            if (typeof password != 'string' || typeof email != 'string' || typeof email2 != 'string') {
+            const email2 = req.body.email2 != undefined ? await this.encryption.decrypt(req.body.email2) : '';
+            if (password === null || email === null || email2 === null) {
                 this.logger.error(`${req.method} ${req.path} fail: password/email decrypt failed after verification`);
                 res.status(503).send('Password/email decryption error');
                 return;
             }
             const check = await this.db.createAccount(username, password, {
                 email: email,
-                email2: email2 ?? email,
+                email2: email2,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
-                organization: req.body.organization,
+                organization: req.body.organization ?? '',
                 grade: req.body.grade,
                 experience: req.body.experience,
                 languages: req.body.languages
@@ -165,7 +165,7 @@ export class ClientAuth {
             }
             const username = req.body.username;
             const email = await this.encryption.decrypt(req.body.email);
-            if (typeof email != 'string') {
+            if (email === null) {
                 this.logger.error(`${req.method} ${req.path} fail: email decrypt failed after verification`);
                 res.status(503).send('Email decryption error');
                 return;
@@ -222,7 +222,7 @@ export class ClientAuth {
             const username = req.body.username;
             const recoveryPassword = await this.encryption.decrypt(req.body.recoveryPassword);
             const newPassword = await this.encryption.decrypt(req.body.newPassword);
-            if (typeof recoveryPassword != 'string' || typeof newPassword != 'string') {
+            if (recoveryPassword === null || newPassword === null) {
                 this.logger.error(`${req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
@@ -243,7 +243,7 @@ export class ClientAuth {
             const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
             const password = await this.encryption.decrypt(req.body.password);
             const newPassword = await this.encryption.decrypt(req.body.newPassword);
-            if (typeof username != 'string' || typeof password != 'string' || typeof newPassword != 'string') {
+            if (username === null || password === null || newPassword === null) {
                 this.logger.error(`${req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;
@@ -266,7 +266,7 @@ export class ClientAuth {
             }
             const username = this.sessionTokens.getTokenData(req.cookies.sessionToken);
             const password = await this.encryption.decrypt(req.body.password);
-            if (typeof username != 'string' || typeof password != 'string') {
+            if (typeof username != 'string' || password === null) {
                 this.logger.error(`${req.method} ${req.path} fail: password decrypt failed after password verification`);
                 res.status(503).send('Password decryption error');
                 return;

@@ -122,7 +122,7 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger, username);
         });
         this.app.put('/api/self/userData', parseBodyJson(), validateRequestBody({
-            email2: 'required|encryptedEmail-auth',
+            email2: 'encryptedEmail-auth',
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
@@ -135,8 +135,8 @@ export class ClientAPI {
             experience: `required|integer|in:${ClientAPI.validAccountData.experienceLevels.join()}`
         }, this.logger), async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
-            const email2 = await auth.encryption.decrypt(req.body.email2);
-            if (typeof email2 != 'string') {
+            const email2 = req.body.email2 != undefined ? await auth.encryption.decrypt(req.body.email2) : '';
+            if (email2 === null) {
                 this.logger.error(`${req.method} ${req.path} fail: email decrypt failed after verification`);
                 res.status(503).send('Email decryption error');
                 return;
