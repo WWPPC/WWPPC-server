@@ -225,7 +225,7 @@ export class ClientAPI {
                 sendDatabaseResponse(req, res, teamData, {}, this.logger, username, 'Check team');
                 return;
             }
-            if (teamData.joinKey != joinKey) {
+            if (teamData.joinKey.toUpperCase() != joinKey.toUpperCase()) {
                 if (config.debugMode) this.logger.debug(`${username} @ ${req.ip} | ${req.method} ${req.path}: Incorrect join key`);
                 sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Check team');
                 return;
