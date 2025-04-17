@@ -213,7 +213,7 @@ export class ClientAPI {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 return;
             }
-            const teamId = parseInt(joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength));
+            const teamId = parseInt(joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength), 36);
             if (isNaN(teamId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid team ID (${req.ip})`);
                 res.status(400).send('Invalid team ID');
