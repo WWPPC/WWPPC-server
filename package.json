@@ -4,7 +4,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node build/server.js --expose-gc",
-        "dev": "tsc && node build/server.js debug_mode --expose-gc --trace-warnings",
+        "dev": "npm run build && node build/server.js debug_mode --expose-gc --trace-warnings",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown --excludeExternals --externalPattern \"**/node_modules/**\""
     },
     "dependencies": {

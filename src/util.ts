@@ -205,7 +205,7 @@ export class TypedEventEmitter<TEvents extends Record<string, any[]>> {
 // these are used in a couple places
 nivExtend('lowerAlphaNumDash', ({ value }: any) => {
     if (typeof value != 'string') return false;
-    return /^[a-z]([a-z0-9-]*[a-z0-9])?$/.test(value);
+    return /^[a-z0-9-_]+$/.test(value);
 });
 nivExtend('uuid', ({ value }: any) => {
     return validate(value);
