@@ -139,7 +139,7 @@ const config: GlobalConfiguration = {
     }, {}) : {},
     maxSubmissionHistory: fileConfig.maxSubmissionHistory ?? 24,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
-    debugMode: process.argv.includes('debug_mode') ?? process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false,
+    debugMode: process.argv.includes('debug_mode') ? true : (process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false),
     path: process.env.CONFIG_PATH,
     logPath: path.resolve(__dirname, process.env.LOG_PATH ?? fileConfig.logPath ?? '../logs/'),
     emailTemplatePath: path.resolve(__dirname, process.env.EMAIL_TEMPLATE_PATH ?? fileConfig.emailTemplatePath ?? '../email-templates'),
