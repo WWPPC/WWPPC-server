@@ -309,6 +309,10 @@ export class ClientAPI {
             }
             const contest = contestRes[0];
             if (contest.hidden) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+                return;
+            }
+            if (Date.now() >= contest.endTime) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Fetch contest');
                 return;
             }
