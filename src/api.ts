@@ -309,7 +309,8 @@ export class ClientAPI {
             }
             const contest = contestRes[0];
             if (contest.hidden) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Fetch contest');
+                return;
             }
             const teamData = await this.db.getTeamData(team);
             if (typeof teamData != 'object') {
