@@ -545,7 +545,7 @@ export class Database {
                 },
                 expiration: performance.now() + config.dbCacheTime
             });
-            this.logger.info(`Created team "${teamId.toString(36)}"`);
+            this.logger.info(`Created team "${teamId}"`);
             return teamId;
         } catch (err) {
             this.logger.handleError('Database error (createTeam):', err);
@@ -782,7 +782,7 @@ export class Database {
                 team
             ]);
             if (res.rows.length == 0) return DatabaseOpCode.NOT_FOUND;
-            this.logger.info(`Deleted team "${team.toString(36)}"`);
+            this.logger.info(`Deleted team "${team}"`);
             this.teamCache.delete(team);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {

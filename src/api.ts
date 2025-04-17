@@ -69,7 +69,7 @@ export class ClientAPI {
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/teamData/:id', async (req, res) => {
-            const teamId = parseInt(req.params.id, 36);
+            const teamId = parseInt(req.params.id);
             if (isNaN(teamId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid team ID (${req.ip})`);
                 res.status(400).send('Invalid team ID');
@@ -213,7 +213,7 @@ export class ClientAPI {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, 'Cannot join team while on a team', this.logger, username, 'Check team');
                 return;
             }
-            const teamId = parseInt(joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength), 36);
+            const teamId = parseInt(joinCode.substring(0, joinCode.length - Database.teamJoinKeyLength));
             if (isNaN(teamId)) {
                 if (config.debugMode) this.logger.warn(`${req.method} ${req.path} malformed: Invalid team ID (${req.ip})`);
                 res.status(400).send('Invalid team ID');
