@@ -267,7 +267,7 @@ export function validateRequestBody(rules: object, logger?: Logger, responseCode
             next();
         } else {
             if (config.debugMode && logger !== undefined) logger.warn(`${req.method} ${req.path} malformed: ${validator.errors} (${req.ip})`);
-            res.status(responseCode).send(validator.errors);
+            res.status(responseCode).send('Errors:\n' + Array.from(Object.values(validator.errors)).map<string>((err: any) => err.message).join('\n'));
         }
     };
 }

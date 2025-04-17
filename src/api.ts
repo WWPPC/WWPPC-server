@@ -308,11 +308,11 @@ export class ClientAPI {
                 return;
             }
             const contest = contestRes[0];
-            if (contest.hidden) {
-                sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger, username, 'Fetch contest');
+            if (Date.now() >= contest.endTime) {
+                sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Fetch contest');
                 return;
             }
-            if (Date.now() >= contest.endTime) {
+            if (contest.hidden) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.FORBIDDEN, {}, this.logger, username, 'Fetch contest');
                 return;
             }
@@ -335,7 +335,7 @@ export class ClientAPI {
                 return;
             }
             const check = await this.db.registerContest(team, contest.id);
-            sendDatabaseResponse(req, res, check, {}, this.logger, username, 'Set registration');
+            sendDatabaseResponse(req, res, check, { [DatabaseOpCode.CONFLICT]: 'Already registered for contest' }, this.logger, username, 'Set registration');
         });
         this.app.delete('/api/self/registrations/:contest', getTeam, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
