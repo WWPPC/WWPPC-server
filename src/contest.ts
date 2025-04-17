@@ -135,7 +135,7 @@ export class ContestManager {
         // always public
         // upcoming = not started, however registering for running contests is still allowed
         this.app.get('/api/contest/upcoming', async (req, res) => {
-            const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() } });
+            const data = await this.db.readContests({ startTime: { op: '>', v: Date.now() }, hidden: false });
             if (Array.isArray(data)) {
                 if (config.debugMode) this.logger.debug(`${req.method} ${req.path}: SUCCESS (${req.ip})`);
                 res.json(data.map((item) => item.id));
