@@ -1641,7 +1641,7 @@ export type Contest = {
     endTime: number
     /**If the contest is publicly archived once finished (problems remain accessible through upsolve) */
     public: boolean
-    /**If the contest is hidden from users who aren't registered for it*/
+    /**If the contest s publicly available for registrations */
     hidden: boolean
 }
 /**Descriptor for a single round */
