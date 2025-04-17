@@ -289,7 +289,7 @@ export class Database {
                 experience: data.rows[0].experience,
                 languages: data.rows[0].languages,
                 pastRegistrations: data.rows[0].pastregistrations,
-                team: Number(data.rows[0].team)
+                team: data.rows[0].team === null ? null : Number(data.rows[0].team)
             };
             this.userCache.set(username, {
                 data: structuredClone(userData),
@@ -1427,7 +1427,7 @@ export class Database {
                     const s: Submission = {
                         id: submission.id,
                         username: submission.username,
-                        team: Number(submission.team),
+                        team: submission.team === null ? null : Number(submission.team),
                         problemId: submission.problem,
                         time: Number(submission.time),
                         file: submission.file,
