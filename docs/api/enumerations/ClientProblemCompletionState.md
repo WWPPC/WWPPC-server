@@ -18,7 +18,7 @@ Submitted, graded, and failed all subtasks
 
 #### Defined in
 
-[api.ts:408](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L408)
+[api.ts:435](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L435)
 
 ***
 
@@ -30,7 +30,7 @@ Submitted, graded, passed at least one subtask and failed at least one subtask
 
 #### Defined in
 
-[api.ts:410](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L410)
+[api.ts:437](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L437)
 
 ***
 
@@ -42,7 +42,7 @@ Submitted, graded, and passed all subtasks
 
 #### Defined in
 
-[api.ts:412](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L412)
+[api.ts:439](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L439)
 
 ***
 
@@ -54,7 +54,7 @@ Not attempted
 
 #### Defined in
 
-[api.ts:402](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L402)
+[api.ts:429](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L429)
 
 ***
 
@@ -66,7 +66,7 @@ Submitted but not graded, submissions locked
 
 #### Defined in
 
-[api.ts:406](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L406)
+[api.ts:433](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L433)
 
 ***
 
@@ -78,4 +78,4 @@ Uploaded but not graded, can still be changed
 
 #### Defined in
 
-[api.ts:404](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/api.ts#L404)
+[api.ts:431](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/api.ts#L431)

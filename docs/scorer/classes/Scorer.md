@@ -40,7 +40,7 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:43](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L43)
+[scorer.ts:43](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L43)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:36](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L36)
+[scorer.ts:36](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L36)
 
 ***
 
@@ -60,93 +60,13 @@ Scoring function
 
 #### Defined in
 
-[scorer.ts:35](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L35)
+[scorer.ts:35](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L35)
 
 ## Methods
 
-### clearScores()
+### addSubmission()
 
-> **clearScores**(): `void`
-
-Remove all existing scores.
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[scorer.ts:161](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L161)
-
-***
-
-### getRoundScores()
-
-> **getRoundScores**(`roundId`): `Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
-
-Get standings for a specified round.
-
-#### Parameters
-
-##### roundId
-
-`string`
-
-Round ID
-
-#### Returns
-
-`Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
-
-Mapping of username to score
-
-#### Defined in
-
-[scorer.ts:97](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L97)
-
-***
-
-### getScores()
-
-> **getScores**(): `Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
-
-Get the current standings, adding scores from all rounds together.
-
-#### Returns
-
-`Map`\<`string`, [`UserScore`](../type-aliases/UserScore.md)\>
-
-mapping of username to score
-
-#### Defined in
-
-[scorer.ts:146](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L146)
-
-***
-
-### setRounds()
-
-> **setRounds**(`rounds`): `void`
-
-#### Parameters
-
-##### rounds
-
-[`Round`](../../database/type-aliases/Round.md)[]
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[scorer.ts:49](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L49)
-
-***
-
-### updateUser()
-
-> **updateUser**(`submission`, `submissionRound`?): `Boolean`
+> **addSubmission**(`submission`, `submissionRound`?): `Boolean`
 
 Process submission and add to leaderboard.
 
@@ -172,4 +92,84 @@ whether it was successful
 
 #### Defined in
 
-[scorer.ts:59](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L59)
+[scorer.ts:59](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L59)
+
+***
+
+### clearScores()
+
+> **clearScores**(): `void`
+
+Remove all existing scores.
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[scorer.ts:162](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L162)
+
+***
+
+### getRoundScores()
+
+> **getRoundScores**(`roundId`): `Map`\<`number`, [`TeamScore`](../type-aliases/TeamScore.md)\>
+
+Get standings for a specified round.
+
+#### Parameters
+
+##### roundId
+
+`string`
+
+Round ID
+
+#### Returns
+
+`Map`\<`number`, [`TeamScore`](../type-aliases/TeamScore.md)\>
+
+Mapping of team to score
+
+#### Defined in
+
+[scorer.ts:98](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L98)
+
+***
+
+### getScores()
+
+> **getScores**(): `Map`\<`number`, [`TeamScore`](../type-aliases/TeamScore.md)\>
+
+Get the current standings, adding scores from all rounds together.
+
+#### Returns
+
+`Map`\<`number`, [`TeamScore`](../type-aliases/TeamScore.md)\>
+
+mapping of team to score
+
+#### Defined in
+
+[scorer.ts:147](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L147)
+
+***
+
+### setRounds()
+
+> **setRounds**(`rounds`): `void`
+
+#### Parameters
+
+##### rounds
+
+[`Round`](../../database/type-aliases/Round.md)[]
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[scorer.ts:49](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L49)

@@ -18,6 +18,12 @@ Criteria to filter by. Leaving a value undefined removes the criteria
 
 End of contest, UNIX time
 
+### hidden?
+
+> `optional` **hidden**: `boolean`
+
+If the contest is hidden from users who aren't registered for it
+
 ### id?
 
 > `optional` **id**: [`FilterComparison`](../../util/type-aliases/FilterComparison.md)\<`string`\>
@@ -44,4 +50,4 @@ The tournament the contest is part of
 
 ## Defined in
 
-[database.ts:1714](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1714)
+[database.ts:1720](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/database.ts#L1720)

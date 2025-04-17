@@ -16,9 +16,15 @@ Simple HTTP long-polling event-based emitter for Express applications.
 
 ### new LongPollEventEmitter()
 
-> **new LongPollEventEmitter**\<`TEvents`\>(`timeoutMs`?): [`LongPollEventEmitter`](LongPollEventEmitter.md)\<`TEvents`\>
+> **new LongPollEventEmitter**\<`TEvents`\>(`logger`, `timeoutMs`?): [`LongPollEventEmitter`](LongPollEventEmitter.md)\<`TEvents`\>
 
 #### Parameters
+
+##### logger
+
+[`Logger`](../../log/classes/Logger.md)
+
+Logging instance
 
 ##### timeoutMs?
 
@@ -32,9 +38,19 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:15](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L15)
+[netUtil.ts:21](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L21)
 
 ## Properties
+
+### logger
+
+> `readonly` **logger**: [`NamedLogger`](../../log/classes/NamedLogger.md)
+
+#### Defined in
+
+[netUtil.ts:11](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L11)
+
+***
 
 ### timeoutMs
 
@@ -42,7 +58,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:9](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L9)
+[netUtil.ts:14](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L14)
 
 ## Accessors
 
@@ -58,7 +74,7 @@ Time in milliseconds before a request will resolve with status code 204
 
 #### Defined in
 
-[netUtil.ts:61](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L61)
+[netUtil.ts:71](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L71)
 
 ## Methods
 
@@ -89,7 +105,7 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:41](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L41)
+[netUtil.ts:49](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L49)
 
 ***
 
@@ -119,7 +135,7 @@ Express `Response` object
 
 #### Defined in
 
-[netUtil.ts:24](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L24)
+[netUtil.ts:31](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L31)
 
 ***
 
@@ -135,7 +151,7 @@ Timeout all waiters and stop accepting new ones.
 
 #### Defined in
 
-[netUtil.ts:68](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L68)
+[netUtil.ts:78](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L78)
 
 ***
 
@@ -169,4 +185,4 @@ Data to update with
 
 #### Defined in
 
-[netUtil.ts:52](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/netUtil.ts#L52)
+[netUtil.ts:61](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/netUtil.ts#L61)

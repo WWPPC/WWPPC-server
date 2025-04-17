@@ -24,6 +24,12 @@ Time of contest end, UNIX
 
 List of other contest ids that cannot be registered simultaneously
 
+### hidden
+
+> **hidden**: `boolean`
+
+If the contest s publicly available for registrations
+
 ### id
 
 > `readonly` **id**: `string`
@@ -62,4 +68,4 @@ The tournament the contest is part of
 
 ## Defined in
 
-[database.ts:1623](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1623)
+[database.ts:1627](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/database.ts#L1627)

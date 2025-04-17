@@ -22,6 +22,7 @@
 - [ClientProblem](type-aliases/ClientProblem.md)
 - [ClientRound](type-aliases/ClientRound.md)
 - [ClientSubmission](type-aliases/ClientSubmission.md)
+- [ClientSubmissionFull](type-aliases/ClientSubmissionFull.md)
 
 ## References
 

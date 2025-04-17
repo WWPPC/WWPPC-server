@@ -6,7 +6,7 @@
 
 # Type Alias: ScoringFunction()
 
-> **ScoringFunction**: (`submission`, `problem`, `round`) => [`UserScore`](UserScore.md)
+> **ScoringFunction**: (`submission`, `problem`, `round`) => [`TeamScore`](TeamScore.md)
 
 Function used by `Scorer` to assign point values to submissions.
 
@@ -36,8 +36,8 @@ Function used by `Scorer` to assign point values to submissions.
 
 ## Returns
 
-[`UserScore`](UserScore.md)
+[`TeamScore`](TeamScore.md)
 
 ## Defined in
 
-[scorer.ts:26](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/scorer.ts#L26)
+[scorer.ts:26](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/scorer.ts#L26)
