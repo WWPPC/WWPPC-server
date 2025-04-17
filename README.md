@@ -33,9 +33,17 @@ Try navigating to `http://localhost:8000/wakeup` now. If you see `ok`, the serve
 
 We will set up the `WWPPC-site-main` repo (but you can also use `WWPPC-site-math`) to act as a client and network with the server. However, the client requires HTTPS connections to access encryption methods, we must first make our browser trust the server, otherwise we may get an SSL error:
 
+### For local dev servers
+
 Install [mkcert](https://github.com/FiloSottile/mkcert), then run `mkcert -install` followed by `mkcert localhost` as mentioned on the [mkcert documentation](https://github.com/FiloSottile/mkcert/blob/master/README.md). 
 
 Then find the certificate and key and move them to `config/cert.crt` and `config/cert.key` respectively. The `config` folder should now have `.env`, `config.json` (which is generated automatically by the server), `db-cert.crt`, `cert.crt`, and `cert.key`. The server should support HTTPS on the next server restart, and the browser should automatically trust it. Try navigating to `https://localhost:8000/wakeup` *(note the s)* to test.
+
+### For production servers
+
+Obtain an SSL certificate from your certificate signer of choice (like a [Cloudflare origin certificate](https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/) if using Cloudflare DNS) and place the certificate and private key in `config/cert.crt` and `config/cert.key` respectively.
+
+### Dev client
 
 Next, clone the `WWPPC-site-main` repo, **ensuring you clone all submodules**. Inside the repo, run `npm i` to install all dependencies, then `npm run dev`, which starts [vite](https://vitejs.dev/). Remember to start the server if you haven't already. Navigate to the port specified by `vite` and try clicking on the login screen. If the page successfully loads, you have connected to the server!
 

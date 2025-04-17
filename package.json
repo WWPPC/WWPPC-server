@@ -3,9 +3,8 @@
     "private": true,
     "scripts": {
         "build": "tsc",
-        "compile": "tsc",
         "start": "node build/server.js --expose-gc",
-        "compilerun": "tsc && node build/server.js debug_mode --expose-gc --trace-warnings",
+        "dev": "tsc && node build/server.js debug_mode --expose-gc --trace-warnings",
         "gendocs": "typedoc src/* --plugin typedoc-plugin-markdown --excludeExternals --externalPattern \"**/node_modules/**\""
     },
     "dependencies": {
