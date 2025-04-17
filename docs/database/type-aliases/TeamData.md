@@ -20,15 +20,15 @@ Team's biography
 
 ### id
 
-> `readonly` **id**: `string`
+> `readonly` **id**: `number`
 
-Unique team id, a base36 integer, postfixing with `joinKey` creates the join code
+Unique team id, postfixing base 36 representation with `joinKey` creates the join code
 
 ### joinKey
 
 > **joinKey**: `string`
 
-A random 6-character alphanumeric string, prefixing with `id` creates the join code
+A random 6-character alphanumeric string, prefixing with base 36 representation of `id` creates the join code
 
 ### members
 
@@ -50,4 +50,4 @@ List of registered contests
 
 ## Defined in
 
-[database.ts:1607](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1607)
+[database.ts:1611](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/database.ts#L1611)

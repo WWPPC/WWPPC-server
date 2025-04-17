@@ -6,7 +6,7 @@
 
 # Type Alias: FilterComparison\<T\>
 
-> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? \{`op`: `"="` \| `"!"`;`v`: `T` \| `T`[]; \} \| \{`op`: `">"` \| `"<"` \| `">="` \| `"<="`;`v`: `number` & `T`; \} \| \{`op`: `"><"` \| `"<>"` \| `"=><"` \| `"><="` \| `"=><="` \| `"=<>"` \| `"<>="` \| `"=<>="`;`v1`: `number` & `T`;`v2`: `number` & `T`; \} \| \{`op`: `"~"`;`v`: `string` & `T`; \} \| `T` \| `T`[] : `never`
+> **FilterComparison**\<`T`\>: `T` *extends* [`primitive`](primitive.md) ? \{`op`: `"="` \| `"!"`;`v`: `T` \| `T`[]; \} \| `T` *extends* `number` ? \{`op`: `">"` \| `"<"` \| `">="` \| `"<="`;`v`: `number`; \} \| \{`op`: `"><"` \| `"<>"` \| `"=><"` \| `"><="` \| `"=><="` \| `"=<>"` \| `"<>="` \| `"=<>="`;`v1`: `number`;`v2`: `number`; \} : `never` \| `T` *extends* `string` ? `object` : `never` \| `T` \| `T`[] : `never`
 
 Flexible comparison type for filtering items. Allows for primitive comparisons (`=`, `!`),
 numerical comparisons (`>`, `<`, `>=`, `<=`), range comparisons (`><`, `<>`, `=><`, `><=`, `=><=`, `=<>`, `<>=`, `=<>=`),
@@ -79,4 +79,4 @@ If `v` is a `primitive[]` (`Array` of `primitive`), [filterCompare](../functions
 
 ## Defined in
 
-[util.ts:80](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/util.ts#L80)
+[util.ts:80](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/util.ts#L80)

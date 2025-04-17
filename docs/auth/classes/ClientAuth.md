@@ -16,7 +16,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:20](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L20)
+[auth.ts:20](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L20)
 
 ***
 
@@ -26,7 +26,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:19](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L19)
+[auth.ts:19](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L19)
 
 ***
 
@@ -36,7 +36,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:22](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L22)
+[auth.ts:22](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L22)
 
 ***
 
@@ -46,7 +46,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:23](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L23)
+[auth.ts:23](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L23)
 
 ***
 
@@ -56,7 +56,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:21](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L21)
+[auth.ts:21](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L21)
 
 ***
 
@@ -66,7 +66,7 @@ Bundles code for client authentication into a single class.
 
 #### Defined in
 
-[auth.ts:28](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L28)
+[auth.ts:28](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L28)
 
 ## Methods
 
@@ -92,7 +92,7 @@ Username, or null if not connected to a username
 
 #### Defined in
 
-[auth.ts:306](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L306)
+[auth.ts:310](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L310)
 
 ***
 
@@ -118,7 +118,7 @@ Token is valid
 
 #### Defined in
 
-[auth.ts:297](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L297)
+[auth.ts:301](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L301)
 
 ***
 
@@ -154,7 +154,7 @@ SMTP mailing server connection
 
 #### Defined in
 
-[auth.ts:316](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L316)
+[auth.ts:320](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L320)
 
 ***
 
@@ -170,4 +170,4 @@ Get the ClientAuth system.
 
 #### Defined in
 
-[auth.ts:323](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/auth.ts#L323)
+[auth.ts:327](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/auth.ts#L327)

@@ -24,7 +24,7 @@ Basic access token system with linked data.
 
 #### Defined in
 
-[cryptoUtil.ts:132](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L132)
+[cryptoUtil.ts:133](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L133)
 
 ## Methods
 
@@ -56,7 +56,7 @@ Access token
 
 #### Defined in
 
-[cryptoUtil.ts:151](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L151)
+[cryptoUtil.ts:152](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L152)
 
 ***
 
@@ -82,7 +82,7 @@ If any token with equal linked data is found
 
 #### Defined in
 
-[cryptoUtil.ts:230](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L230)
+[cryptoUtil.ts:231](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L231)
 
 ***
 
@@ -114,7 +114,7 @@ If a token was found and the expiration time updated
 
 #### Defined in
 
-[cryptoUtil.ts:192](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L192)
+[cryptoUtil.ts:193](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L193)
 
 ***
 
@@ -140,7 +140,7 @@ Token linked data or null if not exists
 
 #### Defined in
 
-[cryptoUtil.ts:203](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L203)
+[cryptoUtil.ts:204](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L204)
 
 ***
 
@@ -158,7 +158,7 @@ Copy of token map
 
 #### Defined in
 
-[cryptoUtil.ts:162](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L162)
+[cryptoUtil.ts:163](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L163)
 
 ***
 
@@ -184,7 +184,7 @@ If a token was previously registered and is now unregistered
 
 #### Defined in
 
-[cryptoUtil.ts:239](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L239)
+[cryptoUtil.ts:240](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L240)
 
 ***
 
@@ -216,7 +216,7 @@ If a token was found and the data updated
 
 #### Defined in
 
-[cryptoUtil.ts:214](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L214)
+[cryptoUtil.ts:215](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L215)
 
 ***
 
@@ -242,7 +242,7 @@ If the token is registered
 
 #### Defined in
 
-[cryptoUtil.ts:173](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L173)
+[cryptoUtil.ts:174](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L174)
 
 ***
 
@@ -268,4 +268,4 @@ Expiration time, if the token exists and has an expiration
 
 #### Defined in
 
-[cryptoUtil.ts:182](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/cryptoUtil.ts#L182)
+[cryptoUtil.ts:183](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/cryptoUtil.ts#L183)

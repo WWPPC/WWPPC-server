@@ -38,4 +38,4 @@ Round ID (will break filters if used in conjunction with contest/round)
 
 ## Defined in
 
-[database.ts:1740](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/database.ts#L1740)
+[database.ts:1748](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/database.ts#L1748)

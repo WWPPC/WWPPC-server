@@ -32,9 +32,7 @@ Response code
 
 ### messages
 
-`Partial`\<`Record`\<[`DatabaseOpCode`](../../database/enumerations/DatabaseOpCode.md), `string`\>\>
-
-Optional override messages for each code
+`string` | `Partial`\<`Record`\<[`DatabaseOpCode`](../../database/enumerations/DatabaseOpCode.md), `string`\>\>
 
 ### logger
 
@@ -60,4 +58,4 @@ Optional prefix for response messages
 
 ## Defined in
 
-[util.ts:271](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/util.ts#L271)
+[util.ts:292](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/util.ts#L292)

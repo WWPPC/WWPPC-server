@@ -54,4 +54,4 @@ SMTP username
 
 ## Defined in
 
-[email.ts:10](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/email.ts#L10)
+[email.ts:10](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/email.ts#L10)

@@ -34,7 +34,7 @@
 
 #### Defined in
 
-[upsolve.ts:28](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L28)
+[upsolve.ts:28](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L28)
 
 ## Properties
 
@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L18)
+[upsolve.ts:18](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L18)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Defined in
 
-[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L17)
+[upsolve.ts:17](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L17)
 
 ***
 
@@ -64,7 +64,7 @@
 
 #### Defined in
 
-[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L19)
+[upsolve.ts:19](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L19)
 
 ***
 
@@ -74,7 +74,7 @@
 
 #### Defined in
 
-[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L20)
+[upsolve.ts:20](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L20)
 
 ***
 
@@ -84,7 +84,7 @@
 
 #### Defined in
 
-[upsolve.ts:21](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L21)
+[upsolve.ts:21](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L21)
 
 ## Methods
 
@@ -108,7 +108,7 @@ SocketIO connection (with modifications)
 
 #### Defined in
 
-[upsolve.ts:144](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L144)
+[upsolve.ts:144](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L144)
 
 ***
 
@@ -124,7 +124,7 @@ Closes the upsolve manager
 
 #### Defined in
 
-[upsolve.ts:275](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L275)
+[upsolve.ts:275](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L275)
 
 ***
 
@@ -160,7 +160,7 @@ Grading system to use
 
 #### Defined in
 
-[upsolve.ts:128](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L128)
+[upsolve.ts:128](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L128)
 
 ***
 
@@ -176,4 +176,4 @@ Get the UpsolveManager system.
 
 #### Defined in
 
-[upsolve.ts:135](https://github.com/WWPPC/WWPPC-server/blob/893fab4901e205d136b5570c7c0b518b74b2e9d9/src/upsolve.ts#L135)
+[upsolve.ts:135](https://github.com/WWPPC/WWPPC-server/blob/240fd8d39aa7a9e87385634bffd25137bc757d0a/src/upsolve.ts#L135)

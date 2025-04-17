@@ -15,7 +15,7 @@
 ### Type Aliases
 
 - [ScoringFunction](type-aliases/ScoringFunction.md)
-- [UserScore](type-aliases/UserScore.md)
+- [TeamScore](type-aliases/TeamScore.md)
 
 ## References
 
