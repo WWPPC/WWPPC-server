@@ -18,7 +18,7 @@
             "C++20",
             "C++23",
             "Python3.12.3",
-            "Pypy3"
+            "PyPy7.3.17"
         ],
         "maxSubmissionSize": 10240
     },
