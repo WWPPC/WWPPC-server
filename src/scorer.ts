@@ -2,16 +2,6 @@ import { Round, ScoreState, Submission } from './database';
 import Logger, { NamedLogger } from './log';
 import { UUID } from './util';
 
-/**Subtask (as used by Scorer class) */
-type Subtask = {
-    /**Round id */
-    round: UUID
-    /**Problem id */
-    id: UUID
-    /**Subtask id */
-    number: number
-}
-
 /**Team score */
 export type TeamScore = {
     /**Score */
@@ -21,18 +11,17 @@ export type TeamScore = {
 }
 
 /**
- * Function used by `Scorer` to assign point values to submissions.
- */
-export type ScoringFunction = (submission: { time: number }, problem: { numSubtasks: number }, round: { startTime: number, endTime: number }) => TeamScore;
-
-/**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
+ * Assumes no subtasks
+ * 1 point for each solved problem, ties broken by time of last submission that increases points, +10 minutes penalty for each wrong submission
  */
 export class Scorer {
     private rounds: Round[];
-    private readonly teamSolvedStatus: Map<number, Map<Subtask, number>> = new Map();
-    private readonly subtasks: Set<Subtask> = new Set();
-    readonly scoringFunction: ScoringFunction;
+    private submissions: Submission[] = [];
+    // map(team => (map(round id => array(solve time if solved else -1))))
+    private readonly teamScores: Map<number, Map<UUID, number[]>> = new Map();
+    //penalties stored in milliseconds
+    private readonly teamPenalties: Map<number, Map<UUID, number[]>> = new Map();
     readonly logger: NamedLogger;
 
     /**
@@ -40,14 +29,33 @@ export class Scorer {
      * @param logger Logger instance
      * @param scoringFunction Scoring function
      */
-    constructor(rounds: Round[], logger: Logger, scoringFunction: ScoringFunction) {
-        this.rounds = rounds.slice();
+    constructor(rounds: Round[], logger: Logger) {
         this.logger = new NamedLogger(logger, 'Scorer');
-        this.scoringFunction = scoringFunction;
+        this.rounds = rounds;
     }
 
     setRounds(rounds: Round[]) {
         this.rounds = rounds.slice();
+        this.teamScores.clear();
+        this.teamPenalties.clear();
+        const submissions2 = structuredClone(this.submissions);
+        this.submissions = [];
+        for (const i of submissions2) this.addSubmission(i);
+    }
+
+    private createEmptyScoreMap(team: number) {
+        const nxt = new Map<UUID, number[]>();
+        for (const i of this.rounds) {
+            nxt.set(i.id, Array<number>(i.problems.length).fill(-1));
+        }
+        this.teamScores.set(team, nxt);
+    }
+    private createEmptyPenaltyMap(team: number) {
+        const nxt = new Map<UUID, number[]>();
+        for (const i of this.rounds) {
+            nxt.set(i.id, Array<number>(i.problems.length).fill(0));
+        }
+        this.teamPenalties.set(team, nxt);
     }
 
     /**
@@ -56,37 +64,29 @@ export class Scorer {
      * @param submissionRound (optional) round UUID. If this isn't passed in, we look it up from the loaded rounds
      * @returns  whether it was successful
      */
-    addSubmission(submission: Submission, submissionRound?: UUID): Boolean {
+    addSubmission(submission: Submission, submissionRound?: UUID): boolean {
         if (submission.team === null) return false;
-        const teamScores = this.teamSolvedStatus.get(submission.team) ?? new Map<Subtask, number>();
-        //add new subtasks
-        for (const score of submission.scores) {
-            let alreadyExists = false;
-            for (const i of this.subtasks) {
-                alreadyExists = i.id === submission.problemId && i.number == score.subtask;
-                if (alreadyExists) break;
-            }
-            if (!alreadyExists) {
-                //if submissionRound isn't passed in, look it up from the loaded rounds
-                submissionRound ??= this.rounds.find((round) => round.problems.some((id) => id == submission.problemId))?.id;
-                if (submissionRound === undefined) {
-                    this.logger.error(`Problem ID (${submission.problemId}) of submission not found in round data`);
-                    return false;
-                }
-                this.subtasks.add({
-                    round: submissionRound,
-                    id: submission.problemId,
-                    number: score.subtask
-                });
-            }
+        submissionRound ??= this.rounds.find((round) => round.problems.some((id) => id == submission.problemId))?.id;
+        if (submissionRound === undefined) {
+            this.logger.error(`Problem ID (${submission.problemId}) of submission not found in round data`);
+            return false;
         }
-        //put in the scores from the submission
-        for (const subtask of this.subtasks) {
-            if (subtask.id === submission.problemId && teamScores.get(subtask) === undefined && submission.scores.every(score => score.subtask !== subtask.number || score.state === ScoreState.PASS)) {
-                teamScores.set(subtask, submission.time);
-            }
+
+        this.submissions.push(submission);
+        if (!this.teamScores.has(submission.team)) {
+            this.createEmptyScoreMap(submission.team);
+            this.createEmptyPenaltyMap(submission.team);
         }
-        this.teamSolvedStatus.set(submission.team, teamScores);
+        const scores = this.teamScores.get(submission.team)!;
+        const penalties = this.teamPenalties.get(submission.team)!;
+
+        const problemIndex = this.rounds.find(i => i.id === submissionRound)!.problems.indexOf(submission.problemId);
+        const pass = submission.scores.every(s => s.state === ScoreState.PASS);
+        scores.get(submissionRound)![problemIndex] = pass ? submission.time : -1;
+        
+        //convert 10 minutes to ms
+        if (!pass) penalties.get(submissionRound)![problemIndex] += 10*60*1000;
+
         return true;
     }
 
@@ -96,48 +96,29 @@ export class Scorer {
      * @returns  Mapping of team to score
      */
     getRoundScores(roundId: UUID): Map<number, TeamScore> {
-        const subtaskSolved = new Map<Subtask, number>(); // how many users solved each subtask
-        const problemSubtasks = new Map<UUID, Subtask[]>(); // which subtasks are assigned to which problem
-        const teamScores = new Map<number, TeamScore>(); // final scores of each team
         const round = this.rounds.find(r => r.id == roundId);
         if (round === undefined) {
             this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
             throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
         }
 
-        //find how many teams solved each subtask
-        this.teamSolvedStatus.forEach((scores) => {
-            scores.forEach((solveTime, subtask) => {
-                if (subtask.round == roundId) {
-                    subtaskSolved.set(subtask, (subtaskSolved.get(subtask) ?? 0) + 1);
-                }
-            })
-        });
+        const teamRoundScores = new Map<number, TeamScore>();
+        for(const team of this.teamScores.keys()) {
+            const score: TeamScore = { score: 0, penalty: 0 };
+            const scores = this.teamScores.get(team)!.get(roundId)!;
+            const penalties = this.teamPenalties.get(team)!.get(roundId)!;
+            for(let i = 0; i < scores.length; i++) {
+                score.score += scores[i] == -1 ? 0 : 1;
+                score.penalty += scores[i] == -1 ? 0 : penalties[i];
+            }
+            //if they solved at least one problem, then add penalty based on last solve
+            if (scores.some(val => val != -1)) {
+                score.penalty += Math.max(...scores) - round.startTime;
+            }
+            teamRoundScores.set(team, score);
+        }
 
-        //group subtasks by problem id
-        subtaskSolved.forEach((numSolved, subtask) => {
-            const problem = problemSubtasks.get(subtask.id);
-            if (problem === undefined) problemSubtasks.set(subtask.id, [subtask]);
-            else problemSubtasks.set(subtask.id, problem.concat([subtask]));
-        });
-
-        //calculate actual scores for each user
-        this.teamSolvedStatus.forEach((solved, team) => {
-            let score: TeamScore = { score: 0, penalty: 0 };
-            solved.forEach((solveTime, subtask) => {
-                const numSubtasks = problemSubtasks.get(subtask.id)?.length;
-                const numSolved = subtaskSolved.get(subtask);
-                //not explicity comparing to undefined is safe because there has to be at least one solve
-                if (numSubtasks && numSolved) {
-                    const subtaskScore = this.scoringFunction({ time: solveTime }, { numSubtasks }, { startTime: round.startTime, endTime: round.endTime });
-                    score.score += subtaskScore.score;
-                    score.penalty = Math.max(score.penalty, subtaskScore.penalty);
-                    // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
-                }
-            });
-            teamScores.set(team, score);
-        });
-        return teamScores;
+        return teamRoundScores;
     }
 
     /**
@@ -157,10 +138,12 @@ export class Scorer {
     }
 
     /**
-     * Remove all existing scores.
+     * Remove all existing scores and submissions.
      */
     clearScores() {
-        this.teamSolvedStatus.clear();
+        this.teamScores.clear();
+        this.teamPenalties.clear();
+        this.submissions = [];
     }
 }
 

@@ -505,12 +505,7 @@ export class ContestHost {
         this.id = id;
         this.db = db;
         this.grader = grader;
-        this.scorer = new Scorer([], logger, (submission, problem, round) => {
-            return {
-                score: 1 / problem.numSubtasks,
-                penalty: submission.time
-            };
-        });
+        this.scorer = new Scorer([], logger);
         this.logger = new NamedLogger(logger, `ContestHost-${this.id}`);
         this.contest = {
             id: id,
@@ -640,7 +635,7 @@ export class ContestHost {
         }
         this.logger.info(`Contest ${this.contest.id} - Indexed to round ${this.index}`);
         // advancing to next round
-        let updateIndex = 0;
+        let updateIndex = -1;
         this.updateLoop = setInterval(() => {
             // index is from start of round to start of next round; -1 means before round 0
             // active means round is active (index 0 active false means between round 0 and round 1/end of contest)
