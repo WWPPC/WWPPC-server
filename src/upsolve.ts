@@ -161,7 +161,7 @@ export class UpsolveManager {
         //         if (config.debugMode) socket.logWithId(this.logger.logger.debug, `Update submission: ${data.id} - ${reverse_enum(ContestUpdateSubmissionResult, res)}`);
         //         cb(res);
         //     };
-        //     if (data.file.length > 10240) {
+        //     if (data.file.length > 65536) {
         //         respond(ContestUpdateSubmissionResult.FILE_TOO_LARGE);
         //         return;
         //     }

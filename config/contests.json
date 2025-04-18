@@ -20,7 +20,7 @@
             "Python3.12.3",
             "PyPy7.3.17"
         ],
-        "maxSubmissionSize": 10240
+        "maxSubmissionSize": 65536
     },
     "WWPHACKS": {
         "graders": false,
