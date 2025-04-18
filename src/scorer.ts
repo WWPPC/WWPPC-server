@@ -131,7 +131,7 @@ export class Scorer {
                 if (numSubtasks && numSolved) {
                     const subtaskScore = this.scoringFunction({ time: solveTime }, { numSubtasks }, { startTime: round.startTime, endTime: round.endTime });
                     score.score += subtaskScore.score;
-                    score.penalty += subtaskScore.penalty;
+                    score.penalty = Math.max(score.penalty, subtaskScore.penalty);
                     // score += weight * (1 - (solveTime - round.startTime) / (1000*60*1000000));
                 }
             });
