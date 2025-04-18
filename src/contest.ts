@@ -385,7 +385,7 @@ export class ContestManager {
                 return;
             }
             if (req.query.init) this.longPollingUsers.addImmediate(`${req.params.contest}:${team}:${req.params.pId}`, 'submissionData', res);
-            else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}${req.params.pId}`, 'submissionData', res);
+            else this.longPollingUsers.addWaiter(`${req.params.contest}:${team}:${req.params.pId}`, 'submissionData', res);
         });
         this.app.get('/api/contest/:contest/submission/:sId', async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
