@@ -149,6 +149,7 @@ export class ContestManager {
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
         this.app.get('/api/contest/info/:contest', async (req, res) => {
+            // don't hide hidden contests or bork things
             const data = await this.db.readContests({ id: req.params.contest });
             if (Array.isArray(data)) {
                 if (data.length != 1) sendDatabaseResponse(req, res, DatabaseOpCode.NOT_FOUND, {}, this.logger);

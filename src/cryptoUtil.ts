@@ -61,12 +61,12 @@ export class RSAEncryptionHandler {
      * @param base64 Encrypted ArrayBuffer encoded in base64 representing a string or an unencrypted string (pass-through if encryption is not possible)
      * @returns  Decrypted string
      */
-    async decrypt(base64: string): Promise<string | Buffer> {
+    async decrypt(base64: string): Promise<string | null> {
         try {
             return new TextDecoder().decode(await subtle.decrypt({ name: "RSA-OAEP" }, (await this.keypair).privateKey, Buffer.from(base64, 'base64')));
         } catch (err) {
             this.logger.handleError('RSA decrypt error:', err);
-            return base64;
+            return null;
         }
     }
 }
