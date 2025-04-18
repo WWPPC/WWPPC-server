@@ -607,10 +607,14 @@ export class ContestHost {
         const scoreFreezeCutoffTime = this.contest.rounds[this.contest.rounds.length - 1].endTime - (this.contestConfig.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
         for (const sub of submissions) {
-            if (sub.time < scoreFreezeCutoffTime) {
-                this.scorer.addSubmission(sub);
+            if (sub.scores.length > 0) {
+                if (sub.time < scoreFreezeCutoffTime) {
+                    this.scorer.addSubmission(sub);
+                }
+                else frozenSubmissions.push(sub);
+            } else {
+                this.processSubmission(sub);
             }
-            else frozenSubmissions.push(sub);
         }
         this.clientScoreboard = this.scorer.getScores();
         for (const sub of frozenSubmissions) {

@@ -108,8 +108,8 @@ export class Scorer {
             const scores = this.teamScores.get(team)!.get(roundId)!;
             const penalties = this.teamPenalties.get(team)!.get(roundId)!;
             for(let i = 0; i < scores.length; i++) {
-                score.score += scores[i] == -1 ? 0 : 1;
-                score.penalty += scores[i] == -1 ? 0 : penalties[i];
+                score.score += scores[i] === -1 ? 0 : 1;
+                score.penalty += scores[i] === -1 ? 0 : penalties[i];
             }
             //if they solved at least one problem, then add penalty based on last solve
             if (scores.some(val => val != -1)) {
