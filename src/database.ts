@@ -1461,7 +1461,9 @@ export class Database {
         try {
             const existing = await this.db.query('SELECT id FROM submissions WHERE id=$1', [submission.id]);
             if (existing.rows.length > 0) {
-                await this.db.query('UPDATE submissions SET scores=$2 WHERE id=$1');
+                await this.db.query('UPDATE submissions SET scores=$2 WHERE id=$1', [
+                    submission.id, JSON.stringify(submission.scores)
+                ]);
                 if (this.submissionCache.has(submission.id)) {
                     // this doesn't count as cache refresh, just patching cache here
                     const entry = this.submissionCache.get(submission.id)!;
