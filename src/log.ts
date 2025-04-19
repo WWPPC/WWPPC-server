@@ -110,6 +110,11 @@ export class MultiLogger extends Logger {
         this.loggers = loggers.slice();
     }
 
+    /**Get the `Logger`s encapsulated within */
+    get children(): Logger[] {
+        return this.loggers.slice();
+    }
+
     debug(text: string, logOnly?: boolean): void {
         for (const l of this.loggers) l.debug(text, logOnly);
     }

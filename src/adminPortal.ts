@@ -120,14 +120,14 @@ export class AdminAPI {
 
         // logs
         this.app.get('/admin/logTail', async (req, res) => {
-            if (this.logger.logger instanceof FileLogger)
-                res.send(this.logger.logger.tail());
-            else res.send('Logs not tracked');
+            if (defaultLogger instanceof FileLogger)
+                res.send(defaultLogger.tail());
+            else res.status(404).send('Log tails not tracked');
         });
         this.app.get('/admin/logs', async (req, res) => {
-            if (this.logger.logger instanceof FileLogger)
-                res.sendFile(this.logger.logger.filePath);
-            else res.send('Logs not tracked');
+            if (defaultLogger instanceof FileLogger)
+                res.sendFile(defaultLogger.filePath);
+            else res.status(404).send('Logs not tracked');
         });
         // access tokens
         this.app.get('/admin/accessTokens/ruleset', (req, res) => {
