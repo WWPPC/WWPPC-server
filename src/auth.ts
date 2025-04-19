@@ -60,6 +60,9 @@ export class ClientAuth {
         setInterval(() => this.encryption.rotateKeys(), config.rsaKeyRotateInterval * 3600000);
     }
 
+    /**
+     * Create HTTP endpoints
+     */
     private createEndpoints() {
         if (config.sessionExpireTime < 6) this.logger.warn('sessionExpireTime is set to a low value! This will result in frequent sign outs! Is this intentional?');
         setInterval(() => this.recentPasswordResetEmails.forEach((v, k) => {

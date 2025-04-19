@@ -53,6 +53,9 @@ export class ClientAPI {
         this.createEndpoints();
     }
 
+    /**
+     * Create HTTP endpoints
+     */
     private createEndpoints() {
         const auth = ClientAuth.use();
         // always public

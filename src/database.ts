@@ -1477,7 +1477,7 @@ export class Database {
                     submission: structuredClone(submission),
                     expiration: performance.now() + config.dbCacheTime
                 });
-                await this.purgeOldSubmissions(submission.username);
+                await this.purgeOldSubmissions(submission.username, submission.problemId);
             }
             return DatabaseOpCode.SUCCESS;
         } catch (err) {
@@ -1488,15 +1488,16 @@ export class Database {
         }
     }
     /**
-     * Delete all but the newest {@link config.maxSubmissionHistory} submissions for a user. Does not check user exists.
+     * Delete all but the newest {@link config.maxSubmissionHistory} submissions for a user in a problem. Does not check user exists.
      * @param username Username to remove submissions from
+     * @param problem UUID of problem
      * @returns Deletion status
      */
-    async purgeOldSubmissions(username: string): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
+    async purgeOldSubmissions(username: string, problem: UUID): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.ERROR> {
         const startTime = performance.now();
         try {
-            await this.db.query('DELETE FROM submissions WHERE id IN (SELECT id FROM submissions WHERE username=$1 ORDER BY time DESC OFFSET $2)', [
-                username, config.maxSubmissionHistory
+            await this.db.query('DELETE FROM submissions WHERE id IN (SELECT id FROM submissions WHERE username=$1 AND problem=$2 ORDER BY time DESC OFFSET $3)', [
+                username, problem, config.maxSubmissionHistory
             ]);
             return DatabaseOpCode.SUCCESS;
         } catch (err) {

@@ -36,6 +36,9 @@ export class AdminAPI {
         this.createEndpoints();
     }
 
+    /**
+     * Create HTTP endpoints
+     */
     private createEndpoints() {
         this.logger.info('Attaching admin portal to /admin/');
         const contestManager = ContestManager.use();

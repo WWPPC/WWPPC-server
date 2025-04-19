@@ -26,7 +26,7 @@ export class ContestManager {
     }>;
     private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean}
+        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean }
         contestNotifications: never
         submissionData: ClientSubmission[]
     }>;
@@ -130,6 +130,9 @@ export class ContestManager {
         if (hasNew) this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
     }
 
+    /**
+     * Create HTTP endpoints
+     */
     private createEndpoints() {
         const auth = ClientAuth.use();
         // always public
@@ -197,8 +200,8 @@ export class ContestManager {
         });
         // apply ratelimiting first
         this.app.use(['/api/contest/:a/submit/:b', '/api/contest/:a/submit/:b-:c'], rateLimitWithTrigger({
-            windowMs: 5000,
-            limit: 1,
+            windowMs: 10000,
+            limit: 3,
             message: 'Too many submissions'
         }, (req, res) => this.logger.warn(`Submission rate limit triggered by ${req.ip}`)));
         // apply authentication + registration for contest + contest is running
@@ -606,17 +609,17 @@ export class ContestHost {
         // maintain consistency with score freeze time
         const scoreFreezeCutoffTime = this.contest.rounds[this.contest.rounds.length - 1].endTime - (this.contestConfig.scoreFreezeTime * 60000);
         const frozenSubmissions: Submission[] = [];
+        const regradeSubmissions: Submission[] = [];
         for (const sub of submissions) {
             if (sub.scores.length > 0) {
-                if (sub.time < scoreFreezeCutoffTime) {
-                    this.scorer.addSubmission(sub);
-                }
+                if (sub.time < scoreFreezeCutoffTime) this.scorer.addSubmission(sub);
                 else frozenSubmissions.push(sub);
-            } else {
-                this.processSubmission(sub);
-            }
+            } else regradeSubmissions.push(sub);
         }
         this.clientScoreboard = this.scorer.getScores();
+        for (const sub of regradeSubmissions) {
+            this.gradeSubmission(sub);
+        }
         for (const sub of frozenSubmissions) {
             this.scorer.addSubmission(sub);
         }
@@ -644,14 +647,11 @@ export class ContestHost {
             // index is from start of round to start of next round; -1 means before round 0
             // active means round is active (index 0 active false means between round 0 and round 1/end of contest)
             const now = Date.now();
-            let updated = false;
             if (this.index >= 0 && this.contest.rounds[this.index].endTime <= now && this.active) {
-                updated = true;
                 this.active = false;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} end`);
             }
             if (this.contest.rounds[this.index + 1] !== undefined && this.contest.rounds[this.index + 1].startTime <= now) {
-                updated = true;
                 this.index++;
                 this.active = true;
                 this.logger.info(`Contest ${this.contest.id} - Round ${this.index} start`);
@@ -774,6 +774,15 @@ export class ContestHost {
             || !this.contestConfig.acceptedSolverLanguages.includes(submission.language)
             || submission.file.length > this.contestConfig.maxSubmissionSize)
             return DatabaseOpCode.FORBIDDEN;
+        return await this.gradeSubmission(submission);
+    }
+
+    /**
+     * Submit a solution to the contest, however does not check round restrictions.
+     * @param submission Submission
+     * @returns Status code
+     */
+    private async gradeSubmission(submission: Submission): Promise<DatabaseOpCode> {
         if (submission.team === null) {
             this.logger.error('Cannot grade contest submission without team');
             return DatabaseOpCode.ERROR;
