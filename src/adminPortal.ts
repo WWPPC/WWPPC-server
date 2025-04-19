@@ -34,7 +34,7 @@ export class AdminAPI {
     }>;
     private readonly longPollingContests: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean }
+        contestScoreboards: { scores: ({ team: number } & TeamScore)[], clientScores: ({ team: number } & TeamScore)[], frozen: boolean }
         contestNotifications: never
     }>;
 
@@ -313,7 +313,6 @@ export class AdminAPI {
                 }
             } else sendDatabaseResponse(req, res, data, {}, this.logger);
         });
-        //TODO: move the body parser after checkPerms cuz we dont need it to check perms
         this.app.post('/admin/api/round/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), bodyParser.json(), validateRequestBody({
             problems: 'required|array',
             'problems.*': 'required|uuid',
@@ -383,11 +382,12 @@ export class AdminAPI {
         // ADD AUTH BACK
         this.app.get('/admin-temp/api/contests')
         this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), async (req, res) => {
-            res.json(contestManager.getRunningContests().map(host => ({
-                clientScoreboards: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
-                scoreboards: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
-                contest: host.contestData
-            })));
+            if (req.query.contest === undefined) {
+                res.sendStatus(400);
+                return;
+            }
+            if (req.query.init !== undefined) this.longPollingContests.addImmediate(req.query.contest.toString(), 'contestScoreboards', res);
+            else this.longPollingContests.addWaiter(req.query.contest.toString(), 'contestScoreboards', res);
         });
         this.app.post('/admin/api/reloadContest/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS), async (req, res) => {
             const runningContests = contestManager.getRunningContests();
@@ -406,8 +406,9 @@ export class AdminAPI {
             host.on('data', (data) => this.longPollingContests.emit(host.id, 'contestData', data));
             host.on('scoreboards', (scores, frozen) => this.longPollingContests.emit(host.id, 'contestScoreboards', {
                 scores: Array.from(scores, ([team, score]) => ({ team, ...score })),
+                clientScores: Array.from(host.scoreboards,  ([team, score]) => ({ team, ...score })),
                 frozen: frozen
-            }))
+            }));
         });
         contestManager.on('contestEnd', (host) => {
             this.longPollingGlobal.emit('contests', contestManager.getRunningContests().map((c) => c.id));
