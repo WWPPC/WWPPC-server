@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import { Express, NextFunction, Request, Response } from 'express';
 
-import ClientAPI from './api';
+import ClientAPI, { ClientContest } from './api';
 import config from './config';
 import ContestManager from './contest';
 import { RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
@@ -14,7 +14,7 @@ import { is_in_enum, isUUID } from './util';
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
     /**Read leaderboards of ongoing contests */
-    READ_LEADERBOARDS = 'readLeaderboards'
+    READ_CONTESTS = 'readLeaderboards'
 }
 
 /**
@@ -33,7 +33,7 @@ export class AdminAPI {
         contests: string[]
     }>;
     private readonly longPollingContests: NamespacedLongPollEventEmitter<{
-        contestData: Contest
+        contestData: ClientContest
         contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean }
         contestNotifications: never
     }>;
@@ -376,7 +376,7 @@ export class AdminAPI {
         // ADD AUTH BACK
         // ADD AUTH BACK
         this.app.get('/admin-temp/api/contests')
-        this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_LEADERBOARDS), async (req, res) => {
+        this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), async (req, res) => {
             res.json(contestManager.getRunningContests().map(host => ({
                 clientScoreboards: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),
                 scoreboards: Array.from(host.scoreboards).map(s => ({ username: s[0], score: s[1] })),
@@ -394,6 +394,29 @@ export class AdminAPI {
             res.sendStatus(200);
             this.logger.info(`ContestHost "${req.params.id}" reloaded by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
+
+        contestManager.on('contestStart', (host) => {
+            this.longPollingGlobal.emit('contests', contestManager.getRunningContests().map((c) => c.id));
+            host.on('data', (data) => this.longPollingContests.emit(host.id, 'contestData', data));
+            host.on('scoreboards', (scores, frozen) => this.longPollingContests.emit(host.id, 'contestScoreboards', {
+                scores: Array.from(scores, ([team, score]) => ({ team, ...score })),
+                frozen: frozen
+            }))
+        });
+        contestManager.on('contestEnd', (host) => {
+            this.longPollingGlobal.emit('contests', contestManager.getRunningContests().map((c) => c.id));
+        });
+
+        this.app.get('/admin/api/runningContest/:contest/data', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), (req, res) => {
+            if (req.query.init) this.longPollingContests.addImmediate(req.params.contest, 'contestData', res);
+            else this.longPollingContests.addWaiter(req.params.contest, 'contestData', res);
+        });
+        this.app.get('/admin/api/runningContest/:contest/scoreboard', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), (req, res) => {
+            if (req.query.init) this.longPollingContests.addImmediate(req.params.contest, 'contestScoreboards', res);
+            else this.longPollingContests.addWaiter(req.params.contest, 'contestScoreboards', res);
+        });
+
+        // spaghetti leaderboards
 
         // reserve /admin path
         this.app.use('/admin/*', (req, res) => res.sendStatus(404));
