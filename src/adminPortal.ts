@@ -381,13 +381,9 @@ export class AdminAPI {
         // ADD AUTH BACK
         // ADD AUTH BACK
         this.app.get('/admin-temp/api/contests')
-        this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), async (req, res) => {
-            if (req.query.contest === undefined) {
-                res.sendStatus(400);
-                return;
-            }
-            if (req.query.init !== undefined) this.longPollingContests.addImmediate(req.query.contest.toString(), 'contestScoreboards', res);
-            else this.longPollingContests.addWaiter(req.query.contest.toString(), 'contestScoreboards', res);
+        this.app.get('/admin/api/runningContests/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_CONTESTS), async (req, res) => {
+            if (req.query.init !== undefined) this.longPollingContests.addImmediate(req.params.contest.toString(), 'contestScoreboards', res);
+            else this.longPollingContests.addWaiter(req.params.contest.toString(), 'contestScoreboards', res);
         });
         this.app.post('/admin/api/reloadContest/:id', this.checkPerms(AdminPerms.CONTROL_CONTESTS), async (req, res) => {
             const runningContests = contestManager.getRunningContests();
