@@ -85,6 +85,11 @@ export class AdminAPI {
             }
             const check = await this.db.checkAccount(req.body.username, password);
             if (check == DatabaseOpCode.SUCCESS) {
+                const perms = await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN);
+                if (typeof perms != 'boolean') {
+                    sendDatabaseResponse(req, res, perms, { [DatabaseOpCode.NOT_FOUND]: 'Not an admin'}, this.logger, username);
+                    return;
+                }
                 if (await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
                     const token = this.sessionTokens.createToken(username, config.sessionExpireTime * 3600);
                     res.cookie('adminToken', token, {
@@ -109,6 +114,7 @@ export class AdminAPI {
                 sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
                 return;
             }
+            console.log("BUH");
             res.cookie('adminAccessToken', req.body, {
                 expires: new Date(this.sessionTokens.tokenExpiration(req.body)!),
                 httpOnly: true,
