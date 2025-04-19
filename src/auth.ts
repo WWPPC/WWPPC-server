@@ -1,6 +1,5 @@
 import { json as parseBodyJson } from 'body-parser';
 import { Express } from 'express';
-import { extend as nivExtend, extendMessages as nivExtendMessages, Validator } from 'node-input-validator';
 
 import ClientAPI from './api';
 import config from './config';
@@ -8,7 +7,7 @@ import { RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
 import Database, { DatabaseOpCode } from './database';
 import Mailer from './email';
 import { defaultLogger, NamedLogger } from './log';
-import { validateRequestBody, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse } from './util';
+import { createNivEncryptedRules, rateLimitWithTrigger, sendDatabaseResponse, validateRequestBody } from './netUtil';
 
 /**
  * Bundles code for client authentication into a single class.
@@ -33,28 +32,7 @@ export class ClientAuth {
         this.mailer = mailer;
         this.logger = new NamedLogger(defaultLogger, 'ClientAuth');
         this.encryption = new RSAEncryptionHandler(this.logger);
-        nivExtend('encrypted-auth', async ({ value }: any) => {
-            if (typeof value != 'string') return false;
-            return typeof (await this.encryption.decrypt(value)) == 'string';
-        });
-        nivExtend('encryptedEmail-auth', async ({ value }: any) => {
-            if (typeof value != 'string') return false;
-            return await new Validator({ v: await this.encryption.decrypt(value) }, { v: 'email|length:64,1' }).check();
-        });
-        nivExtend('encryptedLen-auth', async ({ value, args }: any) => {
-            if (args.length < 1 || args.length > 2) throw new Error('Invalid seed for rule encryptedLen-auth');
-            if (typeof value != 'string') return false;
-            return await new Validator({
-                v: await this.encryption.decrypt(value)
-            }, {
-                v: `string|length:${args[0]}${args.length > 1 ? `,${args[1]}` : ''}`
-            }).check();
-        });
-        nivExtendMessages({
-            'encrypted-auth': 'The :attribute must be RSA-OAEP encrypted using the server public key (maybe your session expired?)',
-            'encryptedEmail-auth': 'The :attribute must be a valid e-mail address and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
-            'encryptedLen-auth': 'The :attribute must be a valid length and RSA-OAEP encrypted using the server public key (maybe your session expired?)',
-        }, 'en')
+        createNivEncryptedRules(this.encryption, 'auth');
         this.createEndpoints();
         this.ready = Promise.all([this.encryption.ready]);
         setInterval(() => this.encryption.rotateKeys(), config.rsaKeyRotateInterval * 3600000);

@@ -8,9 +8,9 @@ import config, { ContestConfiguration } from './config';
 import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
-import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
 import Scorer, { ClientScoreSolveStatus } from './scorer';
-import { FilterComparison, isUUID, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
+import { LongPollEventEmitter, NamespacedLongPollEventEmitter, rateLimitWithTrigger, sendDatabaseResponse, validateRequestBody } from './netUtil';
+import { FilterComparison, isUUID, reverse_enum, TypedEventEmitter, UUID } from './util';
 
 /**
  * `ContestManager` handles automatic contest running and interfacing with clients through HTTP.
@@ -35,6 +35,10 @@ export class ContestManager {
 
     private readonly contests: Map<string, ContestHost> = new Map();
     private readonly updateLoop: NodeJS.Timeout;
+    private readonly eventEmitter: TypedEventEmitter<{
+        contestStart: [ContestHost],
+        contestEnd: [ContestHost]
+    }> = new TypedEventEmitter();
 
     private constructor(db: Database, app: Express, grader: Grader) {
         this.db = db;
@@ -124,7 +128,9 @@ export class ContestManager {
                 host.on('end', () => {
                     this.contests.delete(contest.id);
                     this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
+                    this.eventEmitter.emit('contestEnd', host);
                 });
+                this.eventEmitter.emit('contestStart', host);
             }
         }
         if (hasNew) this.longPollingGlobal.emit('contests', [...this.contests.keys()]);
@@ -449,6 +455,19 @@ export class ContestManager {
     getRunningContests(): ContestHost[] {
         return Array.from(this.contests.values());
     }
+
+    /**
+     * Add an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    on: ContestManager['eventEmitter']['on'] = (ev, cb) => this.eventEmitter.on(ev, cb);
+    /**
+     * Remove an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    off: ContestManager['eventEmitter']['off'] = (ev, cb) => this.eventEmitter.off(ev, cb);
 
     /**
      * Stops all contests and closes the contest manager
@@ -849,19 +868,6 @@ export class ContestHost {
     }
 
     /**
-     * Add an event listener.
-     * @param ev Event name
-     * @param cb Callback function
-     */
-    on: ContestHost['eventEmitter']['on'] = (ev, cb) => this.eventEmitter.on(ev, cb);
-    /**
-     * Remove an event listener.
-     * @param ev Event name
-     * @param cb Callback function
-     */
-    off: ContestHost['eventEmitter']['off'] = (ev, cb) => this.eventEmitter.off(ev, cb);
-
-    /**
      * Get the completion state to be displayed by the client for a given submission.
      * @param submission Submission to assign completion state to
      * @returns Completion state of submission
@@ -882,6 +888,19 @@ export class ContestHost {
         if (hasPass) return ClientProblemCompletionState.GRADED_PARTIAL;
         return ClientProblemCompletionState.GRADED_FAIL;
     }
+
+    /**
+     * Add an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    on: ContestHost['eventEmitter']['on'] = (ev, cb) => this.eventEmitter.on(ev, cb);
+    /**
+     * Remove an event listener.
+     * @param ev Event name
+     * @param cb Callback function
+     */
+    off: ContestHost['eventEmitter']['off'] = (ev, cb) => this.eventEmitter.off(ev, cb);
 
     /**
      * Stop the running contest and remove all users.
