@@ -5,9 +5,11 @@ import ClientAPI from './api';
 import config from './config';
 import ContestManager from './contest';
 import { RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
-import Database, { AdminPerms, DatabaseOpCode } from './database';
+import Database, { AdminPerms, Contest, DatabaseOpCode } from './database';
 import { defaultLogger, FileLogger, NamedLogger } from './log';
-import { is_in_enum, isUUID, sendDatabaseResponse, validateRequestBody } from './util';
+import { createNivEncryptedRules, LongPollEventEmitter, NamespacedLongPollEventEmitter, sendDatabaseResponse, validateRequestBody } from './netUtil';
+import { TeamScore } from './scorer';
+import { is_in_enum, isUUID } from './util';
 
 /**Permissions that can be given to access tokens */
 enum AdminAccessTokenPerms {
@@ -27,12 +29,23 @@ export class AdminAPI {
     readonly encryption: RSAEncryptionHandler;
     private readonly sessionTokens: TokenHandler<string> = new TokenHandler<string>();
     private readonly accessTokens: TokenHandler<AdminAccessTokenPerms[]> = new TokenHandler<AdminAccessTokenPerms[]>();
+    private readonly longPollingGlobal: LongPollEventEmitter<{
+        contests: string[]
+    }>;
+    private readonly longPollingContests: NamespacedLongPollEventEmitter<{
+        contestData: Contest
+        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean }
+        contestNotifications: never
+    }>;
 
     private constructor(db: Database, app: Express) {
         this.db = db;
         this.app = app;
         this.logger = new NamedLogger(defaultLogger, 'AdminAPI');
         this.encryption = new RSAEncryptionHandler(this.logger);
+        this.longPollingGlobal = new LongPollEventEmitter(this.logger);
+        this.longPollingContests = new NamespacedLongPollEventEmitter(this.logger);
+        createNivEncryptedRules(this.encryption, 'admin');
         this.createEndpoints();
     }
 
@@ -57,7 +70,7 @@ export class AdminAPI {
         });
         this.app.post('/admin/login', bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            password: 'required|encryptedLen-auth:1024,1'
+            password: 'required|encryptedLen-admin:1024,1'
         }, this.logger), async (req, res) => {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken) || this.accessTokens.tokenExists(req.cookies.authToken)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Already signed in', this.logger);
@@ -163,7 +176,7 @@ export class AdminAPI {
             firstName: 'required|string|length:32,1',
             lastName: 'required|string|length:32,1',
             displayName: 'required|string|length:64,1',
-            email2: 'required|encryptedEmail-auth',
+            email2: 'required|encryptedEmail-admin',
             profileImage: `required|mime:jpg,png,webp|size:${config.maxProfileImgSize}`,
             bio: 'required|string|length:2048',
             organization: 'required|string|length:64,1',
@@ -190,7 +203,7 @@ export class AdminAPI {
         });
         this.app.delete('/admin/api/account/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
-            password: 'required|encryptedLen-auth:1024,1'
+            password: 'required|encryptedLen-admin:1024,1'
         }, this.logger), async (req, res) => {
             const data = await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.sessionToken) ?? 'invalid-username-that-is-not-an-administrator');
             sendDatabaseResponse(req, res, data, {}, this.logger);
@@ -356,7 +369,12 @@ export class AdminAPI {
             this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
         });
         // contest control functions
-        //fix contest.ts first before finishing this
+        // live leaderboards
+        // ADD AUTH BACK
+        // ADD AUTH BACK
+        // ADD AUTH BACK
+        // ADD AUTH BACK
+        this.app.get('/admin-temp/api/contests')
         this.app.get('/admin/api/runningContests', this.checkPerms(AdminPerms.CONTROL_CONTESTS, AdminAccessTokenPerms.READ_LEADERBOARDS), async (req, res) => {
             res.json(contestManager.getRunningContests().map(host => ({
                 clientScoreboards: Array.from(host.clientScoreboards).map(s => ({ username: s[0], score: s[1] })),

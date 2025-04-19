@@ -27,9 +27,9 @@ if (config.debugMode) logger.info('Extra debug logging is enabled (disable this 
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import { rateLimitWithTrigger } from './util';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { rateLimitWithTrigger } from './netUtil';
 const app = express();
 const server = fs.existsSync(path.resolve(config.path, 'cert.crt')) ? https.createServer({
     key: fs.readFileSync(path.resolve(config.path, 'cert.key')),

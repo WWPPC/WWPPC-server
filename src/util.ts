@@ -1,12 +1,5 @@
 import { EventEmitter } from 'events';
-import { NextFunction, Request, Response } from 'express';
-import rateLimit, { Options as RateLimitOptions, RateLimitRequestHandler } from 'express-rate-limit';
-import { extend as nivExtend, extendMessages as nivExtendMessages, Validator } from 'node-input-validator';
 import { validate } from 'uuid';
-
-import config from './config';
-import { DatabaseOpCode } from './database';
-import Logger from './log';
 
 // important comparator (streamlines filtering everywhere)
 export type primitive = number | string | boolean | undefined | null;
@@ -199,112 +192,6 @@ export class TypedEventEmitter<TEvents extends Record<string, any[]>> {
      */
     off<TEvent extends keyof TEvents & string>(ev: TEvent, cb: (...args: TEvents[TEvent]) => any): void {
         this.emitter.off(ev, cb);
-    }
-}
-
-// these are used in a couple places
-nivExtend('lowerAlphaNumDash', ({ value }: any) => {
-    if (typeof value != 'string') return false;
-    return /^[a-z0-9-_]+$/.test(value);
-});
-nivExtend('uuid', ({ value }: any) => {
-    return validate(value);
-});
-nivExtend('base64Mime', async ({ value, args }: any) => {
-    if (args.length == 0) throw new Error('Invalid seed for rule base64Mime');
-    if (!await new Validator({ v: value.split(',')[1] }, { v: 'required|base64' }).check()) return false;
-    const mime = /^data:image\/([a-zA-Z]+);base64,([A-Za-z0-9+/=]+)$/g.exec(value);
-    if (mime === null) return false;
-    if (!(args as string[]).includes(mime[1])) return false;
-    return true;
-});
-nivExtend('base64Size', async ({ value, args }: any) => {
-    if (args.length != 1 || isNaN(Number(args[0]))) throw new Error('Invalid seed for rule base64Size');
-    // remove MIME type (if doesn't have it that's fine)
-    const split = (value as string).split(',');
-    // this will check if it's base64 as well
-    try {
-        return Buffer.from(split[1] ?? split[0], 'base64').length <= Number(args[0]);
-    } catch (err) {
-        return false;
-    }
-});
-nivExtendMessages({
-    lowerAlphaNumDash: 'The :attribute can only contain lowercase letters, numbers, dashes, and underscores',
-    uuid: 'The :attribute must be a valid UUID',
-    base64Mime: 'The :attribute is an invalid MIME type',
-    base64Size: 'The :attribute must be :arg0 bytes or less'
-});
-
-/**
- * Create an instance of `express-rate-limit` IP rate limiter, with a handler
- * for the first trigger of the rate limiter per window.
- * @param options Options to configure the rate limiter.
- * @param cb Callback handler for the first trigger
- */
-export function rateLimitWithTrigger(options: Partial<Omit<RateLimitOptions, 'handler'>>, cb: (req: Request, res: Response) => any): RateLimitRequestHandler {
-    const window = options.windowMs ?? 60000;
-    const recentTriggers: Map<string, number> = new Map();
-    return rateLimit({
-        ...options,
-        handler: async (req, res, next, options) => {
-            if (recentTriggers.get(req.ip!) ?? -Infinity < performance.now() - window) await cb(req, res);
-            recentTriggers.set(req.ip!, performance.now());
-            res.status(options.statusCode).send(options.message);
-        }
-    });
-}
-/**
- * Returns middleware that validates the request body using the node-input-validator package.
- * @param rules Input validation rules
- * @param logger Logging instance
- */
-export function validateRequestBody(rules: object, logger?: Logger, responseCode: number = 400): (req: Request, res: Response, next: NextFunction) => Promise<void> {
-    return async (req, res, next) => {
-        const validator = new Validator(req.body, rules);
-        validator.doBail = !config.debugMode;
-        if (await validator.check()) {
-            next();
-        } else {
-            if (config.debugMode && logger !== undefined) logger.warn(`${req.method} ${req.path} malformed: ${validator.errors} (${req.ip})`);
-            res.status(responseCode).send('Errors:\n' + Array.from(Object.values(validator.errors)).map<string>((err: any) => err.message).join('\n'));
-        }
-    };
-}
-const defaultDbResMessages: Record<DatabaseOpCode, string> = {
-    [DatabaseOpCode.SUCCESS]: 'Success',
-    [DatabaseOpCode.CONFLICT]: 'Already exists',
-    [DatabaseOpCode.NOT_FOUND]: 'Not found',
-    [DatabaseOpCode.UNAUTHORIZED]: 'Unauthorized',
-    [DatabaseOpCode.FORBIDDEN]: 'Forbidden',
-    [DatabaseOpCode.ERROR]: 'Internal error'
-};
-/**
- * Send a response code and message based on a `DatabaseOpCode`, with logging of responses.
- * @param req Express request
- * @param res Express response
- * @param code Response code
- * @param messages Optional override messages for each code (if this is a string, returns the same message for all codes - **ONLY use this IF the response `code` is constant!**)
- * @param logger Logging instance
- * @param username Username of request sender (optional)
- * @param messagePrefix Optional prefix for response messages
- */
-export function sendDatabaseResponse(req: Request, res: Response, code: DatabaseOpCode, messages: Partial<Record<DatabaseOpCode, string>> | string, logger: Logger, username?: string, messagePrefix?: string): void {
-    const message = (messagePrefix ? messagePrefix + ' - ' : '') + (typeof messages == 'string' ? messages : (messages[code] ?? defaultDbResMessages[code]));
-    if (config.debugMode) logger.debug(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.method} ${req.path}: ${reverse_enum(DatabaseOpCode, code)} - ${message}`);
-    switch (code) {
-        case DatabaseOpCode.ERROR:
-            logger.error(`${username !== undefined ? `${username} @ ` : ''}${req.ip} | ${req.method} ${req.path} error`);
-        case DatabaseOpCode.SUCCESS:
-        case DatabaseOpCode.CONFLICT:
-        case DatabaseOpCode.NOT_FOUND:
-        case DatabaseOpCode.UNAUTHORIZED:
-        case DatabaseOpCode.FORBIDDEN:
-            res.status(code).send(message);
-            break;
-        default:
-            logger.error(`${req.method} ${req.path} unexpected DatabaseOpCode ${reverse_enum(DatabaseOpCode, code)}`);
-            res.sendStatus(503);
     }
 }
 

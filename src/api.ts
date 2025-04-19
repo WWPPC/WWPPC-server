@@ -6,7 +6,8 @@ import config from './config';
 import Database, { DatabaseOpCode, Score } from './database';
 import Mailer from './email';
 import { defaultLogger, NamedLogger } from './log';
-import { rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, UUID, validateRequestBody } from './util';
+import { reverse_enum, UUID } from './util';
+import { sendDatabaseResponse, rateLimitWithTrigger, validateRequestBody } from './netUtil';
 
 /**
  * Bundles general API functions into a single class.
