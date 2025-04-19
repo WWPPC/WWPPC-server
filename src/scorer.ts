@@ -24,7 +24,7 @@ export type ProblemSolveStatus = {
     incorrectSubmissions: number
 }
 
-/**for client to display cf-like tables */
+/**Scoreboard entry enumerating each problem solve status for a team */
 export type ClientScoreSolveStatus = {
     solveStatus: {
         round: number

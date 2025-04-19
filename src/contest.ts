@@ -8,8 +8,8 @@ import config, { ContestConfiguration } from './config';
 import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
-import Scorer, { ClientScoreSolveStatus } from './scorer';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter, rateLimitWithTrigger, sendDatabaseResponse, validateRequestBody } from './netUtil';
+import Scorer, { ClientScoreSolveStatus } from './scorer';
 import { FilterComparison, isUUID, reverse_enum, TypedEventEmitter, UUID } from './util';
 
 /**
