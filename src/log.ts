@@ -175,7 +175,8 @@ export class FileLogger extends Logger {
                 while (fs.existsSync(this.filePath + i + '.log')) i++;
                 this.filePath += i;
             }
-            this.file = fs.openSync(this.filePath + '.log', 'a');
+            this.filePath += '.log'
+            this.file = fs.openSync(this.filePath, 'a');
         } else {
             if (fs.existsSync(path)) fs.rmSync(path);
             this.filePath = path;
