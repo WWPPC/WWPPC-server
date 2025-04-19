@@ -90,7 +90,7 @@ export class AdminAPI {
                     sendDatabaseResponse(req, res, perms, { [DatabaseOpCode.NOT_FOUND]: 'Not an admin'}, this.logger, username);
                     return;
                 }
-                if (await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
+                if (perms) {
                     const token = this.sessionTokens.createToken(username, config.sessionExpireTime * 3600);
                     res.cookie('adminToken', token, {
                         expires: new Date(this.sessionTokens.tokenExpiration(token)!),
