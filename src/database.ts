@@ -1422,7 +1422,7 @@ export class Database {
                     { name: 'analysis', value: c.analysis }
                 ]);
                 if (bindings.length == 0) this.logger.warn('Reading all submissions from database! This could cause high resource usage and result in a crash! Is this a bug?');
-                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY time DESC`, bindings);
+                const data = await this.db.query(`SELECT * FROM submissions ${queryConditions} ORDER BY time ASC`, bindings);
                 for (const submission of data.rows) {
                     const s: Submission = {
                         id: submission.id,
