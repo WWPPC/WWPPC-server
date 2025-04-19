@@ -128,9 +128,10 @@ export class Scorer {
     getScores(): Map<number, TeamScore> {
         const sums: Map<number, TeamScore> = new Map();
         for (const round of this.rounds) {
+            const roundScoreMultiplier = Math.round((round.endTime - round.startTime) / (1000 * 60 * 60));
             this.getRoundScores(round.id).forEach((score, team) => {
                 const cur = sums.get(team);
-                if (cur) sums.set(team, { score: cur.score + score.score, penalty: cur.penalty + score.penalty });
+                if (cur) sums.set(team, { score: cur.score + roundScoreMultiplier * score.score, penalty: cur.penalty + score.penalty });
                 else sums.set(team, score);
             });
         }
