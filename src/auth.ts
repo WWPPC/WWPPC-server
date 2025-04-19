@@ -53,7 +53,11 @@ export class ClientAuth {
             if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Session ' + this.encryption.sessionID, this.logger);
             else sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, 'Session ' + this.encryption.sessionID, this.logger);
         });
-        this.app.post('/auth/login', parseBodyJson(), validateRequestBody({
+        this.app.post('/auth/login', rateLimitWithTrigger({
+            windowMs: 200,
+            limit: 2,
+            message: 'Too many login attempts'
+        }, (req, res) => this.logger.warn(`Login rate limiting triggered by ${req.ip}`)), parseBodyJson(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen-auth:1024,1'
         }, this.logger), async (req, res) => {
@@ -70,7 +74,7 @@ export class ClientAuth {
             }
             const check = await this.db.checkAccount(req.body.username, password);
             if (check == DatabaseOpCode.SUCCESS) {
-                const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
+                const token = this.sessionTokens.createToken(username, config.sessionExpireTime * 3600);
                 res.cookie('sessionToken', token, {
                     expires: new Date(this.sessionTokens.tokenExpiration(token)!),
                     httpOnly: true,
@@ -122,7 +126,7 @@ export class ClientAuth {
             });
             if (check == DatabaseOpCode.SUCCESS) {
                 this.logger.info(`${username} @ ${req.ip} | Created account`);
-                const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
+                const token = this.sessionTokens.createToken(username, config.sessionExpireTime * 3600);
                 res.cookie('sessionToken', token, {
                     expires: new Date(this.sessionTokens.tokenExpiration(token) ?? (Date.now() + 3600000)),
                     httpOnly: true,

@@ -151,7 +151,7 @@ export class TokenHandler<DType> {
      */
     createToken(linkedData: DType, expiration?: number): string {
         const token = randomUUID();
-        this.tokens.set(token, { data: linkedData, expiration: expiration === undefined ? undefined : Date.now() + expiration * 3600 * 1000 });
+        this.tokens.set(token, { data: linkedData, expiration: expiration === undefined ? undefined : Date.now() + expiration * 1000 });
         this.tokenData.set(linkedData, (this.tokenData.get(linkedData) ?? 0) + 1);
         return token;
     }

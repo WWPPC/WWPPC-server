@@ -58,21 +58,21 @@ export class AdminAPI {
         // require authentication for everything except login
         this.app.use('/admin/*', (req, res, next) => {
             if (req.baseUrl == '/admin/login' || req.baseUrl == '/admin/authLogin' || req.baseUrl == '/admin/publicKey') next();
-            else if (!this.sessionTokens.tokenExists(req.cookies.sessionToken) && !this.accessTokens.tokenExists(req.cookies.authToken)) sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
+            else if (!this.sessionTokens.tokenExists(req.cookies.adminToken) && !this.accessTokens.tokenExists(req.cookies.adminAccessToken)) sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
             else next();
         });
         this.app.get('/admin/publicKey', (req, res) => {
             res.json(this.encryption.publicKey);
         });
         this.app.get('/admin/login', (req, res) => {
-            if (this.sessionTokens.tokenExists(req.cookies.sessionToken) || this.accessTokens.tokenExists(req.cookies.authToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger);
+            if (this.sessionTokens.tokenExists(req.cookies.adminToken) || this.accessTokens.tokenExists(req.cookies.adminAccessToken)) sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, {}, this.logger);
             else sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
         });
         this.app.post('/admin/login', bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen-admin:1024,1'
         }, this.logger), async (req, res) => {
-            if (this.sessionTokens.tokenExists(req.cookies.sessionToken) || this.accessTokens.tokenExists(req.cookies.authToken)) {
+            if (this.sessionTokens.tokenExists(req.cookies.adminToken) || this.accessTokens.tokenExists(req.cookies.adminAccessToken)) {
                 sendDatabaseResponse(req, res, DatabaseOpCode.SUCCESS, 'Already signed in', this.logger);
                 return;
             }
@@ -86,9 +86,9 @@ export class AdminAPI {
             const check = await this.db.checkAccount(req.body.username, password);
             if (check == DatabaseOpCode.SUCCESS) {
                 if (await this.db.hasAdminPerms(req.body.username, AdminPerms.ADMIN)) {
-                    const token = this.sessionTokens.createToken(username, config.sessionExpireTime);
-                    res.cookie('sessionToken', token, {
-                        expires: new Date(this.sessionTokens.tokenExpiration(token) ?? (Date.now() + 3600000)),
+                    const token = this.sessionTokens.createToken(username, config.sessionExpireTime * 3600);
+                    res.cookie('adminToken', token, {
+                        expires: new Date(this.sessionTokens.tokenExpiration(token)!),
                         httpOnly: true,
                         sameSite: 'none',
                         secure: true
@@ -109,8 +109,8 @@ export class AdminAPI {
                 sendDatabaseResponse(req, res, DatabaseOpCode.UNAUTHORIZED, {}, this.logger);
                 return;
             }
-            res.cookie('authToken', req.body, {
-                expires: new Date(this.accessTokens.tokenExpiration(req.body) ?? 2147483647000),
+            res.cookie('adminAccessToken', req.body, {
+                expires: new Date(this.sessionTokens.tokenExpiration(req.body)!),
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true
@@ -144,7 +144,7 @@ export class AdminAPI {
         }, this.logger), async (req, res) => {
             const token = this.accessTokens.createToken(req.body.permissions, req.body.expiration);
             res.json(token);
-            this.logger.info(`Access token ${token} created by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Access token ${token} created by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/accessTokens/delete/:id', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
             if (!this.accessTokens.tokenExists(req.params.id)) {
@@ -153,7 +153,7 @@ export class AdminAPI {
             }
             this.accessTokens.removeToken(req.params.id);
             res.sendStatus(200);
-            this.logger.info(`Access token ${req.params.id} deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Access token ${req.params.id} deleted by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // general functions
         this.app.post('/admin/api/clearCache', async (req, res) => {
@@ -200,15 +200,15 @@ export class AdminAPI {
             });
             sendDatabaseResponse(req, res, check, {}, this.logger);
             //TODO: make this only log on success
-            this.logger.info(`Account "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Account "${req.params.username}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/api/account/:username', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), bodyParser.json(), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
             password: 'required|encryptedLen-admin:1024,1'
         }, this.logger), async (req, res) => {
-            const data = await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.sessionToken) ?? 'invalid-username-that-is-not-an-administrator');
+            const data = await this.db.deleteAccount(req.params.username, req.body.password, this.sessionTokens.getTokenData(req.cookies.adminToken) ?? 'invalid-username-that-is-not-an-administrator');
             sendDatabaseResponse(req, res, data, {}, this.logger);
-            this.logger.info(`Account "${req.params.username}" deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Account "${req.params.username}" deleted by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.get('/admin/api/team/:id', this.checkPerms(AdminPerms.MANAGE_ACCOUNTS), async (req, res) => {
             const data = await this.db.getTeamData(parseInt(req.params.id, 36));
@@ -225,7 +225,7 @@ export class AdminAPI {
                 bio: req.body.teamBio
             });
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Team "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Team "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // admins (bespoke!!)
         this.app.get('/admin/api/admins', this.checkPerms(AdminPerms.MANAGE_ADMINS), async (req, res) => {
@@ -240,14 +240,14 @@ export class AdminAPI {
         }, this.logger), async (req, res) => {
             const check = await this.db.setAdminPerms(req.params.username, req.body.permissions);
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Administrator ${req.params.username} modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Administrator ${req.params.username} modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/api/admin/:username', this.checkPerms(AdminPerms.MANAGE_ADMINS), validateRequestBody({
             username: 'required|lowerAlphaNumDash|length:16,1',
         }, this.logger), async (req, res) => {
             const check = await this.db.setAdminPerms(req.params.username, 0);
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Administrator ${req.params.username} deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Administrator ${req.params.username} deleted by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // contests
         this.app.get('/admin/api/contestList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
@@ -279,12 +279,12 @@ export class AdminAPI {
         }, this.logger), async (req, res) => {
             const check = await this.db.writeContest({ id: req.params.id, ...req.body });
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Contest "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Contest "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/api/contest/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             const check = await this.db.deleteContest(req.params.id);
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Contest "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Contest "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // rounds
         this.app.get('/admin/api/roundList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
@@ -316,7 +316,7 @@ export class AdminAPI {
         }, this.logger), async (req, res) => {
             const check = await this.db.writeRound({ id: req.params.id, ...req.body });
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Round "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Round "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/api/round/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
@@ -325,7 +325,7 @@ export class AdminAPI {
             }
             const check = await this.db.deleteRound(req.params.id);
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Round "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Round "${req.params.id}" deleted by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // problems
         this.app.get('/admin/api/problemList', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
@@ -358,7 +358,7 @@ export class AdminAPI {
         }, this.logger), async (req, res) => {
             const check = await this.db.writeProblem({ id: req.params.id, ...req.body });
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         this.app.delete('/admin/api/problem/:id', this.checkPerms(AdminPerms.MANAGE_CONTESTS), async (req, res) => {
             if (!isUUID(req.params.id)) {
@@ -367,7 +367,7 @@ export class AdminAPI {
             }
             const check = await this.db.deleteProblem(req.params.id);
             sendDatabaseResponse(req, res, check, {}, this.logger);
-            this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`Problem "${req.params.id}" modified by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
         // contest control functions
         // live leaderboards
@@ -392,7 +392,7 @@ export class AdminAPI {
             }
             contestHost.reload();
             res.sendStatus(200);
-            this.logger.info(`ContestHost "${req.params.id}" reloaded by ${this.sessionTokens.getTokenData(req.cookies.sessionToken)}`);
+            this.logger.info(`ContestHost "${req.params.id}" reloaded by ${this.sessionTokens.getTokenData(req.cookies.adminToken)}`);
         });
 
         // reserve /admin path
@@ -411,8 +411,8 @@ export class AdminAPI {
             let found = false;
             for (const perm of perms) {
                 if (is_in_enum(perms, AdminPerms)) {
-                    if (this.sessionTokens.tokenExists(req.cookies.sessionToken)) {
-                        if (await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.sessionToken)!, perm as AdminPerms)) {
+                    if (this.sessionTokens.tokenExists(req.cookies.adminToken)) {
+                        if (await this.db.hasAdminPerms(this.sessionTokens.getTokenData(req.cookies.adminToken)!, perm as AdminPerms)) {
                             next();
                             found = true;
                         } else {
@@ -423,8 +423,8 @@ export class AdminAPI {
                     }
                 }
                 else {
-                    if (this.accessTokens.tokenExists(req.cookies.authToken)) {
-                        if (this.accessTokens.getTokenData(req.cookies.authToken)!.includes(perm as AdminAccessTokenPerms)) {
+                    if (this.accessTokens.tokenExists(req.cookies.adminAccessToken)) {
+                        if (this.accessTokens.getTokenData(req.cookies.adminAccessToken)!.includes(perm as AdminAccessTokenPerms)) {
                             next();
                             found = true;
                         } else {
