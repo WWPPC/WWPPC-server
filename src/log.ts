@@ -111,7 +111,7 @@ export class MultiLogger extends Logger {
     }
 
     /**Get the `Logger`s encapsulated within */
-    get children(): Logger[] {
+    children(): Logger[] {
         return this.loggers.slice();
     }
 

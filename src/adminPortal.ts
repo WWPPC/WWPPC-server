@@ -6,7 +6,7 @@ import config from './config';
 import ContestManager from './contest';
 import { RSAEncryptionHandler, TokenHandler } from './cryptoUtil';
 import Database, { AdminPerms, Contest, DatabaseOpCode } from './database';
-import { defaultLogger, FileLogger, NamedLogger } from './log';
+import { defaultLogger, FileLogger, MultiLogger, NamedLogger } from './log';
 import { createNivEncryptedRules, LongPollEventEmitter, NamespacedLongPollEventEmitter, sendDatabaseResponse, validateRequestBody } from './netUtil';
 import { TeamScore } from './scorer';
 import { is_in_enum, isUUID } from './util';
@@ -119,14 +119,15 @@ export class AdminAPI {
         });
 
         // logs
+        const fileLogger = defaultLogger instanceof MultiLogger && defaultLogger.children()[0] instanceof FileLogger ? defaultLogger.children()[0] as FileLogger : undefined;
         this.app.get('/admin/logTail', async (req, res) => {
-            if (defaultLogger instanceof FileLogger)
-                res.send(defaultLogger.tail());
+            if (fileLogger !== undefined)
+                res.send(fileLogger.tail());
             else res.status(404).send('Log tails not tracked');
         });
         this.app.get('/admin/logs', async (req, res) => {
-            if (defaultLogger instanceof FileLogger)
-                res.sendFile(defaultLogger.filePath);
+            if (fileLogger !== undefined)
+                res.sendFile(fileLogger.filePath);
             else res.status(404).send('Logs not tracked');
         });
         // access tokens
