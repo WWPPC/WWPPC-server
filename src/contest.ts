@@ -776,7 +776,6 @@ export class ContestHost {
             return DatabaseOpCode.FORBIDDEN;
         return await this.gradeSubmission(submission);
     }
-
     /**
      * Submit a solution to the contest, however does not check round restrictions.
      * @param submission Submission

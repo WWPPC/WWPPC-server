@@ -58,7 +58,7 @@ export interface GlobalConfiguration {
     readonly contests: {
         readonly [key: string]: ContestConfiguration | undefined
     }
-    /**Maximum amount of previous submissions for a user on a problem kept in the database (default: 24) */
+    /**Maximum amount of previous submissions for a user on a problem kept in the database (default: 128) */
     readonly maxSubmissionHistory: number
     /**Log information about sent emails (default: true) */
     readonly logEmailActivity: boolean
@@ -138,7 +138,7 @@ const config: GlobalConfiguration = {
         };
         return p;
     }, {}) : {},
-    maxSubmissionHistory: fileConfig.maxSubmissionHistory ?? 24,
+    maxSubmissionHistory: fileConfig.maxSubmissionHistory ?? 128,
     logEmailActivity: fileConfig.logEmailActivity ?? true,
     debugMode: process.argv.includes('debug_mode') ? true : (process.env.DEBUG_MODE ?? fileConfig.debugMode ?? false),
     path: process.env.CONFIG_PATH,
