@@ -78,7 +78,7 @@ export class Scorer {
         if (pass) {
             prob.solveTime = submission.time;
             prob.solved = true;
-        } else {
+        } else if (!prob.solved) {
             prob.incorrectSubmissions++;
         }
 
