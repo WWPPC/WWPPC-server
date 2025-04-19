@@ -2,39 +2,6 @@ import { Round, ScoreState, Submission } from './database';
 import Logger, { NamedLogger } from './log';
 import { UUID } from './util';
 
-/**Team score */
-export type TeamScore = {
-    /**Score */
-    score: number
-    /**Penalty (useful if a certain score appears many times) */
-    penalty: number
-}
-
-/**Stores all the data about when/how/number of wa before solving a problem */
-export type ProblemSolveStatus = {
-    /**round */
-    round: UUID
-    /**problem id */
-    problem: UUID
-    /**solve time */
-    solveTime: number
-    /**solved */
-    solved: boolean
-    /**number of submissions that were not correct */
-    incorrectSubmissions: number
-}
-
-/**Scoreboard entry enumerating each problem solve status for a team */
-export type ClientScoreSolveStatus = {
-    solveStatus: {
-        round: number
-        problem: number
-        solveTime: number
-        solved: boolean
-        incorrectSubmissions: number
-    }[]
-} & TeamScore
-
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
  * Assumes no subtasks
@@ -231,5 +198,38 @@ export class Scorer {
         this.submissions = [];
     }
 }
+
+/**Team score */
+export type TeamScore = {
+    /**Score */
+    score: number
+    /**Penalty (useful if a certain score appears many times) */
+    penalty: number
+}
+
+/**Stores all the data about when/how/number of wa before solving a problem */
+export type ProblemSolveStatus = {
+    /**round */
+    round: UUID
+    /**problem id */
+    problem: UUID
+    /**solve time */
+    solveTime: number
+    /**solved */
+    solved: boolean
+    /**number of submissions that were not correct */
+    incorrectSubmissions: number
+}
+
+/**Scoreboard entry enumerating each problem solve status for a team */
+export type ClientScoreSolveStatus = {
+    solveStatus: {
+        round: number
+        problem: number
+        solveTime: number
+        solved: boolean
+        incorrectSubmissions: number
+    }[]
+} & TeamScore
 
 export default Scorer;
