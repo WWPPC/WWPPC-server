@@ -9,7 +9,7 @@ import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter } from './netUtil';
-import Scorer, { TeamScore } from './scorer';
+import Scorer, { ClientScoreSolveStatus } from './scorer';
 import { FilterComparison, isUUID, rateLimitWithTrigger, reverse_enum, sendDatabaseResponse, TypedEventEmitter, UUID, validateRequestBody } from './util';
 
 /**
@@ -26,7 +26,7 @@ export class ContestManager {
     }>;
     private readonly longPollingUsers: NamespacedLongPollEventEmitter<{
         contestData: ClientContest
-        contestScoreboards: { scores: ({ team: number } & TeamScore)[], frozen: boolean }
+        contestScoreboards: { scores: ({ team: number } & ClientScoreSolveStatus)[], frozen: boolean }
         contestNotifications: never
         submissionData: ClientSubmission[]
     }>;
@@ -96,7 +96,7 @@ export class ContestManager {
                 });
                 host.on('scoreboards', (scores, frozen) => {
                     this.longPollingUsers.emit(host.id, 'contestScoreboards', {
-                        scores: Array.from(scores, ([team, score]) => ({ team: team, ...score })),
+                        scores: Array.from(scores, ([team, score]) => ({ team, ...score })),
                         frozen: frozen
                     });
                 });
@@ -484,15 +484,15 @@ export class ContestHost {
         // [Contest data]
         data: [ClientContest]
         // [Current client scoreboards, frozen]
-        scoreboards: [Map<number, TeamScore>, boolean]
+        scoreboards: [Map<number, ClientScoreSolveStatus>, boolean]
         // [team ID, problem UUID]
         submissionUpdate: [number, UUID]
         // []
         end: []
     }> = new TypedEventEmitter();
 
-    private scoreboard: Map<number, TeamScore> = new Map();
-    private clientScoreboard: Map<number, TeamScore> = new Map();
+    private scoreboard: Map<number, ClientScoreSolveStatus> = new Map();
+    private clientScoreboard: Map<number, ClientScoreSolveStatus> = new Map();
 
     /**
      * @param type Contest type ID
@@ -616,14 +616,14 @@ export class ContestHost {
                 else frozenSubmissions.push(sub);
             } else regradeSubmissions.push(sub);
         }
-        this.clientScoreboard = this.scorer.getScores();
+        this.clientScoreboard = this.scorer.getScoreSolveStatus();
         for (const sub of regradeSubmissions) {
             this.gradeSubmission(sub);
         }
         for (const sub of frozenSubmissions) {
             this.scorer.addSubmission(sub);
         }
-        this.scoreboard = this.scorer.getScores();
+        this.scoreboard = this.scorer.getScoreSolveStatus();
         this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
 
         // re-index the contest
@@ -667,8 +667,8 @@ export class ContestHost {
             // also updating the scorer occasionally
             updateIndex++;
             if (updateIndex % 1200 == 0) {
-                if (now < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScores();
-                else this.scoreboard = this.scorer.getScores();
+                if (now < scoreFreezeCutoffTime) this.clientScoreboard = this.scoreboard = this.scorer.getScoreSolveStatus();
+                else this.scoreboard = this.scorer.getScoreSolveStatus();
                 this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
             }
         }, 50);
@@ -677,13 +677,13 @@ export class ContestHost {
     /**
      * Get current scoreboard
      */
-    get scoreboards(): Map<number, TeamScore> {
+    get scoreboards(): Map<number, ClientScoreSolveStatus> {
         return new Map(this.scoreboard);
     }
     /**
      * Get current scoreboard for clients, which could be "frozen"
      */
-    get clientScoreboards(): Map<number, TeamScore> {
+    get clientScoreboards(): Map<number, ClientScoreSolveStatus> {
         return new Map(this.clientScoreboard);
     }
     /**

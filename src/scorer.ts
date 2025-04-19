@@ -10,18 +10,42 @@ export type TeamScore = {
     penalty: number
 }
 
+/**Stores all the data about when/how/number of wa before solving a problem */
+export type ProblemSolveStatus = {
+    /**round */
+    round: UUID
+    /**problem id */
+    problem: UUID
+    /**solve time */
+    solveTime: number
+    /**solved */
+    solved: boolean
+    /**number of submissions that were not correct */
+    incorrectSubmissions: number
+}
+
+/**for client to display cf-like tables */
+export type ClientScoreSolveStatus = {
+    solveStatus: {
+        round: number
+        problem: number
+        solveTime: number
+        solved: boolean
+        incorrectSubmissions: number
+    }[]
+} & TeamScore
+
 /**
  * Scorer class, supports adding and modifying user submission status, and can get scores of individual users and leaderboard.
  * Assumes no subtasks
  * 1 point for each solved problem, ties broken by time of last submission that increases points, +10 minutes penalty for each wrong submission
+ * power round gets triple points
  */
 export class Scorer {
     private rounds: Round[];
     private submissions: Submission[] = [];
-    // map(team => (map(round id => array(solve time if solved else -1))))
-    private readonly teamScores: Map<number, Map<UUID, number[]>> = new Map();
-    //penalties stored in milliseconds
-    private readonly teamPenalties: Map<number, Map<UUID, number[]>> = new Map();
+    // map team to round to ProblemSolveStatus
+    private readonly teamSolveStatus: Map<number, Map<UUID, ProblemSolveStatus[]>> = new Map();
     readonly logger: NamedLogger;
 
     /**
@@ -36,26 +60,29 @@ export class Scorer {
 
     setRounds(rounds: Round[]) {
         this.rounds = rounds.slice();
-        this.teamScores.clear();
-        this.teamPenalties.clear();
+        this.teamSolveStatus.clear();
         const submissions2 = structuredClone(this.submissions);
         this.submissions = [];
         for (const i of submissions2) this.addSubmission(i);
     }
 
-    private createEmptyScoreMap(team: number) {
-        const nxt = new Map<UUID, number[]>();
+    private createEmptySolveStatusMap(team: number) {
+        const nxt = new Map<UUID, ProblemSolveStatus[]>();
         for (const i of this.rounds) {
-            nxt.set(i.id, Array<number>(i.problems.length).fill(-1));
+            const arr = Array<ProblemSolveStatus>(i.problems.length);
+            //avoid the reference bug
+            for (let j = 0; j < i.problems.length; j++) {
+                arr[j] = {
+                    round: i.id,
+                    problem: i.problems[j],
+                    solveTime: -1,
+                    solved: false,
+                    incorrectSubmissions: 0
+                }
+            }
+            nxt.set(i.id, arr);
         }
-        this.teamScores.set(team, nxt);
-    }
-    private createEmptyPenaltyMap(team: number) {
-        const nxt = new Map<UUID, number[]>();
-        for (const i of this.rounds) {
-            nxt.set(i.id, Array<number>(i.problems.length).fill(0));
-        }
-        this.teamPenalties.set(team, nxt);
+        this.teamSolveStatus.set(team, nxt);
     }
 
     /**
@@ -73,21 +100,56 @@ export class Scorer {
         }
 
         this.submissions.push(submission);
-        if (!this.teamScores.has(submission.team)) {
-            this.createEmptyScoreMap(submission.team);
-            this.createEmptyPenaltyMap(submission.team);
+        if (!this.teamSolveStatus.has(submission.team)) {
+            this.createEmptySolveStatusMap(submission.team);
         }
-        const scores = this.teamScores.get(submission.team)!;
-        const penalties = this.teamPenalties.get(submission.team)!;
+        const solveStatus = this.teamSolveStatus.get(submission.team)!;
 
         const problemIndex = this.rounds.find(i => i.id === submissionRound)!.problems.indexOf(submission.problemId);
         const pass = submission.scores.every(s => s.state === ScoreState.PASS);
-        scores.get(submissionRound)![problemIndex] = pass ? submission.time : -1;
-        
-        //convert 10 minutes to ms
-        if (!pass) penalties.get(submissionRound)![problemIndex] += 10*60*1000;
+        const prob = solveStatus.get(submissionRound)![problemIndex];
+        if (pass) {
+            prob.solveTime = submission.time;
+            prob.solved = true;
+        } else {
+            prob.incorrectSubmissions++;
+        }
 
         return true;
+    }
+
+    /**
+     * Get solve status for a specific round
+     * @returns  Mapping of team to solve status
+     */
+    getRoundSolveStatus(roundId: UUID): Map<number, ProblemSolveStatus[]> {
+        const round = this.rounds.find(r => r.id == roundId);
+        if (round === undefined) {
+            this.logger.error(`Round ID (${roundId}) not found in loaded rounds!`);
+            throw Error(`Round ID (${roundId}) not found in loaded rounds!`);
+        }
+
+        const sums: Map<number, ProblemSolveStatus[]> = new Map();
+        for (const team of this.teamSolveStatus.keys()) {
+            sums.set(team, this.teamSolveStatus.get(team)!.get(roundId)!);
+        }
+        return sums;
+    }
+
+    /**
+     * Get solve status, adding solve status from all rounds together.
+     * @returns  Mapping of team to solve status
+     */
+    getSolveStatus(): Map<number, ProblemSolveStatus[]> {
+        const sums: Map<number, ProblemSolveStatus[]> = new Map();
+        for (const round of this.rounds) {
+            this.getRoundSolveStatus(round.id).forEach((solveStatus, team) => {
+                const cur = sums.get(team);
+                if (cur) sums.set(team, cur.concat(solveStatus));
+                else sums.set(team, solveStatus);
+            });
+        }
+        return sums;
     }
 
     /**
@@ -103,19 +165,20 @@ export class Scorer {
         }
 
         const teamRoundScores = new Map<number, TeamScore>();
-        for(const team of this.teamScores.keys()) {
-            const score: TeamScore = { score: 0, penalty: 0 };
-            const scores = this.teamScores.get(team)!.get(roundId)!;
-            const penalties = this.teamPenalties.get(team)!.get(roundId)!;
-            for(let i = 0; i < scores.length; i++) {
-                score.score += scores[i] === -1 ? 0 : 1;
-                score.penalty += scores[i] === -1 ? 0 : penalties[i];
+        for(const team of this.teamSolveStatus.keys()) {
+            const sum: TeamScore = { score: 0, penalty: 0 };
+            const solveStatus = this.teamSolveStatus.get(team)!.get(roundId)!;
+            for (let i = 0; i < solveStatus.length; i++) {
+                if (solveStatus[i].solved) {
+                    sum.score++;
+                    sum.penalty += solveStatus[i].incorrectSubmissions * 10*60*1000; //convert 10 minutes to ms
+                }
             }
             //if they solved at least one problem, then add penalty based on last solve
-            if (scores.some(val => val != -1)) {
-                score.penalty += Math.max(...scores) - round.startTime;
+            if (solveStatus.some(v => v.solved)) {
+                sum.penalty += Math.max(...solveStatus.map(v => v.solveTime)) - round.startTime;
             }
-            teamRoundScores.set(team, score);
+            teamRoundScores.set(team, sum);
         }
 
         return teamRoundScores;
@@ -139,11 +202,32 @@ export class Scorer {
     }
 
     /**
+     * Get the current standings AND the solve statuses
+     * @returns  mapping of team to score/solve status
+     */
+    getScoreSolveStatus(): Map<number, ClientScoreSolveStatus> {
+        const sums: Map<number, ClientScoreSolveStatus> = new Map();
+        const scores = this.getScores();
+        const solveStatus = this.getSolveStatus();
+        for (const i of scores.keys()) {
+            sums.set(i, { score: scores.get(i)!.score, penalty: scores.get(i)!.penalty, solveStatus: solveStatus.get(i)!.map(v => {
+                const round = this.rounds.findIndex(r => r.id === v.round);
+                const problem = this.rounds[round].problems.indexOf(v.problem);
+                return {
+                    ...v,
+                    round: round,
+                    problem: problem
+                }
+            }) });
+        }
+        return sums;
+    }
+
+    /**
      * Remove all existing scores and submissions.
      */
     clearScores() {
-        this.teamScores.clear();
-        this.teamPenalties.clear();
+        this.teamSolveStatus.clear();
         this.submissions = [];
     }
 }
