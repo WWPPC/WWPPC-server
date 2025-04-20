@@ -1132,7 +1132,7 @@ export class Database {
                     { name: 'starttime', value: c.startTime },
                     { name: 'endtime', value: c.endTime }
                 ]);
-                const data = await this.db.query(`SELECT * FROM rounds ${queryConditions} ORDER BY starttime ASC`, bindings);
+                const data = await this.db.query(`SELECT * FROM rounds ${queryConditions} ORDER BY id ASC`, bindings);
                 for (const round of data.rows) {
                     const r: Round = {
                         id: round.id,
