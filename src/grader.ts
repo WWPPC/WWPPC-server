@@ -215,19 +215,27 @@ export class Grader {
         if (config.debugMode) this.logger.debug(`Submission for ${submission.problemId} queued by ${submission.team}`, true);
     }
     /**
-     * Cancel all ungraded submissions from a user to a problem.
-     * @param team Team of submitter
-     * @param problemId ID or problem
+     * Check if there are ungraded submissions from a team or user to a problem.
+     * @param teamOrUser Team or username of submitter
+     * @param problemId ID of problem
      */
-    cancelUngraded(team: number, problemId: string): boolean {
+    hasUngraded(teamOrUser: number | string, problemId: string): boolean {
+        return this.ungradedSubmissions.some((sub) => (sub.submission.team === teamOrUser || sub.submission.username === teamOrUser) && sub.submission.problemId == problemId);
+    }
+    /**
+     * Cancel all ungraded submissions from a team or user to a problem.
+     * @param teamOrUser Team or username of submitter
+     * @param problemId ID of problem
+     */
+    cancelUngraded(teamOrUser: number | string, problemId: string): boolean {
         let canceled = 0;
         this.nodes.forEach((node) => {
-            if (node.grading !== undefined && node.grading.submission.team == team && node.grading.submission.problemId == problemId) {
+            if (node.grading !== undefined && (node.grading.submission.team === teamOrUser || node.grading.submission.username === teamOrUser) && node.grading.submission.problemId == problemId) {
                 node.grading.cancelled = true;
                 canceled++;
             }
         });
-        let i = this.ungradedSubmissions.findIndex((ungraded) => ungraded.submission.team == team && ungraded.submission.problemId == problemId);
+        let i = this.ungradedSubmissions.findIndex((ungraded) => (ungraded.submission.team === teamOrUser || ungraded.submission.username === teamOrUser) && ungraded.submission.problemId == problemId);
         if (i != -1) {
             while (i != -1) {
                 if (this.ungradedSubmissions[i].callback) {
@@ -238,10 +246,10 @@ export class Grader {
                     }
                 }
                 this.ungradedSubmissions.splice(i, 1);
-                i = this.ungradedSubmissions.findIndex((ungraded) => ungraded.submission.team == team && ungraded.submission.problemId == problemId);
+                i = this.ungradedSubmissions.findIndex((ungraded) => (ungraded.submission.team === teamOrUser || ungraded.submission.username === teamOrUser));
                 canceled++;
             }
-            if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions to ${problemId} by ${team}`);
+            if (config.debugMode) this.logger.debug(`Canceled ${canceled} submissions to ${problemId} by ${typeof teamOrUser == 'string' ? teamOrUser : `team ${teamOrUser.toString(36)}`}`);
         }
         return canceled > 0;
     }

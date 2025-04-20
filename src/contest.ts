@@ -350,7 +350,13 @@ export class ContestManager {
                 analysis: false
             };
             const processRes = await contestHost.processSubmission(submission);
-            sendDatabaseResponse(req, res, processRes, {}, this.logger, username, 'Queue submission');
+            sendDatabaseResponse(req, res, processRes, {
+                [DatabaseOpCode.SUCCESS]: 'Uploaded submission',
+                [DatabaseOpCode.NOT_FOUND]: 'Problem not found',
+                [DatabaseOpCode.FORBIDDEN]: 'Cannot submit to this problem',
+                [DatabaseOpCode.CONFLICT]: 'Cannot submit with ungraded submissions',
+                [DatabaseOpCode.ERROR]: 'Internal server error'
+            }, this.logger, username, 'Queue submission');
         };
         this.app.post('/api/contest/:contest/submit/:pId', parseBodyJson(), validateUploadSubmission, async (req, res) => {
             const username = req.cookies[sessionUsername] as string;
@@ -788,14 +794,19 @@ export class ContestHost {
      * @param submission Submission
      * @returns Status code
      */
-    async processSubmission(submission: Submission): Promise<DatabaseOpCode> {
+    async processSubmission(submission: Submission): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.FORBIDDEN | DatabaseOpCode.CONFLICT | DatabaseOpCode.ERROR> {
         if (!this.containsProblem(submission.problemId))
             return DatabaseOpCode.NOT_FOUND;
         if (!this.problemSubmittable(submission.problemId)
             || !this.contestConfig.acceptedSolverLanguages.includes(submission.language)
             || submission.file.length > this.contestConfig.maxSubmissionSize)
             return DatabaseOpCode.FORBIDDEN;
-        
+        if (submission.team === null) {
+            this.logger.error('Cannot grade contest submission without team');
+            return DatabaseOpCode.ERROR;
+        }
+        if (this.grader.hasUngraded(submission.team, submission.problemId))
+            return DatabaseOpCode.CONFLICT;
         return await this.gradeSubmission(submission);
     }
     /**
@@ -803,7 +814,7 @@ export class ContestHost {
      * @param submission Submission
      * @returns Status code
      */
-    private async gradeSubmission(submission: Submission): Promise<DatabaseOpCode> {
+    private async gradeSubmission(submission: Submission): Promise<DatabaseOpCode.SUCCESS | DatabaseOpCode.NOT_FOUND | DatabaseOpCode.ERROR> {
         if (submission.team === null) {
             this.logger.error('Cannot grade contest submission without team');
             return DatabaseOpCode.ERROR;
