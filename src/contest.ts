@@ -636,13 +636,15 @@ export class ContestHost {
             } else regradeSubmissions.push(sub);
         }
         this.clientScoreboard = this.scorer.getScoreSolveStatus();
-        for (const sub of regradeSubmissions) {
-            this.gradeSubmission(sub);
-        }
         for (const sub of frozenSubmissions) {
             this.scorer.addSubmission(sub);
         }
         this.scoreboard = this.scorer.getScoreSolveStatus();
+        // regrade submissions in order of submission
+        regradeSubmissions.sort((a, b) => a.time - b.time);
+        for (const sub of regradeSubmissions) {
+            this.gradeSubmission(sub);
+        }
         this.eventEmitter.emit('scoreboards', new Map(this.clientScoreboard.entries()), Date.now() >= scoreFreezeCutoffTime);
 
         // re-index the contest
@@ -793,6 +795,7 @@ export class ContestHost {
             || !this.contestConfig.acceptedSolverLanguages.includes(submission.language)
             || submission.file.length > this.contestConfig.maxSubmissionSize)
             return DatabaseOpCode.FORBIDDEN;
+        
         return await this.gradeSubmission(submission);
     }
     /**
@@ -819,7 +822,6 @@ export class ContestHost {
             };
             if (this.contestConfig.submitSolver) {
                 // submit solution code
-                this.grader.cancelUngraded(submission.team, submission.problemId);
                 this.grader.queueUngraded(submission, async (graded) => {
                     if (graded === null) this.logger.warn(`Grading for submission ${submission.username}-${submission.problemId} was cancelled!`);
                     else {
