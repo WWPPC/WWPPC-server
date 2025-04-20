@@ -637,7 +637,7 @@ export class ContestHost {
         }
         this.clientScoreboard = this.scorer.getScoreSolveStatus();
         for (const sub of regradeSubmissions) {
-            setTimeout(()=>this.gradeSubmission(sub),1000);
+            this.gradeSubmission(sub);
         }
         for (const sub of frozenSubmissions) {
             this.scorer.addSubmission(sub);
