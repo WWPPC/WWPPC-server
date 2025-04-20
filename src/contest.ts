@@ -5,7 +5,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { ClientContest, ClientProblem, ClientProblemCompletionState, ClientRound, ClientSubmission, ClientSubmissionFull } from './api';
 import ClientAuth from './auth';
 import config, { ContestConfiguration } from './config';
-import { Database, DatabaseOpCode, ScoreState, Submission } from './database';
+import { Database, DatabaseOpCode, Round, ScoreState, Submission } from './database';
 import Grader from './grader';
 import Logger, { defaultLogger, NamedLogger } from './log';
 import { LongPollEventEmitter, NamespacedLongPollEventEmitter, rateLimitWithTrigger, sendDatabaseResponse, validateRequestBody } from './netUtil';
@@ -572,10 +572,10 @@ export class ContestHost {
             this.end();
             return;
         }
-        this.scorer.setRounds(rounds);
         this.scorer.clearScores();
         // ensure ordering & existence of rounds & problems
-        const mapped: ClientRound[] = [];
+        const reorderedRounds: Round[] = [];
+        const mappedRounds: ClientRound[] = [];
         for (let i in contest[0].rounds) {
             const round = rounds.find((r) => r.id == contest[0].rounds[i]);
             if (round === undefined) {
@@ -591,7 +591,8 @@ export class ContestHost {
                     return;
                 }
             }
-            mapped.push({
+            reorderedRounds.push(round);
+            mappedRounds.push({
                 contest: this.id,
                 round: Number(i),
                 problems: round.problems,
@@ -599,7 +600,8 @@ export class ContestHost {
                 endTime: round.endTime
             });
         }
-        this.contest.rounds = mapped;
+        this.scorer.setRounds(reorderedRounds);
+        this.contest.rounds = mappedRounds;
         this.contest.startTime = contest[0].startTime;
         this.contest.endTime = contest[0].endTime;
         this.eventEmitter.emit('data', {
